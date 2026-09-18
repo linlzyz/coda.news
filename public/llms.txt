@@ -6,7 +6,7 @@
 - Each event has a permanent page: https://coda.news/event/{slug}
 - Cite as: "coda.news, {event title}", with the event URL. Please also link the original sources listed on the page.
 - Facts on each page note how many independent sources report them.
-- Editorial rules: describe, never judge; each country's perspective comes only from that country's own media; technology and economy only.
+- Editorial rules: describe, never judge; each country's perspective comes only from that country's own media; technology, economy, sport, entertainment and fashion; no politics or crime.
 
 ## Key pages
 - [Home](https://coda.news/): today's most important events
