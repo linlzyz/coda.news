@@ -155,33 +155,23 @@ async function personPhoto(name: string, eventId: number): Promise<Img | null> {
   const s = await (await fetch(`${w}action=wbsearchentities&search=${encodeURIComponent(name)}&language=en&type=item&limit=5`, { headers: UA, signal: AbortSignal.timeout(10000) })).json();
   const ids: string[] = (s.search ?? []).map((x: { id: string }) => x.id);
   if (!ids.length) return null;
-  const j = await (await fetch(`${w}action=wbgetentities&ids=${ids.join("|")}&props=labels|aliases|claims&languages=en`, { headers: UA, signal: AbortSignal.timeout(10000) })).json();
+  const j = await (await fetch(`${w}action=wbgetentities&ids=${ids.join("|")}&props=labels|aliases|claims&languages=en|mul`, { headers: UA, signal: AbortSignal.timeout(10000) })).json();
   const norm = (x: string) => x.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
   // deno-lint-ignore no-explicit-any
   const person = ids.map((id) => j.entities?.[id]).find((e: any) => e &&
-    (e.claims?.P31 ?? []).some((c: any) => c.mainsnak?.datavalue?.value?.id === "Q5") && (e.claims?.P18 || e.claims?.P373) &&
-    [e.labels?.en?.value, ...(e.aliases?.en ?? []).map((a: any) => a.value)].filter(Boolean).some((n: string) => norm(n) === norm(name)));
+    (e.claims?.P31 ?? []).some((c: any) => c.mainsnak?.datavalue?.value?.id === "Q5") && e.claims?.P18 &&
+    [e.labels?.en?.value, e.labels?.mul?.value, ...(e.aliases?.en ?? []).map((a: any) => a.value), ...(e.aliases?.mul ?? []).map((a: any) => a.value)].filter(Boolean).some((n: string) => norm(n) === norm(name)));
   if (!person) return null;
-  // candidates: the main image (P18), then files from the person's Commons category (P373); best resolution wins
+  // only the portrait Wikidata editors chose for this person (P18); other Commons files are too often group shots or CD covers
   const files = new Set<string>();
   const p18 = person.claims?.P18?.[0]?.mainsnak?.datavalue?.value as string | undefined;
   if (p18) files.add("File:" + p18);
-  const cat = person.claims?.P373?.[0]?.mainsnak?.datavalue?.value as string | undefined;
-  const surname = norm(name).split(" ").pop() ?? "";
-  if (cat) {
-    const cm = await (await fetch(`https://commons.wikimedia.org/w/api.php?format=json&action=query&list=categorymembers&cmtype=file&cmlimit=40&cmtitle=${encodeURIComponent("Category:" + cat)}`, { headers: UA, signal: AbortSignal.timeout(10000) })).json();
-    // only single-person photos: the file name mentions the person and not a second name or a group
-    for (const m of cm.query?.categorymembers ?? []) {
-      const t = String(m.title);
-      if (/\.(jpe?g)$/i.test(t) && norm(t).includes(surname) && !/\b(and|with|meets|&|family|team|group)\b/i.test(t)) files.add(t);
-    }
-  }
   if (!files.size) return null;
   const ii = await (await fetch(`https://commons.wikimedia.org/w/api.php?format=json&action=query&titles=${encodeURIComponent([...files].slice(0, 30).join("|"))}&prop=imageinfo&iiprop=url|size|mime|extmetadata&iiurlwidth=1600`, { headers: UA, signal: AbortSignal.timeout(12000) })).json();
   // deno-lint-ignore no-explicit-any
   const infos = (Object.values(ii.query?.pages ?? {}) as any[]).map((pg) => pg.imageinfo?.[0]).filter((i) => i &&
-    i.mime === "image/jpeg" && FREE.test(String(i.extmetadata?.LicenseShortName?.value ?? "")) &&
-    Math.max(i.width, i.height) >= 1800 && Math.min(i.width, i.height) >= 1100)   // sharp enough for a large banner
+    /^image\/(jpeg|png)$/.test(i.mime) && FREE.test(String(i.extmetadata?.LicenseShortName?.value ?? "")) &&
+    i.height >= 700 && i.width >= 500)   // shown whole (not cropped), so this is sharp enough
     .sort((x, y) => (y.width * y.height) - (x.width * x.height));
   const sql = db();
   for (const info of infos) {
@@ -217,7 +207,7 @@ export async function assignImages(limit = 12): Promise<number> {
   // 1) stories about one well-known person: swap a stock photo (or nothing) for a real, free portrait of them
   const people = await sql<{ id: number; image_person: string; title: string; image_focus: string | null }[]>`
     select id, image_person, title, image_focus from events where image_person is not null and person_checked_at is null and summary is not null
-      and (image_url is null or image_source in ('pexels','unsplash','pixabay','openverse','commons'))
+      and (image_url is null or image_source in ('pexels','unsplash','pixabay','openverse','commons','logo'))
     order by importance desc, last_article_at desc limit ${limit}`;
   let swapped = 0;
   for (const p of people) {
@@ -234,10 +224,23 @@ export async function assignImages(limit = 12): Promise<number> {
     } else if (p.image_focus === "top") {
       // an earlier portrait no longer passes (e.g. too small): drop it so a normal photo is found instead
       await sql`update events set image_url = null, image_credit = null, image_link = null, image_source = null, image_license = null, image_license_url = null,
-                image_checked_at = null, image_focus = null, person_checked_at = now() where id = ${p.id}`;
+                image_checked_at = null, image_focus = null, brand_checked_at = null, person_checked_at = now() where id = ${p.id}`;
     } else await sql`update events set person_checked_at = now() where id = ${p.id}`;
   }
   if (people.length) log(`images: ${swapped}/${people.length} person portraits`);
+
+  // 2) stories about a brand with a known logo (and no person photo): the brand's logo beats a generic stock photo
+  const brands = await sql<{ id: number; logo: string }[]>`
+    select e.id, replace(c.logo_url, 'width=320', 'width=640') as logo from events e join companies c on c.id = e.company_ids[1]
+    where e.brand_checked_at is null and e.summary is not null and c.logo_url is not null and coalesce(e.image_focus, '') <> 'top'
+      and (e.image_url is null or e.image_source in ('pexels','unsplash','pixabay','openverse'))
+    order by e.importance desc, e.last_article_at desc limit 40`;
+  for (const b of brands) {
+    await sql`update events set image_url = ${b.logo}, image_credit = 'Logo: Wikimedia Commons', image_link = null, image_source = 'logo', image_license = null,
+              image_license_url = null, image_focus = 'logo', image_checked_at = now(), brand_checked_at = now() where id = ${b.id}`;
+  }
+  if (brands.length) log(`images: ${brands.length} brand logos`);
+  await sql`update events set brand_checked_at = now() where brand_checked_at is null and summary is not null and image_url is not null and image_source not in ('pexels','unsplash','pixabay','openverse')`;
 
   const events = await sql<{ id: number; image_query: string | null; slugs: string[] | null }[]>`
     select e.id, e.image_query, (select array_agg(t.slug) from topics t where t.id = any(e.topic_ids)) as slugs
