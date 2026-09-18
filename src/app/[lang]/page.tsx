@@ -25,13 +25,16 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 export const revalidate = 60;
 
 export default async function Home({ params }: PageProps<"/[lang]">) {
-  const [events, au, topics, trending, cq, fq] = await Promise.all([
+  const CATS = ["economy", "technology", "sport", "entertainment", "fashion"] as const;
+  const [events, au, topics, trending, cq, fq, ...byCat] = await Promise.all([
     listEvents({ limit: 80 }), listEvents({ region: "AU", order: "recent", limit: 40 }), allTopics(), trendingCompanies(10), crypto(), fx(),
+    // each tab gets its own list, same as its section page (the main list is dominated by the biggest economy/tech stories)
+    ...CATS.map((c) => listEvents({ category: c, limit: 40 })),
   ]);
   const [iq, rq] = await Promise.all([indices("indices"), indices("rates")]);
   const l = await langFrom(params);
   const persp = await getPerspectives(events.map((e) => e.id));
-  const companies = await companyMap([...events, ...au]);
+  const companies = await companyMap([...events, ...au, ...byCat.flat()]);
   const topicMap = new Map(topics.map((t) => [t.id, t]));
   const multi = events.filter((e) => (persp.get(e.id)?.length ?? 0) >= 2);
   // headline: the most important multi-country story that still has new reports in the last 12 hours
@@ -43,6 +46,8 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   const list = events.filter((e) => e.id !== top?.id).slice(0, 75);
   const inList = new Set(list.map((e) => e.id));
   const auOnly = au.filter((e) => !inList.has(e.id));
+  const seen = new Set([...inList, ...auOnly.map((e) => e.id)]);
+  const catOnly = byCat.flat().filter((e) => e.id !== top?.id && !seen.has(e.id) && (seen.add(e.id), true));
   const updated = new Date().toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit", timeZone: "Australia/Melbourne" }) + " AEST";
 
   const siteLd = { "@context": "https://schema.org", "@graph": [
@@ -71,6 +76,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
             items={[
               ...list.map((e) => ({ tags: [e.category, ...(e.regions?.includes("AU") ? ["australia"] : [])], node: <NewsItem e={e} companies={companies} topics={topicMap} lang={l} /> })),
               ...auOnly.map((e) => ({ tags: ["australia"], hideInAll: true, node: <NewsItem e={e} companies={companies} topics={topicMap} lang={l} /> })),
+              ...catOnly.map((e) => ({ tags: [e.category, ...(e.regions?.includes("AU") ? ["australia"] : [])], hideInAll: true, node: <NewsItem e={e} companies={companies} topics={topicMap} lang={l} /> })),
             ]} />
         </div>
 
