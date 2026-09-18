@@ -26,7 +26,9 @@ export function parseFeed(xml: string): FeedItem[] {
     if (!link && typeof it.guid === "string" && it.guid.startsWith("http")) link = it.guid;
     if (!link && it.guid?.["#text"]?.startsWith?.("http")) link = it.guid["#text"];
     const d = it.pubDate ?? it.published ?? it.updated ?? it["dc:date"];
-    const date = d ? new Date(clean(d)) : null;
+    let date = d ? parseDate(clean(d)) : null;
+    // some feeds label local time as GMT, which puts items hours in the future: treat those as "now"
+    if (date && +date > Date.now() && +date - Date.now() < 16 * 3600_000) date = new Date();
     const media = it["media:content"] ?? it["media:thumbnail"] ?? it.enclosure;
     const m = Array.isArray(media) ? media[0] : media;
     const image = m?.["@url"] && (!m["@type"] || String(m["@type"]).startsWith("image")) ? String(m["@url"]) : null;
@@ -38,6 +40,16 @@ export function parseFeed(xml: string): FeedItem[] {
       image,
     };
   }).filter((i: FeedItem) => i.title && i.url.startsWith("http"));
+}
+
+function parseDate(s: string): Date | null {
+  let d = new Date(s);
+  if (isNaN(+d)) {
+    // "2026-09-18 16:53:36  +0800" → ISO
+    const m = s.match(/^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2}(?::\d{2})?)\s*([+-]\d{2}):?(\d{2})?$/);
+    if (m) d = new Date(`${m[1]}T${m[2]}${m[3]}:${m[4] ?? "00"}`);
+  }
+  return isNaN(+d) ? null : d;
 }
 
 export function slugify(title: string, id: number | string) {

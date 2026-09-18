@@ -18,7 +18,10 @@ export async function ingest(): Promise<{ sources: number; added: number; failed
 
   const work = async (s: typeof sources[number]) => {
     try {
-      const r = await fetch(s.rss_url, { headers: { "user-agent": UA }, signal: AbortSignal.timeout(15000) });
+      // some servers (notably in mainland China) are slow from overseas: longer timeout and one retry
+      let r: Response;
+      try { r = await fetch(s.rss_url, { headers: { "user-agent": UA }, signal: AbortSignal.timeout(30000) }); }
+      catch { r = await fetch(s.rss_url, { headers: { "user-agent": UA }, signal: AbortSignal.timeout(30000) }); }
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const items = parseFeed(await r.text())
         .filter((i) => !i.published || +i.published > cutoff)
