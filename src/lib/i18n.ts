@@ -18,7 +18,7 @@ export const alternates = (path: string, lang: Lang = "en") => ({
 
 const D = {
   tagline: ["One story. Every perspective.", "一件事，全世界怎么看。"],
-  home: ["Home", "首页"], economy: ["Economy", "经济"], technology: ["Technology", "科技"], companies: ["Companies", "公司"], topics: ["Topics", "话题"],
+  home: ["Home", "首页"], economy: ["Economy", "经济"], technology: ["Technology", "科技"], sport: ["Sport", "体育"], entertainment: ["Entertainment", "娱乐"], fashion: ["Fashion", "时尚"], australia: ["Australia", "澳洲"], companies: ["Companies", "公司"], topics: ["Topics", "话题"],
   newsletter: ["Newsletter", "每日简报"], about: ["About", "关于"],
   promoTitle: ["See every side of the story.", "看见一件事的每一面。"],
   promoText: ["Tech and economy news, compared across countries and languages.", "科技与经济新闻，按国家和语言对比呈现。"],
@@ -46,6 +46,10 @@ const D = {
   official: ["Official source", "官方来源"], articles: ["articles", "篇报道"], article: ["article", "篇报道"], noEvents: ["No events yet.", "暂无事件。"],
   resultsFor: ["Results for", "搜索结果："], searchH: ["Search", "搜索"], mostActive: ["Most active in the news over the last three days.", "过去三天新闻中最活跃的公司。"],
   techIntro: ["AI, chips, big tech and startups, compared across countries.", "AI、芯片、科技巨头与创业公司，按国家对比。"],
+  sportIntro: ["Matches, transfers and tournaments, and how each country's media tell them.", "比赛、转会与赛事，以及各国媒体的不同讲法。"],
+  entIntro: ["Film, music, TV and games, compared across countries.", "电影、音乐、电视与游戏，按国家对比。"],
+  fashionIntro: ["Collections, brands and design, compared across countries.", "时装系列、品牌与设计，按国家对比。"],
+  auIntro: ["Australian business, technology, sport and culture, and how the world reports Australia.", "澳洲的商业、科技、体育与文化，以及世界如何报道澳洲。"],
   econIntro: ["Rates, trade, markets and companies, compared across countries.", "利率、贸易、市场与公司，按国家对比。"],
   disclaimer: ["Summaries are AI-generated from the linked sources. We summarise and link; we never republish articles. Stock photos via Pexels.", "摘要由 AI 根据所链接的来源生成。我们只做摘要和链接，从不转载原文。图库照片来自 Pexels。"],
   first: ["The first events are being assembled. Check back in a few minutes.", "首批事件正在生成，请几分钟后再来。"],
@@ -61,8 +65,10 @@ export function t(lang: Lang, key: Key, vars: Record<string, string | number> = 
 export const TOPIC_ZH: Record<string, string> = {
   "artificial-intelligence": "人工智能", semiconductors: "半导体", "big-tech": "科技巨头", economy: "宏观经济", markets: "市场",
   trade: "贸易", "electric-vehicles": "电动车", energy: "能源", startups: "创业公司", crypto: "加密货币",
+  football: "足球", tennis: "网球", cricket: "板球", basketball: "篮球", motorsport: "赛车", "olympic-sports": "奥运项目",
+  film: "电影", music: "音乐", "tv-streaming": "电视与流媒体", gaming: "游戏", luxury: "奢侈品", "fashion-week": "时装周", "fashion-retail": "时尚零售", design: "设计",
 };
-export const CATEGORY_ZH: Record<string, string> = { technology: "科技", economy: "经济" };
+export const CATEGORY_ZH: Record<string, string> = { technology: "科技", economy: "经济", sport: "体育", entertainment: "娱乐", fashion: "时尚" };
 export const STATUS_ZH: Record<string, string> = { rumor: "传闻", breaking: "突发", developing: "进展中", confirmed: "已证实", resolved: "已结束", archived: "已归档" };
 export const COUNTRY_ZH: Record<string, string> = {
   US: "美国", CN: "中国", HK: "中国香港", TW: "中国台湾", JP: "日本", KR: "韩国", GB: "英国", DE: "德国", FR: "法国", ES: "西班牙",

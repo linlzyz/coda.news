@@ -1,6 +1,9 @@
 // All AI prompts in one place. Editorial rules live here.
 
-export const TOPICS = ["artificial-intelligence", "semiconductors", "big-tech", "economy", "markets", "trade", "electric-vehicles", "energy", "startups", "crypto"];
+export const TOPICS = ["artificial-intelligence", "semiconductors", "big-tech", "economy", "markets", "trade", "electric-vehicles", "energy", "startups", "crypto",
+  "football", "tennis", "cricket", "basketball", "motorsport", "olympic-sports", "film", "music", "tv-streaming", "gaming",
+  "luxury", "fashion-week", "fashion-retail", "design"];
+export const CATEGORIES = ["technology", "economy", "sport", "entertainment", "fashion"];
 
 export const PREDICATES = [
   "announced", "launched", "released", "acquired", "agreed_to_acquire", "merged_with", "invested_in", "raised_funding",
@@ -12,7 +15,7 @@ export const PREDICATES = [
 
 export const EDITORIAL_RULES = `
 Editorial rules (always follow):
-- Coda covers technology and economy/business only. No politics, military, crime, social issues, sport or entertainment.
+- Coda covers technology, economy/business, sport, entertainment (film, music, TV, games, arts) and fashion/design. No politics, military, crime, celebrity gossip about private lives, or tabloid stories.
 - Describe, never judge. Neutral wording. Never use loaded words such as propaganda, regime, biased, spin, lies.
 - Each country's perspective comes only from that country's own media. Never speak for a country from another country's sources.
 - Report what outlets emphasise; do not say which side is right.
@@ -23,12 +26,16 @@ export function extractPrompt(items: { i: number; country: string; source: strin
 For each news item below, return structured data. Output English only.
 ${EDITORIAL_RULES}
 
-For each item decide "relevant": true only if it reports a specific, concrete technology or business/economy development
-(announcement, launch, deal, earnings, funding, policy/regulation affecting business, economic data, market move, layoffs, lawsuit, etc).
-false for: opinion/analysis columns, how-to guides, product reviews, shopping deals, podcasts, lifestyle, politics, military, crime, sport, weather.
+For each item decide "relevant": true only if it reports a specific, concrete development in one of Coda's categories:
+- technology / economy: announcement, launch, deal, earnings, funding, policy or regulation affecting business, economic data, market move, layoffs, lawsuit, property market
+- sport: a result, match, transfer, record, tournament, team or league decision
+- entertainment: a release, box office, award, festival, deal, record, major casting or industry news
+- fashion: a collection, show, designer appointment, brand business news, notable design news
+false for: opinion columns, how-to guides, product reviews, shopping deals, horoscopes, quizzes, podcasts, recipes, politics, military, crime, courts about individuals, accidents, weather, celebrity private lives.
 
 Fields per relevant item:
-- category: "technology" or "economy"
+- category: one of "technology", "economy", "sport", "entertainment", "fashion"
+- regions: ISO country codes where the event takes place or which it mainly concerns (e.g. ["AU"], ["US","CN"]), max 3
 - headline_en: the headline translated to neutral English
 - event: one short neutral English sentence naming the specific event (who did what), e.g. "Apple unveils iPhone 18 at September event"
 - event_zh: the same event title in natural Simplified Chinese
@@ -41,7 +48,7 @@ Fields per relevant item:
   subject/object are short noun phrases (companies by canonical name). qualifier holds numbers/conditions or "".
   occurred_at is YYYY-MM-DD if known else "". text is the fact as one plain English sentence.
 
-Return JSON only: {"items":[{"i":0,"relevant":true,"category":"...","headline_en":"...","event":"...","event_zh":"...","brief_zh":"...","is_rumor":false,"companies":[],"topics":[],"facts":[]}]}
+Return JSON only: {"items":[{"i":0,"relevant":true,"category":"...","regions":["US"],"headline_en":"...","event":"...","event_zh":"...","brief_zh":"...","is_rumor":false,"companies":[],"topics":[],"facts":[]}]}
 For irrelevant items return {"i":N,"relevant":false}.
 
 ITEMS:
@@ -65,7 +72,7 @@ export function generatePrompt(input: {
   byCountry: { country: string; items: { source: string; title: string; text: string }[] }[];
   official: { source: string; title: string; text: string }[];
 }) {
-  return `You are Coda's generation desk. Coda shows how media in different countries report the same technology/economy event.
+  return `You are Coda's generation desk. Coda shows how media in different countries report the same event (technology, economy, sport, entertainment, fashion).
 Write from the material below only.
 ${EDITORIAL_RULES}
 

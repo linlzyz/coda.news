@@ -22,7 +22,7 @@ export async function generateMetadata() {
 
 export default async function Home({ searchParams }: PageProps<"/">) {
   const sp = await searchParams;
-  const tab = sp.tab === "economy" || sp.tab === "technology" ? sp.tab : undefined;
+  const tab = ["economy", "technology", "sport", "entertainment", "fashion"].includes(String(sp.tab)) ? String(sp.tab) : undefined;
   const [events, topics, trending, cq, fq] = await Promise.all([
     listEvents({ limit: 60 }), allTopics(), trendingCompanies(10), crypto(), fx(),
   ]);
@@ -60,8 +60,8 @@ export default async function Home({ searchParams }: PageProps<"/">) {
           <section>
             <div className="flex items-center gap-5 border-b border-[#E5E7EB]">
               <h2 className="whitespace-nowrap py-3 text-[22px] font-semibold tracking-[-0.02em]">{t(l, "latest")}</h2>
-              <nav className="flex gap-1 text-[13px]">
-                {([["all", "/", undefined], ["economy", "/?tab=economy", "economy"], ["technology", "/?tab=technology", "technology"]] as const).map(([k, h, v]) => {
+              <nav className="flex gap-1 overflow-x-auto text-[13px]">
+                {([["all", "/", undefined], ["economy", "/?tab=economy", "economy"], ["technology", "/?tab=technology", "technology"], ["sport", "/?tab=sport", "sport"], ["entertainment", "/?tab=entertainment", "entertainment"], ["fashion", "/?tab=fashion", "fashion"]] as const).map(([k, h, v]) => {
                   const active = v === tab;
                   return <Link key={k} href={h} scroll={false} className={`border-b-2 px-3 py-3 font-medium ${active ? "border-[#C2410C] text-[#C2410C]" : "border-transparent text-neutral-500 hover:text-[#16181D]"}`}>{t(l, k)}</Link>;
                 })}

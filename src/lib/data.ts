@@ -9,7 +9,7 @@ const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env
 
 export type Status = "rumor" | "breaking" | "developing" | "confirmed" | "resolved" | "archived";
 export interface EventRow {
-  id: number; slug: string; title: string; title_zh: string | null; category: "technology" | "economy"; status: Status;
+  id: number; slug: string; title: string; title_zh: string | null; category: string; status: Status; regions?: string[];
   confidence: number; importance: number; summary: string | null; summary_zh: string | null; countries: string[]; source_count: number;
   article_count: number; has_official: boolean; image_url: string | null; image_credit: string | null; image_link: string | null; company_ids: number[]; topic_ids: number[];
   started_at: string; last_article_at: string; summary_version: number;
@@ -20,9 +20,10 @@ export interface Company { id: number; name: string; slug: string }
 
 const EVENT_COLS = "id,slug,title,title_zh,category,status,confidence,importance,summary,summary_zh,countries,source_count,article_count,has_official,image_url,image_credit,image_link,company_ids,topic_ids,started_at,last_article_at,summary_version";
 
-async function _listEvents(opts: { category?: string; companyId?: number; topicId?: number; limit?: number; order?: "importance" | "recent" } = {}) {
+async function _listEvents(opts: { category?: string; region?: string; companyId?: number; topicId?: number; limit?: number; order?: "importance" | "recent" } = {}) {
   let q = supabase.from("events").select(EVENT_COLS).not("summary", "is", null).neq("status", "archived");
   if (opts.category) q = q.eq("category", opts.category);
+  if (opts.region) q = q.contains("regions", [opts.region]);
   if (opts.companyId) q = q.contains("company_ids", [opts.companyId]);
   if (opts.topicId) q = q.contains("topic_ids", [opts.topicId]);
   q = opts.order === "recent" ? q.order("last_article_at", { ascending: false }) : q.order("importance", { ascending: false }).order("last_article_at", { ascending: false });

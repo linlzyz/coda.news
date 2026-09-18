@@ -8,7 +8,11 @@ export function StatusPill({ status, lang = "en" }: { status: Status; lang?: Lan
   const s = STATUS[status];
   return <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ring-inset ${s.cls}`}>{lang === "zh" ? STATUS_ZH[status] : s.label}</span>;
 }
+const CAT: Record<string, [string, string]> = {
+  technology: ["科技", "bg-[#F3F0FF] text-[#6D28D9]"], economy: ["经济", "bg-[#ECFDF5] text-[#0F766E]"],
+  sport: ["体育", "bg-[#EFF6FF] text-[#1D4ED8]"], entertainment: ["娱乐", "bg-[#FDF2F8] text-[#BE185D]"], fashion: ["时尚", "bg-[#FEF3C7] text-[#92400E]"],
+};
 export function CategoryLabel({ category, lang = "en" }: { category: string; lang?: Lang }) {
-  const zh = category === "economy" ? "经济" : "科技";
-  return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em] ${category === "economy" ? "bg-[#ECFDF5] text-[#0F766E]" : "bg-[#F3F0FF] text-[#6D28D9]"}`}>{lang === "zh" ? zh : category}</span>;
+  const [zh, cls] = CAT[category] ?? CAT.technology;
+  return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em] ${cls}`}>{lang === "zh" ? zh : category}</span>;
 }

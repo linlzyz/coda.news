@@ -2,7 +2,7 @@
 import { db, vec } from "./db.ts";
 import { log } from "./env.ts";
 import { embed, generateJSON } from "./ai.ts";
-import { extractPrompt, verifyPrompt, PREDICATES, TOPICS } from "./prompts.ts";
+import { CATEGORIES, extractPrompt, verifyPrompt, PREDICATES, TOPICS } from "./prompts.ts";
 import { fetchText, slugify } from "./text.ts";
 
 const BATCH = 15;
@@ -11,7 +11,7 @@ const ASK_MATCH = 0.83;    // between ASK and AUTO: LLM verifies
 const MATCH_WINDOW_DAYS = 10;
 
 interface Extracted {
-  i: number; relevant: boolean; category?: string; headline_en?: string; event?: string; event_zh?: string; brief_zh?: string; is_rumor?: boolean;
+  i: number; relevant: boolean; category?: string; regions?: string[]; headline_en?: string; event?: string; event_zh?: string; brief_zh?: string; is_rumor?: boolean;
   companies?: string[]; topics?: string[];
   facts?: { subject: string; predicate: string; object: string; qualifier?: string; occurred_at?: string; text?: string }[];
 }
@@ -22,7 +22,7 @@ export async function processBatch(): Promise<{ claimed: number; relevant: numbe
     update articles a set status = 'processing', attempts = attempts + 1
     from sources s
     where s.id = a.source_id and a.id in (
-      select id from articles where status = 'pending' order by published_at desc nulls last limit ${BATCH} for update skip locked)
+      select a2.id from articles a2 join sources s2 on s2.id = a2.source_id where a2.status = 'pending' order by s2.priority, a2.published_at desc nulls last limit ${BATCH} for update of a2 skip locked)
     returning a.id, a.url, a.title, a.rss_summary, a.source_id, s.name as source, s.country, s.language, s.type`;
   if (!rows.length) return { claimed: 0, relevant: 0, newEvents: 0, matched: 0 };
 
@@ -62,9 +62,11 @@ export async function processBatch(): Promise<{ claimed: number; relevant: numbe
       const companyIds = await upsertCompanies(x!.companies ?? []);
       const topicIds = await topicIdsFor(x!.topics ?? []);
 
+      const regions = (x!.regions ?? []).filter((r) => /^[A-Z]{2}$/.test(r)).slice(0, 3);
       if (eventId) {
         matched++;
         await sql`update events set
+            regions = (select coalesce(array_agg(distinct r), '{}') from unnest(regions || ${regions}::text[]) r),
             company_ids = (select coalesce(array_agg(distinct c), '{}') from unnest(company_ids || ${companyIds}::bigint[]) c),
             topic_ids   = (select coalesce(array_agg(distinct t), '{}') from unnest(topic_ids || ${topicIds}::int[]) t),
             is_rumor = is_rumor and ${!!x!.is_rumor}, needs_regen = true
@@ -72,9 +74,9 @@ export async function processBatch(): Promise<{ claimed: number; relevant: numbe
       } else {
         newEvents++;
         const [e] = await sql<{ id: number }[]>`
-          insert into events (slug, title, category, embedding, company_ids, topic_ids, is_rumor, needs_regen, started_at)
-          values (${"tmp-" + crypto.randomUUID()}, ${x!.event!.slice(0, 200)}, ${x!.category === "economy" ? "economy" : "technology"},
-                  ${vec(v)}::extensions.vector, ${companyIds}::bigint[], ${topicIds}::int[], ${!!x!.is_rumor}, true, now())
+          insert into events (slug, title, category, embedding, company_ids, topic_ids, is_rumor, needs_regen, started_at, regions)
+          values (${"tmp-" + crypto.randomUUID()}, ${x!.event!.slice(0, 200)}, ${CATEGORIES.includes(x!.category ?? "") ? x!.category! : "technology"},
+                  ${vec(v)}::extensions.vector, ${companyIds}::bigint[], ${topicIds}::int[], ${!!x!.is_rumor}, true, now(), ${regions}::text[])
           returning id`;
         eventId = e.id;
         await sql`update events set slug = ${slugify(x!.event!, e.id)} where id = ${e.id}`;

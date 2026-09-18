@@ -48,7 +48,7 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
     <div className="px-4 py-8 sm:px-6 lg:px-8">
       <AutoRefresh />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <nav className="mb-6 text-[13px] text-neutral-500"><Link href="/" className="hover:text-[#16181D]">{t(l, "home")}</Link><span className="mx-1.5">/</span><Link href={`/${e.category}`} className="hover:text-[#16181D]">{t(l, e.category)}</Link></nav>
+      <nav className="mb-6 text-[13px] text-neutral-500"><Link href="/" className="hover:text-[#16181D]">{t(l, "home")}</Link><span className="mx-1.5">/</span><Link href={`/${e.category}`} className="hover:text-[#16181D]">{t(l, e.category as "technology")}</Link></nav>
 
       <div className="grid gap-10 xl:grid-cols-[minmax(0,1fr)_340px]">
         <div className="min-w-0 space-y-8">

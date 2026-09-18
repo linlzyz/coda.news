@@ -1,54 +1,920 @@
 [
-["OpenAI News","US","en","official","https://openai.com/news/rss.xml","https://openai.com/news"],
-["Google Blog","US","en","official","https://blog.google/rss/","https://blog.google"],
-["NVIDIA Newsroom","US","en","official","https://nvidianews.nvidia.com/releases.xml","https://nvidianews.nvidia.com"],
-["Apple Newsroom","US","en","official","https://www.apple.com/newsroom/rss-feed.rss","https://www.apple.com/newsroom/"],
-["Federal Reserve","US","en","official","https://www.federalreserve.gov/feeds/press_all.xml","https://www.federalreserve.gov"],
-["European Central Bank","EU","en","official","https://www.ecb.europa.eu/rss/press.html","https://www.ecb.europa.eu"],
-["Reserve Bank of Australia","AU","en","official","https://www.rba.gov.au/rss/rss-cb-media-releases.xml","https://www.rba.gov.au"],
-["CNBC Technology","US","en","media","https://www.cnbc.com/id/19854910/device/rss/rss.html","https://www.cnbc.com"],
-["CNBC Economy","US","en","media","https://www.cnbc.com/id/20910258/device/rss/rss.html","https://www.cnbc.com"],
-["The New York Times Business","US","en","media","https://rss.nytimes.com/services/xml/rss/nyt/Business.xml","https://www.nytimes.com"],
-["The New York Times Technology","US","en","media","https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml","https://www.nytimes.com"],
-["TechCrunch","US","en","media","https://techcrunch.com/feed/","https://techcrunch.com"],
-["The Verge","US","en","media","https://www.theverge.com/rss/index.xml","https://www.theverge.com"],
-["Ars Technica","US","en","media","https://feeds.arstechnica.com/arstechnica/index","https://arstechnica.com"],
-["MarketWatch","US","en","media","https://feeds.content.dowjones.io/public/rss/mw_topstories","https://www.marketwatch.com"],
-["Yahoo Finance","US","en","media","https://finance.yahoo.com/news/rssindex","https://finance.yahoo.com"],
-["BBC Business","GB","en","media","https://feeds.bbci.co.uk/news/business/rss.xml","https://www.bbc.com"],
-["BBC Technology","GB","en","media","https://feeds.bbci.co.uk/news/technology/rss.xml","https://www.bbc.com"],
-["The Guardian Business","GB","en","media","https://www.theguardian.com/uk/business/rss","https://www.theguardian.com"],
-["The Guardian Technology","GB","en","media","https://www.theguardian.com/uk/technology/rss","https://www.theguardian.com"],
-["36氪","CN","zh","media","https://www.36kr.com/feed","https://36kr.com"],
-["IT之家","CN","zh","media","https://www.ithome.com/rss/","https://www.ithome.com"],
-["中国新闻网 财经","CN","zh","media","https://www.chinanews.com.cn/rss/finance.xml","https://www.chinanews.com.cn"],
-["中国新闻网","CN","zh","media","https://www.chinanews.com.cn/rss/scroll-news.xml","https://www.chinanews.com.cn"],
-["钛媒体","CN","zh","media","https://www.tmtpost.com/rss.xml","https://www.tmtpost.com"],
-["Global Times","CN","en","media","https://www.globaltimes.cn/rss/outbrain.xml","https://www.globaltimes.cn"],
-["CGTN Business","CN","en","media","https://www.cgtn.com/subscribe/rss/section/business.xml","https://www.cgtn.com"],
-["CGTN Tech","CN","en","media","https://www.cgtn.com/subscribe/rss/section/tech-sci.xml","https://www.cgtn.com"],
-["SCMP Tech","HK","en","media","https://www.scmp.com/rss/36/feed","https://www.scmp.com"],
-["SCMP Business","HK","en","media","https://www.scmp.com/rss/92/feed","https://www.scmp.com"],
-["NHK 経済","JP","ja","media","https://www3.nhk.or.jp/rss/news/cat5.xml","https://www3.nhk.or.jp"],
-["ITmedia NEWS","JP","ja","media","https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml","https://www.itmedia.co.jp"],
-["Nikkei Asia","JP","en","media","https://asia.nikkei.com/rss/feed/nar","https://asia.nikkei.com"],
-["Yonhap News","KR","en","media","https://en.yna.co.kr/RSS/news.xml","https://en.yna.co.kr"],
-["The Korea Times Business","KR","en","media","https://www.koreatimes.co.kr/www/rss/biz.xml","https://www.koreatimes.co.kr"],
-["매일경제","KR","ko","media","https://www.mk.co.kr/rss/30100041/","https://www.mk.co.kr"],
-["Der Spiegel Wirtschaft","DE","de","media","https://www.spiegel.de/wirtschaft/index.rss","https://www.spiegel.de"],
-["heise online","DE","de","media","https://www.heise.de/rss/heise-atom.xml","https://www.heise.de"],
-["tagesschau Wirtschaft","DE","de","media","https://www.tagesschau.de/wirtschaft/index~rss2.xml","https://www.tagesschau.de"],
-["Handelsblatt","DE","de","media","https://www.handelsblatt.com/contentexport/feed/schlagzeilen","https://www.handelsblatt.com"],
-["Le Monde Économie","FR","fr","media","https://www.lemonde.fr/economie/rss_full.xml","https://www.lemonde.fr"],
-["Le Monde Pixels","FR","fr","media","https://www.lemonde.fr/pixels/rss_full.xml","https://www.lemonde.fr"],
-["El País Economía","ES","es","media","https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/economia/portada","https://elpais.com"],
-["The Economic Times Tech","IN","en","media","https://economictimes.indiatimes.com/tech/rssfeeds/13357270.cms","https://economictimes.indiatimes.com"],
-["The Hindu Business","IN","en","media","https://www.thehindu.com/business/feeder/default.rss","https://www.thehindu.com"],
-["Mint Technology","IN","en","media","https://www.livemint.com/rss/technology","https://www.livemint.com"],
-["The Sydney Morning Herald Business","AU","en","media","https://www.smh.com.au/rss/business.xml","https://www.smh.com.au"],
-["ABC News Business","AU","en","media","https://www.abc.net.au/news/feed/51892/rss.xml","https://www.abc.net.au"],
-["CNA Business","SG","en","media","https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=6936","https://www.channelnewsasia.com"],
-["The Straits Times Business","SG","en","media","https://www.straitstimes.com/news/business/rss.xml","https://www.straitstimes.com"],
-["The National Business","AE","en","media","https://www.thenationalnews.com/arc/outboundfeeds/rss/category/business/?outputType=xml","https://www.thenationalnews.com"],
-["Al Jazeera","QA","en","media","https://www.aljazeera.com/xml/rss/all.xml","https://www.aljazeera.com"]
+[
+"OpenAI News",
+"US",
+"en",
+"official",
+"https://openai.com/news/rss.xml",
+"https://openai.com/news",
+1
+],
+[
+"Google Blog",
+"US",
+"en",
+"official",
+"https://blog.google/rss/",
+"https://blog.google",
+1
+],
+[
+"NVIDIA Newsroom",
+"US",
+"en",
+"official",
+"https://nvidianews.nvidia.com/releases.xml",
+"https://nvidianews.nvidia.com",
+1
+],
+[
+"Apple Newsroom",
+"US",
+"en",
+"official",
+"https://www.apple.com/newsroom/rss-feed.rss",
+"https://www.apple.com/newsroom/",
+1
+],
+[
+"Federal Reserve",
+"US",
+"en",
+"official",
+"https://www.federalreserve.gov/feeds/press_all.xml",
+"https://www.federalreserve.gov",
+1
+],
+[
+"European Central Bank",
+"EU",
+"en",
+"official",
+"https://www.ecb.europa.eu/rss/press.html",
+"https://www.ecb.europa.eu",
+1
+],
+[
+"Reserve Bank of Australia",
+"AU",
+"en",
+"official",
+"https://www.rba.gov.au/rss/rss-cb-media-releases.xml",
+"https://www.rba.gov.au",
+1
+],
+[
+"CNBC Technology",
+"US",
+"en",
+"media",
+"https://www.cnbc.com/id/19854910/device/rss/rss.html",
+"https://www.cnbc.com",
+1
+],
+[
+"CNBC Economy",
+"US",
+"en",
+"media",
+"https://www.cnbc.com/id/20910258/device/rss/rss.html",
+"https://www.cnbc.com",
+1
+],
+[
+"The New York Times Business",
+"US",
+"en",
+"media",
+"https://rss.nytimes.com/services/xml/rss/nyt/Business.xml",
+"https://www.nytimes.com",
+1
+],
+[
+"The New York Times Technology",
+"US",
+"en",
+"media",
+"https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml",
+"https://www.nytimes.com",
+1
+],
+[
+"TechCrunch",
+"US",
+"en",
+"media",
+"https://techcrunch.com/feed/",
+"https://techcrunch.com",
+1
+],
+[
+"The Verge",
+"US",
+"en",
+"media",
+"https://www.theverge.com/rss/index.xml",
+"https://www.theverge.com",
+1
+],
+[
+"Ars Technica",
+"US",
+"en",
+"media",
+"https://feeds.arstechnica.com/arstechnica/index",
+"https://arstechnica.com",
+1
+],
+[
+"MarketWatch",
+"US",
+"en",
+"media",
+"https://feeds.content.dowjones.io/public/rss/mw_topstories",
+"https://www.marketwatch.com",
+1
+],
+[
+"Yahoo Finance",
+"US",
+"en",
+"media",
+"https://finance.yahoo.com/news/rssindex",
+"https://finance.yahoo.com",
+1
+],
+[
+"BBC Business",
+"GB",
+"en",
+"media",
+"https://feeds.bbci.co.uk/news/business/rss.xml",
+"https://www.bbc.com",
+1
+],
+[
+"BBC Technology",
+"GB",
+"en",
+"media",
+"https://feeds.bbci.co.uk/news/technology/rss.xml",
+"https://www.bbc.com",
+1
+],
+[
+"The Guardian Business",
+"GB",
+"en",
+"media",
+"https://www.theguardian.com/uk/business/rss",
+"https://www.theguardian.com",
+1
+],
+[
+"The Guardian Technology",
+"GB",
+"en",
+"media",
+"https://www.theguardian.com/uk/technology/rss",
+"https://www.theguardian.com",
+1
+],
+[
+"36氪",
+"CN",
+"zh",
+"media",
+"https://www.36kr.com/feed",
+"https://36kr.com",
+1
+],
+[
+"IT之家",
+"CN",
+"zh",
+"media",
+"https://www.ithome.com/rss/",
+"https://www.ithome.com",
+1
+],
+[
+"中国新闻网 财经",
+"CN",
+"zh",
+"media",
+"https://www.chinanews.com.cn/rss/finance.xml",
+"https://www.chinanews.com.cn",
+1
+],
+[
+"中国新闻网",
+"CN",
+"zh",
+"media",
+"https://www.chinanews.com.cn/rss/scroll-news.xml",
+"https://www.chinanews.com.cn",
+1
+],
+[
+"钛媒体",
+"CN",
+"zh",
+"media",
+"https://www.tmtpost.com/rss.xml",
+"https://www.tmtpost.com",
+1
+],
+[
+"Global Times",
+"CN",
+"en",
+"media",
+"https://www.globaltimes.cn/rss/outbrain.xml",
+"https://www.globaltimes.cn",
+1
+],
+[
+"CGTN Business",
+"CN",
+"en",
+"media",
+"https://www.cgtn.com/subscribe/rss/section/business.xml",
+"https://www.cgtn.com",
+1
+],
+[
+"CGTN Tech",
+"CN",
+"en",
+"media",
+"https://www.cgtn.com/subscribe/rss/section/tech-sci.xml",
+"https://www.cgtn.com",
+1
+],
+[
+"SCMP Tech",
+"HK",
+"en",
+"media",
+"https://www.scmp.com/rss/36/feed",
+"https://www.scmp.com",
+1
+],
+[
+"SCMP Business",
+"HK",
+"en",
+"media",
+"https://www.scmp.com/rss/92/feed",
+"https://www.scmp.com",
+1
+],
+[
+"NHK 経済",
+"JP",
+"ja",
+"media",
+"https://www3.nhk.or.jp/rss/news/cat5.xml",
+"https://www3.nhk.or.jp",
+1
+],
+[
+"ITmedia NEWS",
+"JP",
+"ja",
+"media",
+"https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml",
+"https://www.itmedia.co.jp",
+1
+],
+[
+"Nikkei Asia",
+"JP",
+"en",
+"media",
+"https://asia.nikkei.com/rss/feed/nar",
+"https://asia.nikkei.com",
+1
+],
+[
+"Yonhap News",
+"KR",
+"en",
+"media",
+"https://en.yna.co.kr/RSS/news.xml",
+"https://en.yna.co.kr",
+1
+],
+[
+"The Korea Times Business",
+"KR",
+"en",
+"media",
+"https://www.koreatimes.co.kr/www/rss/biz.xml",
+"https://www.koreatimes.co.kr",
+1
+],
+[
+"매일경제",
+"KR",
+"ko",
+"media",
+"https://www.mk.co.kr/rss/30100041/",
+"https://www.mk.co.kr",
+1
+],
+[
+"Der Spiegel Wirtschaft",
+"DE",
+"de",
+"media",
+"https://www.spiegel.de/wirtschaft/index.rss",
+"https://www.spiegel.de",
+1
+],
+[
+"heise online",
+"DE",
+"de",
+"media",
+"https://www.heise.de/rss/heise-atom.xml",
+"https://www.heise.de",
+1
+],
+[
+"tagesschau Wirtschaft",
+"DE",
+"de",
+"media",
+"https://www.tagesschau.de/wirtschaft/index~rss2.xml",
+"https://www.tagesschau.de",
+1
+],
+[
+"Handelsblatt",
+"DE",
+"de",
+"media",
+"https://www.handelsblatt.com/contentexport/feed/schlagzeilen",
+"https://www.handelsblatt.com",
+1
+],
+[
+"Le Monde Économie",
+"FR",
+"fr",
+"media",
+"https://www.lemonde.fr/economie/rss_full.xml",
+"https://www.lemonde.fr",
+1
+],
+[
+"Le Monde Pixels",
+"FR",
+"fr",
+"media",
+"https://www.lemonde.fr/pixels/rss_full.xml",
+"https://www.lemonde.fr",
+1
+],
+[
+"El País Economía",
+"ES",
+"es",
+"media",
+"https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/economia/portada",
+"https://elpais.com",
+1
+],
+[
+"The Economic Times Tech",
+"IN",
+"en",
+"media",
+"https://economictimes.indiatimes.com/tech/rssfeeds/13357270.cms",
+"https://economictimes.indiatimes.com",
+1
+],
+[
+"The Hindu Business",
+"IN",
+"en",
+"media",
+"https://www.thehindu.com/business/feeder/default.rss",
+"https://www.thehindu.com",
+1
+],
+[
+"Mint Technology",
+"IN",
+"en",
+"media",
+"https://www.livemint.com/rss/technology",
+"https://www.livemint.com",
+1
+],
+[
+"The Sydney Morning Herald Business",
+"AU",
+"en",
+"media",
+"https://www.smh.com.au/rss/business.xml",
+"https://www.smh.com.au",
+1
+],
+[
+"ABC News Business",
+"AU",
+"en",
+"media",
+"https://www.abc.net.au/news/feed/51892/rss.xml",
+"https://www.abc.net.au",
+1
+],
+[
+"CNA Business",
+"SG",
+"en",
+"media",
+"https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=6936",
+"https://www.channelnewsasia.com",
+1
+],
+[
+"The Straits Times Business",
+"SG",
+"en",
+"media",
+"https://www.straitstimes.com/news/business/rss.xml",
+"https://www.straitstimes.com",
+1
+],
+[
+"The National Business",
+"AE",
+"en",
+"media",
+"https://www.thenationalnews.com/arc/outboundfeeds/rss/category/business/?outputType=xml",
+"https://www.thenationalnews.com",
+1
+],
+[
+"Al Jazeera",
+"QA",
+"en",
+"media",
+"https://www.aljazeera.com/xml/rss/all.xml",
+"https://www.aljazeera.com",
+1
+],
+[
+"ABC News",
+"AU",
+"en",
+"media",
+"https://www.abc.net.au/news/feed/2942460/rss.xml",
+"https://www.abc.net.au",
+2
+],
+[
+"The Guardian Australia",
+"AU",
+"en",
+"media",
+"https://www.theguardian.com/australia-news/rss",
+"https://www.theguardian.com/au",
+2
+],
+[
+"The Age",
+"AU",
+"en",
+"media",
+"https://www.theage.com.au/rss/feed.xml",
+"https://www.theage.com.au",
+2
+],
+[
+"The Age Victoria",
+"AU",
+"en",
+"media",
+"https://www.theage.com.au/rss/national/victoria.xml",
+"https://www.theage.com.au",
+2
+],
+[
+"The Sydney Morning Herald National",
+"AU",
+"en",
+"media",
+"https://www.smh.com.au/rss/national.xml",
+"https://www.smh.com.au",
+2
+],
+[
+"iTnews",
+"AU",
+"en",
+"media",
+"https://www.itnews.com.au/RSS/rss.ashx",
+"https://www.itnews.com.au",
+1
+],
+[
+"The Conversation AU",
+"AU",
+"en",
+"media",
+"https://theconversation.com/au/articles.atom",
+"https://theconversation.com/au",
+2
+],
+[
+"BBC Sport",
+"GB",
+"en",
+"media",
+"https://feeds.bbci.co.uk/sport/rss.xml",
+"https://www.bbc.com/sport",
+2
+],
+[
+"ESPN",
+"US",
+"en",
+"media",
+"https://www.espn.com/espn/rss/news",
+"https://www.espn.com",
+2
+],
+[
+"The Guardian Sport",
+"GB",
+"en",
+"media",
+"https://www.theguardian.com/uk/sport/rss",
+"https://www.theguardian.com",
+2
+],
+[
+"ABC Sport",
+"AU",
+"en",
+"media",
+"https://www.abc.net.au/news/feed/45924/rss.xml",
+"https://www.abc.net.au",
+2
+],
+[
+"The Age Sport",
+"AU",
+"en",
+"media",
+"https://www.theage.com.au/rss/sport.xml",
+"https://www.theage.com.au",
+2
+],
+[
+"kicker",
+"DE",
+"de",
+"media",
+"https://newsfeed.kicker.de/news/aktuell",
+"https://www.kicker.de",
+2
+],
+[
+"Der Spiegel Sport",
+"DE",
+"de",
+"media",
+"https://www.spiegel.de/sport/index.rss",
+"https://www.spiegel.de",
+2
+],
+[
+"L'Équipe",
+"FR",
+"fr",
+"media",
+"https://dwh.lequipe.fr/api/edito/rss?path=/",
+"https://www.lequipe.fr",
+2
+],
+[
+"Le Monde Sport",
+"FR",
+"fr",
+"media",
+"https://www.lemonde.fr/sport/rss_full.xml",
+"https://www.lemonde.fr",
+2
+],
+[
+"Marca",
+"ES",
+"es",
+"media",
+"https://e00-marca.uecdn.es/rss/portada.xml",
+"https://www.marca.com",
+2
+],
+[
+"El País Deportes",
+"ES",
+"es",
+"media",
+"https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/deportes/portada",
+"https://elpais.com",
+2
+],
+[
+"中国新闻网 体育",
+"CN",
+"zh",
+"media",
+"https://www.chinanews.com.cn/rss/sports.xml",
+"https://www.chinanews.com.cn",
+2
+],
+[
+"CGTN Sports",
+"CN",
+"en",
+"media",
+"https://www.cgtn.com/subscribe/rss/section/sports.xml",
+"https://www.cgtn.com",
+2
+],
+[
+"SCMP Sport",
+"HK",
+"en",
+"media",
+"https://www.scmp.com/rss/95/feed",
+"https://www.scmp.com",
+2
+],
+[
+"Yonhap Sports",
+"KR",
+"en",
+"media",
+"https://en.yna.co.kr/RSS/sports.xml",
+"https://en.yna.co.kr",
+2
+],
+[
+"The Hindu Sport",
+"IN",
+"en",
+"media",
+"https://www.thehindu.com/sport/feeder/default.rss",
+"https://www.thehindu.com",
+2
+],
+[
+"ESPNcricinfo",
+"IN",
+"en",
+"media",
+"https://www.espncricinfo.com/rss/content/story/feeds/0.xml",
+"https://www.espncricinfo.com",
+2
+],
+[
+"CNA Sport",
+"SG",
+"en",
+"media",
+"https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=10296",
+"https://www.channelnewsasia.com",
+2
+],
+[
+"Variety",
+"US",
+"en",
+"media",
+"https://variety.com/feed/",
+"https://variety.com",
+2
+],
+[
+"The Hollywood Reporter",
+"US",
+"en",
+"media",
+"https://www.hollywoodreporter.com/feed/",
+"https://www.hollywoodreporter.com",
+2
+],
+[
+"Deadline",
+"US",
+"en",
+"media",
+"https://deadline.com/feed/",
+"https://deadline.com",
+2
+],
+[
+"BBC Entertainment & Arts",
+"GB",
+"en",
+"media",
+"https://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml",
+"https://www.bbc.com",
+2
+],
+[
+"The Guardian Culture",
+"GB",
+"en",
+"media",
+"https://www.theguardian.com/uk/culture/rss",
+"https://www.theguardian.com",
+2
+],
+[
+"The Age Culture",
+"AU",
+"en",
+"media",
+"https://www.theage.com.au/rss/culture.xml",
+"https://www.theage.com.au",
+2
+],
+[
+"Le Monde Culture",
+"FR",
+"fr",
+"media",
+"https://www.lemonde.fr/culture/rss_full.xml",
+"https://www.lemonde.fr",
+2
+],
+[
+"Der Spiegel Kultur",
+"DE",
+"de",
+"media",
+"https://www.spiegel.de/kultur/index.rss",
+"https://www.spiegel.de",
+2
+],
+[
+"El País Cultura",
+"ES",
+"es",
+"media",
+"https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/cultura/portada",
+"https://elpais.com",
+2
+],
+[
+"中国新闻网 文化",
+"CN",
+"zh",
+"media",
+"https://www.chinanews.com.cn/rss/culture.xml",
+"https://www.chinanews.com.cn",
+2
+],
+[
+"CGTN Culture",
+"CN",
+"en",
+"media",
+"https://www.cgtn.com/subscribe/rss/section/culture.xml",
+"https://www.cgtn.com",
+2
+],
+[
+"SCMP Culture",
+"HK",
+"en",
+"media",
+"https://www.scmp.com/rss/322296/feed",
+"https://www.scmp.com",
+2
+],
+[
+"Soompi",
+"KR",
+"en",
+"media",
+"https://www.soompi.com/feed",
+"https://www.soompi.com",
+2
+],
+[
+"Yonhap Culture",
+"KR",
+"en",
+"media",
+"https://en.yna.co.kr/RSS/culture.xml",
+"https://en.yna.co.kr",
+2
+],
+[
+"The Hindu Entertainment",
+"IN",
+"en",
+"media",
+"https://www.thehindu.com/entertainment/feeder/default.rss",
+"https://www.thehindu.com",
+2
+],
+[
+"Vogue",
+"US",
+"en",
+"media",
+"https://www.vogue.com/feed/rss",
+"https://www.vogue.com",
+2
+],
+[
+"WWD",
+"US",
+"en",
+"media",
+"https://wwd.com/feed/",
+"https://wwd.com",
+2
+],
+[
+"Harper's Bazaar",
+"US",
+"en",
+"media",
+"https://www.harpersbazaar.com/rss/all.xml/",
+"https://www.harpersbazaar.com",
+2
+],
+[
+"Elle",
+"US",
+"en",
+"media",
+"https://www.elle.com/rss/all.xml/",
+"https://www.elle.com",
+2
+],
+[
+"Fashionista",
+"US",
+"en",
+"media",
+"https://fashionista.com/.rss/full/",
+"https://fashionista.com",
+2
+],
+[
+"Hypebeast",
+"HK",
+"en",
+"media",
+"https://hypebeast.com/feed",
+"https://hypebeast.com",
+2
+],
+[
+"The Guardian Fashion",
+"GB",
+"en",
+"media",
+"https://www.theguardian.com/fashion/rss",
+"https://www.theguardian.com",
+2
+],
+[
+"Dezeen",
+"GB",
+"en",
+"media",
+"https://www.dezeen.com/feed/",
+"https://www.dezeen.com",
+2
+],
+[
+"FashionUnited",
+"NL",
+"en",
+"media",
+"https://fashionunited.com/rss-news",
+"https://fashionunited.com",
+2
+],
+[
+"Le Monde M",
+"FR",
+"fr",
+"media",
+"https://www.lemonde.fr/m-styles/rss_full.xml",
+"https://www.lemonde.fr",
+2
+]
 ]

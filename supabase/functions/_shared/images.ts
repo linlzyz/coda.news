@@ -17,6 +17,12 @@ const TOPIC_QUERIES: Record<string, string[]> = {
   energy: ["solar panels", "wind turbines", "power lines sunset"],
   startups: ["startup office team", "modern office meeting", "coworking space"],
   crypto: ["cryptocurrency abstract", "blockchain abstract", "digital finance"],
+  football: ["football stadium", "soccer ball field", "football fans stadium"], tennis: ["tennis court", "tennis ball racket"],
+  cricket: ["cricket ground", "cricket ball"], basketball: ["basketball court", "basketball hoop"], motorsport: ["race track cars", "motorsport racing"],
+  "olympic-sports": ["athletics track", "swimming pool race"], film: ["cinema theater seats", "film camera set"], music: ["concert crowd stage", "music festival"],
+  "tv-streaming": ["watching tv living room", "remote control television"], gaming: ["video game controller", "gaming setup"],
+  luxury: ["luxury boutique", "designer handbag display"], "fashion-week": ["fashion runway", "fashion show backstage"],
+  "fashion-retail": ["clothing store rack", "shopping street fashion"], design: ["modern architecture interior", "design studio"],
 };
 const DEFAULT = ["business documents desk", "technology abstract", "world map"];
 const exhausted = new Set<string>();
