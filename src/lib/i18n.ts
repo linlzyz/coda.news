@@ -1,10 +1,20 @@
 import "server-only";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 export type Lang = "en" | "zh";
+/** Language comes from the URL (/zh/...), set by proxy.ts as x-lang. Legal pages fall back to the cookie. */
 export async function getLang(): Promise<Lang> {
+  const h = (await headers()).get("x-lang");
+  if (h === "zh" || h === "en") return h;
   return (await cookies()).get("lang")?.value === "zh" ? "zh" : "en";
 }
+/** Path in the reader's language. */
+export const lp = (lang: Lang, path: string) => (lang === "zh" ? `/zh${path === "/" ? "" : path}` : path);
+/** hreflang alternates for a path. */
+export const alternates = (path: string, lang: Lang = "en") => ({
+  canonical: lp(lang, path),
+  languages: { en: path, "zh-CN": lp("zh", path), "x-default": path },
+});
 
 const D = {
   tagline: ["One story. Every perspective.", "一件事，全世界怎么看。"],

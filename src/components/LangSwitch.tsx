@@ -1,5 +1,5 @@
 "use client";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useOptimistic, useTransition } from "react";
 
 function saveLang(l: string) {
@@ -8,9 +8,14 @@ function saveLang(l: string) {
 
 export function LangSwitch({ lang }: { lang: "en" | "zh" }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [pending, start] = useTransition();
   const [shown, setShown] = useOptimistic(lang);
-  const set = (l: "en" | "zh") => start(() => { setShown(l); saveLang(l); router.refresh(); });
+  const set = (l: "en" | "zh") => start(() => {
+    setShown(l); saveLang(l);
+    const base = pathname === "/zh" ? "/" : pathname.startsWith("/zh/") ? pathname.slice(3) : pathname;
+    router.push(l === "zh" ? (base === "/" ? "/zh" : `/zh${base}`) : base);
+  });
   return (
     <div className={`flex h-10 items-center rounded-xl border border-[#E5E7EB] p-1 text-[13px] font-medium transition-opacity ${pending ? "opacity-60" : ""}`} role="group" aria-label="Language">
       {([["en", "EN"], ["zh", "中文"]] as const).map(([l, label]) => (

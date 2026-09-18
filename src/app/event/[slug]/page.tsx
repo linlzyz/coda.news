@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { companiesByIds, getArticles, getEvent, getFacts, getLatestSummary, getPerspectives, listEvents } from "@/lib/data";
-import { getLang, t } from "@/lib/i18n";
+import { alternates, getLang, t } from "@/lib/i18n";
 import { countryL, persp as perspL, summary, timeAgoL, title } from "@/lib/loc";
 import { fmtDate, TONE } from "@/lib/ui";
 import { Flag, Flags } from "@/components/Flag";
@@ -12,11 +12,12 @@ import { Cover } from "@/components/Cover";
 
 
 export async function generateMetadata({ params }: PageProps<"/event/[slug]">): Promise<Metadata> {
-  const e = await getEvent((await params).slug);
+  const [e, l] = await Promise.all([getEvent((await params).slug), getLang()]);
   if (!e) return {};
-  return { title: e.title, description: e.summary ?? undefined, alternates: { canonical: `/event/${e.slug}` },
-    openGraph: { title: e.title, description: e.summary ?? undefined, type: "article", publishedTime: e.started_at, modifiedTime: e.last_article_at, section: e.category, images: e.image_url ? [e.image_url] : ["/og.png"] },
-    twitter: { card: "summary_large_image", title: e.title, description: e.summary ?? undefined, images: e.image_url ? [e.image_url] : ["/og.png"] } };
+  const ti = (l === "zh" && e.title_zh) || e.title, de = (l === "zh" && e.summary_zh) || e.summary || undefined;
+  return { title: ti, description: de, alternates: alternates(`/event/${e.slug}`, l),
+    openGraph: { title: ti, description: de, locale: l === "zh" ? "zh_CN" : "en_AU", type: "article", publishedTime: e.started_at, modifiedTime: e.last_article_at, section: e.category, images: e.image_url ? [e.image_url] : ["/og.png"] },
+    twitter: { card: "summary_large_image", title: ti, description: de, images: e.image_url ? [e.image_url] : ["/og.png"] } };
 }
 
 export default async function EventPage({ params }: PageProps<"/event/[slug]">) {

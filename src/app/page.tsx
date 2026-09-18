@@ -10,10 +10,15 @@ import { Newsletter } from "@/components/Newsletter";
 import { TopicsGrid } from "@/components/TopicsGrid";
 import { Ticker } from "@/components/Ticker";
 import { AutoRefresh } from "@/components/AutoRefresh";
-import { getLang, t, type Lang } from "@/lib/i18n";
+import { alternates, getLang, t, type Lang } from "@/lib/i18n";
 import { countryL, persp as perspL, summary, timeAgoL, title } from "@/lib/loc";
 import { CategoryLabel } from "@/components/Pills";
 
+
+export async function generateMetadata() {
+  const l = await getLang();
+  return { alternates: alternates("/", l), ...(l === "zh" ? { title: "coda.news · 一件事，全世界怎么看", description: "科技与经济大事，以及世界各国媒体如何报道。" } : {}) };
+}
 
 export default async function Home({ searchParams }: PageProps<"/">) {
   const sp = await searchParams;

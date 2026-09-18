@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   description: "Technology and economy events, and how media in every country report them.",
   openGraph: { siteName: "coda.news", type: "website", locale: "en_AU", images: ["/og.png"] },
   twitter: { card: "summary_large_image" },
-  alternates: { canonical: "/", types: { "application/rss+xml": "https://coda.news/feed.xml" } },
+  alternates: { types: { "application/rss+xml": "https://coda.news/feed.xml" } },
   robots: { index: true, follow: true, "max-image-preview": "large" },
 };
 
