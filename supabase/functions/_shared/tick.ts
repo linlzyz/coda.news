@@ -6,6 +6,7 @@ import { maintain } from "./maintain.ts";
 import { dedupe } from "./dedupe.ts";
 import { auditEvents } from "./audit.ts";
 import { assignImages } from "./images.ts";
+import { enrichCompanies } from "./companies.ts";
 import { translateFacts, translateMissing } from "./translate.ts";
 import { refreshIndices } from "./markets.ts";
 import { sendWelcomes } from "./newsletter.ts";
@@ -36,6 +37,7 @@ export async function tick(budgetMs = 120_000, opts: { skipIngest?: boolean } = 
   if (left() > 20_000) await step("translate", () => translateMissing(30));
   if (left() > 15_000) await step("translateFacts", () => translateFacts(60));
   if (left() > 10_000) await step("images", () => assignImages(12));
+  if (left() > 8_000) await step("companies", () => enrichCompanies(10));
   await step("markets", () => refreshIndices());
   await step("welcome", sendWelcomes);
   await step("indexnow", pingIndexNow);

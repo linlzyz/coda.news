@@ -6,13 +6,14 @@ import { ingest } from "../_shared/ingest.ts";
 import { sendDailyBrief } from "../_shared/newsletter.ts";
 import { sendHealthReport } from "../_shared/health.ts";
 import { env } from "../_shared/env.ts";
+import { enrichCompanies } from "../_shared/companies.ts";
 
 Deno.serve(async (req) => {
   const secret = env("CRON_SECRET");
   if (!secret || req.headers.get("x-cron-secret") !== secret) return new Response("forbidden", { status: 403 });
   const step = new URL(req.url).searchParams.get("step") ?? "process";
   try {
-    const report = step === "ingest" ? await ingest() : step === "brief" ? { brief: await sendDailyBrief(), health: await sendHealthReport() } : step === "health" ? { health: await sendHealthReport(true) } : await tick(135_000, { skipIngest: true });
+    const report = step === "ingest" ? await ingest() : step === "brief" ? { brief: await sendDailyBrief(), health: await sendHealthReport() } : step === "companies" ? { companies: await enrichCompanies(20) } : step === "health" ? { health: await sendHealthReport(true) } : await tick(135_000, { skipIngest: true });
     return Response.json(report);
   } catch (e) {
     return Response.json({ error: (e as Error).message }, { status: 500 });

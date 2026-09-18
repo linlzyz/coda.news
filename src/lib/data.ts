@@ -83,9 +83,16 @@ async function _companiesByIds(ids: number[]) {
   const { data } = await supabase.from("companies").select("id,name,slug").in("id", ids);
   return (data ?? []) as Company[];
 }
+export type CompanyProfile = Company & {
+  website: string | null; description: string | null; wikidata_id: string | null; name_zh: string | null; description_zh: string | null;
+  about_en: string | null; about_zh: string | null; founded: number | null; hq: string | null; hq_zh: string | null;
+  industry: string | null; industry_zh: string | null; ticker: string | null; wikipedia_en: string | null; wikipedia_zh: string | null;
+};
 async function _getCompany(slug: string) {
-  const { data } = await supabase.from("companies").select("id,name,slug,website,description").eq("slug", slug).maybeSingle();
-  return data as (Company & { website: string | null; description: string | null }) | null;
+  const { data } = await supabase.from("companies")
+    .select("id,name,slug,website,description,wikidata_id,name_zh,description_zh,about_en,about_zh,founded,hq,hq_zh,industry,industry_zh,ticker,wikipedia_en,wikipedia_zh")
+    .eq("slug", slug).maybeSingle();
+  return data as CompanyProfile | null;
 }
 async function _getTopic(slug: string) {
   const { data } = await supabase.from("topics").select("id,name,slug,color").eq("slug", slug).maybeSingle();
