@@ -2,6 +2,7 @@ import Link from "@/components/LLink";
 import { companyDirectory, type CompanyCard } from "@/lib/data";
 import { alternates, langFrom } from "@/lib/i18n";
 import { Flag } from "@/components/Flag";
+import { SearchBox } from "@/components/SearchBox";
 import { CompanyLogo } from "@/components/companies/Logo";
 import { Directory } from "@/components/companies/Directory";
 import { SECTORS, SectorIcon, sectorLabel } from "@/components/companies/sectors";
@@ -48,10 +49,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
           <p className="mt-4 max-w-[560px] text-[16px] leading-relaxed text-neutral-600">{zh ? "它们是谁、来自哪里，以及各国媒体最近怎么报道它们。" : "Who they are, where they come from, and how media in each country have been reporting on them."}</p>
         </div>
         <div>
-          <form action={zh ? "/zh/search" : "/search"} className="flex items-center gap-2 rounded-full border border-[#E5E7EB] bg-white py-1.5 pl-5 pr-1.5 shadow-[0_2px_10px_rgba(0,0,0,.04)]">
-            <input name="q" placeholder={zh ? "搜索公司、行业或国家…" : "Search companies, industries or countries…"} className="h-10 min-w-0 flex-1 bg-transparent text-[14px] outline-none" />
-            <button className="flex h-10 w-10 items-center justify-center rounded-full bg-[#16181D] text-white" aria-label="Search">→</button>
-          </form>
+          <SearchBox lang={l} variant="hero" placeholder={zh ? "搜索公司、话题或新闻…" : "Search companies, topics or news…"} />
           <div className="mt-3 flex flex-wrap items-center gap-2 text-[13px] text-neutral-500">
             <span>{zh ? "热门：" : "Popular:"}</span>
             {popular.map((c) => <Link key={c.id} href={`/company/${c.slug}`} className="rounded-full bg-[#F4F5F7] px-3 py-1 font-medium text-neutral-700 hover:bg-[#ECEEF1]">{nameOf(c)}</Link>)}
@@ -86,7 +84,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
               </>}
           items={all.map((c) => ({ id: c.id, name: nameOf(c), sector: c.sector ?? "other", country: c.country, events: c.events, last: c.last_at ? Date.parse(c.last_at) : 0, node: card(c) }))}
           sectors={sectors.map((s) => [s, sectorLabel(s, zh)])}
-          countries={countries}
+          countries={countries.map(([c, label]) => [c, label, <Flag key={c} code={c} size={12} />])}
           t={{ heading: zh ? "全部公司" : "All companies", all: zh ? "全部" : "All", search: zh ? "按名称筛选" : "Filter by name", recent: zh ? "最近活跃" : "Most recent", az: "A-Z", allCountries: zh ? "所有国家" : "All countries",
                none: zh ? "没有符合条件的公司。" : "No companies match.", more: zh ? "加载更多" : "Load more", count: zh ? "{n} 家" : "{n} companies" }} />
     </div>

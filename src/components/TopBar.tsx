@@ -2,17 +2,14 @@ import Link from "@/components/LLink";
 import { t, type Lang } from "@/lib/i18n";
 import { Icon } from "./Icons";
 import { LangSwitch } from "./LangSwitch";
+import { SearchBox } from "./SearchBox";
 
 export function TopBar({ l }: { l: Lang }) {
   return (
     <header className="sticky top-0 z-20 border-b border-[#E5E7EB] bg-white/90 backdrop-blur">
       <div className="flex h-16 items-center gap-3 px-4 sm:px-6 lg:px-8">
         <Link href="/" className="lg:hidden" aria-label="coda.news home"><img src="/logo.svg" alt="coda.news" className="h-auto w-[112px]" /></Link>
-        <form action="/search" className="hidden max-w-[560px] flex-1 items-center gap-2.5 rounded-xl bg-[#F4F5F7] px-4 text-neutral-500 focus-within:ring-2 focus-within:ring-[#FBD5C2] sm:flex">
-          <Icon name="search" />
-          <label htmlFor="q" className="sr-only">Search</label>
-          <input id="q" name="q" type="search" placeholder={t(l, "search")} className="h-11 flex-1 bg-transparent text-[14px] text-[#16181D] outline-none placeholder:text-neutral-400" />
-        </form>
+        <SearchBox lang={l} placeholder={t(l, "search")} />
         <div className="ml-auto flex items-center gap-2">
           <Link href="/search" className="flex h-10 w-10 items-center justify-center rounded-xl text-neutral-600 sm:hidden" aria-label="Search"><Icon name="search" /></Link>
           <LangSwitch lang={l} />
