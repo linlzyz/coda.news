@@ -85,14 +85,57 @@ async function generateOnce<T>(prompt: string, tier: "fast" | "smart"): Promise<
     text = (j.candidates?.[0]?.content?.parts ?? []).map((p: { text?: string }) => p.text ?? "").join("");
     log(`ai ${model} ${Date.now() - t0}ms in=${j.usageMetadata?.promptTokenCount} out=${j.usageMetadata?.candidatesTokenCount}`);
   } else {
-    text = await groq(prompt);   // throws RateLimited when Groq is out too
+    text = (await openai(prompt).catch((e) => { log("ai openai:", (e as Error).message.slice(0, 120)); return null; })) ?? await groq(prompt);
   }
   try { return JSON.parse(text) as T; } catch { /* try a looser parse */ }
   try { return parseLoose(text) as T; } catch { throw new BadJSON(`AI returned malformed JSON (${j?.candidates?.[0]?.finishReason ?? "groq"})`); }
 }
 
+// ---- OpenAI (paid, cheap): gpt-5-nano. Every call is metered in ai_usage and stops at a daily dollar cap. ----
+const PRICE: Record<string, [number, number]> = { "gpt-5-nano": [0.05, 0.40], "gpt-5-mini": [0.25, 2.0], "text-embedding-3-small": [0.02, 0] };
+const utcDay = () => new Date().toISOString().slice(0, 10);
+export async function spentToday(): Promise<number> {
+  try { const [r] = await db()<{ usd: string }[]>`select coalesce(sum(usd), 0)::text as usd from ai_usage where day = ${utcDay()}`; return Number(r?.usd ?? 0); } catch { return 0; }
+}
+async function meter(model: string, inTok: number, outTok: number) {
+  const [pi, po] = PRICE[model] ?? [0, 0];
+  const usd = (inTok * pi + outTok * po) / 1e6;
+  try { await db()`insert into ai_usage (day, model, in_tokens, out_tokens, usd, calls) values (${utcDay()}, ${model}, ${inTok}, ${outTok}, ${usd}, 1)
+    on conflict (day, model) do update set in_tokens = ai_usage.in_tokens + excluded.in_tokens, out_tokens = ai_usage.out_tokens + excluded.out_tokens,
+      usd = ai_usage.usd + excluded.usd, calls = ai_usage.calls + 1`; } catch { /* ignore */ }
+}
+const dailyCap = () => Number(env("OPENAI_DAILY_USD", "0.30"));   // about $9 a month at most
+export async function openai(prompt: string, model = "gpt-5-nano", maxOut = 12000, effort: "minimal" | "low" = "minimal"): Promise<string> {
+  const key = env("OPENAI_API_KEY"); if (!key) throw new Error("no OPENAI_API_KEY");
+  if (await spentToday() >= dailyCap()) throw new RateLimited("OpenAI daily budget reached");
+  const t0 = Date.now();
+  const r = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST", signal: AbortSignal.timeout(120000),
+    headers: { Authorization: `Bearer ${key}`, "content-type": "application/json" },
+    body: JSON.stringify({ model, reasoning_effort: effort, response_format: { type: "json_object" }, max_completion_tokens: maxOut,
+      messages: [{ role: "user", content: prompt }] }),
+  });
+  if (!r.ok) throw new Error(`openai ${r.status}: ${(await r.text()).slice(0, 160)}`);
+  const j = await r.json();
+  await meter(model, j.usage?.prompt_tokens ?? 0, j.usage?.completion_tokens ?? 0);
+  log(`ai openai ${model} ${Date.now() - t0}ms in=${j.usage?.prompt_tokens} out=${j.usage?.completion_tokens}`);
+  return j.choices?.[0]?.message?.content ?? "";
+}
+/** Cheap JSON for small, high-volume jobs (screening): OpenAI nano first, then Groq, then Gemini. */
+export async function cheapJSON<T = unknown>(prompt: string): Promise<T> {
+  let text: string | null = null;
+  try { text = await openai(prompt, "gpt-5-nano", 6000, "low"); } catch (e) { log("cheap: openai", (e as Error).message.slice(0, 100)); }
+  if (text === null) { try { text = await groq(prompt); } catch (e) { log("cheap: groq", (e as Error).message.slice(0, 100)); } }
+  if (text === null) return generateJSON<T>(prompt, "fast");
+  try { return JSON.parse(text) as T; } catch { return parseLoose(text) as T; }
+}
+
 /** True once every Gemini model is out of quota in this run: callers should send smaller batches (Groq free tier: ~8k tokens/min per model). */
-export const onFallback = async () => { await loadExhausted(); return MODELS.fast().every((m) => exhausted.has(m)); };
+export const onFallback = async () => {
+  await loadExhausted();
+  if (!MODELS.fast().every((m) => exhausted.has(m))) return false;
+  return !env("OPENAI_API_KEY") || (await spentToday()) >= dailyCap();   // nano handles normal batches; only Groq needs small ones
+};
 
 // ---- Groq (OpenAI-compatible). Free tier: 1,000 requests/day and ~8,000 tokens/min per model, so we rotate models. ----
 const GROQ_MODELS = () => env("AI_MODELS_GROQ", "openai/gpt-oss-120b,qwen/qwen3.8-27b,openai/gpt-oss-20b").split(",");
@@ -133,22 +176,24 @@ async function groq(prompt: string): Promise<string> {
   throw new RateLimited("all AI models are out of quota for now");
 }
 
-/** Multilingual embeddings, 768 dims. */
+/** Multilingual embeddings, 768 dims: OpenAI text-embedding-3-small (no daily cap, ~$0.02 per million tokens). */
 export async function embed(texts: string[]): Promise<number[][]> {
   if (!texts.length) return [];
-  const model = MODELS.embed();
+  const key = env("OPENAI_API_KEY");
+  if (!key) throw new Error("OPENAI_API_KEY missing (embeddings)");
   const out: number[][] = [];
-  for (let i = 0; i < texts.length; i += 50) {
-    const chunk = texts.slice(i, i + 50);
-    const j = await call(`${model}:batchEmbedContents`, {
-      requests: chunk.map((t) => ({
-        model: `models/${model}`,
-        content: { parts: [{ text: t.slice(0, 6000) }] },
-        taskType: "SEMANTIC_SIMILARITY",
-        outputDimensionality: EMBED_DIM,
-      })),
+  for (let i = 0; i < texts.length; i += 200) {
+    const chunk = texts.slice(i, i + 200).map((t) => t.slice(0, 6000) || " ");
+    const r = await fetch("https://api.openai.com/v1/embeddings", {
+      method: "POST", signal: AbortSignal.timeout(60000),
+      headers: { Authorization: `Bearer ${key}`, "content-type": "application/json" },
+      body: JSON.stringify({ model: "text-embedding-3-small", input: chunk, dimensions: EMBED_DIM }),
     });
-    for (const e of j.embeddings) out.push(normalize(e.values));
+    if (!r.ok) throw new Error(`embeddings ${r.status}: ${(await r.text()).slice(0, 160)}`);
+    const j = await r.json();
+    await meter("text-embedding-3-small", j.usage?.prompt_tokens ?? 0, 0);
+    // deno-lint-ignore no-explicit-any
+    for (const d of (j.data as any[]).sort((x, y) => x.index - y.index)) out.push(normalize(d.embedding));
   }
   return out;
 }

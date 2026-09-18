@@ -3,11 +3,12 @@ import { useState, type ReactNode } from "react";
 
 /** Latest-news list with category tabs and "load more", all in the browser (the page itself stays static and fast). */
 export function Feed({ items, tabs, title, more, disclaimer }: {
-  items: { tags: string[]; hideInAll?: boolean; node: ReactNode }[]; tabs: [string, string | undefined][]; title: string; more: string; disclaimer: string;
+  items: { tags: string[]; hideInAll?: boolean; node: ReactNode; day?: string; at?: number }[]; tabs: [string, string | undefined][]; title: string; more: string; disclaimer: string;
 }) {
   const [tab, setTab] = useState<string | undefined>(undefined);
   const [n, setN] = useState(15);
-  const list = items.filter((i) => (tab ? i.tags.includes(tab) : !i.hideInAll));
+  // newest first, grouped under day headings
+  const list = items.filter((i) => (tab ? i.tags.includes(tab) : !i.hideInAll)).sort((a, b) => (b.at ?? 0) - (a.at ?? 0));
   return (
     <section>
       <div className="flex items-center gap-5 border-b border-[#E5E7EB]">
@@ -19,7 +20,12 @@ export function Feed({ items, tabs, title, more, disclaimer }: {
           ))}
         </nav>
       </div>
-      {list.slice(0, n).map((i, k) => <div key={k}>{i.node}</div>)}
+      {list.slice(0, n).map((i, k, arr) => (
+        <div key={k}>
+          {i.day && i.day !== arr[k - 1]?.day && <h3 className="mt-6 border-b border-[#16181D] pb-2 text-[13px] font-semibold uppercase tracking-[0.08em] text-[#16181D]">{i.day}</h3>}
+          {i.node}
+        </div>
+      ))}
       {list.length > n && <div className="mt-6 text-center"><button type="button" onClick={() => setN(n + 15)} className="rounded-full border border-[#E5E7EB] px-6 py-2.5 text-[14px] font-medium hover:border-[#16181D]">{more}</button></div>}
       <p className="mt-4 text-[12px] leading-relaxed text-neutral-500">{disclaimer}</p>
     </section>

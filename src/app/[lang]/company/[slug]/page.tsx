@@ -77,6 +77,8 @@ export default async function Page({ params }: PageProps<"/[lang]/company/[slug]
     [zh ? "国家" : "Country", c.country ? <span className="inline-flex items-center gap-2"><Flag code={c.country} size={12} />{cname(c.country)}</span> : null],
     [zh ? "成立" : "Founded", c.founded ? String(c.founded) : null],
     [zh ? "总部" : "Headquarters", zh ? c.hq_zh ?? c.hq : c.hq],
+    [zh ? "创始人" : "Founders", zh ? c.founders_zh ?? c.founders : c.founders],
+    [zh ? "首席执行官" : "CEO", zh ? c.ceo_zh ?? c.ceo : c.ceo],
     [zh ? "母公司" : "Parent company", zh ? c.parent_zh ?? c.parent : c.parent],
     [zh ? "上市" : "Listed", ticker(c.ticker)],
     [zh ? "官网" : "Website", c.website ? <a href={c.website} target="_blank" rel="noopener noreferrer" className="text-[#C2410C] hover:underline">{host(c.website)} ↗</a> : null],

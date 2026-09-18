@@ -10,7 +10,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
   const events = (await listEvents({ limit: 60 })).filter((e) => Date.now() - Date.parse(e.last_article_at) < 36 * 3600_000);
   const persp = await getPerspectives(events.map((e) => e.id));
   const picks = events.filter((e) => (persp.get(e.id)?.length ?? 0) >= 3).slice(0, 6);
-  const tag = (c: string) => zh ? ({ technology: "#科技", economy: "#经济", sport: "#体育", entertainment: "#娱乐", fashion: "#时尚", travel: "#旅行" } as Record<string, string>)[c] ?? "" : `#${c}`;
+  const tag = (c: string) => zh ? ({ technology: "#科技", economy: "#经济", sport: "#体育", entertainment: "#娱乐", fashion: "#时尚", travel: "#旅行", automotive: "#汽车", gaming: "#游戏" } as Record<string, string>)[c] ?? "" : `#${c}`;
   return (
     <div className="mx-auto max-w-[1100px] px-4 py-10 sm:px-6">
       <h1 className="text-[32px] font-semibold tracking-[-0.02em]">{zh ? "社交媒体素材" : "Social posts"}</h1>

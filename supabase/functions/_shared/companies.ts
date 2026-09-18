@@ -107,7 +107,12 @@ export async function enrichCompanies(limit = 15): Promise<number> {
     try {
       const e = await pick(c.name);
       if (!e) { await sql`update companies set enriched_at = now() where id = ${c.id}`; continue; }
-      const refs = [idOf(e, "P159"), idOf(e, "P452"), idOf(e, "P414"), idOf(e, "P17"), idOf(e, "P749")].filter(Boolean) as string[];
+      // founders (up to 3) and the current CEO: only a CEO claim with no end date, the most recent start first
+      const founderIds = ((e.claims?.P112 ?? []) as Ent[]).filter((c) => c.rank !== "deprecated").map((c) => c.mainsnak?.datavalue?.value?.id).filter(Boolean).slice(0, 3) as string[];
+      const ceoC = ((e.claims?.P169 ?? []) as Ent[]).filter((c) => c.rank !== "deprecated" && !c.qualifiers?.P582)
+        .sort((a, b) => (b.rank === "preferred" ? 1 : 0) - (a.rank === "preferred" ? 1 : 0) || String(b.qualifiers?.P580?.[0]?.datavalue?.value?.time ?? "").localeCompare(String(a.qualifiers?.P580?.[0]?.datavalue?.value?.time ?? "")))[0];
+      const ceoId = ceoC?.mainsnak?.datavalue?.value?.id as string | undefined;
+      const refs = [idOf(e, "P159"), idOf(e, "P452"), idOf(e, "P414"), idOf(e, "P17"), idOf(e, "P749"), ...founderIds, ceoId].filter(Boolean) as string[];
       const labels = refs.length ? (await get(`action=wbgetentities&ids=${[...new Set(refs)].join("|")}&props=labels|claims&languages=en|zh|zh-hans|zh-cn`)).entities ?? {} : {};
       const en = (id?: string) => (id ? labels[id]?.labels?.en?.value : undefined) as string | undefined;
       const zh = (id?: string) => (id ? zhOf(labels[id]?.labels) : undefined);
@@ -141,7 +146,8 @@ export async function enrichCompanies(limit = 15): Promise<number> {
       await sql`update companies set wikidata_id = ${e.id}, name_zh = ${zhOf(e.labels) ?? null},
         description = coalesce(description, ${e.descriptions?.en?.value ?? null}), description_zh = ${zhOf(e.descriptions) ?? null},
         about_en = ${aboutEn}, about_zh = ${aboutZh}, website = coalesce(website, ${site}), founded = ${founded ? Number(founded) : null},
-        hq = ${hq}, hq_zh = ${hqZh}, industry = ${en(indId) ?? null}, industry_zh = ${zh(indId) ?? null}, ceo = null,
+        hq = ${hq}, hq_zh = ${hqZh}, industry = ${en(indId) ?? null}, industry_zh = ${zh(indId) ?? null}, ceo = ${ceoId ? en(ceoId) ?? null : null}, ceo_zh = ${ceoId ? zh(ceoId) ?? null : null},
+        founders = ${founderIds.map((id) => en(id)).filter(Boolean).join(", ") || null}, founders_zh = ${founderIds.map((id) => zh(id) ?? en(id)).filter(Boolean).join("、") || null},
         ticker = ${sym ? (exch ? `${exch}: ${sym}` : sym) : null},
         wikipedia_en = ${enT ? `https://en.wikipedia.org/wiki/${encodeURIComponent(enT.replace(/ /g, "_"))}` : null},
         wikipedia_zh = ${zhT ? `https://zh.wikipedia.org/wiki/${encodeURIComponent(zhT.replace(/ /g, "_"))}` : null},

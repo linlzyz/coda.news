@@ -7,6 +7,7 @@ import { dedupe } from "./dedupe.ts";
 import { auditEvents } from "./audit.ts";
 import { assignImages } from "./images.ts";
 import { enrichCompanies } from "./companies.ts";
+import { screenArticles } from "./screen.ts";
 import { translateFacts, translateMissing } from "./translate.ts";
 import { refreshIndices } from "./markets.ts";
 import { sendWelcomes } from "./newsletter.ts";
@@ -24,6 +25,7 @@ export async function tick(budgetMs = 120_000, opts: { skipIngest?: boolean } = 
   };
   try {
     if (!opts.skipIngest) await step("ingest", ingest);
+    await step("screen", () => screenArticles(360));
     let batches = 0;
     while (left() > 45_000) {
       let r: { claimed: number } | undefined;

@@ -14,3 +14,15 @@ export function timeAgoL(iso: string, l: Lang) {
   if (l === "zh") return s < 3600 ? `${Math.round(s / 60)} 分钟前` : s < 86400 ? `${Math.round(s / 3600)} 小时前` : `${Math.round(s / 86400)} 天前`;
   return s < 3600 ? `${Math.round(s / 60)} min ago` : s < 86400 ? `${Math.round(s / 3600)} h ago` : `${Math.round(s / 86400)} d ago`;
 }
+
+/** Day heading for news lists (Melbourne time): "Today · 19 Sept", "Yesterday · 18 Sept", else "Wed 17 Sept". */
+export function dayLabel(iso: string, l: Lang) {
+  const tz = "Australia/Melbourne";
+  const key = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: tz });
+  const d = new Date(iso), today = key(new Date()), yest = key(new Date(Date.now() - 86400_000));
+  const zh = l === "zh";
+  const date = d.toLocaleDateString(zh ? "zh-CN" : "en-AU", { timeZone: tz, day: "numeric", month: zh ? "long" : "short" });
+  if (key(d) === today) return zh ? `今天 · ${date}` : `Today · ${date}`;
+  if (key(d) === yest) return zh ? `昨天 · ${date}` : `Yesterday · ${date}`;
+  return d.toLocaleDateString(zh ? "zh-CN" : "en-AU", { timeZone: tz, weekday: zh ? "long" : "short", day: "numeric", month: zh ? "long" : "short" });
+}

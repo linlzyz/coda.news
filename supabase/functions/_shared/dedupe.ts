@@ -12,7 +12,7 @@ export async function dedupe(maxChecks = 6): Promise<number> {
       select a.* from events a where a.id < b.id and a.embedding is not null and a.last_article_at > now() - interval '10 days'
       order by a.embedding <=> b.embedding limit 1) a on true
     where b.embedding is not null and b.last_article_at > now() - interval '2 days' and not b.dedupe_checked
-      and 1 - (a.embedding <=> b.embedding) >= 0.86
+      and 1 - (a.embedding <=> b.embedding) >= 0.78
     order by b.id, sim desc limit ${maxChecks}`;
   let merged = 0; const gone = new Set<number>();
   for (const p of pairs) {

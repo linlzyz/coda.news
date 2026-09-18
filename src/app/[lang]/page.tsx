@@ -1,3 +1,4 @@
+import { dayLabel } from "@/lib/loc";
 import { orgLd } from "@/lib/site";
 import Link from "@/components/LLink";
 import { allTopics, companyMap, indices, getPerspectives, listEvents, trendingCompanies, type EventRow, type Perspective } from "@/lib/data";
@@ -25,16 +26,16 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 export const revalidate = 60;
 
 export default async function Home({ params }: PageProps<"/[lang]">) {
-  const CATS = ["economy", "technology", "sport", "entertainment", "fashion", "travel"] as const;
-  const [events, au, topics, trending, cq, fq, ...byCat] = await Promise.all([
-    listEvents({ limit: 80 }), listEvents({ region: "AU", order: "recent", limit: 40 }), allTopics(), trendingCompanies(10), crypto(), fx(),
+  const CATS = ["economy", "technology", "sport", "entertainment", "fashion", "travel", "automotive", "gaming"] as const;
+  const [events, au, cn, topics, trending, cq, fq, ...byCat] = await Promise.all([
+    listEvents({ limit: 80 }), listEvents({ region: "AU", order: "recent", limit: 40 }), listEvents({ region: "CN", order: "recent", limit: 40 }), allTopics(), trendingCompanies(10), crypto(), fx(),
     // each tab gets its own list, same as its section page (the main list is dominated by the biggest economy/tech stories)
     ...CATS.map((c) => listEvents({ category: c, limit: 40 })),
   ]);
   const [iq, rq] = await Promise.all([indices("indices"), indices("rates")]);
   const l = await langFrom(params);
   const persp = await getPerspectives(events.map((e) => e.id));
-  const companies = await companyMap([...events, ...au, ...byCat.flat()]);
+  const companies = await companyMap([...events, ...au, ...cn, ...byCat.flat()]);
   const topicMap = new Map(topics.map((t) => [t.id, t]));
   const multi = events.filter((e) => (persp.get(e.id)?.length ?? 0) >= 2);
   // headline: the most important multi-country story that still has new reports in the last 12 hours
@@ -46,7 +47,9 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   const list = events.filter((e) => e.id !== top?.id).slice(0, 75);
   const inList = new Set(list.map((e) => e.id));
   const auOnly = au.filter((e) => !inList.has(e.id));
-  const seen = new Set([...inList, ...auOnly.map((e) => e.id)]);
+  const cnOnly = cn.filter((e) => !inList.has(e.id) && !auOnly.some((a) => a.id === e.id));
+  const seen = new Set([...inList, ...auOnly.map((e) => e.id), ...cnOnly.map((e) => e.id)]);
+  const regionTags = (e: { regions?: string[] }) => [...(e.regions?.includes("AU") ? ["australia"] : []), ...(e.regions?.includes("CN") ? ["china"] : [])];
   const catOnly = byCat.flat().filter((e) => e.id !== top?.id && !seen.has(e.id) && (seen.add(e.id), true));
   const updated = new Date().toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit", timeZone: "Australia/Melbourne" }) + " AEST";
 
@@ -72,11 +75,12 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
           )}
 
           <Feed title={t(l, "latest")} more={t(l, "loadMore")} disclaimer={t(l, "disclaimer")}
-            tabs={(["all", "australia", "economy", "technology", "sport", "entertainment", "fashion", "travel"] as const).map((k) => [t(l, k), k === "all" ? undefined : k])}
+            tabs={(["all", "australia", "china", "economy", "technology", "sport", "entertainment", "fashion", "travel", "automotive", "gaming"] as const).map((k) => [t(l, k), k === "all" ? undefined : k])}
             items={[
-              ...list.map((e) => ({ tags: [e.category, ...(e.regions?.includes("AU") ? ["australia"] : [])], node: <NewsItem e={e} companies={companies} topics={topicMap} lang={l} /> })),
-              ...auOnly.map((e) => ({ tags: ["australia"], hideInAll: true, node: <NewsItem e={e} companies={companies} topics={topicMap} lang={l} /> })),
-              ...catOnly.map((e) => ({ tags: [e.category, ...(e.regions?.includes("AU") ? ["australia"] : [])], hideInAll: true, node: <NewsItem e={e} companies={companies} topics={topicMap} lang={l} /> })),
+              ...list.map((e) => ({ tags: [e.category, ...regionTags(e)], node: <NewsItem e={e} companies={companies} topics={topicMap} lang={l} />, day: dayLabel(e.last_article_at, l), at: Date.parse(e.last_article_at) })),
+              ...auOnly.map((e) => ({ tags: [e.category, ...regionTags(e)], hideInAll: true, node: <NewsItem e={e} companies={companies} topics={topicMap} lang={l} />, day: dayLabel(e.last_article_at, l), at: Date.parse(e.last_article_at) })),
+              ...cnOnly.map((e) => ({ tags: [e.category, ...regionTags(e)], hideInAll: true, node: <NewsItem e={e} companies={companies} topics={topicMap} lang={l} />, day: dayLabel(e.last_article_at, l), at: Date.parse(e.last_article_at) })),
+              ...catOnly.map((e) => ({ tags: [e.category, ...regionTags(e)], hideInAll: true, node: <NewsItem e={e} companies={companies} topics={topicMap} lang={l} />, day: dayLabel(e.last_article_at, l), at: Date.parse(e.last_article_at) })),
             ]} />
         </div>
 

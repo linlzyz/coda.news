@@ -89,10 +89,11 @@ export type CompanyProfile = Company & {
   industry: string | null; industry_zh: string | null; ticker: string | null; wikipedia_en: string | null; wikipedia_zh: string | null;
   logo_url: string | null; slogan: string | null; parent: string | null; parent_zh: string | null; sector: string | null; country: string | null;
   instagram: string | null; x_handle: string | null; facebook: string | null; youtube: string | null; linkedin: string | null;
+  founders: string | null; founders_zh: string | null; ceo: string | null; ceo_zh: string | null;
 };
 async function _getCompany(slug: string) {
   const { data } = await supabase.from("companies")
-    .select("id,name,slug,website,description,wikidata_id,name_zh,description_zh,about_en,about_zh,founded,hq,hq_zh,industry,industry_zh,ticker,wikipedia_en,wikipedia_zh,logo_url,slogan,parent,parent_zh,sector,country,instagram,x_handle,facebook,youtube,linkedin")
+    .select("id,name,slug,website,description,wikidata_id,name_zh,description_zh,about_en,about_zh,founded,hq,hq_zh,industry,industry_zh,ticker,wikipedia_en,wikipedia_zh,logo_url,slogan,parent,parent_zh,sector,country,instagram,x_handle,facebook,youtube,linkedin,founders,founders_zh,ceo,ceo_zh")
     .eq("slug", slug).maybeSingle();
   return data as CompanyProfile | null;
 }
