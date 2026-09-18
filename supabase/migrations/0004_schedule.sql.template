@@ -1,7 +1,7 @@
 -- Schedules the pipeline. Applied by scripts/schedule.mts (fills in the secret; never commit the filled version).
 create extension if not exists pg_cron;
 create extension if not exists pg_net;
-select cron.unschedule(jobname) from cron.job where jobname in ('coda-ingest','coda-process');
+select cron.unschedule(jobname) from cron.job where jobname in ('coda-ingest','coda-process','coda-brief');
 select cron.schedule('coda-ingest', '*/5 * * * *', $$
   select net.http_post(url := 'https://__REF__.supabase.co/functions/v1/tick?step=ingest',
     headers := '{"x-cron-secret":"__SECRET__","content-type":"application/json"}'::jsonb, body := '{}'::jsonb, timeout_milliseconds := 60000) $$);
@@ -12,3 +12,8 @@ select cron.schedule('coda-process', '1-59/5 * * * *', $$
 select cron.unschedule(jobname) from cron.job where jobname = 'coda-cleanup';
 select cron.schedule('coda-cleanup', '17 3 * * *', $$
   delete from cron.job_run_details where end_time < now() - interval '3 days' $$);
+
+-- The Daily Coda at 07:00 Melbourne (21:00 UTC during AEST; the function sends at most once per Melbourne day)
+select cron.schedule('coda-brief', '0 20,21 * * *', $$
+  select net.http_post(url := 'https://__REF__.supabase.co/functions/v1/tick?step=brief',
+    headers := '{"x-cron-secret":"__SECRET__","content-type":"application/json"}'::jsonb, body := '{}'::jsonb, timeout_milliseconds := 120000) $$);

@@ -127,10 +127,14 @@ async function _searchEvents(q: string) {
   return (data ?? []) as EventRow[];
 }
 
-export async function subscribe(email: string) {
-  const { error } = await supabase.from("subscribers").insert({ email: email.trim().toLowerCase() });
-  if (error && !String(error.message).includes("duplicate")) return false;
-  return true;
+export async function subscribe(email: string, lang: string) {
+  const { error } = await supabase.rpc("subscribe", { e: email, l: lang });
+  return !error;
+}
+export async function unsubscribe(token: string) {
+  if (!/^[0-9a-f-]{36}$/i.test(token)) return false;
+  const { data } = await supabase.rpc("unsubscribe", { t: token });
+  return !!data;
 }
 
 async function _indices(grp = "indices") {
