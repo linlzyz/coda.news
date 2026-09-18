@@ -32,6 +32,7 @@ export default async function EventPage({ params }: PageProps<"/[lang]/event/[sl
     langFrom(params), getPerspectives([e.id]), getLatestSummary(e.id), getFacts(e.id), getArticles(e.id), companiesByIds(e.company_ids), eventCorrections(e.id),
   ]);
   const perspectives = perspMap.get(e.id) ?? [];
+  const inCards = new Set(perspectives.map((p) => p.country));
   const outlets = new Set(articles.map((a) => a.sources.name.split(" ")[0] + a.sources.country)).size;
   // show only companies that the recorded facts actually involve (matching can attach loosely related names)
   const factText = facts.map((f) => `${f.content.subject} ${f.content.object} ${f.content.text}`).join(" ").toLowerCase();
@@ -135,7 +136,21 @@ export default async function EventPage({ params }: PageProps<"/[lang]/event/[sl
                     {v.headline && <div className="rounded-xl bg-[#F4F5F7] p-4"><div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-neutral-500">{t(l, "typicalHeadline")}</div><div className="mt-1 text-[17px] font-semibold leading-snug">{v.headline}</div></div>}
                     {v.emphasis && <div><div className="text-[12px] font-semibold text-emerald-700">{t(l, "emphasises")}</div><p className="mt-1 text-[14px] leading-relaxed text-neutral-700">{v.emphasis}</p></div>}
                     {v.downplayed && <div><div className="text-[12px] font-semibold text-rose-700">{t(l, "mentionsLess")}</div><p className="mt-1 text-[14px] leading-relaxed text-neutral-700">{v.downplayed}</p></div>}
-                    <div className="mt-auto border-t border-[#F0F1F3] pt-3 text-[12px] text-neutral-500">{p.article_count === 1 && <span className="mr-2 rounded bg-amber-50 px-1.5 py-0.5 font-medium text-amber-800">{t(l, "limited")}</span>}{n(p.article_count, "article", "articles")} · {[...new Set((byCountry.get(p.country) ?? []).map((a) => a.sources.name))].join(", ")}</div>
+                    <details className="group mt-auto border-t border-[#F0F1F3] pt-3 text-[12px] text-neutral-500">
+                      <summary className="flex cursor-pointer list-none items-center gap-1 [&::-webkit-details-marker]:hidden">
+                        {p.article_count === 1 && <span className="mr-1 rounded bg-amber-50 px-1.5 py-0.5 font-medium text-amber-800">{t(l, "limited")}</span>}
+                        <span className="truncate">{n((byCountry.get(p.country) ?? []).length || p.article_count, "article", "articles")} · {[...new Set((byCountry.get(p.country) ?? []).map((a) => a.sources.name))].join(", ")}</span>
+                        <svg className="ml-auto h-3.5 w-3.5 shrink-0 transition group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden><path d="m6 9 6 6 6-6" /></svg>
+                      </summary>
+                      <ul className="mt-2.5 space-y-2">
+                        {(byCountry.get(p.country) ?? []).map((a) => (
+                          <li key={a.id} className="text-[13px] leading-snug">
+                            <a href={a.url} target="_blank" rel="noopener noreferrer" className="text-[#16181D] hover:text-[#C2410C]">{a.title}</a>
+                            <span className="text-neutral-500"> · {a.sources.name}{a.sources.type === "official" ? ` (${t(l, "official")})` : ""}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
                   </article>
                 );
               })}
@@ -144,9 +159,10 @@ export default async function EventPage({ params }: PageProps<"/[lang]/event/[sl
 
 
           <section className="space-y-3">
-            <h2 className="text-[20px] font-semibold tracking-[-0.015em]">{t(l, "sourcesH")}</h2>
+            {[...byCountry.keys()].some((c) => !inCards.has(c)) && <h2 className="text-[20px] font-semibold tracking-[-0.015em]">{t(l, "sourcesH")}</h2>}
             <p className="text-[12px] text-neutral-500">{t(l, "disclaimer")}</p>
-            {[...byCountry].map(([c, list]) => (
+            {/* countries with a perspective card list their sources inside the card; only the rest are listed here */}
+            {[...byCountry].filter(([c]) => !inCards.has(c)).map(([c, list]) => (
               <div key={c} className="rounded-2xl border border-[#E5E7EB] p-4">
                 <div className="flex items-center gap-2 text-[14px] font-semibold"><Flag code={c} size={13} />{countryL(c, l)}</div>
                 <ul className="mt-2 space-y-1.5">
