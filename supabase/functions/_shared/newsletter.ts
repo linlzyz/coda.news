@@ -87,7 +87,7 @@ export async function sendDailyBrief(force = false): Promise<number> {
   const n = await send(subs.map((s) => {
     const zh = s.lang === "zh"; const unsub = `${SITE}/unsubscribe?t=${s.token}`;
     const head = `<tr><td style="padding:8px 32px 4px;font-size:13px;color:#6B7280">${dateLabel(zh)}</td></tr>`;
-    return { to: s.email, subject: `${zh ? "coda.news 每日简报" : "the coda.news Daily Brief"}: ${(zh && events[0].title_zh) || events[0].title}`, html: shell(head + render(zh), unsub, zh), unsub };
+    return { to: s.email, subject: `${zh ? "coda.news 每日简报" : "coda.news Daily Brief"}: ${(zh && events[0].title_zh) || events[0].title}`, html: shell(head + render(zh), unsub, zh), unsub };
   }));
   await sql`insert into newsletter_issues (sent_on, event_ids, recipients) values (${today}, ${ids}, ${n}) on conflict (sent_on) do update set recipients = excluded.recipients`;
   if (n) await sql`update subscribers set last_sent_at = now() where unsubscribed_at is null and welcomed_at is not null`;
