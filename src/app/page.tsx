@@ -34,8 +34,11 @@ export default async function Home({ searchParams }: PageProps<"/">) {
   const list = events.filter((e) => e.id !== top?.id && (!tab || e.category === tab)).slice(0, 30);
   const updated = new Date().toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit", timeZone: "Australia/Melbourne" }) + " AEST";
 
+  const siteLd = { "@context": "https://schema.org", "@type": "WebSite", name: "coda.news", url: "https://coda.news",
+    potentialAction: { "@type": "SearchAction", target: "https://coda.news/search?q={q}", "query-input": "required name=q" } };
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteLd) }} />
       <AutoRefresh />
       <Ticker lang={l} />
       <div className="grid gap-8 px-4 py-6 sm:px-6 lg:px-8 xl:grid-cols-[minmax(0,1fr)_340px]">

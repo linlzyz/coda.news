@@ -1,7 +1,10 @@
-// Images are decoration, never required. Order: official RSS image (set at ingest) → topic stock photo (Pexels API) → designed fallback in the UI.
-// Stock photos are only searched with generic scene words, never company, product or person names.
+// Images are decoration, never required.
+// Order: official RSS image (set at ingest) → Unsplash → Pexels → Pixabay (each by its own API terms) → designed cover in the UI.
+// Stock photos are searched with scene words only (never company, product or person names), and a photo is never reused.
 import { db } from "./db.ts";
 import { env, log } from "./env.ts";
+
+type Img = { url: string; credit: string; link: string };
 
 const TOPIC_QUERIES: Record<string, string[]> = {
   "artificial-intelligence": ["artificial intelligence abstract", "data center servers", "circuit board macro"],
@@ -16,27 +19,91 @@ const TOPIC_QUERIES: Record<string, string[]> = {
   crypto: ["cryptocurrency abstract", "blockchain abstract", "digital finance"],
 };
 const DEFAULT = ["business documents desk", "technology abstract", "world map"];
+const exhausted = new Set<string>();
 
-async function pexels(query: string): Promise<{ url: string; credit: string; link: string } | null> {
+async function unused(candidates: Img[]): Promise<Img | null> {
+  if (!candidates.length) return null;
+  const sql = db();
+  const used = new Set((await sql<{ image_url: string }[]>`select image_url from events where image_url in ${sql(candidates.map((c) => c.url))}`).map((r) => r.image_url));
+  const fresh = candidates.filter((c) => !used.has(c.url));
+  return fresh.length ? fresh[Math.floor(Math.random() * Math.min(fresh.length, 12))] : null;
+}
+
+// Unsplash: hotlink their URL, credit photographer + Unsplash, ping download_location when used.
+async function unsplash(q: string): Promise<Img | null> {
+  const key = env("UNSPLASH_ACCESS_KEY"); if (!key) return null;
+  const r = await fetch(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(q)}&per_page=30&orientation=landscape&content_filter=high`,
+    { headers: { Authorization: `Client-ID ${key}`, "Accept-Version": "v1" }, signal: AbortSignal.timeout(10000) });
+  if (r.status === 403 || r.status === 429) throw new Limit("unsplash");
+  if (!r.ok) return null;
+  const j = await r.json();
+  const utm = "utm_source=coda.news&utm_medium=referral";
+  // deno-lint-ignore no-explicit-any
+  const list: (Img & { dl: string })[] = (j.results ?? []).map((p: any) => ({
+    url: p.urls.regular, credit: `${p.user.name} / Unsplash`, link: `${p.user.links.html}?${utm}`, dl: p.links.download_location,
+  }));
+  const pick = await unused(list) as (Img & { dl?: string }) | null;
+  if (pick?.dl) fetch(pick.dl, { headers: { Authorization: `Client-ID ${key}` } }).catch(() => {});
+  return pick ? { url: pick.url, credit: pick.credit, link: pick.link } : null;
+}
+
+// Pexels: hotlink, credit photographer + Pexels.
+async function pexels(q: string): Promise<Img | null> {
   const key = env("PEXELS_API_KEY"); if (!key) return null;
   const page = 1 + Math.floor(Math.random() * 3);
-  const r = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&orientation=landscape&per_page=40&page=${page}`, {
-    headers: { Authorization: key }, signal: AbortSignal.timeout(10000) });
-  if (!r.ok) throw new Error(`pexels ${r.status}`);
+  const r = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(q)}&orientation=landscape&per_page=40&page=${page}`,
+    { headers: { Authorization: key }, signal: AbortSignal.timeout(10000) });
+  if (r.status === 429) throw new Limit("pexels");
+  if (!r.ok) return null;
   const j = await r.json();
-  const photos = (j.photos ?? []) as { src: { large: string; landscape: string }; photographer: string; url: string }[];
-  if (!photos.length) return null;
-  // never reuse a photo another event already shows
-  const urls = photos.map((p) => p.src.landscape || p.src.large);
-  const used = new Set((await db()<{ image_url: string }[]>`select image_url from events where image_url in ${db()(urls)}`).map((r) => r.image_url));
-  const fresh = photos.filter((p) => !used.has(p.src.landscape || p.src.large));
+  // deno-lint-ignore no-explicit-any
+  return unused((j.photos ?? []).map((p: any) => ({ url: p.src.landscape || p.src.large, credit: `${p.photographer} / Pexels`, link: p.url })));
+}
+
+// Pixabay: no permanent hotlinking → copy the image into our own storage, credit Pixabay.
+async function pixabay(q: string): Promise<Img | null> {
+  const key = env("PIXABAY_API_KEY"); if (!key) return null;
+  const r = await fetch(`https://pixabay.com/api/?key=${key}&q=${encodeURIComponent(q)}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40`,
+    { signal: AbortSignal.timeout(10000) });
+  if (r.status === 429) throw new Limit("pixabay");
+  if (!r.ok) return null;
+  const j = await r.json();
+  // deno-lint-ignore no-explicit-any
+  const hits = (j.hits ?? []) as any[];
+  const sql = db();
+  const pages = hits.map((h) => h.pageURL as string);
+  const usedPages = new Set((await sql<{ image_link: string }[]>`select image_link from events where image_link in ${sql(pages.length ? pages : [""])}`).map((x) => x.image_link));
+  const fresh = hits.filter((h) => !usedPages.has(h.pageURL));
   if (!fresh.length) return null;
-  const p = fresh[Math.floor(Math.random() * fresh.length)];
-  return { url: p.src.landscape || p.src.large, credit: `${p.photographer} / Pexels`, link: p.url };
+  const h = fresh[Math.floor(Math.random() * Math.min(fresh.length, 12))];
+  const img = await fetch(h.largeImageURL || h.webformatURL, { signal: AbortSignal.timeout(15000) });
+  if (!img.ok) return null;
+  const base = env("SUPABASE_URL") || env("NEXT_PUBLIC_SUPABASE_URL");
+  const secret = env("SUPABASE_SERVICE_ROLE_KEY");
+  const path = `pixabay/${h.id}.jpg`;
+  const up = await fetch(`${base}/storage/v1/object/images/${path}`, {
+    method: "POST", headers: { apikey: secret, Authorization: `Bearer ${secret}`, "content-type": "image/jpeg", "x-upsert": "true" },
+    body: await img.arrayBuffer(),
+  });
+  if (!up.ok) { log("pixabay upload failed", up.status); return null; }
+  return { url: `${base}/storage/v1/object/public/images/${path}`, credit: `${h.user} / Pixabay`, link: h.pageURL };
+}
+
+class Limit extends Error {}
+const PROVIDERS: [string, (q: string) => Promise<Img | null>][] = [["unsplash", unsplash], ["pexels", pexels], ["pixabay", pixabay]];
+
+async function find(queries: string[]): Promise<Img | null> {
+  for (const q of queries) {
+    for (const [name, fn] of PROVIDERS) {
+      if (exhausted.has(name)) continue;
+      try { const img = await fn(q); if (img) return img; }
+      catch (e) { if (e instanceof Limit) { exhausted.add(name); log(`images: ${name} hourly limit reached`); } }
+    }
+  }
+  return null;
 }
 
 export async function assignImages(limit = 12): Promise<number> {
-  if (!env("PEXELS_API_KEY")) return 0;
   const sql = db();
   const events = await sql<{ id: number; image_query: string | null; slugs: string[] | null }[]>`
     select e.id, e.image_query, (select array_agg(t.slug) from topics t where t.id = any(e.topic_ids)) as slugs
@@ -44,11 +111,11 @@ export async function assignImages(limit = 12): Promise<number> {
     order by e.importance desc, e.last_article_at desc limit ${limit}`;
   let n = 0;
   for (const e of events) {
+    if (exhausted.size === PROVIDERS.length) break;
     const pool = e.slugs?.flatMap((s) => TOPIC_QUERIES[s] ?? []) ?? [];
     const queries = [e.image_query, pool[Math.floor(Math.random() * pool.length)], DEFAULT[e.id % DEFAULT.length]].filter(Boolean) as string[];
-    let img = null;
-    try { for (const q of queries) { img = await pexels(q); if (img) break; } }
-    catch (err) { log(`images: ${(err as Error).message}, retry next run`); break; }   // e.g. hourly limit reached
+    const img = await find(queries);
+    if (!img && exhausted.size === PROVIDERS.length) break;   // try again next run
     await sql`update events set image_checked_at = now(), image_url = coalesce(image_url, ${img?.url ?? null}),
               image_credit = coalesce(image_credit, ${img?.credit ?? null}), image_link = coalesce(image_link, ${img?.link ?? null}) where id = ${e.id}`;
     if (img) n++;

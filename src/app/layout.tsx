@@ -12,7 +12,10 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://coda.news"),
   title: { default: "coda.news · One story. Every perspective.", template: "%s · coda.news" },
   description: "Technology and economy events, and how media in every country report them.",
-  openGraph: { siteName: "coda.news", type: "website" },
+  openGraph: { siteName: "coda.news", type: "website", locale: "en_AU", images: ["/og.png"] },
+  twitter: { card: "summary_large_image" },
+  alternates: { canonical: "/", types: { "application/rss+xml": "https://coda.news/feed.xml" } },
+  robots: { index: true, follow: true, "max-image-preview": "large" },
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {

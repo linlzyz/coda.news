@@ -14,7 +14,9 @@ import { Cover } from "@/components/Cover";
 export async function generateMetadata({ params }: PageProps<"/event/[slug]">): Promise<Metadata> {
   const e = await getEvent((await params).slug);
   if (!e) return {};
-  return { title: e.title, description: e.summary ?? undefined, openGraph: { title: e.title, description: e.summary ?? undefined, type: "article", images: e.image_url ? [e.image_url] : undefined } };
+  return { title: e.title, description: e.summary ?? undefined, alternates: { canonical: `/event/${e.slug}` },
+    openGraph: { title: e.title, description: e.summary ?? undefined, type: "article", publishedTime: e.started_at, modifiedTime: e.last_article_at, section: e.category, images: e.image_url ? [e.image_url] : ["/og.png"] },
+    twitter: { card: "summary_large_image", title: e.title, description: e.summary ?? undefined, images: e.image_url ? [e.image_url] : ["/og.png"] } };
 }
 
 export default async function EventPage({ params }: PageProps<"/event/[slug]">) {
@@ -35,8 +37,11 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
   const agreed = (l === "zh" && latest?.agreed_zh?.length ? latest.agreed_zh : latest?.agreed) ?? [];
   const analysis = (l === "zh" && latest?.analysis_zh) || latest?.analysis;
   const n = (k: number, one: "source" | "country" | "article", many: "sources" | "countries" | "articles") => `${k} ${t(l, k === 1 ? one : many)}`;
-  const jsonLd = { "@context": "https://schema.org", "@type": "NewsArticle", headline: e.title, description: e.summary, image: e.image_url ?? undefined,
-    datePublished: e.started_at, dateModified: e.last_article_at, publisher: { "@type": "Organization", name: "coda.news" } };
+  const jsonLd = { "@context": "https://schema.org", "@type": "NewsArticle", headline: e.title, description: e.summary, image: e.image_url ? [e.image_url] : undefined,
+    datePublished: e.started_at, dateModified: e.last_article_at, articleSection: e.category, isAccessibleForFree: true,
+    mainEntityOfPage: `https://coda.news/event/${e.slug}`, author: { "@type": "Organization", name: "coda.news", url: "https://coda.news" },
+    publisher: { "@type": "Organization", name: "coda.news", url: "https://coda.news", logo: { "@type": "ImageObject", url: "https://coda.news/og.png" } },
+    citation: articles.slice(0, 20).map((a) => ({ "@type": "CreativeWork", name: a.title, url: a.url, publisher: a.sources.name })) };
 
   return (
     <div className="px-4 py-8 sm:px-6 lg:px-8">

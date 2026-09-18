@@ -139,6 +139,19 @@ async function _indices(grp = "indices") {
 }
 export const indices = unstable_cache(_indices, ["indices"], { revalidate: 600 });
 
+async function _sitemapRows() {
+  const [ev, co, tp] = await Promise.all([
+    supabase.from("events").select("slug,title,summary,category,image_url,started_at,last_article_at").not("summary", "is", null).order("last_article_at", { ascending: false }).limit(5000),
+    supabase.from("companies").select("slug").limit(3000),
+    supabase.from("topics").select("slug"),
+  ]);
+  return {
+    events: (ev.data ?? []) as { slug: string; title: string; summary: string; category: string; image_url: string | null; started_at: string; last_article_at: string }[],
+    companies: (co.data ?? []) as { slug: string }[], topics: (tp.data ?? []) as { slug: string }[],
+  };
+}
+export const sitemapRows = unstable_cache(_sitemapRows, ["sitemapRows"], { revalidate: 600 });
+
 // Cached reads: shared across requests for 60s, so switching language or pages does not wait for the database.
 export const listEvents = unstable_cache(_listEvents, ["listEvents"], { revalidate: 60 });
 export const getEvent = unstable_cache(_getEvent, ["getEvent"], { revalidate: 60 });
