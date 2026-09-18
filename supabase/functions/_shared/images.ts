@@ -208,7 +208,7 @@ export async function assignImages(limit = 12): Promise<number> {
   const people = await sql<{ id: number; image_person: string; title: string; image_focus: string | null }[]>`
     select id, image_person, title, image_focus from events where image_person is not null and person_checked_at is null and summary is not null
       and (image_url is null or image_source in ('pexels','unsplash','pixabay','openverse','commons','logo'))
-    order by importance desc, last_article_at desc limit ${limit}`;
+    order by importance desc, last_article_at desc limit ${limit * 3}`;
   let swapped = 0;
   for (const p of people) {
     let img: Img | null = null;
