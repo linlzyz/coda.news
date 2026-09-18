@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --color-ink: #0A1A33;
+  --color-brand: #EA5514;
+}
+
+:root { color-scheme: light; }
+body { background: #ffffff; color: #0A1A33; font-feature-settings: "cv11", "ss01"; }
+
+/* Live ticker */
+.ticker { mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent); }
+.ticker-track { animation: ticker 90s linear infinite; }
+.ticker:hover .ticker-track { animation-play-state: paused; }
+@keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .ticker-track { animation: none; } }
