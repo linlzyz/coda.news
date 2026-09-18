@@ -34,7 +34,9 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   const companies = await companyMap([...events, ...au]);
   const topicMap = new Map(topics.map((t) => [t.id, t]));
   const multi = events.filter((e) => (persp.get(e.id)?.length ?? 0) >= 2);
-  const top = multi[0] ?? events[0];
+  // headline: the most important multi-country story that still has new reports in the last 12 hours
+  const fresh = multi.filter((e) => Date.now() - Date.parse(e.last_article_at) < 12 * 3600_000);
+  const top = fresh[0] ?? multi[0] ?? events[0];
   const featured = multi.find((e) => e.id !== top?.id && e.image_url) ?? multi.find((e) => e.id !== top?.id);
   const divided = multi.filter((e) => e.id !== top?.id && e.id !== featured?.id)
     .sort((a, b) => new Set((persp.get(b.id) ?? []).map((p) => p.tone)).size - new Set((persp.get(a.id) ?? []).map((p) => p.tone)).size).slice(0, 4);
