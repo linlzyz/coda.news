@@ -45,7 +45,7 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
           {/* Header */}
           <header className="space-y-4">
             <div className="flex flex-wrap items-center gap-3 text-xs"><CategoryLabel category={e.category} /><StatusPill status={e.status} /><span className="text-slate-500">Updated {timeAgo(e.last_article_at)} · since {fmtDate(e.started_at)}</span></div>
-            <h1 className="text-3xl font-bold leading-[1.1] tracking-[-0.02em] sm:text-[44px]">{e.title}</h1>
+            <h1 className="text-3xl font-semibold leading-[1.1] tracking-[-0.02em] sm:text-[44px]">{e.title}</h1>
             <p className="max-w-3xl text-lg leading-relaxed text-slate-600">{e.summary}</p>
             <div className="flex flex-wrap gap-2 text-[13px]">
               <Chip>{plural(e.source_count, "source")}</Chip><Chip>{plural(e.countries.length, "country", "countries")}</Chip><Chip>{plural(e.article_count, "article")}</Chip>
@@ -59,36 +59,36 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
           {/* Agreed facts */}
           {latest?.agreed && latest.agreed.length > 0 && (
             <section className="rounded-2xl border border-[#D6E2F5] p-6">
-              <h2 className="text-lg font-bold">What everyone agrees on</h2>
+              <h2 className="text-lg font-semibold">What everyone agrees on</h2>
               <ol className="mt-4 grid gap-3 sm:grid-cols-2">
-                {latest.agreed.map((f, i) => <li key={i} className="flex gap-3 text-[15px] leading-relaxed"><span className="font-bold text-slate-400">{String(i + 1).padStart(2, "0")}</span><span>{f}</span></li>)}
+                {latest.agreed.map((f, i) => <li key={i} className="flex gap-3 text-[15px] leading-relaxed"><span className="font-semibold text-slate-400">{String(i + 1).padStart(2, "0")}</span><span>{f}</span></li>)}
               </ol>
             </section>
           )}
 
           {/* Framing spectrum */}
           {perspectives.length >= 2 && (
-            <section className="rounded-2xl bg-[#0A1A33] p-6 text-white">
-              <div className="flex items-baseline gap-3"><h2 className="text-lg font-bold">The framing spectrum</h2><span className="text-sm text-slate-400">Tone of each country&apos;s coverage</span></div>
+            <section className="rounded-2xl bg-[#EEF4FF] p-6 text-[#0A1A33] ring-1 ring-[#D6E2F5]">
+              <div className="flex items-baseline gap-3"><h2 className="text-lg font-semibold">The framing spectrum</h2><span className="text-sm text-slate-500">Tone of each country&apos;s coverage</span></div>
               <div className="relative mt-6 h-20">
-                <div className="absolute inset-x-0 top-[34px] h-1 rounded bg-white/15" />
+                <div className="absolute inset-x-0 top-[34px] h-1 rounded bg-[#C7D7F4]" />
                 {perspectives.map((p, i) => {
                   const x = (TONE[p.tone]?.x ?? 50) + ((i % 3) - 1) * 5;
                   return (
                     <div key={p.country} className="absolute flex -translate-x-1/2 flex-col items-center gap-1.5" style={{ left: `${x}%`, top: i % 2 ? 40 : 0 }}>
-                      {i % 2 ? <><span className="h-3.5 w-3.5 rounded-full border-2 border-[#0A1A33] bg-[#EA5514]" /><span className="text-xs font-bold">{p.country}</span></>
-                             : <><span className="text-xs font-bold">{p.country}</span><span className="h-3.5 w-3.5 rounded-full border-2 border-[#0A1A33] bg-[#EA5514]" /></>}
+                      {i % 2 ? <><span className="h-3.5 w-3.5 rounded-full border-2 border-white bg-[#1D4ED8]" /><span className="text-xs font-semibold">{p.country}</span></>
+                             : <><span className="text-xs font-semibold">{p.country}</span><span className="h-3.5 w-3.5 rounded-full border-2 border-white bg-[#1D4ED8]" /></>}
                     </div>
                   );
                 })}
               </div>
-              <div className="mt-3 flex justify-between text-xs text-slate-400"><span>← Positive</span><span>Neutral</span><span>Cautious →</span></div>
+              <div className="mt-3 flex justify-between text-xs text-slate-500"><span>← Positive</span><span>Neutral</span><span>Cautious →</span></div>
             </section>
           )}
 
           {/* Perspectives */}
           <section className="space-y-4">
-            <h2 className="text-2xl font-bold tracking-[-0.01em]">How each country tells it</h2>
+            <h2 className="text-2xl font-semibold tracking-[-0.01em]">How each country tells it</h2>
             {perspectives.length === 0 && <p className="text-slate-500">So far one country has covered this event. Perspectives appear when media in a second country report it.</p>}
             <div className="grid gap-4 md:grid-cols-2">
               {perspectives.map((p) => (
@@ -106,8 +106,8 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
 
           {latest?.analysis && (
             <section className="rounded-2xl bg-[#EAF1FE] p-6">
-              <div className="text-xs font-bold uppercase tracking-[0.1em] text-[#1D4ED8]">Coda analysis</div>
-              <h2 className="mt-2 text-2xl font-bold">Why the coverage differs</h2>
+              <div className="text-xs font-semibold uppercase tracking-[0.1em] text-[#1D4ED8]">Coda analysis</div>
+              <h2 className="mt-2 text-2xl font-semibold">Why the coverage differs</h2>
               <p className="mt-3 text-[16px] leading-relaxed text-slate-800">{latest.analysis}</p>
               <p className="mt-3 text-xs text-slate-600">AI-generated from the sources below. Always check the originals.</p>
             </section>
@@ -115,7 +115,7 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
 
           {/* Sources */}
           <section className="space-y-3">
-            <h2 className="text-xl font-bold">Sources</h2>
+            <h2 className="text-xl font-semibold">Sources</h2>
             {[...byCountry].map(([c, list]) => (
               <div key={c} className="rounded-2xl border border-[#D6E2F5] p-4">
                 <div className="flex items-center gap-2 text-sm font-semibold"><Flag code={c} size={13} />{countryName(c)}</div>
@@ -136,7 +136,7 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
         <aside className="space-y-6">
           {facts.length > 0 && (
             <section className="rounded-2xl border border-[#D6E2F5] p-5">
-              <h2 className="text-base font-bold">Timeline</h2>
+              <h2 className="text-base font-semibold">Timeline</h2>
               <ol className="mt-4">
                 {facts.slice(0, 12).map((f, i) => (
                   <li key={f.id} className="grid grid-cols-[12px_minmax(0,1fr)] gap-3">
@@ -149,7 +149,7 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
           )}
           {related.length > 0 && (
             <section className="rounded-2xl border border-[#D6E2F5] p-5">
-              <h2 className="text-base font-bold">More on {companies[0].name}</h2>
+              <h2 className="text-base font-semibold">More on {companies[0].name}</h2>
               <div className="-mx-3 mt-2">{related.map((r) => <EventMini key={r.id} e={r} />)}</div>
             </section>
           )}

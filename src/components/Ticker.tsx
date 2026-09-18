@@ -13,7 +13,7 @@ export async function Ticker() {
   return (
     <div className="border-b border-[#D6E2F5] bg-[#FFFFFF]">
       <div className="mx-auto flex max-w-[1280px] items-center gap-3 px-4 sm:px-6">
-        <span className="shrink-0 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-[#EA5514]">Live</span>
+        <span className="shrink-0 py-2.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-[#EA5514]">Live</span>
         <div className="ticker relative overflow-hidden py-2.5 whitespace-nowrap">
           <div className="ticker-track inline-flex">{row}{row}</div>
         </div>

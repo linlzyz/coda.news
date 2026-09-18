@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import { Header, Footer } from "@/components/Header";
 import "./globals.css";
 
-const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
+const inter = Inter({ variable: "--font-inter", subsets: ["latin"], axes: ["opsz"], display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://coda.news"),

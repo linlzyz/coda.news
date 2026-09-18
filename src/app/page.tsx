@@ -28,7 +28,7 @@ export default async function Home() {
           {top ? <TopStory e={top} perspectives={persp.get(top.id) ?? []} /> : <Empty />}
           <section>
             <div className="flex items-center gap-4 overflow-x-auto border-b border-[#D6E2F5] pb-3">
-              <h2 className="whitespace-nowrap text-xl font-bold tracking-[-0.01em]">Latest events</h2>
+              <h2 className="whitespace-nowrap text-xl font-semibold tracking-[-0.01em]">Latest events</h2>
               <div className="flex gap-1 text-sm">
                 <span className="rounded-lg bg-[#EAF1FE] px-3 py-1.5 font-semibold text-[#1D4ED8]">All</span>
                 <Link href="/technology" className="rounded-lg px-3 py-1.5 text-slate-600 hover:bg-slate-100">Technology</Link>
@@ -42,13 +42,13 @@ export default async function Home() {
         <aside className="space-y-6">
           {divided.length > 0 && (
             <section className="rounded-2xl border border-[#D6E2F5] p-5">
-              <h2 className="text-base font-bold">Where the world disagrees</h2>
+              <h2 className="text-base font-semibold">Where the world disagrees</h2>
               <p className="mt-1 text-sm text-slate-500">Events where countries frame the story most differently.</p>
               <div className="-mx-3 mt-3">{divided.map(({ e }) => <EventMini key={e.id} e={e} />)}</div>
             </section>
           )}
           <section className="rounded-2xl border border-[#D6E2F5] p-5">
-            <h2 className="text-base font-bold">Topics</h2>
+            <h2 className="text-base font-semibold">Topics</h2>
             <div className="mt-3 flex flex-wrap gap-2">
               {topics.map((t) => (
                 <Link key={t.id} href={`/topic/${t.slug}`} className="inline-flex items-center gap-2 rounded-full border border-[#D6E2F5] px-3 py-1.5 text-sm hover:border-[#7FA3E8]">
@@ -57,12 +57,12 @@ export default async function Home() {
               ))}
             </div>
           </section>
-          <section className="rounded-2xl bg-[#0A1A33] p-5 text-white">
-            <h2 className="text-base font-bold">A knowledge base that updates itself</h2>
-            <p className="mt-2 text-sm leading-relaxed text-slate-300">Every 5 minutes coda.news reads {s.sources} newsrooms across the world, links every article to its event, and records the facts.</p>
+          <section className="rounded-2xl bg-[#EEF4FF] p-5 text-[#0A1A33]">
+            <h2 className="text-base font-semibold">A knowledge base that updates itself</h2>
+            <p className="mt-2 text-sm leading-relaxed text-slate-600">Every 5 minutes coda.news reads {s.sources} newsrooms across the world, links every article to its event, and records the facts.</p>
             <div className="mt-4 grid grid-cols-2 gap-3">
-              <div className="rounded-xl bg-white/10 p-3"><div className="text-2xl font-bold">{s.events}</div><div className="text-xs text-slate-300">events</div></div>
-              <div className="rounded-xl bg-white/10 p-3"><div className="text-2xl font-bold">{s.sources}</div><div className="text-xs text-slate-300">sources</div></div>
+              <div className="rounded-xl bg-white p-3 ring-1 ring-[#D6E2F5]"><div className="text-2xl font-semibold">{s.events}</div><div className="text-xs text-slate-500">events</div></div>
+              <div className="rounded-xl bg-white p-3 ring-1 ring-[#D6E2F5]"><div className="text-2xl font-semibold">{s.sources}</div><div className="text-xs text-slate-500">sources</div></div>
             </div>
           </section>
         </aside>
@@ -73,30 +73,30 @@ export default async function Home() {
 
 function TopStory({ e, perspectives }: { e: EventRow; perspectives: Awaited<ReturnType<typeof getPerspectives>> extends Map<number, infer P> ? P : never }) {
   return (
-    <section className="grid overflow-hidden rounded-3xl bg-[#0A1A33] text-white lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+    <section className="grid overflow-hidden rounded-3xl bg-[#EEF4FF] text-[#0A1A33] ring-1 ring-[#D6E2F5] lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
       <div className="flex flex-col gap-5 p-7 sm:p-9">
-        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#8FB4FF]">Top story · <CategoryLabel category={e.category} /></div>
-        <h1 className="text-3xl font-bold leading-[1.1] tracking-[-0.02em] sm:text-[40px]">
-          <Link href={`/event/${e.slug}`} className="hover:text-[#8FB4FF]">{e.title}</Link>
+        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#1D4ED8]">Top story · <CategoryLabel category={e.category} /></div>
+        <h1 className="text-3xl font-semibold leading-[1.1] tracking-[-0.02em] sm:text-[40px]">
+          <Link href={`/event/${e.slug}`} className="hover:text-[#1D4ED8]">{e.title}</Link>
         </h1>
-        {e.summary && <p className="text-[15px] leading-relaxed text-slate-300">{e.summary}</p>}
-        <EventMeta e={e} dark />
+        {e.summary && <p className="text-[15px] leading-relaxed text-slate-600">{e.summary}</p>}
+        <EventMeta e={e} />
         <div className="mt-auto flex items-center gap-4">
           <Link href={`/event/${e.slug}`} className="rounded-xl bg-[#EA5514] px-5 py-3 text-sm font-semibold text-white hover:bg-[#D24A0F]">Compare the coverage →</Link>
-          <span className="text-xs text-slate-400">Updated {timeAgo(e.last_article_at)}</span>
+          <span className="text-xs text-slate-500">Updated {timeAgo(e.last_article_at)}</span>
         </div>
       </div>
-      <div className="flex flex-col gap-2.5 bg-white/[0.06] p-6 sm:p-7">
-        <div className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-400">How the world reports it</div>
-        {perspectives.length === 0 && <p className="text-sm text-slate-400">Perspectives appear as soon as media in a second country cover this event.</p>}
+      <div className="flex flex-col gap-2.5 bg-[#E3ECFD] p-6 sm:p-7">
+        <div className="text-xs font-semibold uppercase tracking-[0.1em] text-[#1D4ED8]">How the world reports it</div>
+        {perspectives.length === 0 && <p className="text-sm text-slate-600">Perspectives appear as soon as media in a second country cover this event.</p>}
         {perspectives.slice(0, 5).map((p) => (
-          <div key={p.country} className="rounded-2xl bg-white/[0.07] p-4">
+          <div key={p.country} className="rounded-2xl bg-white p-4 shadow-[0_1px_2px_rgba(10,26,51,.06)]">
             <div className="flex items-center gap-2.5">
               <Flag code={p.country} size={14} />
               <span className="text-sm font-semibold">{countryName(p.country)}</span>
               <span className={`ml-auto rounded-full px-2 py-0.5 text-[11px] font-semibold ${TONE[p.tone]?.cls ?? ""}`}>{p.framing ?? TONE[p.tone]?.label}</span>
             </div>
-            {p.emphasis && <p className="mt-2 text-[13px] leading-relaxed text-slate-300">{p.emphasis}</p>}
+            {p.emphasis && <p className="mt-2 text-[13px] leading-relaxed text-slate-600">{p.emphasis}</p>}
           </div>
         ))}
       </div>
