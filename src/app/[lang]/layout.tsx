@@ -15,7 +15,7 @@ const inter = Inter({ variable: "--font-inter", subsets: ["latin"], axes: ["opsz
 export const metadata: Metadata = {
   metadataBase: new URL("https://coda.news"),
   title: { default: "coda.news · One story. Every perspective.", template: "%s · coda.news" },
-  description: "Technology and economy events, and how media in every country report them.",
+  description: "The day's news, and how media in every country report it.",
   openGraph: { siteName: "coda.news", type: "website", locale: "en_AU", images: ["/og.png"] },
   twitter: { card: "summary_large_image" },
   alternates: { types: { "application/rss+xml": "https://coda.news/feed.xml" } },
