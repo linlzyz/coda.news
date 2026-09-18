@@ -147,6 +147,36 @@ async function openverse(q: string): Promise<Img | null> {
   return unused(list.slice(0, 8));
 }
 
+// A real portrait of the person the story is about: their Wikidata entry's main image (P18), which always lives on Commons.
+// We check it is a human with that exact name, and that the file's licence is free, before using it.
+const UA = { "user-agent": "CodaNewsBot/0.1 (https://coda.news; info@coda.news)" };
+async function personPhoto(name: string): Promise<Img | null> {
+  const w = "https://www.wikidata.org/w/api.php?format=json&";
+  const s = await (await fetch(`${w}action=wbsearchentities&search=${encodeURIComponent(name)}&language=en&type=item&limit=5`, { headers: UA, signal: AbortSignal.timeout(10000) })).json();
+  const ids: string[] = (s.search ?? []).map((x: { id: string }) => x.id);
+  if (!ids.length) return null;
+  const j = await (await fetch(`${w}action=wbgetentities&ids=${ids.join("|")}&props=labels|aliases|claims&languages=en`, { headers: UA, signal: AbortSignal.timeout(10000) })).json();
+  const norm = (x: string) => x.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  // deno-lint-ignore no-explicit-any
+  const person = ids.map((id) => j.entities?.[id]).find((e: any) => e &&
+    (e.claims?.P31 ?? []).some((c: any) => c.mainsnak?.datavalue?.value?.id === "Q5") && e.claims?.P18 &&
+    [e.labels?.en?.value, ...(e.aliases?.en ?? []).map((a: any) => a.value)].filter(Boolean).some((n: string) => norm(n) === norm(name)));
+  const file = person?.claims?.P18?.[0]?.mainsnak?.datavalue?.value as string | undefined;
+  if (!file) return null;
+  const ii = await (await fetch(`https://commons.wikimedia.org/w/api.php?format=json&action=query&titles=${encodeURIComponent("File:" + file)}&prop=imageinfo&iiprop=url|extmetadata&iiurlwidth=1280`, { headers: UA, signal: AbortSignal.timeout(10000) })).json();
+  // deno-lint-ignore no-explicit-any
+  const info: any = (Object.values(ii.query?.pages ?? {})[0] as any)?.imageinfo?.[0];
+  const m = info?.extmetadata ?? {};
+  const lic = String(m.LicenseShortName?.value ?? "");
+  if (!info || !FREE.test(lic)) return null;
+  const artist = String(m.Artist?.value ?? "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().slice(0, 60) || "Unknown";
+  const url = info.thumburl ?? info.url;
+  const sql = db();
+  const used = await sql`select 1 from events where image_url = ${url} limit 1`;
+  if (used.length) return null;   // never reuse a photo
+  return { url, credit: `${artist} / Wikimedia Commons (${lic})`, link: info.descriptionurl, source: "commons", license: lic, licenseUrl: String(m.LicenseUrl?.value ?? "") || undefined };
+}
+
 class Limit extends Error {}
 const PROVIDERS: [string, (q: string) => Promise<Img | null>][] = [["unsplash", unsplash], ["pexels", pexels], ["pixabay", pixabay], ["commons", commons], ["openverse", openverse]];
 // For the story's own place-aware query, real photos of that place (Commons) come first; generic scenes prefer stock libraries.
@@ -165,6 +195,26 @@ async function find(queries: string[], placeFirst = false): Promise<Img | null> 
 
 export async function assignImages(limit = 12): Promise<number> {
   const sql = db();
+  // 1) stories about one well-known person: swap a stock photo (or nothing) for a real, free portrait of them
+  const people = await sql<{ id: number; image_person: string; title: string }[]>`
+    select id, image_person, title from events where image_person is not null and person_checked_at is null and summary is not null
+      and (image_url is null or image_source in ('pexels','unsplash','pixabay','openverse','commons'))
+    order by importance desc, last_article_at desc limit ${limit}`;
+  let swapped = 0;
+  for (const p of people) {
+    let img: Img | null = null;
+    // products named after people (e.g. NVIDIA's "Vera Rubin" chips) must not get that person's portrait
+    const esc = p.image_person.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const product = new RegExp(`${esc}\\s+(NVL|system|chip|gpu|platform|architecture|supercomputer|telescope|observatory|model|series|edition|award|prize|trophy|cup|stadium|arena)`, "i").test(p.title);
+    try { if (!product) img = await personPhoto(p.image_person); } catch (e) { log("person photo", p.image_person, (e as Error).message); }
+    if (img) {
+      await sql`update events set image_url = ${img.url}, image_credit = ${img.credit}, image_link = ${img.link}, image_source = ${img.source ?? null},
+                image_license = ${img.license ?? null}, image_license_url = ${img.licenseUrl ?? null}, image_fetched_at = now(), image_checked_at = now(), person_checked_at = now() where id = ${p.id}`;
+      swapped++;
+    } else await sql`update events set person_checked_at = now() where id = ${p.id}`;
+  }
+  if (people.length) log(`images: ${swapped}/${people.length} person portraits`);
+
   const events = await sql<{ id: number; image_query: string | null; slugs: string[] | null }[]>`
     select e.id, e.image_query, (select array_agg(t.slug) from topics t where t.id = any(e.topic_ids)) as slugs
     from events e where e.image_url is null and e.image_checked_at is null and e.summary is not null
