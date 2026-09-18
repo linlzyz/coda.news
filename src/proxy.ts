@@ -1,24 +1,21 @@
-// Language routing: /zh/... serves the Chinese version of every page (crawlable, own URLs).
-// Readers who chose Chinese (cookie) are sent to the /zh/ URL of whatever they open.
+// Language routing. Pages live under app/[lang]: /zh/... is Chinese, every other path is served from /en/... internally.
+// Readers who chose Chinese (cookie) are sent to the /zh/ URL. /en/... is never a public URL.
 import { NextResponse, type NextRequest } from "next/server";
 
 export function proxy(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
-  const isZh = pathname === "/zh" || pathname.startsWith("/zh/");
-  const headers = new Headers(req.headers);
-  if (isZh) {
-    headers.set("x-lang", "zh");
-    const url = req.nextUrl.clone();
-    url.pathname = pathname.slice(3) || "/";
-    return NextResponse.rewrite(url, { request: { headers } });
+  if (pathname === "/zh" || pathname.startsWith("/zh/")) return NextResponse.next();
+  if (pathname === "/en" || pathname.startsWith("/en/")) {
+    return NextResponse.redirect(new URL(`${pathname.slice(3) || "/"}${search}`, req.url), 308);
   }
-  if (req.cookies.get("lang")?.value === "zh" && req.method === "GET") {
+  if (req.method === "GET" && req.cookies.get("lang")?.value === "zh" && !req.headers.get("next-router-prefetch")) {
     return NextResponse.redirect(new URL(`/zh${pathname === "/" ? "" : pathname}${search}`, req.url), 307);
   }
-  headers.set("x-lang", "en");
-  return NextResponse.next({ request: { headers } });
+  const url = req.nextUrl.clone();
+  url.pathname = `/en${pathname === "/" ? "" : pathname}`;
+  return NextResponse.rewrite(url);
 }
 
 export const config = {
-  matcher: ["/((?!_next|api|legal|unsubscribe|.*\\..*).*)"],
+  matcher: ["/((?!_next|api|.*\\..*).*)"],
 };

@@ -1,9 +1,8 @@
 import Link from "@/components/LLink";
-import { getLang, t } from "@/lib/i18n";
+import { t, type Lang } from "@/lib/i18n";
 import { Icon } from "./Icons";
 
-export async function Sidebar() {
-  const l = await getLang();
+export function Sidebar({ l }: { l: Lang }) {
   const NAV = [["home", "/", "home"], ["economy", "/economy", "economy"], ["technology", "/technology", "technology"], ["sport", "/sport", "sport"], ["entertainment", "/entertainment", "entertainment"], ["fashion", "/fashion", "fashion"], ["australia", "/australia", "australia"], ["companies", "/companies", "companies"], ["topics", "/topics", "topics"]] as const;
   return (
     <aside className="sticky top-0 hidden h-screen w-[232px] shrink-0 flex-col gap-5 overflow-y-auto border-r border-[#E5E7EB] bg-white px-4 py-6 lg:flex">

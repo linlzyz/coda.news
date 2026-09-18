@@ -1,12 +1,8 @@
 import "server-only";
-import { cookies, headers } from "next/headers";
-
 export type Lang = "en" | "zh";
-/** Language comes from the URL (/zh/...), set by proxy.ts as x-lang. Legal pages fall back to the cookie. */
-export async function getLang(): Promise<Lang> {
-  const h = (await headers()).get("x-lang");
-  if (h === "zh" || h === "en") return h;
-  return (await cookies()).get("lang")?.value === "zh" ? "zh" : "en";
+/** Language comes from the URL segment: /zh/... is Chinese, everything else is served from /en/ internally (see proxy.ts). */
+export async function langFrom(params: Promise<{ lang: string }> | { lang: string }): Promise<Lang> {
+  return (await params).lang === "zh" ? "zh" : "en";
 }
 /** Path in the reader's language. */
 export const lp = (lang: Lang, path: string) => (lang === "zh" ? `/zh${path === "/" ? "" : path}` : path);

@@ -1,10 +1,9 @@
 import Link from "@/components/LLink";
-import { getLang, t } from "@/lib/i18n";
+import { t, type Lang } from "@/lib/i18n";
 import { Icon } from "./Icons";
 import { LangSwitch } from "./LangSwitch";
 
-export async function TopBar() {
-  const l = await getLang();
+export function TopBar({ l }: { l: Lang }) {
   return (
     <header className="sticky top-0 z-20 border-b border-[#E5E7EB] bg-white/90 backdrop-blur">
       <div className="flex h-16 items-center gap-3 px-4 sm:px-6 lg:px-8">
