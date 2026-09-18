@@ -5,6 +5,7 @@ import { TopBar } from "@/components/TopBar";
 import { notFound } from "next/navigation";
 import Link from "@/components/LLink";
 import { langFrom, t } from "@/lib/i18n";
+import { SITE, operatorLine } from "@/lib/site";
 import "../globals.css";
 import { Analytics } from "@vercel/analytics/next";
 
@@ -27,6 +28,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
   const raw = (await params).lang;
   if (raw !== "en" && raw !== "zh") notFound();
   const l = await langFrom(params);
+  const zh = l === "zh";
   return (
     <html lang={l === "zh" ? "zh-CN" : "en"} className={`${inter.variable} antialiased`}>
       <body className="font-sans">
@@ -35,13 +37,24 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
           <div className="flex min-w-0 flex-1 flex-col">
             <TopBar l={l} />
             <main className="flex-1">{children}</main>
-            <footer className="flex flex-col gap-2 border-t border-[#E5E7EB] px-4 py-6 text-[12px] text-neutral-500 sm:px-6 md:flex-row lg:px-8">
-              <span>© {new Date().getFullYear()} coda.news</span>
-              <span className="flex shrink-0 gap-4 md:ml-auto">
-                <Link href="/legal/terms" className="hover:text-neutral-800">{t(l, "terms")}</Link>
-                <Link href="/legal/privacy" className="hover:text-neutral-800">{t(l, "privacy")}</Link>
-                <Link href="/legal/cookies" className="hover:text-neutral-800">{t(l, "cookies")}</Link>
-              </span>
+            <footer className="border-t border-[#E5E7EB] px-4 py-8 text-[13px] text-neutral-600 sm:px-6 lg:px-8">
+              <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
+                {([
+                  [zh ? "coda.news" : "coda.news", [["/about", zh ? "关于我们" : "About us"], ["/about#who", zh ? "谁在运营" : "Who runs it"], ["/about#standards", zh ? "编辑原则" : "Editorial standards"], ["/about#method", zh ? "方法说明" : "How it works"]]],
+                  [zh ? "透明度" : "Transparency", [["/sources", zh ? "新闻来源" : "Our sources"], ["/about#corrections", zh ? "更正" : "Corrections"], ["/about#ai", zh ? "AI 使用说明" : "Use of AI"], ["/about#contact", zh ? "联系我们" : "Contact"]]],
+                  [zh ? "订阅" : "Follow", [["/#newsletter", zh ? "每日简报" : "Daily brief"], ["/feed.xml", "RSS"], ["/companies", zh ? "公司" : "Companies"], ["/topics", zh ? "话题" : "Topics"]]],
+                  [zh ? "法律" : "Legal", [["/legal/terms", t(l, "terms")], ["/legal/privacy", t(l, "privacy")], ["/legal/cookies", t(l, "cookies")]]],
+                ] as [string, [string, string][]][]).map(([h, items]) => (
+                  <div key={h}>
+                    <div className="text-[12px] font-semibold uppercase tracking-[0.06em] text-[#16181D]">{h}</div>
+                    <ul className="mt-3 space-y-2">{items.map(([href, label]) => <li key={href}>{href === "/feed.xml" ? <a href={href} className="hover:text-[#C2410C]">{label}</a> : <Link href={href} className="hover:text-[#C2410C]">{label}</Link>}</li>)}</ul>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-8 flex flex-col gap-1 border-t border-[#E5E7EB] pt-4 text-[12px] text-neutral-500 md:flex-row md:justify-between">
+                <span>© {new Date().getFullYear()} coda.news · {operatorLine(zh)}</span>
+                <a href={`mailto:${SITE.email}`} className="hover:text-neutral-800">{SITE.email}</a>
+              </div>
             </footer>
           </div>
         </div>

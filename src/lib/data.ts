@@ -182,3 +182,10 @@ export const searchEvents = unstable_cache(_searchEvents, ["searchEvents"], { re
 export async function reportError(eventId: number, kind: string, note: string, lang: string) {
   await supabase.from("feedback").insert({ event_id: eventId, kind: kind.slice(0, 20), note: note.slice(0, 1500) || null, lang });
 }
+
+export type SourceRow = { name: string; country: string; language: string; homepage: string | null; type: string };
+async function _allSources() {
+  const { data } = await supabase.from("sources").select("name,country,language,homepage,type").eq("active", true).order("country").order("name");
+  return (data ?? []) as SourceRow[];
+}
+export const allSources = unstable_cache(_allSources, ["allSources"], { revalidate: 3600 });

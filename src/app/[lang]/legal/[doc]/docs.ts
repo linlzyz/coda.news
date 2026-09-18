@@ -1,12 +1,14 @@
 // Plain-language legal pages. Review with a qualified adviser before relying on them.
-const CONTACT = "hello@coda.news";
+import { SITE } from "@/lib/site";
+const CONTACT = SITE.email;
+const OPERATOR = `${SITE.operator}${SITE.abn ? ` (ABN ${SITE.abn})` : ""}`;
 const UPDATED = "18 September 2026";
 
 export const DOCS: Record<string, { title: string; updated: string; sections: [string, string][] }> = {
   terms: {
     title: "Terms of Use", updated: UPDATED,
     sections: [
-      ["About these terms", `coda.news ("Coda", "we", "us") is an online service, operated from Melbourne, Australia, that summarises technology and economy news and shows how media in different countries report the same events. By using coda.news you agree to these terms. If you do not agree, please do not use the site.`],
+      ["About these terms", `coda.news ("Coda", "we", "us") is an online service operated by ${OPERATOR} in Melbourne, Australia, that summarises news and shows how media in different countries report the same events. By using coda.news you agree to these terms. If you do not agree, please do not use the site.`],
       ["What Coda provides", `Coda publishes short summaries, extracted facts, timelines and comparisons of coverage. These are generated automatically, largely by artificial intelligence, from publicly available news sources and official releases. We link to every original source.\n\nWe do not republish full articles. Headlines and short excerpts are shown only to identify and link to the original publisher.`],
       ["AI-generated content and accuracy", `Summaries, translations, perspective comparisons and analysis are produced automatically and may contain errors, omissions or out-of-date information. They describe how sources report an event; they are not statements of fact by Coda. Always check the original sources before relying on any information.\n\nIf you find an error, please tell us at ${CONTACT} and we will review it.`],
       ["Not financial or professional advice", `Nothing on coda.news is financial, investment, legal, tax or other professional advice. Market data is provided for general information only, may be delayed and may be inaccurate. Do not make decisions based solely on content from this site.`],

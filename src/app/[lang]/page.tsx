@@ -1,3 +1,4 @@
+import { orgLd } from "@/lib/site";
 import Link from "@/components/LLink";
 import { allTopics, companyMap, indices, getPerspectives, listEvents, trendingCompanies, type EventRow, type Perspective } from "@/lib/data";
 import { crypto, fx } from "@/lib/markets";
@@ -42,8 +43,11 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   const auOnly = au.filter((e) => !inList.has(e.id));
   const updated = new Date().toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit", timeZone: "Australia/Melbourne" }) + " AEST";
 
-  const siteLd = { "@context": "https://schema.org", "@type": "WebSite", name: "coda.news", url: "https://coda.news",
-    potentialAction: { "@type": "SearchAction", target: "https://coda.news/search?q={q}", "query-input": "required name=q" } };
+  const siteLd = { "@context": "https://schema.org", "@graph": [
+    { "@type": "WebSite", name: "coda.news", url: "https://coda.news", publisher: { "@id": "https://coda.news/#org" },
+      potentialAction: { "@type": "SearchAction", target: "https://coda.news/search?q={q}", "query-input": "required name=q" } },
+    { "@id": "https://coda.news/#org", ...orgLd },
+  ] };
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteLd) }} />

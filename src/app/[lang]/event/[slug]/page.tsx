@@ -1,3 +1,4 @@
+import { orgLd } from "@/lib/site";
 import type { Metadata } from "next";
 import Link from "@/components/LLink";
 import { notFound } from "next/navigation";
@@ -50,7 +51,7 @@ export default async function EventPage({ params }: PageProps<"/[lang]/event/[sl
   const jsonLd = { "@context": "https://schema.org", "@type": "NewsArticle", headline: e.title, description: e.summary, image: e.image_url ? [e.image_url] : undefined,
     datePublished: e.started_at, dateModified: e.last_article_at, articleSection: e.category, isAccessibleForFree: true,
     mainEntityOfPage: `https://coda.news/event/${e.slug}`, author: { "@type": "Organization", name: "coda.news", url: "https://coda.news" },
-    publisher: { "@type": "Organization", name: "coda.news", url: "https://coda.news", logo: { "@type": "ImageObject", url: "https://coda.news/og.png" } },
+    publisher: orgLd,
     citation: articles.slice(0, 20).map((a) => ({ "@type": "CreativeWork", name: a.title, url: a.url, publisher: a.sources.name })) };
 
   return (
