@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "@/components/LLink";
-import { allTopics, companyDirectory, companyMap, getCompany, listEvents, type CompanyCard } from "@/lib/data";
+import { allTopics, companyDirectory, companyMap, getCompany, listEvents, notable, type CompanyCard } from "@/lib/data";
 import { alternates, langFrom } from "@/lib/i18n";
 import { summary, timeAgoL, title } from "@/lib/loc";
 import { Cover } from "@/components/Cover";
@@ -24,7 +24,11 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/company/[s
   const description = zh
     ? `${name}最新新闻，以及各国媒体如何报道。${c.description_zh ?? ""}`
     : `Latest ${c.name} news and how media in different countries report it.${c.description ? ` ${c.name}: ${c.description}.` : ""}`;
-  return { title: zh ? `${name}新闻` : `${c.name} news`, description, alternates: alternates(`/company/${c.slug}`, zh ? "zh" : "en"),
+  // thin pages (unknown to Wikidata, little coverage) stay reachable from stories but out of search engines
+  const [dir] = await Promise.all([companyDirectory()]);
+  const me = dir.find((x) => x.id === Number(c.id));
+  const robots = me && !notable(me) ? { index: false, follow: true } : undefined;
+  return { title: zh ? `${name}新闻` : `${c.name} news`, description, robots, alternates: alternates(`/company/${c.slug}`, zh ? "zh" : "en"),
     openGraph: c.logo_url ? { images: [c.logo_url] } : undefined };
 }
 
@@ -65,7 +69,7 @@ export default async function Page({ params }: PageProps<"/[lang]/company/[slug]
   const countries = new Set(events.flatMap((e) => e.countries));
 
   // similar: same sector, same country first, then most covered
-  const similar = dir.filter((x) => x.id !== c.id && (x.sector ?? "other") === (c.sector ?? "other") && x.sector !== "other")
+  const similar = !c.sector || c.sector === "other" ? [] : dir.filter((x) => x.id !== c.id && x.sector === c.sector && notable(x))
     .sort((a, b) => Number(b.country === c.country) - Number(a.country === c.country) || b.events - a.events).slice(0, 8);
   const simName = (x: CompanyCard) => (zh && x.name_zh) || x.name;
 

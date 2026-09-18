@@ -1,5 +1,5 @@
 import Link from "@/components/LLink";
-import { companyDirectory, type CompanyCard } from "@/lib/data";
+import { companyDirectory, notable, type CompanyCard } from "@/lib/data";
 import { alternates, langFrom } from "@/lib/i18n";
 import { Flag } from "@/components/Flag";
 import { SearchBox } from "@/components/SearchBox";
@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 
 export default async function Page({ params }: { params: Promise<{ lang: string }> }) {
   const l = await langFrom(params); const zh = l === "zh";
-  const all = await companyDirectory();
+  const all = (await companyDirectory()).filter(notable);
   const region = new Intl.DisplayNames([zh ? "zh-CN" : "en"], { type: "region" });
   const cname = (c: string) => { try { return region.of(c) ?? c; } catch { return c; } };
   const nameOf = (c: CompanyCard) => (zh && c.name_zh) || c.name;

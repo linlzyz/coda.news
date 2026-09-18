@@ -242,11 +242,11 @@ export const archiveDays = unstable_cache(_archiveDays, ["archiveDays"], { reval
 
 // ---- companies directory ----
 export type CompanyCard = { id: number; name: string; name_zh: string | null; slug: string; sector: string | null; country: string | null;
-  logo_url: string | null; description: string | null; description_zh: string | null; industry: string | null; events: number; last_at: string | null };
+  logo_url: string | null; description: string | null; description_zh: string | null; industry: string | null; wikidata_id: string | null; events: number; last_at: string | null };
 async function _companyDirectory() {
   const rows: Omit<CompanyCard, "events" | "last_at">[] = [];
   for (let from = 0; ; from += 1000) {
-    const { data } = await supabase.from("companies").select("id,name,name_zh,slug,sector,country,logo_url,description,description_zh,industry").order("id").range(from, from + 999);
+    const { data } = await supabase.from("companies").select("id,name,name_zh,slug,sector,country,logo_url,description,description_zh,industry,wikidata_id").order("id").range(from, from + 999);
     rows.push(...((data ?? []) as typeof rows)); if (!data || data.length < 1000) break;
   }
   const stats = new Map<number, { events: number; last_at: string | null }>();
@@ -258,3 +258,6 @@ async function _companyDirectory() {
   return rows.map((r) => ({ ...r, id: Number(r.id), ...(stats.get(Number(r.id)) ?? { events: 0, last_at: null }) })) as CompanyCard[];
 }
 export const companyDirectory = unstable_cache(_companyDirectory, ["companyDirectory"], { revalidate: 600 });
+
+/** Directory shows notable companies only: known to Wikidata, or covered in at least 3 events. */
+export const notable = (c: { wikidata_id: string | null; events: number }) => !!c.wikidata_id || c.events >= 3;

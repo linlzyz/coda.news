@@ -1,11 +1,12 @@
 import type { MetadataRoute } from "next";
-import { archiveDays, sitemapRows } from "@/lib/data";
+import { archiveDays, companyDirectory, notable, sitemapRows } from "@/lib/data";
 
 const BASE = "https://coda.news";
 export const revalidate = 600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [{ events, companies, topics }, days] = await Promise.all([sitemapRows(), archiveDays(90)]);
+  const [{ events, topics }, days, dir] = await Promise.all([sitemapRows(), archiveDays(90), companyDirectory()]);
+  const companies = dir.filter(notable);
   const both = (path: string) => ({ languages: { en: `${BASE}${path}`, "zh-CN": `${BASE}/zh${path === "/" ? "" : path}` } });
   const zh = (entries: MetadataRoute.Sitemap) => entries.map((x) => ({ ...x, url: x.url.replace(BASE, `${BASE}/zh`).replace(/\/zh\/$/, "/zh") }));
   const en: MetadataRoute.Sitemap = [
