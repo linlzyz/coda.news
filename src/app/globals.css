@@ -2,18 +2,18 @@
 
 @theme {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --color-ink: #0E1A2B;
-  --color-brand: #1560BD;
+  --color-ink: #111111;
+  --color-brand: #C2410C;
 }
 
 :root { color-scheme: light; }
-body { background: #ffffff; color: #0E1A2B; font-optical-sizing: auto; font-feature-settings: "cv05", "cv08", "ss03"; letter-spacing: -0.006em; }
+body { background: #ffffff; color: #111111; font-optical-sizing: auto; font-feature-settings: "cv05", "cv08", "ss03"; letter-spacing: -0.006em; }
 h1, h2, h3 { text-wrap: balance; letter-spacing: -0.022em; }
 p { text-wrap: pretty; }
 
 /* Live ticker */
 .ticker { mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent); }
-.ticker-track { animation: ticker 260s linear infinite; }
+.ticker-track { animation: ticker 420s linear infinite; }
 .ticker:hover .ticker-track { animation-play-state: paused; }
 @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) { .ticker-track { animation: none; } }

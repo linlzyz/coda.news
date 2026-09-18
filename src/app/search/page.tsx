@@ -9,7 +9,7 @@ export default async function Page({ searchParams }: PageProps<"/search">) {
     <div>
       <form action="/search" className="mx-auto max-w-[900px] px-4 pt-8 sm:px-6">
         <label htmlFor="sq" className="sr-only">Search</label>
-        <input id="sq" name="q" defaultValue={q} autoFocus placeholder={t(l, "search")} className="h-12 w-full rounded-xl border border-[#DDE6F1] px-4 text-[15px] outline-none focus:ring-2 focus:ring-[#BFD4EE]" />
+        <input id="sq" name="q" defaultValue={q} autoFocus placeholder={t(l, "search")} className="h-12 w-full border-b-2 border-[#111111] px-1 text-[15px] outline-none focus:ring-2 focus:ring-[#F5C9B0]" />
       </form>
       <EventList title={q ? `${t(l, "resultsFor")} “${q}”` : t(l, "searchH")} events={q ? await searchEvents(q) : []} />
     </div>
