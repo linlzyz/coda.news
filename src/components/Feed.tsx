@@ -3,11 +3,11 @@ import { useState, type ReactNode } from "react";
 
 /** Latest-news list with category tabs and "load more", all in the browser (the page itself stays static and fast). */
 export function Feed({ items, tabs, title, more, disclaimer }: {
-  items: { cat: string; node: ReactNode }[]; tabs: [string, string | undefined][]; title: string; more: string; disclaimer: string;
+  items: { tags: string[]; hideInAll?: boolean; node: ReactNode }[]; tabs: [string, string | undefined][]; title: string; more: string; disclaimer: string;
 }) {
   const [tab, setTab] = useState<string | undefined>(undefined);
   const [n, setN] = useState(15);
-  const list = items.filter((i) => !tab || i.cat === tab);
+  const list = items.filter((i) => (tab ? i.tags.includes(tab) : !i.hideInAll));
   return (
     <section>
       <div className="flex items-center gap-5 border-b border-[#E5E7EB]">

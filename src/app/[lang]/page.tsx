@@ -24,13 +24,13 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 export const revalidate = 60;
 
 export default async function Home({ params }: PageProps<"/[lang]">) {
-  const [events, topics, trending, cq, fq] = await Promise.all([
-    listEvents({ limit: 80 }), allTopics(), trendingCompanies(10), crypto(), fx(),
+  const [events, au, topics, trending, cq, fq] = await Promise.all([
+    listEvents({ limit: 80 }), listEvents({ region: "AU", order: "recent", limit: 40 }), allTopics(), trendingCompanies(10), crypto(), fx(),
   ]);
   const [iq, rq] = await Promise.all([indices("indices"), indices("rates")]);
   const l = await langFrom(params);
   const persp = await getPerspectives(events.map((e) => e.id));
-  const companies = await companyMap(events);
+  const companies = await companyMap([...events, ...au]);
   const topicMap = new Map(topics.map((t) => [t.id, t]));
   const multi = events.filter((e) => (persp.get(e.id)?.length ?? 0) >= 2);
   const top = multi[0] ?? events[0];
@@ -38,6 +38,8 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   const divided = multi.filter((e) => e.id !== top?.id && e.id !== featured?.id)
     .sort((a, b) => new Set((persp.get(b.id) ?? []).map((p) => p.tone)).size - new Set((persp.get(a.id) ?? []).map((p) => p.tone)).size).slice(0, 4);
   const list = events.filter((e) => e.id !== top?.id).slice(0, 75);
+  const inList = new Set(list.map((e) => e.id));
+  const auOnly = au.filter((e) => !inList.has(e.id));
   const updated = new Date().toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit", timeZone: "Australia/Melbourne" }) + " AEST";
 
   const siteLd = { "@context": "https://schema.org", "@type": "WebSite", name: "coda.news", url: "https://coda.news",
@@ -59,8 +61,11 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
           )}
 
           <Feed title={t(l, "latest")} more={t(l, "loadMore")} disclaimer={t(l, "disclaimer")}
-            tabs={(["all", "economy", "technology", "sport", "entertainment", "fashion"] as const).map((k) => [t(l, k), k === "all" ? undefined : k])}
-            items={list.map((e) => ({ cat: e.category, node: <NewsItem e={e} companies={companies} topics={topicMap} lang={l} /> }))} />
+            tabs={(["all", "australia", "economy", "technology", "sport", "entertainment", "fashion"] as const).map((k) => [t(l, k), k === "all" ? undefined : k])}
+            items={[
+              ...list.map((e) => ({ tags: [e.category, ...(e.regions?.includes("AU") ? ["australia"] : [])], node: <NewsItem e={e} companies={companies} topics={topicMap} lang={l} /> })),
+              ...auOnly.map((e) => ({ tags: ["australia"], hideInAll: true, node: <NewsItem e={e} companies={companies} topics={topicMap} lang={l} /> })),
+            ]} />
         </div>
 
         <aside className="space-y-5">
