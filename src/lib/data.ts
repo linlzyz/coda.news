@@ -133,8 +133,8 @@ export async function subscribe(email: string) {
   return true;
 }
 
-async function _indices() {
-  const { data } = await supabase.from("market_series").select("name,value,change,series,digits,as_of").eq("grp", "indices").order("sort");
+async function _indices(grp = "indices") {
+  const { data } = await supabase.from("market_series").select("name,value,change,series,digits,as_of").eq("grp", grp).order("sort");
   return (data ?? []) as { name: string; value: number; change: number; series: number[]; digits: number; as_of: string }[];
 }
 export const indices = unstable_cache(_indices, ["indices"], { revalidate: 600 });

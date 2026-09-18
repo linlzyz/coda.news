@@ -19,13 +19,19 @@ const DEFAULT = ["global business city", "technology abstract", "world map light
 
 async function pexels(query: string): Promise<{ url: string; credit: string; link: string } | null> {
   const key = env("PEXELS_API_KEY"); if (!key) return null;
-  const r = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&orientation=landscape&per_page=15`, {
+  const page = 1 + Math.floor(Math.random() * 3);
+  const r = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&orientation=landscape&per_page=40&page=${page}`, {
     headers: { Authorization: key }, signal: AbortSignal.timeout(10000) });
   if (!r.ok) throw new Error(`pexels ${r.status}`);
   const j = await r.json();
   const photos = (j.photos ?? []) as { src: { large: string; landscape: string }; photographer: string; url: string }[];
   if (!photos.length) return null;
-  const p = photos[Math.floor(Math.random() * photos.length)];
+  // never reuse a photo another event already shows
+  const urls = photos.map((p) => p.src.landscape || p.src.large);
+  const used = new Set((await db()<{ image_url: string }[]>`select image_url from events where image_url in ${db()(urls)}`).map((r) => r.image_url));
+  const fresh = photos.filter((p) => !used.has(p.src.landscape || p.src.large));
+  if (!fresh.length) return null;
+  const p = fresh[Math.floor(Math.random() * fresh.length)];
   return { url: p.src.landscape || p.src.large, credit: `${p.photographer} / Pexels`, link: p.url };
 }
 

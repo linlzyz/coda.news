@@ -10,7 +10,7 @@ async function j(url: string) {
 
 /** Crypto from CoinGecko (free, no key). */
 export async function crypto(): Promise<Quote[]> {
-  const coins: [string, string][] = [["bitcoin", "BTC"], ["ethereum", "ETH"], ["solana", "SOL"]];
+  const coins: [string, string][] = [["bitcoin", "BTC"], ["ethereum", "ETH"], ["solana", "SOL"], ["binancecoin", "BNB"], ["ripple", "XRP"], ["dogecoin", "DOGE"]];
   const out = await Promise.all(coins.map(async ([id, name]) => {
     try {
       const d = await j(`https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=usd&days=7`);
@@ -26,13 +26,13 @@ export async function crypto(): Promise<Quote[]> {
 export async function fx(): Promise<Quote[]> {
   try {
     const start = new Date(Date.now() - 35 * 86400_000).toISOString().slice(0, 10);
-    const d = await j(`https://api.frankfurter.dev/v1/${start}..?base=USD&symbols=CNY,JPY,EUR,AUD,GBP`);
+    const d = await j(`https://api.frankfurter.dev/v1/${start}..?base=USD&symbols=CNY,JPY,EUR,AUD,GBP,KRW,HKD,SGD,INR,CAD`);
     const days = Object.keys(d.rates).sort();
-    const pairs: [string, string, boolean][] = [["USD/CNY", "CNY", false], ["USD/JPY", "JPY", false], ["EUR/USD", "EUR", true], ["AUD/USD", "AUD", true], ["GBP/USD", "GBP", true]];
+    const pairs: [string, string, boolean][] = [["USD/CNY", "CNY", false], ["USD/JPY", "JPY", false], ["EUR/USD", "EUR", true], ["GBP/USD", "GBP", true], ["AUD/USD", "AUD", true], ["USD/KRW", "KRW", false], ["USD/HKD", "HKD", false], ["USD/SGD", "SGD", false], ["USD/INR", "INR", false], ["USD/CAD", "CAD", false]];
     return pairs.map(([name, sym, inv]) => {
       const series = days.map((k) => (inv ? 1 / d.rates[k][sym] : d.rates[k][sym]));
       const last = series[series.length - 1], prev = series[series.length - 2] ?? last;
-      return { name, value: last, change: ((last - prev) / prev) * 100, series, digits: sym === "JPY" ? 2 : 4 };
+      return { name, value: last, change: ((last - prev) / prev) * 100, series, digits: ["JPY", "KRW", "INR"].includes(sym) ? 2 : 4 };
     });
   } catch { return []; }
 }

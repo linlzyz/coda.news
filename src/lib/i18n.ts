@@ -16,7 +16,7 @@ const D = {
   dailyBrief: ["Get the daily brief", "订阅每日简报"], live: ["Live", "实时"], topStory: ["Top story", "头条"],
   compare: ["Compare the coverage", "对比各国报道"], sources: ["sources", "个来源"], source: ["source", "个来源"],
   countries: ["countries", "个国家"], country: ["country", "个国家"], trending: ["Trending", "热门"], latest: ["Latest news", "最新"],
-  all: ["All", "全部"], markets: ["Markets", "行情"], crypto: ["Crypto", "加密货币"], indices: ["Indices", "股指"], indicesNote: ["Daily close, FRED", "每日收盘价，FRED"], fx: ["FX", "汇率"],
+  all: ["All", "全部"], markets: ["Markets", "行情"], crypto: ["Crypto", "加密货币"], indices: ["Indices", "股指"], rates: ["Rates & Oil", "利率与原油"], indicesNote: ["Daily close, FRED", "每日收盘价，FRED"], fx: ["FX", "汇率"],
   cryptoNote: ["7-day trend, CoinGecko", "7 日走势，CoinGecko"], fxNote: ["ECB reference rates", "欧洲央行参考汇率"],
   marketsDown: ["Market data is temporarily unavailable.", "行情数据暂时无法获取。"],
   topTopics: ["Top topics", "热门话题"], viewAll: ["View all", "查看全部"], featured: ["Featured insight", "精选"],

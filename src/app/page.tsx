@@ -21,7 +21,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
   const [events, topics, trending, cq, fq] = await Promise.all([
     listEvents({ limit: 60 }), allTopics(), trendingCompanies(10), crypto(), fx(),
   ]);
-  const iq = await indices();
+  const [iq, rq] = await Promise.all([indices("indices"), indices("rates")]);
   const l = await getLang();
   const persp = await getPerspectives(events.map((e) => e.id));
   const companies = await companyMap(events);
@@ -65,7 +65,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
         </div>
 
         <aside className="space-y-9 xl:border-l xl:border-[#E5E7EB] xl:pl-8">
-          <Markets title={t(l, "markets")} empty={t(l, "marketsDown")} updated={updated} tabs={[{ label: t(l, "indices"), quotes: iq, note: `${t(l, "indicesNote")}${iq[0] ? " · " + iq[0].as_of : ""}` }, { label: t(l, "crypto"), quotes: cq, note: t(l, "cryptoNote") }, { label: t(l, "fx"), quotes: fq, note: t(l, "fxNote") }]} />
+          <Markets title={t(l, "markets")} empty={t(l, "marketsDown")} updated={updated} tabs={[{ label: t(l, "indices"), quotes: iq, note: `${t(l, "indicesNote")}${iq[0] ? " · " + iq[0].as_of : ""}` }, { label: t(l, "crypto"), quotes: cq, note: t(l, "cryptoNote") }, { label: t(l, "fx"), quotes: fq, note: t(l, "fxNote") }, { label: t(l, "rates"), quotes: rq, note: `${t(l, "indicesNote")}${rq[0] ? " · " + rq[0].as_of : ""}` }]} />
           <TopicsGrid topics={topics} lang={l} />
           {featured && (
             <section>
