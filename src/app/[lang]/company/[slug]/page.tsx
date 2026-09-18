@@ -18,6 +18,13 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/company/[s
   return { title: zh ? `${name}新闻` : `${c.name} news`, description, alternates: alternates(`/company/${c.slug}`, p.lang === "zh" ? "zh" : "en") };
 }
 
+const EXCH: Record<string, string> = {
+  "Australian Securities Exchange": "ASX", "Tokyo Stock Exchange": "TSE", "Hong Kong Stock Exchange": "HKEX", "Shanghai Stock Exchange": "SSE",
+  "Shenzhen Stock Exchange": "SZSE", "Korea Exchange": "KRX", "London Stock Exchange": "LSE", "Frankfurt Stock Exchange": "FWB",
+  "National Stock Exchange of India": "NSE", "Bombay Stock Exchange": "BSE", "Singapore Exchange": "SGX", "Taiwan Stock Exchange": "TWSE",
+  "Toronto Stock Exchange": "TSX", "SIX Swiss Exchange": "SIX", "Euronext Paris": "Euronext Paris", "Bursa Malaysia": "Bursa Malaysia",
+};
+const ticker = (t: string | null) => { if (!t) return null; const [ex, sym] = t.split(": "); return sym ? `${EXCH[ex] ?? ex}: ${sym}` : t; };
 const host = (u: string) => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return u; } };
 
 export default async function Page({ params }: PageProps<"/[lang]/company/[slug]">) {
@@ -37,7 +44,7 @@ export default async function Page({ params }: PageProps<"/[lang]/company/[slug]
     [zh ? "成立" : "Founded", c.founded ? String(c.founded) : null],
     [zh ? "总部" : "Headquarters", zh ? c.hq_zh ?? c.hq : c.hq],
     [zh ? "行业" : "Industry", zh ? c.industry_zh ?? c.industry : c.industry && c.industry[0].toUpperCase() + c.industry.slice(1)],
-    [zh ? "上市" : "Listed", c.ticker],
+    [zh ? "上市" : "Listed", ticker(c.ticker)],
   ] as [string, string | null][]).filter((f): f is [string, string] => !!f[1]);
   const links: [string, string][] = ([
     [zh ? "官网" : "Official website", c.website],
