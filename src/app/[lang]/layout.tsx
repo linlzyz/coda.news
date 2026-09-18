@@ -5,6 +5,7 @@ import { TopBar } from "@/components/TopBar";
 import { notFound } from "next/navigation";
 import Link from "@/components/LLink";
 import { langFrom, t } from "@/lib/i18n";
+import { Analytics } from "@vercel/analytics/next";
 import "../globals.css";
 
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"], axes: ["opsz"], display: "swap" });
@@ -44,6 +45,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
             </footer>
           </div>
         </div>
+        <Analytics />
       </body>
     </html>
   );
