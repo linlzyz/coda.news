@@ -95,12 +95,37 @@ async function pixabay(q: string): Promise<Img | null> {
   return { url: `${base}/storage/v1/object/public/images/${path}`, credit: `${h.user} / Pixabay`, link: h.pageURL };
 }
 
-class Limit extends Error {}
-const PROVIDERS: [string, (q: string) => Promise<Img | null>][] = [["unsplash", unsplash], ["pexels", pexels], ["pixabay", pixabay]];
+// Wikimedia Commons: free licences only (public domain, CC0, CC BY, CC BY-SA), credit author + licence, link to the file page.
+const FREE = /^(public domain|cc0|cc by(-sa)? \d|cc by(-sa)?$|pdm)/i;
+const NOT_PHOTO = /\b(map|logo|diagram|chart|graph|flag|coat of arms|seal|emblem|screenshot|poster|icon|infographic|drawing|painting|portrait)\b/i;
+async function commons(q: string): Promise<Img | null> {
+  const url = `https://commons.wikimedia.org/w/api.php?action=query&format=json&generator=search&gsrnamespace=6&gsrlimit=20` +
+    `&gsrsearch=${encodeURIComponent(q + " filetype:bitmap")}&prop=imageinfo&iiprop=url|size|mime|extmetadata&iiurlwidth=1280`;
+  const r = await fetch(url, { headers: { "user-agent": "CodaNewsBot/0.1 (https://coda.news; hello@coda.news)" }, signal: AbortSignal.timeout(10000) });
+  if (r.status === 429) throw new Limit("commons");
+  if (!r.ok) return null;
+  const j = await r.json();
+  // deno-lint-ignore no-explicit-any
+  const pages = Object.values(j.query?.pages ?? {}) as any[];
+  const list: Img[] = [];
+  for (const p of pages.sort((a, b) => (a.index ?? 0) - (b.index ?? 0))) {
+    const ii = p.imageinfo?.[0]; const m = ii?.extmetadata ?? {};
+    const lic = String(m.LicenseShortName?.value ?? "");
+    if (!ii || ii.mime !== "image/jpeg" || ii.width < 1200 || ii.width < ii.height || !FREE.test(lic) || NOT_PHOTO.test(p.title)) continue;
+    const artist = String(m.Artist?.value ?? "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().slice(0, 60) || "Unknown";
+    list.push({ url: ii.thumburl ?? ii.url, credit: `${artist} / Wikimedia Commons (${lic})`, link: ii.descriptionurl });
+  }
+  return unused(list.slice(0, 6));
+}
 
-async function find(queries: string[]): Promise<Img | null> {
-  for (const q of queries) {
-    for (const [name, fn] of PROVIDERS) {
+class Limit extends Error {}
+const PROVIDERS: [string, (q: string) => Promise<Img | null>][] = [["unsplash", unsplash], ["pexels", pexels], ["pixabay", pixabay], ["commons", commons]];
+// For the story's own place-aware query, real photos of that place (Commons) come first; generic scenes prefer stock libraries.
+const PLACE_FIRST: [string, (q: string) => Promise<Img | null>][] = [["commons", commons], ["unsplash", unsplash], ["pexels", pexels], ["pixabay", pixabay]];
+
+async function find(queries: string[], placeFirst = false): Promise<Img | null> {
+  for (const [k, q] of queries.entries()) {
+    for (const [name, fn] of k === 0 && placeFirst ? PLACE_FIRST : PROVIDERS) {
       if (exhausted.has(name)) continue;
       try { const img = await fn(q); if (img) return img; }
       catch (e) { if (e instanceof Limit) { exhausted.add(name); log(`images: ${name} hourly limit reached`); } }
@@ -120,7 +145,7 @@ export async function assignImages(limit = 12): Promise<number> {
     if (exhausted.size === PROVIDERS.length) break;
     const pool = e.slugs?.flatMap((s) => TOPIC_QUERIES[s] ?? []) ?? [];
     const queries = [e.image_query, pool[Math.floor(Math.random() * pool.length)], DEFAULT[e.id % DEFAULT.length]].filter(Boolean) as string[];
-    const img = await find(queries);
+    const img = await find(queries, !!e.image_query);
     if (!img && exhausted.size === PROVIDERS.length) break;   // try again next run
     await sql`update events set image_checked_at = now(), image_url = coalesce(image_url, ${img?.url ?? null}),
               image_credit = coalesce(image_credit, ${img?.credit ?? null}), image_link = coalesce(image_link, ${img?.link ?? null}) where id = ${e.id}`;
