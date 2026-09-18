@@ -42,8 +42,9 @@ export default async function EventPage({ params }: PageProps<"/[lang]/event/[sl
   const byCountry = new Map<string, typeof articles>();
   for (const a of articles) byCountry.set(a.sources.country, [...(byCountry.get(a.sources.country) ?? []), a]);
   const agreed = (l === "zh" && latest?.agreed_zh?.length ? latest.agreed_zh : latest?.agreed) ?? [];
-  // the "why coverage differs" box was dropped: it only repeated the country cards
-  const analysis = null as string | null;
+  // only takes written with the newer, less formulaic prompt (older ones just listed the countries again)
+  const freshTake = latest?.created_at && Date.parse(latest.created_at) > Date.parse("2026-09-19T05:00:00Z");
+  const analysis = freshTake ? (l === "zh" && latest?.analysis_zh) || latest?.analysis : null;
   const n = (k: number, one: "source" | "country" | "article", many: "sources" | "countries" | "articles") => `${k} ${t(l, k === 1 ? one : many)}`;
   async function report(fd: FormData) {
     "use server";
@@ -137,8 +138,7 @@ export default async function EventPage({ params }: PageProps<"/[lang]/event/[sl
           {analysis && (
             <section className="rounded-2xl bg-[#FFF1EA] p-6">
               <div className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#C2410C]">{t(l, "analysis")}</div>
-              <h2 className="mt-2 text-[24px] font-semibold tracking-[-0.02em]">{t(l, "whyDiffers")}</h2>
-              <p className="mt-3 text-[16px] leading-relaxed text-neutral-800">{analysis}</p>
+              <p className="mt-3 text-[17px] leading-relaxed text-neutral-800">{analysis}</p>
               <p className="mt-3 text-[12px] text-neutral-600">{t(l, "aiNote")}</p>
             </section>
           )}

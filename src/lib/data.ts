@@ -53,7 +53,7 @@ export async function getPerspectives(eventIds: number[]) {
 async function _getLatestSummary(eventId: number) {
   const { data } = await supabase.from("event_updates").select("content,version,created_at").eq("event_id", eventId).eq("type", "summary_updated")
     .order("version", { ascending: false }).limit(1).maybeSingle();
-  return data?.content as { agreed?: string[]; agreed_zh?: string[]; analysis?: string; analysis_zh?: string } | undefined;
+  return data ? { ...(data.content as { agreed?: string[]; agreed_zh?: string[]; analysis?: string; analysis_zh?: string }), created_at: data.created_at as string } : undefined;
 }
 
 async function _getFacts(eventId: number) {
