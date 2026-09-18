@@ -139,7 +139,7 @@ export default async function Page({ params }: PageProps<"/[lang]/company/[slug]
             {desc && <p className="mt-1 text-[16px] text-neutral-600">{desc[0].toUpperCase() + desc.slice(1)}</p>}
             <div className="mt-3 flex flex-wrap gap-2">
               <span className="rounded-full bg-[#F4F5F7] px-3 py-1 text-[12px] font-medium text-neutral-700">{sectorLabel(c.sector, zh)}</span>
-              {industry && industry.toLowerCase() !== sectorLabel(c.sector, zh).toLowerCase() && <span className="rounded-full bg-[#F4F5F7] px-3 py-1 text-[12px] font-medium text-neutral-700">{industry}</span>}
+              {industry && !industry.toLowerCase().includes(sectorLabel(c.sector, zh).toLowerCase()) && !sectorLabel(c.sector, zh).toLowerCase().includes(industry.toLowerCase()) && <span className="rounded-full bg-[#F4F5F7] px-3 py-1 text-[12px] font-medium text-neutral-700">{industry}</span>}
             </div>
             <div className="mt-5 flex flex-wrap items-start gap-3">
               {c.website && <a href={c.website} target="_blank" rel="noopener noreferrer" className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#16181D] px-5 text-[14px] font-semibold text-white hover:bg-[#2B3038]">{zh ? "访问官网" : "Visit website"} ↗</a>}
