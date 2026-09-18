@@ -2,15 +2,17 @@
 import { useActionState, useState } from "react";
 import { follow } from "./follow-action";
 
-export function FollowBox({ name, lang, companyId, topicId }: { name: string; lang: "en" | "zh"; companyId?: number; topicId?: number }) {
+export function FollowBox({ name, lang, companyId, topicId, variant = "dark", short = false }: { name: string; lang: "en" | "zh"; companyId?: number; topicId?: number; variant?: "dark" | "outline"; short?: boolean }) {
   const zh = lang === "zh";
   const [open, setOpen] = useState(false);
   const [state, action, pending] = useActionState(follow, null as null | boolean);
   if (state === true) return <p className="rounded-xl bg-[#FFF0EB] px-4 py-3 text-[13px] text-[#9A3412]">{zh ? "请查收确认邮件，点击确认后开始接收提醒。" : "Check your inbox and confirm, then alerts will start."}</p>;
   if (!open) return (
-    <button type="button" onClick={() => setOpen(true)} className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-[#16181D] px-4 text-[13px] font-semibold text-white hover:bg-[#2B3038]">
+    <button type="button" onClick={() => setOpen(true)} className={variant === "outline"
+      ? "inline-flex h-11 items-center gap-1.5 rounded-xl border border-[#D1D5DB] bg-white px-5 text-[14px] font-semibold text-[#16181D] hover:border-[#16181D]"
+      : "inline-flex min-h-9 items-center gap-1.5 rounded-full bg-[#16181D] px-4 text-[13px] font-semibold text-white hover:bg-[#2B3038]"}>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg>
-      {zh ? `关注${name}` : `Follow ${name}`}
+      {short ? (zh ? "关注" : "Follow") : zh ? `关注${name}` : `Follow ${name}`}
     </button>
   );
   return (

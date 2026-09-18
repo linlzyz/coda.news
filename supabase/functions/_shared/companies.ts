@@ -30,6 +30,30 @@ const hard = (e: Ent) => HARD.some((p) => e.claims?.[p]);
 // minor entities (no English Wikipedia page) need an exact name; loose matches need a listed company with a Wikipedia page
 // only entities with an English Wikipedia page, so an obscure namesake (e.g. a Czech "SF Holding") never wins
 const ok = (name: string, e: Ent) => { const f = fit(name, e); return !!e.sitelinks?.enwiki && (f >= 2 || (f === 1 && hard(e))); };
+// our sector tags, matched against the Wikidata industry, the description and the parent company (first match wins)
+const SECTORS: [string, RegExp][] = [
+  ["institution", /central bank|regulat|government agency|ministry|authority|commission|intergovernmental|supranational|statistics office|monetary/i],
+  ["luxury", /luxury|haute couture|jewel|watchmak|lvmh|kering|richemont/i],
+  ["beauty", /cosmetic|beauty|fragrance|perfume|skin ?care|make-?up/i],
+  ["fashion", /fashion|clothing|apparel|footwear|textile|sportswear|garment|designer/i],
+  ["automotive", /automotive|automobile|car manufacturer|motor vehicle|electric vehicle|motorcycle|truck/i],
+  ["sport", /sport|football club|franchise|league|association football|athletic|racing team/i],
+  ["entertainment", /film (studio|production|distribution|industry)|motion picture|music|record label|television|broadcast|mass media|entertainment|video game|publishing|streaming|newspaper|copyright|collecting society/i],
+  ["finance", /bank|financ|insurance|investment|asset management|fintech|payment|brokerage|stock exchange|holding company|private equity|venture capital/i],
+  ["energy", /petroleum|oil|natural gas|energy|electric utility|mining|coal|solar|nuclear|power generation/i],
+  ["technology", /software|internet|semiconductor|electronic|computer|technology|telecommunication|artificial intelligence|information technology|cloud|robot|camera|photograph|imaging|optic/i],
+  ["retail", /retail|supermarket|e-?commerce|food|beverage|restaurant|consumer goods|furniture|department store|grocery|brewery|tobacco/i],
+  ["industrial", /manufactur|construction|engineering|aerospace|shipbuild|chemical|steel|logistics|transport|airline|shipping|railway|conglomerate|real estate|pharmaceutical|biotech/i],
+];
+export const sectorOf = (...texts: (string | undefined | null)[]) => { const t = texts.filter(Boolean).join(" | "); return SECTORS.find(([, re]) => re.test(t))?.[0] ?? null; };
+// social accounts: only when unambiguous (a preferred value, or a single value); big brands list many regional accounts
+const handle = (e: Ent, p: string) => {
+  const cs = ((e.claims?.[p] ?? []) as Ent[]).filter((c) => c.rank !== "deprecated");
+  const c = cs.find((x) => x.rank === "preferred") ?? (cs.length === 1 ? cs[0] : undefined);
+  return (c?.mainsnak?.datavalue?.value as string | undefined) ?? null;
+};
+const single = (e: Ent, p: string) => (claim(e, p)?.mainsnak?.datavalue?.value as string | undefined) ?? null;
+
 const zhOf = (o: Ent) => (o?.["zh-hans"] ?? o?.["zh-cn"] ?? o?.zh)?.value as string | undefined;
 const claim = (e: Ent, p: string) => {
   const cs = (e.claims?.[p] ?? []) as Ent[];
@@ -81,7 +105,7 @@ export async function enrichCompanies(limit = 15): Promise<number> {
     try {
       const e = await pick(c.name);
       if (!e) { await sql`update companies set enriched_at = now() where id = ${c.id}`; continue; }
-      const refs = [idOf(e, "P159"), idOf(e, "P452"), idOf(e, "P414"), idOf(e, "P17")].filter(Boolean) as string[];
+      const refs = [idOf(e, "P159"), idOf(e, "P452"), idOf(e, "P414"), idOf(e, "P17"), idOf(e, "P749")].filter(Boolean) as string[];
       const labels = refs.length ? (await get(`action=wbgetentities&ids=${[...new Set(refs)].join("|")}&props=labels|claims&languages=en|zh|zh-hans|zh-cn`)).entities ?? {} : {};
       const en = (id?: string) => (id ? labels[id]?.labels?.en?.value : undefined) as string | undefined;
       const zh = (id?: string) => (id ? zhOf(labels[id]?.labels) : undefined);
@@ -103,6 +127,12 @@ export async function enrichCompanies(limit = 15): Promise<number> {
       const site = siteC ? url(siteC) : null;
       const enT = e.sitelinks?.enwiki?.title as string | undefined, zhT = e.sitelinks?.zhwiki?.title as string | undefined;
       const [aboutEn, aboutZh] = await Promise.all([wikiSummary("en", enT), wikiSummary("zh", zhT)]);
+      // logo: Commons only hosts freely licensed files (non-free logos live on Wikipedia, not Commons), so any P154 file is usable
+      const logoFile = single(e, "P154");
+      const logo = logoFile ? `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(logoFile.replace(/ /g, "_"))}?width=320` : null;
+      const sloganC = ((e.claims?.P1451 ?? []) as Ent[]).map((c) => c.mainsnak?.datavalue?.value).find((v: Ent) => v?.language === "en") ?? ((e.claims?.P1451 ?? []) as Ent[])[0]?.mainsnak?.datavalue?.value;
+      const parentId = idOf(e, "P749");
+      const sector = sectorOf(en(indId), e.descriptions?.en?.value, en(parentId));
       await sql`update companies set wikidata_id = ${e.id}, name_zh = ${zhOf(e.labels) ?? null},
         description = coalesce(description, ${e.descriptions?.en?.value ?? null}), description_zh = ${zhOf(e.descriptions) ?? null},
         about_en = ${aboutEn}, about_zh = ${aboutZh}, website = coalesce(website, ${site}), founded = ${founded ? Number(founded) : null},
@@ -110,10 +140,21 @@ export async function enrichCompanies(limit = 15): Promise<number> {
         ticker = ${sym ? (exch ? `${exch}: ${sym}` : sym) : null},
         wikipedia_en = ${enT ? `https://en.wikipedia.org/wiki/${encodeURIComponent(enT.replace(/ /g, "_"))}` : null},
         wikipedia_zh = ${zhT ? `https://zh.wikipedia.org/wiki/${encodeURIComponent(zhT.replace(/ /g, "_"))}` : null},
+        logo_url = ${logo}, slogan = ${sloganC?.text ? String(sloganC.text).slice(0, 160) : null},
+        parent = ${en(parentId) ?? null}, parent_zh = ${zh(parentId) ?? null},
+        instagram = ${handle(e, "P2003")}, x_handle = ${handle(e, "P2002")}, facebook = ${handle(e, "P2013")}, youtube = ${handle(e, "P2397")}, linkedin = ${handle(e, "P4264")},
+        sector = ${sector}, country = ${(labels[countryId ?? ""]?.claims?.P297?.[0]?.mainsnak?.datavalue?.value as string | undefined) ?? null},
         enriched_at = now() where id = ${c.id}`;
       n++;
     } catch (err) { log("companies:", c.name, (err as Error).message); break; }   // network trouble: try again next run
   }
+  // companies without a Wikidata match (or no clear sector): use the section their news appears in most
+  await sql`update companies c set sector = x.s from (
+      select c2.id, (select case e.category when 'technology' then 'technology' when 'sport' then 'sport' when 'entertainment' then 'entertainment'
+                              when 'fashion' then 'fashion' else 'other' end
+                     from events e where c2.id = any(e.company_ids) group by e.category order by count(*) desc limit 1) as s
+      from companies c2 where c2.sector is null and c2.enriched_at is not null) x
+    where c.id = x.id and x.s is not null`;
   if (rows.length) log(`companies: ${n}/${rows.length}`);
   return n;
 }

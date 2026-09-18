@@ -87,10 +87,12 @@ export type CompanyProfile = Company & {
   website: string | null; description: string | null; wikidata_id: string | null; name_zh: string | null; description_zh: string | null;
   about_en: string | null; about_zh: string | null; founded: number | null; hq: string | null; hq_zh: string | null;
   industry: string | null; industry_zh: string | null; ticker: string | null; wikipedia_en: string | null; wikipedia_zh: string | null;
+  logo_url: string | null; slogan: string | null; parent: string | null; parent_zh: string | null; sector: string | null; country: string | null;
+  instagram: string | null; x_handle: string | null; facebook: string | null; youtube: string | null; linkedin: string | null;
 };
 async function _getCompany(slug: string) {
   const { data } = await supabase.from("companies")
-    .select("id,name,slug,website,description,wikidata_id,name_zh,description_zh,about_en,about_zh,founded,hq,hq_zh,industry,industry_zh,ticker,wikipedia_en,wikipedia_zh")
+    .select("id,name,slug,website,description,wikidata_id,name_zh,description_zh,about_en,about_zh,founded,hq,hq_zh,industry,industry_zh,ticker,wikipedia_en,wikipedia_zh,logo_url,slogan,parent,parent_zh,sector,country,instagram,x_handle,facebook,youtube,linkedin")
     .eq("slug", slug).maybeSingle();
   return data as CompanyProfile | null;
 }
@@ -237,3 +239,22 @@ async function _archiveDays(days = 90) {
 }
 export const eventsOnDay = unstable_cache(_eventsOnDay, ["eventsOnDay"], { revalidate: 600 });
 export const archiveDays = unstable_cache(_archiveDays, ["archiveDays"], { revalidate: 1800 });
+
+// ---- companies directory ----
+export type CompanyCard = { id: number; name: string; name_zh: string | null; slug: string; sector: string | null; country: string | null;
+  logo_url: string | null; description: string | null; description_zh: string | null; industry: string | null; events: number; last_at: string | null };
+async function _companyDirectory() {
+  const rows: Omit<CompanyCard, "events" | "last_at">[] = [];
+  for (let from = 0; ; from += 1000) {
+    const { data } = await supabase.from("companies").select("id,name,name_zh,slug,sector,country,logo_url,description,description_zh,industry").order("id").range(from, from + 999);
+    rows.push(...((data ?? []) as typeof rows)); if (!data || data.length < 1000) break;
+  }
+  const stats = new Map<number, { events: number; last_at: string | null }>();
+  for (let from = 0; ; from += 1000) {
+    const { data } = await supabase.from("company_stats").select("company_id,events,last_at").range(from, from + 999);
+    for (const r of data ?? []) stats.set(Number(r.company_id), { events: r.events, last_at: r.last_at });
+    if (!data || data.length < 1000) break;
+  }
+  return rows.map((r) => ({ ...r, id: Number(r.id), ...(stats.get(Number(r.id)) ?? { events: 0, last_at: null }) })) as CompanyCard[];
+}
+export const companyDirectory = unstable_cache(_companyDirectory, ["companyDirectory"], { revalidate: 600 });
