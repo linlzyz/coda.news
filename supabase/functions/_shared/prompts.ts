@@ -105,8 +105,8 @@ Return JSON only:
      "headline_zh": "...", "framing_zh": "...", "emphasis_zh": "...", "downplayed_zh": "..." } ],
  "image_person": "full English name of the ONE well-known public figure this story is mainly about (e.g. 'Warren Buffett', 'Taylor Swift', 'Jensen Huang'), or empty string if the story is not about one specific person. Never a private individual or a minor.",
  "image_query": "2 to 4 English words for a stock photo scene that fits this story. Use the place where it happens if relevant (e.g. 'washington dc capitol', 'seoul gas station', 'tokyo office workers'); otherwise a generic scene ('semiconductor wafer', 'container port'). NO company, brand, product or person names. Never a place in a different country from the story.",
- "analysis": "if 2+ countries: 2 to 3 neutral sentences on why coverage differs (interests, audience, industry exposure). Else empty string.",
- "analysis_zh": "the analysis in Simplified Chinese, or empty string"
+ "analysis": "",
+ "analysis_zh": ""
 }
 Include one perspective per country listed under COVERAGE BY COUNTRY, and only those. All *_zh fields are natural Simplified Chinese; for Taiwan and Hong Kong use 中国台湾 and 中国香港.`;
 }

@@ -22,7 +22,7 @@ const TOPIC_QUERIES: Record<string, string[]> = {
   football: ["football stadium", "soccer ball field", "football fans stadium"], tennis: ["tennis court", "tennis ball racket"],
   cricket: ["cricket ground", "cricket ball"], basketball: ["basketball court", "basketball hoop"], motorsport: ["race track cars", "motorsport racing"],
   "olympic-sports": ["athletics track", "swimming pool race"], film: ["cinema theater seats", "film camera set"], music: ["concert crowd stage", "music festival"],
-  "tv-streaming": ["watching tv living room", "remote control television"], gaming: ["video game controller", "gaming setup"],
+  "tv-streaming": ["tv studio camera", "film set lights"], gaming: ["video game controller", "gaming setup"],
   luxury: ["luxury boutique", "designer handbag display"], "fashion-week": ["fashion runway", "fashion show backstage"],
   "fashion-retail": ["clothing store rack", "shopping street fashion"], design: ["modern architecture interior", "design studio"],
 };
@@ -159,23 +159,41 @@ async function personPhoto(name: string, eventId: number): Promise<Img | null> {
   const norm = (x: string) => x.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
   // deno-lint-ignore no-explicit-any
   const person = ids.map((id) => j.entities?.[id]).find((e: any) => e &&
-    (e.claims?.P31 ?? []).some((c: any) => c.mainsnak?.datavalue?.value?.id === "Q5") && e.claims?.P18 &&
+    (e.claims?.P31 ?? []).some((c: any) => c.mainsnak?.datavalue?.value?.id === "Q5") && (e.claims?.P18 || e.claims?.P373) &&
     [e.labels?.en?.value, ...(e.aliases?.en ?? []).map((a: any) => a.value)].filter(Boolean).some((n: string) => norm(n) === norm(name)));
-  const file = person?.claims?.P18?.[0]?.mainsnak?.datavalue?.value as string | undefined;
-  if (!file) return null;
-  const ii = await (await fetch(`https://commons.wikimedia.org/w/api.php?format=json&action=query&titles=${encodeURIComponent("File:" + file)}&prop=imageinfo&iiprop=url|size|extmetadata&iiurlwidth=1280`, { headers: UA, signal: AbortSignal.timeout(10000) })).json();
+  if (!person) return null;
+  // candidates: the main image (P18), then files from the person's Commons category (P373); best resolution wins
+  const files = new Set<string>();
+  const p18 = person.claims?.P18?.[0]?.mainsnak?.datavalue?.value as string | undefined;
+  if (p18) files.add("File:" + p18);
+  const cat = person.claims?.P373?.[0]?.mainsnak?.datavalue?.value as string | undefined;
+  const surname = norm(name).split(" ").pop() ?? "";
+  if (cat) {
+    const cm = await (await fetch(`https://commons.wikimedia.org/w/api.php?format=json&action=query&list=categorymembers&cmtype=file&cmlimit=40&cmtitle=${encodeURIComponent("Category:" + cat)}`, { headers: UA, signal: AbortSignal.timeout(10000) })).json();
+    // only single-person photos: the file name mentions the person and not a second name or a group
+    for (const m of cm.query?.categorymembers ?? []) {
+      const t = String(m.title);
+      if (/\.(jpe?g)$/i.test(t) && norm(t).includes(surname) && !/\b(and|with|meets|&|family|team|group)\b/i.test(t)) files.add(t);
+    }
+  }
+  if (!files.size) return null;
+  const ii = await (await fetch(`https://commons.wikimedia.org/w/api.php?format=json&action=query&titles=${encodeURIComponent([...files].slice(0, 30).join("|"))}&prop=imageinfo&iiprop=url|size|mime|extmetadata&iiurlwidth=1600`, { headers: UA, signal: AbortSignal.timeout(12000) })).json();
   // deno-lint-ignore no-explicit-any
-  const info: any = (Object.values(ii.query?.pages ?? {})[0] as any)?.imageinfo?.[0];
-  const m = info?.extmetadata ?? {};
-  const lic = String(m.LicenseShortName?.value ?? "");
-  if (!info || !FREE.test(lic)) return null;
-  if ((info.width ?? 0) < 900 || (info.height ?? 0) < 900) return null;   // small originals look blurry in a banner
-  const artist = String(m.Artist?.value ?? "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().slice(0, 60) || "Unknown";
-  const url = info.thumburl ?? info.url;
+  const infos = (Object.values(ii.query?.pages ?? {}) as any[]).map((pg) => pg.imageinfo?.[0]).filter((i) => i &&
+    i.mime === "image/jpeg" && FREE.test(String(i.extmetadata?.LicenseShortName?.value ?? "")) &&
+    Math.max(i.width, i.height) >= 1800 && Math.min(i.width, i.height) >= 1100)   // sharp enough for a large banner
+    .sort((x, y) => (y.width * y.height) - (x.width * x.height));
   const sql = db();
-  const used = await sql`select 1 from events where image_url = ${url} and id <> ${eventId} limit 1`;
-  if (used.length) return null;   // never reuse a photo
-  return { url, credit: `${artist} / Wikimedia Commons (${lic})`, link: info.descriptionurl, source: "commons", license: lic, licenseUrl: String(m.LicenseUrl?.value ?? "") || undefined };
+  for (const info of infos) {
+    const m = info.extmetadata ?? {};
+    const lic = String(m.LicenseShortName?.value ?? "");
+    const artist = String(m.Artist?.value ?? "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().slice(0, 60) || "Unknown";
+    const url = info.thumburl ?? info.url;
+    const used = await sql`select 1 from events where image_url = ${url} and id <> ${eventId} limit 1`;
+    if (used.length) continue;   // never reuse a photo
+    return { url, credit: `${artist} / Wikimedia Commons (${lic})`, link: info.descriptionurl, source: "commons", license: lic, licenseUrl: String(m.LicenseUrl?.value ?? "") || undefined };
+  }
+  return null;
 }
 
 class Limit extends Error {}

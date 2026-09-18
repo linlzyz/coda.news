@@ -42,7 +42,8 @@ export default async function EventPage({ params }: PageProps<"/[lang]/event/[sl
   const byCountry = new Map<string, typeof articles>();
   for (const a of articles) byCountry.set(a.sources.country, [...(byCountry.get(a.sources.country) ?? []), a]);
   const agreed = (l === "zh" && latest?.agreed_zh?.length ? latest.agreed_zh : latest?.agreed) ?? [];
-  const analysis = (l === "zh" && latest?.analysis_zh) || latest?.analysis;
+  // the "why coverage differs" box was dropped: it only repeated the country cards
+  const analysis = null as string | null;
   const n = (k: number, one: "source" | "country" | "article", many: "sources" | "countries" | "articles") => `${k} ${t(l, k === 1 ? one : many)}`;
   async function report(fd: FormData) {
     "use server";
