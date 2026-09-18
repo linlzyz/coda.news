@@ -9,7 +9,7 @@ import { Flag, Flags } from "@/components/Flag";
 import { CategoryLabel, StatusPill } from "@/components/Pills";
 import { AutoRefresh } from "@/components/AutoRefresh";
 import { Cover } from "@/components/Cover";
-import { ReportError, ShareButton } from "@/components/EventTools";
+import { ReportError, ShareBar } from "@/components/EventTools";
 export const revalidate = 60;
 export async function generateStaticParams() { return []; }
 export const dynamicParams = true;
@@ -65,7 +65,7 @@ export default async function EventPage({ params }: PageProps<"/[lang]/event/[sl
             <div className="flex flex-wrap items-center gap-2 text-[12px]"><CategoryLabel category={e.category} lang={l} /><StatusPill status={e.status} lang={l} /><span className="text-neutral-500">{t(l, "updated")} {timeAgoL(e.last_article_at, l)} · {t(l, "since")} {fmtDate(e.started_at, l)}</span></div>
             <h1 className="text-[32px] font-semibold leading-[1.08] tracking-[-0.03em] sm:text-[44px]">{title(e, l)}</h1>
             <p className="max-w-3xl text-[17px] leading-relaxed text-neutral-600">{summary(e, l)}</p>
-            <div><ShareButton url={`https://coda.news${l === "zh" ? "/zh" : ""}/event/${e.slug}`} title={title(e, l)} t={{ share: t(l, "share"), copied: t(l, "copied") }} /></div>
+            <div><ShareBar url={`https://coda.news${l === "zh" ? "/zh" : ""}/event/${e.slug}`} card={`${l === "zh" ? "/zh" : ""}/event/${e.slug}/card`} slug={e.slug} title={title(e, l)} t={{ share: t(l, "share"), copied: t(l, "copied"), image: t(l, "shareImage"), making: t(l, "making"), igHint: t(l, "igHint") }} /></div>
             <div className="flex flex-wrap gap-2 text-[13px]">
               <Chip>{n(e.source_count, "source", "sources")}</Chip><Chip>{n(e.countries.length, "country", "countries")}</Chip><Chip>{n(e.article_count, "article", "articles")}</Chip>
               <Chip>{outlets} {t(l, "outlets")}</Chip><Link href="/about#method" className="rounded-full bg-[#F4F5F7] px-3 py-1 text-neutral-700 hover:bg-[#ECEEF1]" title={t(l, "howJudge")}>{t(l, "confidence")} {e.confidence}/100 ⓘ</Link>{e.has_official && <Chip strong>{t(l, "official")}</Chip>}
