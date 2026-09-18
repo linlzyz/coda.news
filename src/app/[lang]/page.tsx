@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 export const revalidate = 60;
 
 export default async function Home({ params }: PageProps<"/[lang]">) {
-  const CATS = ["economy", "technology", "sport", "entertainment", "fashion"] as const;
+  const CATS = ["economy", "technology", "sport", "entertainment", "fashion", "travel"] as const;
   const [events, au, topics, trending, cq, fq, ...byCat] = await Promise.all([
     listEvents({ limit: 80 }), listEvents({ region: "AU", order: "recent", limit: 40 }), allTopics(), trendingCompanies(10), crypto(), fx(),
     // each tab gets its own list, same as its section page (the main list is dominated by the biggest economy/tech stories)
@@ -72,7 +72,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
           )}
 
           <Feed title={t(l, "latest")} more={t(l, "loadMore")} disclaimer={t(l, "disclaimer")}
-            tabs={(["all", "australia", "economy", "technology", "sport", "entertainment", "fashion"] as const).map((k) => [t(l, k), k === "all" ? undefined : k])}
+            tabs={(["all", "australia", "economy", "technology", "sport", "entertainment", "fashion", "travel"] as const).map((k) => [t(l, k), k === "all" ? undefined : k])}
             items={[
               ...list.map((e) => ({ tags: [e.category, ...(e.regions?.includes("AU") ? ["australia"] : [])], node: <NewsItem e={e} companies={companies} topics={topicMap} lang={l} /> })),
               ...auOnly.map((e) => ({ tags: ["australia"], hideInAll: true, node: <NewsItem e={e} companies={companies} topics={topicMap} lang={l} /> })),

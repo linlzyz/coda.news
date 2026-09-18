@@ -2,8 +2,8 @@
 
 export const TOPICS = ["artificial-intelligence", "semiconductors", "big-tech", "economy", "markets", "trade", "electric-vehicles", "energy", "startups", "crypto",
   "football", "tennis", "cricket", "basketball", "motorsport", "olympic-sports", "film", "music", "tv-streaming", "gaming", "celebrity",
-  "luxury", "fashion-week", "fashion-retail", "design"];
-export const CATEGORIES = ["technology", "economy", "sport", "entertainment", "fashion"];
+  "luxury", "fashion-week", "fashion-retail", "design", "aviation", "tourism"];
+export const CATEGORIES = ["technology", "economy", "sport", "entertainment", "fashion", "travel"];
 
 export const PREDICATES = [
   "announced", "launched", "released", "acquired", "agreed_to_acquire", "merged_with", "invested_in", "raised_funding",
@@ -15,7 +15,7 @@ export const PREDICATES = [
 
 export const EDITORIAL_RULES = `
 Editorial rules (always follow):
-- Coda covers technology, economy/business, sport, entertainment (film, music, TV, games, arts, celebrities) and fashion/design. No politics, military or crime.
+- Coda covers technology, economy/business, sport, entertainment (film, music, TV, games, arts, celebrities), fashion/design and travel. No politics, military or crime.
 - Celebrity news is reported as what outlets report, attributed to them ("according to People"), never as our own claim. Unconfirmed claims are marked as rumours. Never speculate about health, sexuality or private matters that the person has not made public, and never report on minors' private lives.
 - Describe, never judge. Neutral wording. Never use loaded words such as propaganda, regime, biased, spin, lies.
 - Each country's perspective comes only from that country's own media. Never speak for a country from another country's sources.
@@ -32,10 +32,11 @@ For each item decide "relevant": true only if it reports a specific, concrete de
 - sport: a result, match, transfer, record, tournament, team or league decision
 - entertainment: a release, box office, award, festival, deal, record, casting or industry news; celebrity news such as engagements, weddings, breakups, births, public feuds, statements, red-carpet moments, tours and deaths of public figures
 - fashion: a collection, show, designer appointment, brand business news, notable design news
+- travel: airlines and airports (routes, fares, strikes, safety), tourism numbers, visa and border rules for travellers, hotels and cruises, destinations opening or closing, travel industry news
 false for: market roundups, live blogs and "what happened today" digests that cover several unrelated stories, opinion columns, how-to guides, product reviews, shopping deals, horoscopes, quizzes, podcasts, recipes, politics, military, crime and criminal allegations, accidents, weather, anonymous blind items, paparazzi speculation about bodies, health or sexuality.
 
 Fields per relevant item:
-- category: one of "technology", "economy", "sport", "entertainment", "fashion"
+- category: one of "technology", "economy", "sport", "entertainment", "fashion", "travel"
 - regions: ISO country codes where the event takes place or which it mainly concerns (e.g. ["AU"], ["US","CN"]), max 3
 - headline_en: the headline translated to neutral English
 - event: one short neutral English sentence naming the specific event (who did what), e.g. "Apple unveils iPhone 18 at September event"

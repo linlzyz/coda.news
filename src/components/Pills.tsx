@@ -10,7 +10,7 @@ export function StatusPill({ status, lang = "en" }: { status: Status; lang?: Lan
 }
 const CAT: Record<string, [string, string]> = {
   technology: ["科技", "bg-[#F3F0FF] text-[#6D28D9]"], economy: ["经济", "bg-[#ECFDF5] text-[#0F766E]"],
-  sport: ["体育", "bg-[#EFF6FF] text-[#1D4ED8]"], entertainment: ["娱乐", "bg-[#FDF2F8] text-[#BE185D]"], fashion: ["时尚", "bg-[#FEF3C7] text-[#92400E]"],
+  sport: ["体育", "bg-[#EFF6FF] text-[#1D4ED8]"], entertainment: ["娱乐", "bg-[#FDF2F8] text-[#BE185D]"], fashion: ["时尚", "bg-[#FEF3C7] text-[#92400E]"], travel: ["旅行", "bg-[#E0F2FE] text-[#0369A1]"],
 };
 export function CategoryLabel({ category, lang = "en" }: { category: string; lang?: Lang }) {
   const [zh, cls] = CAT[category] ?? CAT.technology;

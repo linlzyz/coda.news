@@ -24,7 +24,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ lang: st
   const ps = ((await getPerspectives([e.id])).get(e.id) ?? []).sort((a, b) => b.article_count - a.article_count).slice(0, 5);
   const title = (zh && e.title_zh) || e.title;
   const cName = (c: string) => (zh ? COUNTRY_ZH[c] : COUNTRY[c]) ?? c;
-  const cat = zh ? ({ technology: "科技", economy: "经济", sport: "体育", entertainment: "娱乐", fashion: "时尚" } as Record<string, string>)[e.category] ?? "" : e.category.toUpperCase();
+  const cat = zh ? ({ technology: "科技", economy: "经济", sport: "体育", entertainment: "娱乐", fashion: "时尚", travel: "旅行" } as Record<string, string>)[e.category] ?? "" : e.category.toUpperCase();
   const meta = zh ? `${e.countries.length} 个国家 · ${e.source_count} 个来源` : `${e.countries.length} ${e.countries.length === 1 ? "country" : "countries"} · ${e.source_count} ${e.source_count === 1 ? "source" : "sources"}`;
   const kicker = zh ? "各国怎么说" : "HOW THE WORLD REPORTS IT";
   const photoOk = !!e.image_url && !!e.image_credit && (/\/ (Pexels|Unsplash|Pixabay)$/.test(e.image_credit) || /\((CC BY \d|CC0|Public domain|PDM)/i.test(e.image_credit));

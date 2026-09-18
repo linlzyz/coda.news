@@ -25,6 +25,7 @@ const TOPIC_QUERIES: Record<string, string[]> = {
   "tv-streaming": ["tv studio camera", "film set lights"], gaming: ["video game controller", "gaming setup"],
   luxury: ["luxury boutique", "designer handbag display"], "fashion-week": ["fashion runway", "fashion show backstage"],
   "fashion-retail": ["clothing store rack", "shopping street fashion"], design: ["modern architecture interior", "design studio"],
+  aviation: ["airplane taking off", "airport terminal"], tourism: ["tourists city street", "travel suitcase airport"],
 };
 const DEFAULT = ["business documents desk", "technology abstract", "world map"];
 const exhausted = new Set<string>();

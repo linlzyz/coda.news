@@ -33,7 +33,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ lang: stri
   const title = (zh && e.title_zh) || e.title;
   const rows = ps.map((p) => ({ c: (zh ? COUNTRY_ZH[p.country] : COUNTRY[p.country]) ?? p.country, f: cut((zh && p.framing_zh) || p.framing || "", zh ? 34 : 80) }));
   const labels = zh
-    ? { how: "各国怎么说", meta: `${e.countries.length} 个国家 · ${e.source_count} 个来源`, cta: "在 coda.news 对比各国报道", cat: { technology: "科技", economy: "经济", sport: "体育", entertainment: "娱乐", fashion: "时尚" }[e.category] ?? "" }
+    ? { how: "各国怎么说", meta: `${e.countries.length} 个国家 · ${e.source_count} 个来源`, cta: "在 coda.news 对比各国报道", cat: { technology: "科技", economy: "经济", sport: "体育", entertainment: "娱乐", fashion: "时尚", travel: "旅行" }[e.category] ?? "" }
     : { how: "How the world reports it", meta: `${e.countries.length} ${e.countries.length === 1 ? "country" : "countries"} · ${e.source_count} ${e.source_count === 1 ? "source" : "sources"}`, cta: "Compare the coverage at coda.news", cat: e.category.toUpperCase() };
   // photos only from sources whose licence allows use in a composed image (checked above)
   const sum = (zh && e.summary_zh) || e.summary || "";
