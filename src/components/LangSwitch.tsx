@@ -12,10 +12,10 @@ export function LangSwitch({ lang }: { lang: "en" | "zh" }) {
   const [shown, setShown] = useOptimistic(lang);
   const set = (l: "en" | "zh") => start(() => { setShown(l); saveLang(l); router.refresh(); });
   return (
-    <div className={`flex h-10 items-center rounded-xl border border-[#E5E7EB] p-1 text-[13px] font-medium transition-opacity ${pending ? "opacity-60" : ""}`} role="group" aria-label="Language">
+    <div className={`flex h-10 items-center rounded-xl border border-[#DDE6F1] p-1 text-[13px] font-medium transition-opacity ${pending ? "opacity-60" : ""}`} role="group" aria-label="Language">
       {([["en", "EN"], ["zh", "中文"]] as const).map(([l, label]) => (
         <button key={l} type="button" onClick={() => set(l)} aria-pressed={shown === l}
-          className={`h-8 rounded-lg px-2.5 ${shown === l ? "bg-[#1F2328] text-white" : "text-neutral-600 hover:text-[#16181D]"}`}>{label}</button>
+          className={`h-8 rounded-lg px-2.5 ${shown === l ? "bg-[#0B3A6E] text-white" : "text-slate-600 hover:text-[#0E1A2B]"}`}>{label}</button>
       ))}
     </div>
   );

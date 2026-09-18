@@ -9,8 +9,8 @@ export async function EventList({ title, intro, events }: { title: string; intro
   return (
     <div className="mx-auto max-w-[960px] px-4 py-10 sm:px-6">
       <h1 className="text-[36px] font-semibold tracking-[-0.03em]">{title}</h1>
-      {intro && <p className="mt-2 text-[16px] text-neutral-600">{intro}</p>}
-      <div className="mt-4">{events.length ? events.map((e) => <NewsItem key={e.id} e={e} companies={companies} topics={tm} lang={lang} />) : <p className="py-10 text-neutral-500">{t(lang, "noEvents")}</p>}</div>
+      {intro && <p className="mt-2 text-[16px] text-slate-600">{intro}</p>}
+      <div className="mt-4">{events.length ? events.map((e) => <NewsItem key={e.id} e={e} companies={companies} topics={tm} lang={lang} />) : <p className="py-10 text-slate-500">{t(lang, "noEvents")}</p>}</div>
     </div>
   );
 }

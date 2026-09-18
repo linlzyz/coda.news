@@ -12,13 +12,13 @@ export const STATUS: Record<Status, { label: string; cls: string }> = {
   breaking:   { label: "Breaking",   cls: "bg-rose-50 text-rose-700 ring-rose-200" },
   developing: { label: "Developing", cls: "bg-sky-50 text-sky-800 ring-sky-200" },
   confirmed:  { label: "Confirmed",  cls: "bg-emerald-50 text-emerald-800 ring-emerald-200" },
-  resolved:   { label: "Resolved",   cls: "bg-neutral-100 text-neutral-700 ring-neutral-200" },
-  archived:   { label: "Archived",   cls: "bg-neutral-100 text-neutral-500 ring-neutral-200" },
+  resolved:   { label: "Resolved",   cls: "bg-slate-100 text-slate-700 ring-slate-200" },
+  archived:   { label: "Archived",   cls: "bg-slate-100 text-slate-500 ring-slate-200" },
 };
 
 export const TONE: Record<string, { label: string; cls: string; x: number }> = {
   positive: { label: "Positive", cls: "bg-emerald-50 text-emerald-800", x: 18 },
-  neutral:  { label: "Neutral",  cls: "bg-neutral-100 text-neutral-700", x: 50 },
+  neutral:  { label: "Neutral",  cls: "bg-slate-100 text-slate-700", x: 50 },
   negative: { label: "Cautious", cls: "bg-rose-50 text-rose-800", x: 82 },
 };
 

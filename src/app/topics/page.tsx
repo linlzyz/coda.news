@@ -10,8 +10,8 @@ export default async function Page() {
       <h1 className="text-[36px] font-semibold tracking-[-0.03em]">{t(l, "topics")}</h1>
       <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
         {topics.map((x) => (
-          <Link key={x.id} href={`/topic/${x.slug}`} className="flex items-center gap-3 rounded-2xl p-5 font-medium hover:brightness-95" style={{ background: "#F4F5F7" }}>
-            <span className="text-[#C2410C]"><Icon name={x.slug} size={26} /></span>{l === "zh" ? TOPIC_ZH[x.slug] : x.name}
+          <Link key={x.id} href={`/topic/${x.slug}`} className="flex items-center gap-3 rounded-2xl p-5 font-medium hover:brightness-95" style={{ background: "#F3F6FA" }}>
+            <span className="text-[#1560BD]"><Icon name={x.slug} size={26} /></span>{l === "zh" ? TOPIC_ZH[x.slug] : x.name}
           </Link>
         ))}
       </div>

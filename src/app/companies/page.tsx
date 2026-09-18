@@ -7,9 +7,9 @@ export default async function Page() {
   return (
     <div className="mx-auto max-w-[900px] px-4 py-10 sm:px-6">
       <h1 className="text-[36px] font-semibold tracking-[-0.03em]">{t(l, "companies")}</h1>
-      <p className="mt-2 text-neutral-600">{t(l, "mostActive")}</p>
+      <p className="mt-2 text-slate-600">{t(l, "mostActive")}</p>
       <div className="mt-6 flex flex-wrap gap-2">
-        {cos.map((c) => <Link key={c.id} href={`/company/${c.slug}`} className="rounded-full border border-[#E5E7EB] px-4 py-2 text-[14px] font-medium hover:border-[#F0A57F]">{c.name}</Link>)}
+        {cos.map((c) => <Link key={c.id} href={`/company/${c.slug}`} className="rounded-full border border-[#DDE6F1] px-4 py-2 text-[14px] font-medium hover:border-[#8DB3E2]">{c.name}</Link>)}
       </div>
     </div>
   );

@@ -25,12 +25,12 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           <div className="flex min-w-0 flex-1 flex-col">
             <TopBar />
             <main className="flex-1">{children}</main>
-            <footer className="flex flex-col gap-2 border-t border-[#E5E7EB] px-4 py-6 text-[12px] text-neutral-500 sm:px-6 md:flex-row lg:px-8">
+            <footer className="flex flex-col gap-2 border-t border-[#DDE6F1] px-4 py-6 text-[12px] text-slate-500 sm:px-6 md:flex-row lg:px-8">
               <span>© {new Date().getFullYear()} coda.news · {t(l, "footer")}</span>
               <span className="flex shrink-0 gap-4 md:ml-auto">
-                <Link href="/legal/terms" className="hover:text-neutral-800">{t(l, "terms")}</Link>
-                <Link href="/legal/privacy" className="hover:text-neutral-800">{t(l, "privacy")}</Link>
-                <Link href="/legal/cookies" className="hover:text-neutral-800">{t(l, "cookies")}</Link>
+                <Link href="/legal/terms" className="hover:text-slate-800">{t(l, "terms")}</Link>
+                <Link href="/legal/privacy" className="hover:text-slate-800">{t(l, "privacy")}</Link>
+                <Link href="/legal/cookies" className="hover:text-slate-800">{t(l, "cookies")}</Link>
               </span>
             </footer>
           </div>

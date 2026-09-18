@@ -133,6 +133,12 @@ export async function subscribe(email: string) {
   return true;
 }
 
+async function _indices() {
+  const { data } = await supabase.from("market_series").select("name,value,change,series,digits,as_of").eq("grp", "indices").order("sort");
+  return (data ?? []) as { name: string; value: number; change: number; series: number[]; digits: number; as_of: string }[];
+}
+export const indices = unstable_cache(_indices, ["indices"], { revalidate: 600 });
+
 // Cached reads: shared across requests for 60s, so switching language or pages does not wait for the database.
 export const listEvents = unstable_cache(_listEvents, ["listEvents"], { revalidate: 60 });
 export const getEvent = unstable_cache(_getEvent, ["getEvent"], { revalidate: 60 });
