@@ -78,12 +78,19 @@ export default async function EventPage({ params }: PageProps<"/[lang]/event/[sl
 
           <Cover e={e} credit priority className="aspect-[21/9] w-full rounded-3xl" />
 
-          {agreed.length > 0 && (
-            <section className="rounded-2xl border border-[#E5E7EB] p-6">
-              <h2 className="text-[18px] font-semibold tracking-[-0.015em]">{t(l, "agreed")}</h2>
-              <ol className="mt-4 grid gap-3 sm:grid-cols-2">
-                {agreed.map((f, i) => <li key={i} className="flex gap-3 text-[15px] leading-relaxed"><span className="font-semibold text-[#C2410C]">{String(i + 1).padStart(2, "0")}</span><span>{f}</span></li>)}
-              </ol>
+          {(analysis || agreed.length > 0) && (
+            <section className="rounded-2xl bg-[#FFF1EA] p-6">
+              <div className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#C2410C]">{t(l, "analysis")}</div>
+              {analysis && <p className="mt-3 text-[17px] leading-relaxed text-neutral-800">{analysis}</p>}
+              {agreed.length > 0 && (
+                <>
+                  <h2 className={`${analysis ? "mt-5 border-t border-[#F5D0BE] pt-4" : "mt-3"} text-[14px] font-semibold text-[#16181D]`}>{t(l, "keyFacts")}</h2>
+                  <ol className="mt-3 grid gap-2.5 sm:grid-cols-2">
+                    {agreed.map((f, i) => <li key={i} className="flex gap-3 text-[15px] leading-relaxed text-neutral-800"><span className="font-semibold text-[#C2410C]">{String(i + 1).padStart(2, "0")}</span><span>{f}</span></li>)}
+                  </ol>
+                </>
+              )}
+              <p className="mt-4 text-[12px] text-neutral-600">{t(l, "aiNote")}</p>
             </section>
           )}
 
@@ -135,13 +142,6 @@ export default async function EventPage({ params }: PageProps<"/[lang]/event/[sl
             </div>
           </section>
 
-          {analysis && (
-            <section className="rounded-2xl bg-[#FFF1EA] p-6">
-              <div className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#C2410C]">{t(l, "analysis")}</div>
-              <p className="mt-3 text-[17px] leading-relaxed text-neutral-800">{analysis}</p>
-              <p className="mt-3 text-[12px] text-neutral-600">{t(l, "aiNote")}</p>
-            </section>
-          )}
 
           <section className="space-y-3">
             <h2 className="text-[20px] font-semibold tracking-[-0.015em]">{t(l, "sourcesH")}</h2>

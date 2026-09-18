@@ -32,7 +32,7 @@ const D = {
   nlErr: ["Please check the email address and try again.", "请检查邮箱地址后重试。"],
   footer: ["Summaries are AI-generated from the linked sources and may contain errors; always check the originals. We summarise and link; we never republish articles. Photos come from openly licensed libraries (Pexels, Unsplash, Pixabay, Wikimedia Commons), credited to their authors.", "摘要由 AI 根据所链接的来源生成，可能有误，请以原文为准。我们只做摘要和链接，从不转载原文。图片来自开放授权图库（Pexels、Unsplash、Pixabay、Wikimedia Commons），并注明作者。"],
   terms: ["Terms of Use", "使用条款"], privacy: ["Privacy Policy", "隐私政策"], cookies: ["Cookie Policy", "Cookie 政策"],
-  updated: ["Updated", "更新于"], since: ["since", "始于"], agreed: ["What everyone agrees on", "各方共识"],
+  updated: ["Updated", "更新于"], since: ["since", "始于"], agreed: ["What everyone agrees on", "各方共识"], keyFacts: ["Key facts", "要点"],
   spectrum: ["The framing spectrum", "报道倾向"], spectrumSub: ["Overall tone of each country's coverage of this event, judged from the articles listed below.", "各国媒体报道这件事的整体语气，依据下方列出的文章判断。"],
   positive: ["Supportive", "支持性"], neutral: ["Descriptive", "描述性"], cautious: ["Cautious", "审慎性"],
   howEach: ["How each country tells it", "各国怎么说"], oneCountry: ["So far one country has covered this event. Perspectives appear when media in a second country report it.", "目前只有一个国家报道了这件事。第二个国家的媒体报道后，这里会出现各国视角对比。"],
