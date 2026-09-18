@@ -222,7 +222,7 @@ async function _eventsOnDay(day: string) {
   const [h, m = "00"] = off.replace(/^([+-])(\d+)/, "$1$2").split(":");
   const from = new Date(`${day}T00:00:00${h[0]}${h.slice(1).padStart(2, "0")}:${m}`), to = new Date(from.getTime() + 86400_000);
   const { data } = await supabase.from("events").select(EVENT_COLS).not("summary", "is", null).neq("status", "archived")
-    .gte("started_at", from.toISOString()).lt("started_at", to.toISOString()).order("importance", { ascending: false }).limit(200);
+    .gte("started_at", from.toISOString()).lt("started_at", to.toISOString()).order("importance", { ascending: false }).limit(500);
   return (data ?? []) as EventRow[];
 }
 async function _archiveDays(days = 90) {

@@ -2,7 +2,7 @@
 export const SITE = {
   name: "coda.news",
   url: "https://coda.news",
-  operator: "Pino Studio",
+  operator: "Pino Australia",
   city: "Melbourne, Australia",
   cityZh: "澳大利亚墨尔本",
   abn: "",               // fill in to show "ABN ..." in the footer and legal pages
