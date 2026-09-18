@@ -54,7 +54,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ lang: stri
         </div>
         {photoOk ? (
           <div style={{ display: "flex", position: "relative", margin: "0 64px", height: 340, overflow: "hidden", borderRadius: 16 }}>
-            <img src={e.image_url!} width={952} height={340} style={{ objectFit: "cover", width: 952, height: 340 }} alt="" />
+            <img src={e.image_url!} width={952} height={340} style={{ objectFit: "cover", objectPosition: e.image_focus === "top" ? "center 18%" : "center", width: 952, height: 340 }} alt="" />
             {e.image_credit && <div style={{ position: "absolute", right: 12, bottom: 10, display: "flex", fontSize: 16, color: "#fff", background: "rgba(0,0,0,.5)", padding: "3px 10px", borderRadius: 6 }}>Photo: {e.image_credit}</div>}
           </div>
         ) : <div style={{ display: "flex", margin: "0 64px", height: 8, background: "#EA5514", borderRadius: 4 }} />}

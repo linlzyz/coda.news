@@ -43,7 +43,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ lang: st
 
   const cover = (
     <div style={{ width: W, height: H, display: "flex", position: "relative", background: INK, fontFamily: "Sans" }}>
-      {photoOk && <img src={e.image_url!} width={W} height={H} style={{ position: "absolute", top: 0, left: 0, width: W, height: H, objectFit: "cover" }} alt="" />}
+      {photoOk && <img src={e.image_url!} width={W} height={H} style={{ position: "absolute", top: 0, left: 0, width: W, height: H, objectFit: "cover", objectPosition: e.image_focus === "top" ? "center 18%" : "center" }} alt="" />}
       {photoOk && <div style={{ position: "absolute", top: 0, left: 0, width: W, height: H, display: "flex",
         backgroundImage: "linear-gradient(180deg, rgba(10,11,13,0.55) 0%, rgba(10,11,13,0) 20%, rgba(10,11,13,0.15) 45%, rgba(10,11,13,0.88) 70%, rgba(10,11,13,0.97) 100%)" }} />}
       <div style={{ position: "absolute", top: 64, left: 72, right: 72, display: "flex", alignItems: "center" }}>

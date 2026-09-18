@@ -150,7 +150,7 @@ async function openverse(q: string): Promise<Img | null> {
 // A real portrait of the person the story is about: their Wikidata entry's main image (P18), which always lives on Commons.
 // We check it is a human with that exact name, and that the file's licence is free, before using it.
 const UA = { "user-agent": "CodaNewsBot/0.1 (https://coda.news; info@coda.news)" };
-async function personPhoto(name: string): Promise<Img | null> {
+async function personPhoto(name: string, eventId: number): Promise<Img | null> {
   const w = "https://www.wikidata.org/w/api.php?format=json&";
   const s = await (await fetch(`${w}action=wbsearchentities&search=${encodeURIComponent(name)}&language=en&type=item&limit=5`, { headers: UA, signal: AbortSignal.timeout(10000) })).json();
   const ids: string[] = (s.search ?? []).map((x: { id: string }) => x.id);
@@ -163,16 +163,17 @@ async function personPhoto(name: string): Promise<Img | null> {
     [e.labels?.en?.value, ...(e.aliases?.en ?? []).map((a: any) => a.value)].filter(Boolean).some((n: string) => norm(n) === norm(name)));
   const file = person?.claims?.P18?.[0]?.mainsnak?.datavalue?.value as string | undefined;
   if (!file) return null;
-  const ii = await (await fetch(`https://commons.wikimedia.org/w/api.php?format=json&action=query&titles=${encodeURIComponent("File:" + file)}&prop=imageinfo&iiprop=url|extmetadata&iiurlwidth=1280`, { headers: UA, signal: AbortSignal.timeout(10000) })).json();
+  const ii = await (await fetch(`https://commons.wikimedia.org/w/api.php?format=json&action=query&titles=${encodeURIComponent("File:" + file)}&prop=imageinfo&iiprop=url|size|extmetadata&iiurlwidth=1280`, { headers: UA, signal: AbortSignal.timeout(10000) })).json();
   // deno-lint-ignore no-explicit-any
   const info: any = (Object.values(ii.query?.pages ?? {})[0] as any)?.imageinfo?.[0];
   const m = info?.extmetadata ?? {};
   const lic = String(m.LicenseShortName?.value ?? "");
   if (!info || !FREE.test(lic)) return null;
+  if ((info.width ?? 0) < 900 || (info.height ?? 0) < 900) return null;   // small originals look blurry in a banner
   const artist = String(m.Artist?.value ?? "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().slice(0, 60) || "Unknown";
   const url = info.thumburl ?? info.url;
   const sql = db();
-  const used = await sql`select 1 from events where image_url = ${url} limit 1`;
+  const used = await sql`select 1 from events where image_url = ${url} and id <> ${eventId} limit 1`;
   if (used.length) return null;   // never reuse a photo
   return { url, credit: `${artist} / Wikimedia Commons (${lic})`, link: info.descriptionurl, source: "commons", license: lic, licenseUrl: String(m.LicenseUrl?.value ?? "") || undefined };
 }
@@ -196,8 +197,8 @@ async function find(queries: string[], placeFirst = false): Promise<Img | null> 
 export async function assignImages(limit = 12): Promise<number> {
   const sql = db();
   // 1) stories about one well-known person: swap a stock photo (or nothing) for a real, free portrait of them
-  const people = await sql<{ id: number; image_person: string; title: string }[]>`
-    select id, image_person, title from events where image_person is not null and person_checked_at is null and summary is not null
+  const people = await sql<{ id: number; image_person: string; title: string; image_focus: string | null }[]>`
+    select id, image_person, title, image_focus from events where image_person is not null and person_checked_at is null and summary is not null
       and (image_url is null or image_source in ('pexels','unsplash','pixabay','openverse','commons'))
     order by importance desc, last_article_at desc limit ${limit}`;
   let swapped = 0;
@@ -206,11 +207,16 @@ export async function assignImages(limit = 12): Promise<number> {
     // products named after people (e.g. NVIDIA's "Vera Rubin" chips) must not get that person's portrait
     const esc = p.image_person.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const product = new RegExp(`${esc}\\s+(NVL|system|chip|gpu|platform|architecture|supercomputer|telescope|observatory|model|series|edition|award|prize|trophy|cup|stadium|arena)`, "i").test(p.title);
-    try { if (!product) img = await personPhoto(p.image_person); } catch (e) { log("person photo", p.image_person, (e as Error).message); }
+    try { if (!product) img = await personPhoto(p.image_person, p.id); } catch (e) { log("person photo", p.image_person, (e as Error).message); }
     if (img) {
       await sql`update events set image_url = ${img.url}, image_credit = ${img.credit}, image_link = ${img.link}, image_source = ${img.source ?? null},
-                image_license = ${img.license ?? null}, image_license_url = ${img.licenseUrl ?? null}, image_fetched_at = now(), image_checked_at = now(), person_checked_at = now() where id = ${p.id}`;
+                image_license = ${img.license ?? null}, image_license_url = ${img.licenseUrl ?? null}, image_fetched_at = now(), image_checked_at = now(),
+                person_checked_at = now(), image_focus = 'top' where id = ${p.id}`;
       swapped++;
+    } else if (p.image_focus === "top") {
+      // an earlier portrait no longer passes (e.g. too small): drop it so a normal photo is found instead
+      await sql`update events set image_url = null, image_credit = null, image_link = null, image_source = null, image_license = null, image_license_url = null,
+                image_checked_at = null, image_focus = null, person_checked_at = now() where id = ${p.id}`;
     } else await sql`update events set person_checked_at = now() where id = ${p.id}`;
   }
   if (people.length) log(`images: ${swapped}/${people.length} person portraits`);
