@@ -4,9 +4,9 @@ import { env, log } from "./env.ts";
 
 const FROM = "The Daily Coda <brief@coda.news>";
 const SITE = "https://coda.news";
-const esc = (s: string) => String(s ?? "").replace(/[<>&"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]!));
+export const esc = (s: string) => String(s ?? "").replace(/[<>&"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]!));
 
-async function send(emails: { to: string; subject: string; html: string; unsub: string }[]) {
+export async function send(emails: { to: string; subject: string; html: string; unsub: string }[]) {
   const key = env("RESEND_API_KEY"); if (!key || !emails.length) return 0;
   let sent = 0;
   for (let i = 0; i < emails.length; i += 100) {
@@ -23,7 +23,7 @@ async function send(emails: { to: string; subject: string; html: string; unsub: 
   return sent;
 }
 
-function shell(body: string, unsub: string, zh: boolean) {
+export function shell(body: string, unsub: string, zh: boolean) {
   return `<!doctype html><html><body style="margin:0;background:#F4F5F7;font-family:Inter,Helvetica,Arial,sans-serif;color:#16181D">
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#F4F5F7;padding:24px 12px"><tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff">

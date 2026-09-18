@@ -1,11 +1,11 @@
 import type { MetadataRoute } from "next";
-import { sitemapRows } from "@/lib/data";
+import { archiveDays, sitemapRows } from "@/lib/data";
 
 const BASE = "https://coda.news";
 export const revalidate = 600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const { events, companies, topics } = await sitemapRows();
+  const [{ events, companies, topics }, days] = await Promise.all([sitemapRows(), archiveDays(90)]);
   const both = (path: string) => ({ languages: { en: `${BASE}${path}`, "zh-CN": `${BASE}/zh${path === "/" ? "" : path}` } });
   const zh = (entries: MetadataRoute.Sitemap) => entries.map((x) => ({ ...x, url: x.url.replace(BASE, `${BASE}/zh`).replace(/\/zh\/$/, "/zh") }));
   const en: MetadataRoute.Sitemap = [
@@ -16,6 +16,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/companies`, changeFrequency: "daily" as const, priority: 0.5 },
     { url: `${BASE}/about`, changeFrequency: "monthly" as const, priority: 0.3 },
     { url: `${BASE}/sources`, changeFrequency: "weekly" as const, priority: 0.3 },
+    { url: `${BASE}/corrections`, changeFrequency: "daily" as const, priority: 0.3 },
+    { url: `${BASE}/archive`, changeFrequency: "daily" as const, priority: 0.4 },
+    ...days.map(([d]) => ({ url: `${BASE}/archive/${d}`, changeFrequency: "daily" as const, priority: 0.4 })),
     ...events.map((e) => ({ url: `${BASE}/event/${e.slug}`, lastModified: e.last_article_at, changeFrequency: "hourly" as const, priority: 0.7, images: e.image_url ? [e.image_url.replace(/&/g, "&amp;")] : undefined })),
     ...topics.map((t) => ({ url: `${BASE}/topic/${t.slug}`, changeFrequency: "hourly" as const, priority: 0.6 })),
     ...companies.map((c) => ({ url: `${BASE}/company/${c.slug}`, changeFrequency: "daily" as const, priority: 0.4 })),

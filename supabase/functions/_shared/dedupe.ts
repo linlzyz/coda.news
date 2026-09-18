@@ -36,6 +36,10 @@ export async function mergeEvents(keep: number, drop: number): Promise<boolean> 
     await tx`update events k set company_ids = (select coalesce(array_agg(distinct c),'{}') from unnest(k.company_ids || d.company_ids) c),
                topic_ids = (select coalesce(array_agg(distinct t),'{}') from unnest(k.topic_ids || d.topic_ids) t), needs_regen = true
              from events d where k.id = ${keep} and d.id = ${drop}`;
+    await tx`insert into corrections (event_id, event_slug, event_title, kind, detail_en, detail_zh)
+             select k.id, k.slug, k.title, 'merged', 'Merged a duplicate page about the same story: "' || left(d.title, 120) || '".',
+                    '合并了一个报道同一件事的重复页面：“' || left(coalesce(d.title_zh, d.title), 120) || '”。'
+             from events k, events d where k.id = ${keep} and d.id = ${drop}`;
     await tx`delete from events where id = ${drop}`;
     await tx`select refresh_event(${keep})`;
   });

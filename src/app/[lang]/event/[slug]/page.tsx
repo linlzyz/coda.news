@@ -2,7 +2,7 @@ import { orgLd } from "@/lib/site";
 import type { Metadata } from "next";
 import Link from "@/components/LLink";
 import { notFound } from "next/navigation";
-import { reportError, companiesByIds, getArticles, getEvent, getFacts, getLatestSummary, getPerspectives, listEvents } from "@/lib/data";
+import { reportError, eventCorrections, companiesByIds, getArticles, getEvent, getFacts, getLatestSummary, getPerspectives, listEvents } from "@/lib/data";
 import { alternates, langFrom, t } from "@/lib/i18n";
 import { countryL, persp as perspL, summary, timeAgoL, title } from "@/lib/loc";
 import { fmtDate, TONE } from "@/lib/ui";
@@ -28,8 +28,8 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/event/[slu
 export default async function EventPage({ params }: PageProps<"/[lang]/event/[slug]">) {
   const e = await getEvent((await params).slug);
   if (!e || !e.summary) notFound();
-  const [l, perspMap, latest, facts, articles, companies] = await Promise.all([
-    langFrom(params), getPerspectives([e.id]), getLatestSummary(e.id), getFacts(e.id), getArticles(e.id), companiesByIds(e.company_ids),
+  const [l, perspMap, latest, facts, articles, companies, fixes] = await Promise.all([
+    langFrom(params), getPerspectives([e.id]), getLatestSummary(e.id), getFacts(e.id), getArticles(e.id), companiesByIds(e.company_ids), eventCorrections(e.id),
   ]);
   const perspectives = perspMap.get(e.id) ?? [];
   const outlets = new Set(articles.map((a) => a.sources.name.split(" ")[0] + a.sources.country)).size;
@@ -159,6 +159,15 @@ export default async function EventPage({ params }: PageProps<"/[lang]/event/[sl
               </div>
             ))}
           </section>
+          {fixes.length > 0 && (
+            <section className="rounded-2xl border border-[#E5E7EB] bg-[#FAFAFB] p-4">
+              <h2 className="text-[14px] font-semibold">{l === "zh" ? "更正记录" : "Corrections"}</h2>
+              <ul className="mt-2 space-y-1.5 text-[13px] leading-relaxed text-neutral-600">
+                {fixes.map((c) => <li key={c.id}><time className="text-neutral-400">{new Date(c.created_at).toLocaleDateString(l === "zh" ? "zh-CN" : "en-AU", { timeZone: "Australia/Melbourne", day: "numeric", month: "short" })}</time> · {l === "zh" ? c.detail_zh ?? c.detail_en : c.detail_en}</li>)}
+              </ul>
+              <Link href="/corrections" className="mt-2 inline-block text-[12px] text-[#C2410C] underline underline-offset-2">{l === "zh" ? "全部更正记录" : "All corrections"}</Link>
+            </section>
+          )}
           <ReportError action={report} t={Object.fromEntries((["report", "reportKind", "rMerge", "rTrans", "rCountry", "rAi", "rOther", "rNote", "rSend", "rThanks"] as const).map((k) => [k, t(l, k)]))} />
         </div>
 

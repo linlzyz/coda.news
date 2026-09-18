@@ -25,7 +25,17 @@ Return JSON only: {"foreign_articles":[123],"foreign_facts":[456]}`, "fast");
     if (fa.length) await sql`update articles set event_id = null, status = 'skipped' where id in ${sql(fa)}`;
     if (ff.length) await sql`delete from event_updates where id in ${sql(ff)}`;
     await sql`update events set audited_at = now(), needs_regen = ${fa.length + ff.length > 0} or needs_regen where id = ${e.id}`;
-    if (fa.length || ff.length) { await sql`select refresh_event(${e.id})`; fixed++; log(`audit ${e.id}: -${fa.length} articles, -${ff.length} facts`); }
+    if (fa.length || ff.length) {
+      await sql`select refresh_event(${e.id})`; fixed++; log(`audit ${e.id}: -${fa.length} articles, -${ff.length} facts`);
+      // public corrections log
+      const titles = arts.filter((a) => fa.includes(+a.id)).map((a) => `"${a.title.slice(0, 90)}"`).slice(0, 3).join(", ");
+      const en = [fa.length ? `Removed ${fa.length} ${fa.length === 1 ? "article" : "articles"} that reported a different story${titles ? ` (${titles})` : ""}.` : "",
+                  ff.length ? `Removed ${ff.length} ${ff.length === 1 ? "fact" : "facts"} that belonged to a different story.` : ""].filter(Boolean).join(" ");
+      const zh = [fa.length ? `移除了 ${fa.length} 篇其实在报道另一件事的文章${titles ? `（${titles}）` : ""}。` : "",
+                  ff.length ? `移除了 ${ff.length} 条属于另一件事的事实。` : ""].filter(Boolean).join("");
+      await sql`insert into corrections (event_id, event_slug, event_title, kind, detail_en, detail_zh)
+                select id, slug, title, ${fa.length ? "removed_articles" : "removed_facts"}, ${en}, ${zh} from events where id = ${e.id}`;
+    }
   }
   return fixed;
 }

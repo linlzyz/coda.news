@@ -189,3 +189,51 @@ async function _allSources() {
   return (data ?? []) as SourceRow[];
 }
 export const allSources = unstable_cache(_allSources, ["allSources"], { revalidate: 3600 });
+
+// ---- follows (email alerts for a company or topic) ----
+export async function followRpc(email: string, lang: string, companyId: number | null, topicId: number | null) {
+  const { data, error } = await supabase.rpc("follow", { e: email, l: lang, cid: companyId, tid: topicId });
+  return !error && data === true;
+}
+export async function followToken(token: string, action: "confirm" | "stop") {
+  if (!/^[0-9a-f-]{36}$/i.test(token)) return false;
+  const { data } = await supabase.rpc(action === "confirm" ? "confirm_follow" : "unfollow", { t: token });
+  return data === true;
+}
+
+// ---- corrections log ----
+export type Correction = { id: number; event_slug: string | null; event_title: string | null; kind: string; detail_en: string; detail_zh: string | null; created_at: string };
+async function _listCorrections(limit = 100) {
+  const { data } = await supabase.from("corrections").select("id,event_slug,event_title,kind,detail_en,detail_zh,created_at").order("created_at", { ascending: false }).limit(limit);
+  return (data ?? []) as Correction[];
+}
+async function _eventCorrections(eventId: number) {
+  const { data } = await supabase.from("corrections").select("id,event_slug,event_title,kind,detail_en,detail_zh,created_at").eq("event_id", eventId).order("created_at", { ascending: false }).limit(20);
+  return (data ?? []) as Correction[];
+}
+export const listCorrections = unstable_cache(_listCorrections, ["listCorrections"], { revalidate: 300 });
+export const eventCorrections = unstable_cache(_eventCorrections, ["eventCorrections"], { revalidate: 120 });
+
+// ---- archive by day (Melbourne time) ----
+async function _eventsOnDay(day: string) {
+  // Melbourne is UTC+10 or +11 (daylight saving); read the offset that applies on that day
+  const off = new Intl.DateTimeFormat("en-US", { timeZone: "Australia/Melbourne", timeZoneName: "shortOffset" })
+    .formatToParts(new Date(`${day}T12:00:00Z`)).find((p) => p.type === "timeZoneName")?.value.replace("GMT", "") || "+10";
+  const [h, m = "00"] = off.replace(/^([+-])(\d+)/, "$1$2").split(":");
+  const from = new Date(`${day}T00:00:00${h[0]}${h.slice(1).padStart(2, "0")}:${m}`), to = new Date(from.getTime() + 86400_000);
+  const { data } = await supabase.from("events").select(EVENT_COLS).not("summary", "is", null).neq("status", "archived")
+    .gte("started_at", from.toISOString()).lt("started_at", to.toISOString()).order("importance", { ascending: false }).limit(200);
+  return (data ?? []) as EventRow[];
+}
+async function _archiveDays(days = 90) {
+  const since = new Date(Date.now() - days * 86400_000).toISOString();
+  const counts = new Map<string, number>();
+  for (let from = 0; ; from += 1000) {
+    const { data } = await supabase.from("events").select("started_at").not("summary", "is", null).neq("status", "archived").gte("started_at", since).range(from, from + 999);
+    for (const r of data ?? []) { const d = new Date(r.started_at).toLocaleDateString("en-CA", { timeZone: "Australia/Melbourne" }); counts.set(d, (counts.get(d) ?? 0) + 1); }
+    if (!data || data.length < 1000) break;
+  }
+  return [...counts.entries()].sort((a, b) => b[0].localeCompare(a[0]));
+}
+export const eventsOnDay = unstable_cache(_eventsOnDay, ["eventsOnDay"], { revalidate: 600 });
+export const archiveDays = unstable_cache(_archiveDays, ["archiveDays"], { revalidate: 1800 });

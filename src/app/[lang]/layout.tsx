@@ -19,7 +19,10 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image" },
   alternates: { types: { "application/rss+xml": "https://coda.news/feed.xml" } },
   robots: { index: true, follow: true, "max-image-preview": "large" },
+  appleWebApp: { capable: true, title: "coda.news", statusBarStyle: "default" },
+  applicationName: "coda.news",
 };
+export const viewport = { themeColor: "#16181D" };
 
 export function generateStaticParams() { return [{ lang: "en" }, { lang: "zh" }]; }
 
@@ -41,8 +44,8 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
               <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
                 {([
                   [zh ? "coda.news" : "coda.news", [["/about", zh ? "关于我们" : "About us"], ["/about#who", zh ? "谁在运营" : "Who runs it"], ["/about#standards", zh ? "编辑原则" : "Editorial standards"], ["/about#method", zh ? "方法说明" : "How it works"]]],
-                  [zh ? "透明度" : "Transparency", [["/sources", zh ? "新闻来源" : "Our sources"], ["/about#corrections", zh ? "更正" : "Corrections"], ["/about#ai", zh ? "AI 使用说明" : "Use of AI"], ["/about#contact", zh ? "联系我们" : "Contact"]]],
-                  [zh ? "订阅" : "Follow", [["/#newsletter", zh ? "每日简报" : "Daily brief"], ["/feed.xml", "RSS"], ["/companies", zh ? "公司" : "Companies"], ["/topics", zh ? "话题" : "Topics"]]],
+                  [zh ? "透明度" : "Transparency", [["/sources", zh ? "新闻来源" : "Our sources"], ["/corrections", zh ? "更正记录" : "Corrections"], ["/about#ai", zh ? "AI 使用说明" : "Use of AI"], ["/about#contact", zh ? "联系我们" : "Contact"]]],
+                  [zh ? "订阅" : "Follow", [["/#newsletter", zh ? "每日简报" : "Daily brief"], ["/feed.xml", "RSS"], ["/archive", zh ? "新闻归档" : "Archive"], ["/companies", zh ? "公司" : "Companies"]]],
                   [zh ? "法律" : "Legal", [["/legal/terms", t(l, "terms")], ["/legal/privacy", t(l, "privacy")], ["/legal/cookies", t(l, "cookies")]]],
                 ] as [string, [string, string][]][]).map(([h, items]) => (
                   <div key={h}>

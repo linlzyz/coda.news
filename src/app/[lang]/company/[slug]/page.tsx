@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getCompany, listEvents } from "@/lib/data";
 import { EventList } from "@/components/EventList";
+import { FollowBox } from "@/components/FollowBox";
 import { alternates, langFrom } from "@/lib/i18n";
 export const revalidate = 300;
 export async function generateStaticParams() { return []; }
@@ -66,6 +67,7 @@ export default async function Page({ params }: PageProps<"/[lang]/company/[slug]
         {zh && c.name_zh && c.name_zh !== c.name && <span className="text-[18px] text-neutral-500">{c.name}</span>}
       </div>
       {desc && <p className="mt-1 text-[16px] text-neutral-600">{desc[0].toUpperCase() + desc.slice(1)}</p>}
+      <div className="mt-4"><FollowBox name={zh && c.name_zh ? c.name_zh : c.name} lang={l} companyId={c.id} /></div>
 
       {(facts.length > 0 || links.length > 0 || events.length > 0) && (
         <div className="mt-5 rounded-2xl border border-[#E5E7EB] bg-white p-5">

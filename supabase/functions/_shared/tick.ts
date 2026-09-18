@@ -10,6 +10,7 @@ import { enrichCompanies } from "./companies.ts";
 import { translateFacts, translateMissing } from "./translate.ts";
 import { refreshIndices } from "./markets.ts";
 import { sendWelcomes } from "./newsletter.ts";
+import { sendFollowConfirmations } from "./follows.ts";
 import { pingIndexNow } from "./indexnow.ts";
 import { RateLimited } from "./ai.ts";
 import { log } from "./env.ts";
@@ -40,6 +41,7 @@ export async function tick(budgetMs = 120_000, opts: { skipIngest?: boolean } = 
   if (left() > 8_000) await step("companies", () => enrichCompanies(10));
   await step("markets", () => refreshIndices());
   await step("welcome", sendWelcomes);
+  await step("followConfirm", sendFollowConfirmations);
   await step("indexnow", pingIndexNow);
   await step("maintain", maintain);
   report.ms = Date.now() - t0;
