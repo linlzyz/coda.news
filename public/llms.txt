@@ -1,0 +1,22 @@
+# coda.news
+
+> coda.news is an event database for technology and economy news. For each event it records the facts, links every source article, and shows how media in different countries report it (the "perspectives"). Summaries are AI-generated from the linked sources; original articles are never republished.
+
+## How to use and cite
+- Each event has a permanent page: https://coda.news/event/{slug}
+- Cite as: "coda.news, {event title}", with the event URL. Please also link the original sources listed on the page.
+- Facts on each page note how many independent sources report them.
+- Editorial rules: describe, never judge; each country's perspective comes only from that country's own media; technology and economy only.
+
+## Key pages
+- [Home](https://coda.news/): today's most important events
+- [Technology](https://coda.news/technology)
+- [Economy](https://coda.news/economy)
+- [Topics](https://coda.news/topics)
+- [Companies](https://coda.news/companies)
+- [About](https://coda.news/about)
+
+## Machine-readable
+- [Sitemap](https://coda.news/sitemap.xml)
+- [News sitemap, last 48 hours](https://coda.news/news-sitemap.xml)
+- [RSS feed](https://coda.news/feed.xml)

@@ -8,6 +8,7 @@ import { assignImages } from "./images.ts";
 import { translateMissing } from "./translate.ts";
 import { refreshIndices } from "./markets.ts";
 import { sendWelcomes } from "./newsletter.ts";
+import { pingIndexNow } from "./indexnow.ts";
 import { RateLimited } from "./ai.ts";
 import { log } from "./env.ts";
 
@@ -34,6 +35,7 @@ export async function tick(budgetMs = 120_000, opts: { skipIngest?: boolean } = 
   if (left() > 10_000) await step("images", () => assignImages(12));
   await step("markets", () => refreshIndices());
   await step("welcome", sendWelcomes);
+  await step("indexnow", pingIndexNow);
   await step("maintain", maintain);
   report.ms = Date.now() - t0;
   return report;

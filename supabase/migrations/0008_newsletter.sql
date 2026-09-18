@@ -31,3 +31,4 @@ language sql security definer set search_path = public as $$
 $$;
 revoke all on function public.subscribe(text, text) from public;
 grant execute on function public.subscribe(text, text) to anon, authenticated;
+alter table public.events add column if not exists indexed_at timestamptz;
