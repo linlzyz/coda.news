@@ -11,7 +11,7 @@ export async function send(emails: { to: string; subject: string; html: string; 
   let sent = 0;
   for (let i = 0; i < emails.length; i += 100) {
     const batch = emails.slice(i, i + 100).map((m) => ({
-      from: FROM, to: [m.to], subject: m.subject, html: m.html, reply_to: "hello@coda.news",
+      from: FROM, to: [m.to], subject: m.subject, html: m.html, reply_to: "info@coda.news",
       headers: { "List-Unsubscribe": `<${m.unsub}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" },
     }));
     const r = await fetch("https://api.resend.com/emails/batch", {

@@ -4,7 +4,7 @@
 import { db } from "./db.ts";
 import { log } from "./env.ts";
 
-const UA = { "user-agent": "CodaNewsBot/0.1 (https://coda.news; hello@coda.news)" };
+const UA = { "user-agent": "CodaNewsBot/0.1 (https://coda.news; info@coda.news)" };
 const WD = "https://www.wikidata.org/w/api.php?format=json&";
 // deno-lint-ignore no-explicit-any
 type Ent = any;

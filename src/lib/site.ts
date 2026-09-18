@@ -6,7 +6,7 @@ export const SITE = {
   city: "Melbourne, Australia",
   cityZh: "澳大利亚墨尔本",
   abn: "33 605 608 580",             // fill in to show "ABN ..." in the footer and legal pages
-  email: "hello@coda.news",
+  email: "info@coda.news",
 };
 export const operatorLine = (zh = false) =>
   zh ? `由 ${SITE.operator} 运营 · ${SITE.cityZh}${SITE.abn ? ` · ABN ${SITE.abn}` : ""}`

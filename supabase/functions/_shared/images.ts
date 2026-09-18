@@ -107,7 +107,7 @@ const NOT_PHOTO = /\b(map|logo|diagram|chart|graph|flag|coat of arms|seal|emblem
 async function commons(q: string): Promise<Img | null> {
   const url = `https://commons.wikimedia.org/w/api.php?action=query&format=json&generator=search&gsrnamespace=6&gsrlimit=20` +
     `&gsrsearch=${encodeURIComponent(q + " filetype:bitmap")}&prop=imageinfo&iiprop=url|size|mime|extmetadata&iiurlwidth=1280`;
-  const r = await fetch(url, { headers: { "user-agent": "CodaNewsBot/0.1 (https://coda.news; hello@coda.news)" }, signal: AbortSignal.timeout(10000) });
+  const r = await fetch(url, { headers: { "user-agent": "CodaNewsBot/0.1 (https://coda.news; info@coda.news)" }, signal: AbortSignal.timeout(10000) });
   if (r.status === 429) throw new Limit("commons");
   if (!r.ok) return null;
   const j = await r.json();
@@ -129,7 +129,7 @@ async function commons(q: string): Promise<Img | null> {
 const OV_LIC: Record<string, string> = { cc0: "CC0", pdm: "Public domain", by: "CC BY", "by-sa": "CC BY-SA" };
 async function openverse(q: string): Promise<Img | null> {
   const url = `https://api.openverse.org/v1/images/?q=${encodeURIComponent(q)}&license=cc0,pdm,by,by-sa&category=photograph&aspect_ratio=wide&size=large&mature=false&page_size=20`;
-  const r = await fetch(url, { headers: { "user-agent": "CodaNewsBot/0.1 (https://coda.news; hello@coda.news)" }, signal: AbortSignal.timeout(12000) });
+  const r = await fetch(url, { headers: { "user-agent": "CodaNewsBot/0.1 (https://coda.news; info@coda.news)" }, signal: AbortSignal.timeout(12000) });
   if (r.status === 429 || r.status === 401) throw new Limit("openverse");
   if (!r.ok) return null;
   const j = await r.json();
