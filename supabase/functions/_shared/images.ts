@@ -30,6 +30,14 @@ const TOPIC_QUERIES: Record<string, string[]> = {
 const DEFAULT = ["business documents desk", "technology abstract", "world map"];
 const exhausted = new Set<string>();
 
+// a stock photo must actually show the query: at least one meaningful query word appears in its description or tags
+const STOP = new Set("a an the of in on at and or for with to from by new old modern generic scene photo".split(" "));
+const relevant = (q: string, text: string) => {
+  const words = q.toLowerCase().split(/[^a-z]+/).filter((w) => w.length > 2 && !STOP.has(w));
+  const t = ` ${text.toLowerCase()} `;
+  return words.some((w) => t.includes(w.replace(/s$/, "")));
+};
+
 async function unused(candidates: Img[]): Promise<Img | null> {
   if (!candidates.length) return null;
   const sql = db();
@@ -48,7 +56,8 @@ async function unsplash(q: string): Promise<Img | null> {
   const j = await r.json();
   const utm = "utm_source=coda.news&utm_medium=referral";
   // deno-lint-ignore no-explicit-any
-  const list: (Img & { dl: string })[] = (j.results ?? []).map((p: any) => ({
+  // deno-lint-ignore no-explicit-any
+  const list: (Img & { dl: string })[] = (j.results ?? []).filter((p: any) => relevant(q, `${p.alt_description ?? ""} ${p.description ?? ""} ${(p.tags ?? []).map((t: any) => t.title).join(" ")}`)).map((p: any) => ({
     url: p.urls.regular, credit: `${p.user.name} / Unsplash`, link: `${p.user.links.html}?${utm}`, dl: p.links.download_location,
     source: "unsplash", license: "Unsplash License", licenseUrl: "https://unsplash.com/license",
   }));
@@ -69,7 +78,8 @@ async function pexels(q: string): Promise<Img | null> {
   if (!r.ok) return null;
   const j = await r.json();
   // deno-lint-ignore no-explicit-any
-  return unused((j.photos ?? []).map((p: any) => ({ url: p.src.landscape || p.src.large, credit: `${p.photographer} / Pexels`, link: p.url, source: "pexels", license: "Pexels License", licenseUrl: "https://www.pexels.com/license/" })));
+  // deno-lint-ignore no-explicit-any
+  return unused((j.photos ?? []).filter((p: any) => relevant(q, `${p.alt ?? ""} ${p.url ?? ""}`)).map((p: any) => ({ url: p.src.landscape || p.src.large, credit: `${p.photographer} / Pexels`, link: p.url, source: "pexels", license: "Pexels License", licenseUrl: "https://www.pexels.com/license/" })));
 }
 
 // Pixabay: no permanent hotlinking → copy the image into our own storage, credit Pixabay.
@@ -81,7 +91,7 @@ async function pixabay(q: string): Promise<Img | null> {
   if (!r.ok) return null;
   const j = await r.json();
   // deno-lint-ignore no-explicit-any
-  const hits = (j.hits ?? []) as any[];
+  const hits = ((j.hits ?? []) as any[]).filter((h) => relevant(q, `${h.tags ?? ""}`));
   const sql = db();
   const pages = hits.map((h) => h.pageURL as string);
   const usedPages = new Set((await sql<{ image_link: string }[]>`select image_link from events where image_link in ${sql(pages.length ? pages : [""])}`).map((x) => x.image_link));
@@ -252,7 +262,10 @@ export async function assignImages(limit = 12): Promise<number> {
   for (const e of events) {
     if (exhausted.size === PROVIDERS.length) break;
     const pool = e.slugs?.flatMap((s) => TOPIC_QUERIES[s] ?? []) ?? [];
-    const queries = [e.image_query, pool[Math.floor(Math.random() * pool.length)], DEFAULT[e.id % DEFAULT.length]].filter(Boolean) as string[];
+    // only the story's own scene; a generic topic photo is worse than our designed cover
+    void pool;
+    const queries = [e.image_query].filter(Boolean) as string[];
+    if (!queries.length) { await sql`update events set image_checked_at = now() where id = ${e.id}`; continue; }
     const img = await find(queries, !!e.image_query);
     if (!img && exhausted.size === PROVIDERS.length) break;   // try again next run
     await sql`update events set image_checked_at = now(), image_url = coalesce(image_url, ${img?.url ?? null}),
