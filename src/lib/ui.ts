@@ -2,7 +2,7 @@ import type { Status } from "./data";
 
 export const COUNTRY: Record<string, string> = {
   US: "United States", CN: "China", HK: "Hong Kong", TW: "Taiwan", JP: "Japan", KR: "South Korea", GB: "United Kingdom",
-  DE: "Germany", FR: "France", ES: "Spain", EU: "European Union", IN: "India", AU: "Australia", SG: "Singapore",
+  DE: "Germany", FR: "France", ES: "Spain", IT: "Italy", EU: "European Union", IN: "India", AU: "Australia", SG: "Singapore",
   AE: "United Arab Emirates", QA: "Qatar", CA: "Canada",
 };
 export const countryName = (c: string) => COUNTRY[c] ?? c;
