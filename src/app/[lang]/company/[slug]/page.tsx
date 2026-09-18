@@ -79,7 +79,7 @@ export default async function Page({ params }: PageProps<"/[lang]/company/[slug]
               <div key={k}><dt className="text-neutral-500">{k}</dt><dd className="mt-0.5 font-medium text-[#16181D]">{v}</dd></div>
             ))}
             <div><dt className="text-neutral-500">{zh ? "coda.news 报道" : "On coda.news"}</dt>
-              <dd className="mt-0.5 font-medium text-[#16181D]">{zh ? `${events.length} 个事件 · ${countries.size} 个国家 · ${sources} 个来源` : `${events.length} events · ${countries.size} countries · ${sources} sources`}</dd></div>
+              <dd className="mt-0.5 font-medium text-[#16181D]">{zh ? `${events.length} 个事件 · ${countries.size} 个国家 · ${sources} 个来源` : `${events.length} ${events.length === 1 ? "event" : "events"} · ${countries.size} ${countries.size === 1 ? "country" : "countries"} · ${sources} ${sources === 1 ? "source" : "sources"}`}</dd></div>
           </dl>
           {links.length > 0 && (
             <div className="mt-4 flex flex-wrap gap-2 border-t border-[#E5E7EB] pt-4">
