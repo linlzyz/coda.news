@@ -1,5 +1,6 @@
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
+import { unstable_cache } from "next/cache";
 
 // Public, read-only client. Row Level Security only allows reading published knowledge.
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
@@ -19,7 +20,7 @@ export interface Company { id: number; name: string; slug: string }
 
 const EVENT_COLS = "id,slug,title,title_zh,category,status,confidence,importance,summary,summary_zh,countries,source_count,article_count,has_official,image_url,image_credit,image_link,company_ids,topic_ids,started_at,last_article_at,summary_version";
 
-export async function listEvents(opts: { category?: string; companyId?: number; topicId?: number; limit?: number; order?: "importance" | "recent" } = {}) {
+async function _listEvents(opts: { category?: string; companyId?: number; topicId?: number; limit?: number; order?: "importance" | "recent" } = {}) {
   let q = supabase.from("events").select(EVENT_COLS).not("summary", "is", null).neq("status", "archived");
   if (opts.category) q = q.eq("category", opts.category);
   if (opts.companyId) q = q.contains("company_ids", [opts.companyId]);
@@ -30,62 +31,66 @@ export async function listEvents(opts: { category?: string; companyId?: number; 
   return (data ?? []) as EventRow[];
 }
 
-export async function getEvent(slug: string) {
+async function _getEvent(slug: string) {
   const { data } = await supabase.from("events").select(EVENT_COLS).eq("slug", slug).maybeSingle();
   return data as EventRow | null;
 }
 
-export async function getPerspectives(eventIds: number[]) {
-  if (!eventIds.length) return new Map<number, Perspective[]>();
+async function _perspectiveRows(eventIds: number[]) {
+  if (!eventIds.length) return [] as (Perspective & { event_id: number })[];
   const { data } = await supabase.from("perspectives").select("event_id,country,headline,framing,emphasis,downplayed,tone,article_count,headline_zh,framing_zh,emphasis_zh,downplayed_zh").in("event_id", eventIds);
+  return (data ?? []) as (Perspective & { event_id: number })[];
+}
+const perspectiveRows = unstable_cache(_perspectiveRows, ["perspectiveRows"], { revalidate: 60 });
+export async function getPerspectives(eventIds: number[]) {
   const m = new Map<number, Perspective[]>();
-  for (const p of (data ?? []) as (Perspective & { event_id: number })[]) m.set(p.event_id, [...(m.get(p.event_id) ?? []), p]);
+  for (const p of await perspectiveRows(eventIds)) m.set(p.event_id, [...(m.get(p.event_id) ?? []), p]);
   for (const list of m.values()) list.sort((a, b) => b.article_count - a.article_count);
   return m;
 }
 
-export async function getLatestSummary(eventId: number) {
+async function _getLatestSummary(eventId: number) {
   const { data } = await supabase.from("event_updates").select("content,version,created_at").eq("event_id", eventId).eq("type", "summary_updated")
     .order("version", { ascending: false }).limit(1).maybeSingle();
   return data?.content as { agreed?: string[]; agreed_zh?: string[]; analysis?: string; analysis_zh?: string } | undefined;
 }
 
-export async function getFacts(eventId: number) {
+async function _getFacts(eventId: number) {
   const { data } = await supabase.from("event_updates").select("id,content,source_ids,occurred_at").eq("event_id", eventId).eq("type", "fact")
     .order("occurred_at", { ascending: false }).limit(40);
   return (data ?? []) as { id: number; content: { text: string; subject: string; predicate: string; object: string }; source_ids: number[]; occurred_at: string }[];
 }
 
-export async function getArticles(eventId: number) {
+async function _getArticles(eventId: number) {
   const { data } = await supabase.from("articles").select("id,url,title,headline_en,published_at,sources(name,country,type)").eq("event_id", eventId)
     .order("published_at", { ascending: false }).limit(80);
   return (data ?? []) as unknown as { id: number; url: string; title: string; headline_en: string | null; published_at: string; sources: { name: string; country: string; type: string } }[];
 }
 
-export async function latestUpdates(limit = 14) {
+async function _latestUpdates(limit = 14) {
   const { data } = await supabase.from("event_updates").select("id,type,content,created_at,events!inner(slug,title,title_zh,status)")
     .eq("type", "fact").order("created_at", { ascending: false }).limit(limit);
   return (data ?? []) as unknown as { id: number; content: { text: string }; created_at: string; events: { slug: string; title: string; title_zh: string | null; status: Status } }[];
 }
 
-export async function allTopics() {
+async function _allTopics() {
   const { data } = await supabase.from("topics").select("id,name,slug,color").order("id");
   return (data ?? []) as Topic[];
 }
-export async function companiesByIds(ids: number[]) {
+async function _companiesByIds(ids: number[]) {
   if (!ids.length) return [] as Company[];
   const { data } = await supabase.from("companies").select("id,name,slug").in("id", ids);
   return (data ?? []) as Company[];
 }
-export async function getCompany(slug: string) {
+async function _getCompany(slug: string) {
   const { data } = await supabase.from("companies").select("id,name,slug,website,description").eq("slug", slug).maybeSingle();
   return data as (Company & { website: string | null; description: string | null }) | null;
 }
-export async function getTopic(slug: string) {
+async function _getTopic(slug: string) {
   const { data } = await supabase.from("topics").select("id,name,slug,color").eq("slug", slug).maybeSingle();
   return data as Topic | null;
 }
-export async function stats() {
+async function _stats() {
   const [{ count: events }, { count: sources }] = await Promise.all([
     supabase.from("events").select("id", { count: "exact", head: true }).not("summary", "is", null),
     supabase.from("sources").select("id", { count: "exact", head: true }).eq("active", true),
@@ -94,13 +99,13 @@ export async function stats() {
 }
 
 /** Companies with the most events in the last 3 days (for "Trending"). */
-export async function trendingCompanies(limit = 10) {
+async function _trendingCompanies(limit = 10) {
   const since = new Date(Date.now() - 3 * 86400_000).toISOString();
   const { data } = await supabase.from("events").select("company_ids").gt("last_article_at", since).not("summary", "is", null).limit(500);
   const count = new Map<number, number>();
   for (const e of data ?? []) for (const id of (e.company_ids as number[]) ?? []) count.set(id, (count.get(id) ?? 0) + 1);
   const top = [...count].sort((a, b) => b[1] - a[1]).slice(0, limit).map(([id]) => id);
-  const cos = await companiesByIds(top);
+  const cos = await _companiesByIds(top);
   return top.map((id) => cos.find((c) => c.id === id)).filter(Boolean) as Company[];
 }
 
@@ -110,7 +115,7 @@ export async function companyMap(events: EventRow[]) {
   return new Map((await companiesByIds(ids)).map((c) => [c.id, c]));
 }
 
-export async function searchEvents(q: string) {
+async function _searchEvents(q: string) {
   const term = q.replace(/[%_,()]/g, " ").trim().slice(0, 80);
   if (!term) return [] as EventRow[];
   const { data: cos } = await supabase.from("companies").select("id").ilike("name", `%${term}%`).limit(10);
@@ -127,3 +132,18 @@ export async function subscribe(email: string) {
   if (error && !String(error.message).includes("duplicate")) return false;
   return true;
 }
+
+// Cached reads: shared across requests for 60s, so switching language or pages does not wait for the database.
+export const listEvents = unstable_cache(_listEvents, ["listEvents"], { revalidate: 60 });
+export const getEvent = unstable_cache(_getEvent, ["getEvent"], { revalidate: 60 });
+export const getLatestSummary = unstable_cache(_getLatestSummary, ["getLatestSummary"], { revalidate: 60 });
+export const getFacts = unstable_cache(_getFacts, ["getFacts"], { revalidate: 60 });
+export const getArticles = unstable_cache(_getArticles, ["getArticles"], { revalidate: 60 });
+export const latestUpdates = unstable_cache(_latestUpdates, ["latestUpdates"], { revalidate: 60 });
+export const allTopics = unstable_cache(_allTopics, ["allTopics"], { revalidate: 300 });
+export const companiesByIds = unstable_cache(_companiesByIds, ["companiesByIds"], { revalidate: 60 });
+export const getCompany = unstable_cache(_getCompany, ["getCompany"], { revalidate: 300 });
+export const getTopic = unstable_cache(_getTopic, ["getTopic"], { revalidate: 300 });
+export const stats = unstable_cache(_stats, ["stats"], { revalidate: 300 });
+export const trendingCompanies = unstable_cache(_trendingCompanies, ["trendingCompanies"], { revalidate: 300 });
+export const searchEvents = unstable_cache(_searchEvents, ["searchEvents"], { revalidate: 60 });
