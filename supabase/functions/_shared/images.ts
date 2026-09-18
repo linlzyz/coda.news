@@ -7,15 +7,15 @@ const TOPIC_QUERIES: Record<string, string[]> = {
   "artificial-intelligence": ["artificial intelligence abstract", "data center servers", "circuit board macro"],
   semiconductors: ["semiconductor wafer", "microchip macro", "clean room factory"],
   "big-tech": ["technology office", "smartphone hands", "laptop workspace"],
-  economy: ["financial district skyline", "city business district", "central bank building"],
-  markets: ["stock market screen", "trading charts screen", "financial data display"],
+  economy: ["coins and banknotes", "calculator finance documents", "shopping street people"],
+  markets: ["stock market screen", "trading charts screen", "financial newspaper"],
   trade: ["shipping containers port", "cargo ship", "container terminal"],
   "electric-vehicles": ["electric car charging", "ev charging station", "car factory assembly"],
   energy: ["solar panels", "wind turbines", "power lines sunset"],
   startups: ["startup office team", "modern office meeting", "coworking space"],
   crypto: ["cryptocurrency abstract", "blockchain abstract", "digital finance"],
 };
-const DEFAULT = ["global business city", "technology abstract", "world map lights"];
+const DEFAULT = ["business documents desk", "technology abstract", "world map"];
 
 async function pexels(query: string): Promise<{ url: string; credit: string; link: string } | null> {
   const key = env("PEXELS_API_KEY"); if (!key) return null;
@@ -47,7 +47,8 @@ export async function assignImages(limit = 12): Promise<number> {
     const pool = e.slugs?.flatMap((s) => TOPIC_QUERIES[s] ?? []) ?? [];
     const queries = [e.image_query, pool[Math.floor(Math.random() * pool.length)], DEFAULT[e.id % DEFAULT.length]].filter(Boolean) as string[];
     let img = null;
-    for (const q of queries) { img = await pexels(q); if (img) break; }
+    try { for (const q of queries) { img = await pexels(q); if (img) break; } }
+    catch (err) { log(`images: ${(err as Error).message}, retry next run`); break; }   // e.g. hourly limit reached
     await sql`update events set image_checked_at = now(), image_url = coalesce(image_url, ${img?.url ?? null}),
               image_credit = coalesce(image_credit, ${img?.credit ?? null}), image_link = coalesce(image_link, ${img?.link ?? null}) where id = ${e.id}`;
     if (img) n++;

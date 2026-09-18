@@ -94,7 +94,7 @@ Return JSON only:
      "downplayed": "one sentence: what it mentions less or leaves out, or empty string",
      "tone": "positive|neutral|negative",
      "headline_zh": "...", "framing_zh": "...", "emphasis_zh": "...", "downplayed_zh": "..." } ],
- "image_query": "2 to 4 generic English words for a stock photo scene that fits this story, with NO company, brand, product or person names (e.g. 'tokyo financial district', 'semiconductor wafer', 'container port')",
+ "image_query": "2 to 4 English words for a stock photo scene that fits this story. Use the place where it happens if relevant (e.g. 'washington dc capitol', 'seoul gas station', 'tokyo office workers'); otherwise a generic scene ('semiconductor wafer', 'container port'). NO company, brand, product or person names. Never a place in a different country from the story.",
  "analysis": "if 2+ countries: 2 to 3 neutral sentences on why coverage differs (interests, audience, industry exposure). Else empty string.",
  "analysis_zh": "the analysis in Simplified Chinese, or empty string"
 }
