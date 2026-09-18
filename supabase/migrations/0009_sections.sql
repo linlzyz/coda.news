@@ -17,3 +17,4 @@ create table if not exists public.feedback (id bigserial primary key, event_id b
 alter table public.feedback enable row level security;
 grant insert on public.feedback to anon, authenticated; grant usage on sequence public.feedback_id_seq to anon, authenticated; grant all on public.feedback to service_role;
 create policy "anyone can report" on public.feedback for insert to anon, authenticated with check (char_length(coalesce(note,'')) < 2000);
+create table if not exists public.health_reports (sent_on date primary key, created_at timestamptz default now()); alter table public.health_reports enable row level security; grant all on public.health_reports to service_role;
