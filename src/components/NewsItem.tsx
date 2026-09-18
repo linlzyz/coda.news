@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/LLink";
 import type { Company, EventRow, Topic } from "@/lib/data";
 import { TOPIC_ZH, type Lang } from "@/lib/i18n";
 import { summary, timeAgoL, title } from "@/lib/loc";

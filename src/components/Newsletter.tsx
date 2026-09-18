@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/LLink";
 import { redirect } from "next/navigation";
 import { subscribe } from "@/lib/data";
 import { t, type Lang } from "@/lib/i18n";

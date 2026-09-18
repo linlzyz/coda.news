@@ -17,8 +17,8 @@ export const STATUS: Record<Status, { label: string; cls: string }> = {
 };
 
 export const TONE: Record<string, { label: string; cls: string; x: number }> = {
-  positive: { label: "Positive", cls: "bg-emerald-50 text-emerald-800", x: 18 },
-  neutral:  { label: "Neutral",  cls: "bg-neutral-100 text-neutral-700", x: 50 },
+  positive: { label: "Supportive", cls: "bg-emerald-50 text-emerald-800", x: 18 },
+  neutral:  { label: "Descriptive",  cls: "bg-neutral-100 text-neutral-700", x: 50 },
   negative: { label: "Cautious", cls: "bg-rose-50 text-rose-800", x: 82 },
 };
 
@@ -28,4 +28,6 @@ export function timeAgo(iso: string) {
   if (s < 86400) return `${Math.round(s / 3600)} h ago`;
   return `${Math.round(s / 86400)} d ago`;
 }
-export const fmtDate = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+export const fmtDate = (iso: string, lang: "en" | "zh" = "en") => lang === "zh"
+  ? new Date(iso).toLocaleDateString("zh-CN", { year: "numeric", month: "long", day: "numeric", timeZone: "Australia/Melbourne" })
+  : new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "Australia/Melbourne" });

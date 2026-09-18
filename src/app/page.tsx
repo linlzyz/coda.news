@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/LLink";
 import { allTopics, companyMap, indices, getPerspectives, listEvents, trendingCompanies, type EventRow, type Perspective } from "@/lib/data";
 import { crypto, fx } from "@/lib/markets";
 import { Cover } from "@/components/Cover";
@@ -24,7 +24,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
   const sp = await searchParams;
   const tab = ["economy", "technology", "sport", "entertainment", "fashion"].includes(String(sp.tab)) ? String(sp.tab) : undefined;
   const [events, topics, trending, cq, fq] = await Promise.all([
-    listEvents({ limit: 60 }), allTopics(), trendingCompanies(10), crypto(), fx(),
+    listEvents({ limit: 80 }), allTopics(), trendingCompanies(10), crypto(), fx(),
   ]);
   const [iq, rq] = await Promise.all([indices("indices"), indices("rates")]);
   const l = await getLang();
@@ -36,7 +36,9 @@ export default async function Home({ searchParams }: PageProps<"/">) {
   const featured = multi.find((e) => e.id !== top?.id && e.image_url) ?? multi.find((e) => e.id !== top?.id);
   const divided = multi.filter((e) => e.id !== top?.id && e.id !== featured?.id)
     .sort((a, b) => new Set((persp.get(b.id) ?? []).map((p) => p.tone)).size - new Set((persp.get(a.id) ?? []).map((p) => p.tone)).size).slice(0, 4);
-  const list = events.filter((e) => e.id !== top?.id && (!tab || e.category === tab)).slice(0, 30);
+  const shown = Math.min(60, Math.max(15, Number(sp.n) || 15));
+  const all = events.filter((e) => e.id !== top?.id && (!tab || e.category === tab));
+  const list = all.slice(0, shown);
   const updated = new Date().toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit", timeZone: "Australia/Melbourne" }) + " AEST";
 
   const siteLd = { "@context": "https://schema.org", "@type": "WebSite", name: "coda.news", url: "https://coda.news",
@@ -68,6 +70,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
               </nav>
             </div>
             {list.map((e) => <NewsItem key={e.id} e={e} companies={companies} topics={topicMap} lang={l} />)}
+            {all.length > shown && <div className="mt-6 text-center"><Link href={`/?${tab ? `tab=${tab}&` : ""}n=${shown + 15}`} scroll={false} className="inline-block rounded-full border border-[#E5E7EB] px-6 py-2.5 text-[14px] font-medium hover:border-[#16181D]">{t(l, "loadMore")}</Link></div>}
             <p className="mt-4 text-[12px] leading-relaxed text-neutral-500">{t(l, "disclaimer")}</p>
           </section>
         </div>
@@ -129,7 +132,7 @@ function Hero({ e, perspectives, l }: { e: EventRow; perspectives: Perspective[]
           <span className="text-[12px] text-neutral-500">{e.source_count} {t(l, "sources")} · {e.countries.length} {t(l, "countries")} · {timeAgoL(e.last_article_at, l)}</span>
         </div>
       </div>
-      <Cover e={e} credit className="min-h-[220px] md:min-h-full" />
+      <Cover e={e} credit priority className="min-h-[220px] md:min-h-full" />
     </section>
   );
 }

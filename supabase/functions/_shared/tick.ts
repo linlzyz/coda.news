@@ -4,8 +4,9 @@ import { processBatch } from "./process.ts";
 import { regenerate } from "./regenerate.ts";
 import { maintain } from "./maintain.ts";
 import { dedupe } from "./dedupe.ts";
+import { auditEvents } from "./audit.ts";
 import { assignImages } from "./images.ts";
-import { translateMissing } from "./translate.ts";
+import { translateFacts, translateMissing } from "./translate.ts";
 import { refreshIndices } from "./markets.ts";
 import { sendWelcomes } from "./newsletter.ts";
 import { pingIndexNow } from "./indexnow.ts";
@@ -29,9 +30,11 @@ export async function tick(budgetMs = 120_000, opts: { skipIngest?: boolean } = 
       if (!r || r.claimed === 0) break;
     }
     if (left() > 40_000) await step("dedupe", () => dedupe(6));
+    if (left() > 35_000) await step("audit", () => auditEvents(2));
     if (left() > 30_000) await step("regenerate", () => regenerate(left() > 80_000 ? 4 : 2));
   } catch (e) { report.stopped = (e as Error).message.slice(0, 200); }
   if (left() > 20_000) await step("translate", () => translateMissing(30));
+  if (left() > 15_000) await step("translateFacts", () => translateFacts(60));
   if (left() > 10_000) await step("images", () => assignImages(12));
   await step("markets", () => refreshIndices());
   await step("welcome", sendWelcomes);

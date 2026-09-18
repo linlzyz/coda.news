@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/LLink";
 import { unsubscribe } from "@/lib/data";
 import { getLang } from "@/lib/i18n";
 

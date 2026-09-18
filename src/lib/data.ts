@@ -59,7 +59,7 @@ async function _getLatestSummary(eventId: number) {
 async function _getFacts(eventId: number) {
   const { data } = await supabase.from("event_updates").select("id,content,source_ids,occurred_at").eq("event_id", eventId).eq("type", "fact")
     .order("occurred_at", { ascending: false }).limit(40);
-  return (data ?? []) as { id: number; content: { text: string; subject: string; predicate: string; object: string }; source_ids: number[]; occurred_at: string }[];
+  return (data ?? []) as { id: number; content: { text: string; text_zh?: string; subject: string; predicate: string; object: string }; source_ids: number[]; occurred_at: string }[];
 }
 
 async function _getArticles(eventId: number) {
@@ -171,3 +171,7 @@ export const getTopic = unstable_cache(_getTopic, ["getTopic"], { revalidate: 30
 export const stats = unstable_cache(_stats, ["stats"], { revalidate: 300 });
 export const trendingCompanies = unstable_cache(_trendingCompanies, ["trendingCompanies"], { revalidate: 300 });
 export const searchEvents = unstable_cache(_searchEvents, ["searchEvents"], { revalidate: 60 });
+
+export async function reportError(eventId: number, kind: string, note: string, lang: string) {
+  await supabase.from("feedback").insert({ event_id: eventId, kind: kind.slice(0, 20), note: note.slice(0, 1500) || null, lang });
+}

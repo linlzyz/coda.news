@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/LLink";
 import type { EventRow } from "@/lib/data";
 import { timeAgo } from "@/lib/ui";
 import { Flags } from "./Flag";

@@ -23,3 +23,24 @@ ${rows.map((r) => `id=${r.id}\nTITLE: ${r.title}\nSUMMARY: ${r.summary}`).join("
   log(`translate: ${n}/${rows.length}`);
   return n;
 }
+
+/** Chinese text for timeline facts of the most important events (backfill + safety net). */
+export async function translateFacts(limit = 60): Promise<number> {
+  const sql = db();
+  const rows = await sql<{ id: string; text: string }[]>`
+    select u.id, u.content->>'text' as text from event_updates u join events e on e.id = u.event_id
+    where u.type = 'fact' and coalesce(u.content->>'text','') <> '' and coalesce(u.content->>'text_zh','') = ''
+    order by e.importance desc, u.id desc limit ${limit}`;
+  if (!rows.length) return 0;
+  const res = await generateJSON<{ items: { id: number; zh: string }[] }>(
+    `Translate each sentence into natural, neutral Simplified Chinese. Use 中国台湾 and 中国香港 for Taiwan and Hong Kong.
+Return JSON only: {"items":[{"id":1,"zh":"..."}]}
+${rows.map((r) => `id=${r.id}: ${r.text}`).join("\n")}`, "fast");
+  let n = 0;
+  for (const it of res.items ?? []) {
+    if (!it.zh) continue;
+    await sql`update event_updates set content = content || ${sql.json({ text_zh: it.zh })} where id = ${it.id}`; n++;
+  }
+  log(`translate facts: ${n}/${rows.length}`);
+  return n;
+}

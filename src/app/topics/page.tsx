@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/LLink";
 import { allTopics } from "@/lib/data";
 import { Icon } from "@/components/Icons";
 import { getLang, t, TOPIC_ZH } from "@/lib/i18n";

@@ -11,3 +11,9 @@ insert into public.topics (name, slug, color) values
  ('Film','film','#7C3AED'), ('Music','music','#DB2777'), ('TV & Streaming','tv-streaming','#9333EA'), ('Gaming','gaming','#4F46E5'),
  ('Luxury','luxury','#A16207'), ('Fashion Week','fashion-week','#BE185D'), ('Fashion Retail','fashion-retail','#B45309'), ('Design','design','#475569')
 on conflict (slug) do nothing;
+
+alter table public.events add column if not exists audited_at timestamptz;
+create table if not exists public.feedback (id bigserial primary key, event_id bigint references public.events(id) on delete cascade, kind text not null, note text, lang text, created_at timestamptz not null default now());
+alter table public.feedback enable row level security;
+grant insert on public.feedback to anon, authenticated; grant usage on sequence public.feedback_id_seq to anon, authenticated; grant all on public.feedback to service_role;
+create policy "anyone can report" on public.feedback for insert to anon, authenticated with check (char_length(coalesce(note,'')) < 2000);

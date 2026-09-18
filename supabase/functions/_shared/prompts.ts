@@ -31,7 +31,7 @@ For each item decide "relevant": true only if it reports a specific, concrete de
 - sport: a result, match, transfer, record, tournament, team or league decision
 - entertainment: a release, box office, award, festival, deal, record, major casting or industry news
 - fashion: a collection, show, designer appointment, brand business news, notable design news
-false for: opinion columns, how-to guides, product reviews, shopping deals, horoscopes, quizzes, podcasts, recipes, politics, military, crime, courts about individuals, accidents, weather, celebrity private lives.
+false for: market roundups, live blogs and "what happened today" digests that cover several unrelated stories, opinion columns, how-to guides, product reviews, shopping deals, horoscopes, quizzes, podcasts, recipes, politics, military, crime, courts about individuals, accidents, weather, celebrity private lives.
 
 Fields per relevant item:
 - category: one of "technology", "economy", "sport", "entertainment", "fashion"
@@ -43,10 +43,10 @@ Fields per relevant item:
 - is_rumor: true if it is unconfirmed (reportedly, sources say, rumour)
 - companies: canonical English company names as commonly known (e.g. 苹果/アップル/Apple Inc. -> "Apple"; 英伟达 -> "NVIDIA"; Alphabet's Google news -> "Google"). Max 5.
 - topics: 1 to 3 from this list only: ${TOPICS.join(", ")}
-- facts: 1 to 5 atomic facts. Each: {"subject","predicate","object","qualifier","occurred_at","text"}.
+- facts: 1 to 5 atomic facts about THIS event only (never about other stories mentioned in passing). Each: {"subject","predicate","object","qualifier","occurred_at","text","text_zh"}.
   predicate must be one of: ${PREDICATES.join(", ")}.
   subject/object are short noun phrases (companies by canonical name). qualifier holds numbers/conditions or "".
-  occurred_at is YYYY-MM-DD if known else "". text is the fact as one plain English sentence.
+  occurred_at is YYYY-MM-DD if known else "". text is the fact as one plain English sentence; text_zh is the same sentence in Simplified Chinese.
 
 Return JSON only: {"items":[{"i":0,"relevant":true,"category":"...","regions":["US"],"headline_en":"...","event":"...","event_zh":"...","brief_zh":"...","is_rumor":false,"companies":[],"topics":[],"facts":[]}]}
 For irrelevant items return {"i":N,"relevant":false}.
@@ -60,6 +60,7 @@ export function verifyPrompt(article: string, candidates: { id: number; title: s
 including its direct follow-up developments. Same broad topic or same company alone is NOT enough.
 
 New article: "${article}"
+If the article is a roundup of several unrelated stories, answer null.
 
 Candidate events:
 ${candidates.map((c) => `- id ${c.id}: ${c.title}`).join("\n")}

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/LLink";
 import { trendingCompanies } from "@/lib/data";
 import { getLang, t } from "@/lib/i18n";
 export const metadata = { title: "Companies" };

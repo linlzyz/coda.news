@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/LLink";
 import type { Topic } from "@/lib/data";
 import { t, TOPIC_ZH, type Lang } from "@/lib/i18n";
 import { Icon } from "./Icons";

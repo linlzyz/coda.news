@@ -5,7 +5,7 @@ import { embed, generateJSON } from "./ai.ts";
 import { CATEGORIES, extractPrompt, verifyPrompt, PREDICATES, TOPICS } from "./prompts.ts";
 import { fetchText, slugify } from "./text.ts";
 
-const BATCH = 15;
+const BATCH = 20;
 const AUTO_MATCH = 0.95;   // cosine similarity: same event without asking the LLM
 const ASK_MATCH = 0.83;    // between ASK and AUTO: LLM verifies
 const MATCH_WINDOW_DAYS = 10;
@@ -13,7 +13,7 @@ const MATCH_WINDOW_DAYS = 10;
 interface Extracted {
   i: number; relevant: boolean; category?: string; regions?: string[]; headline_en?: string; event?: string; event_zh?: string; brief_zh?: string; is_rumor?: boolean;
   companies?: string[]; topics?: string[];
-  facts?: { subject: string; predicate: string; object: string; qualifier?: string; occurred_at?: string; text?: string }[];
+  facts?: { subject: string; predicate: string; object: string; qualifier?: string; occurred_at?: string; text?: string; text_zh?: string }[];
 }
 
 export async function processBatch(): Promise<{ claimed: number; relevant: number; newEvents: number; matched: number }> {
@@ -147,7 +147,7 @@ async function addFacts(eventId: number, articleId: number, sourceId: number, fa
           article_ids = article_ids || ${[articleId]}::bigint[]
         where id = ${same[0].id}`;
     } else {
-      const content = { subject: f.subject, predicate, object: f.object ?? "", qualifier: f.qualifier ?? "", text: f.text ?? "" };
+      const content = { subject: f.subject, predicate, object: f.object ?? "", qualifier: f.qualifier ?? "", text: f.text ?? "", text_zh: f.text_zh ?? "" };
       await sql`insert into event_updates (event_id, type, content, source_ids, article_ids, occurred_at)
                 values (${eventId}, 'fact', ${sql.json(content)}, ${[sourceId]}::bigint[], ${[articleId]}::bigint[], ${occurred})`;
     }

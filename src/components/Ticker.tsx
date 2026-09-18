@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/LLink";
 import { latestUpdates } from "@/lib/data";
 import { t, type Lang } from "@/lib/i18n";
 
