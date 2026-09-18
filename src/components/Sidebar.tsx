@@ -13,19 +13,19 @@ export async function Sidebar() {
       </Link>
       <nav className="flex flex-col gap-0.5">
         {NAV.map(([key, href, icon]) => (
-          <Link key={href} href={href} className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-medium text-neutral-600 hover:bg-[#F4F5F7] hover:text-[#16181D]">
+          <Link key={href} href={href} className="flex items-center gap-3 border-l-2 border-transparent px-3 py-2 text-[14px] font-medium text-neutral-700 hover:border-[#EA5514] hover:text-[#16181D]">
             <Icon name={icon} />{t(l, key)}
           </Link>
         ))}
       </nav>
       <div className="border-t border-[#E5E7EB] pt-5">
-        <Link href="/#newsletter" className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-medium text-neutral-600 hover:bg-[#F4F5F7]"><Icon name="mail" />{t(l, "newsletter")}</Link>
-        <Link href="/about" className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-medium text-neutral-600 hover:bg-[#F4F5F7]"><Icon name="info" />{t(l, "about")}</Link>
+        <Link href="/#newsletter" className="flex items-center gap-3 border-l-2 border-transparent px-3 py-2 text-[14px] font-medium text-neutral-700 hover:border-[#EA5514]"><Icon name="mail" />{t(l, "newsletter")}</Link>
+        <Link href="/about" className="flex items-center gap-3 border-l-2 border-transparent px-3 py-2 text-[14px] font-medium text-neutral-700 hover:border-[#EA5514]"><Icon name="info" />{t(l, "about")}</Link>
       </div>
-      <div className="mt-auto overflow-hidden rounded-2xl bg-[#1F2328] p-5">
-        <div className="text-[19px] font-semibold leading-tight tracking-[-0.02em] text-white">{t(l, "promoTitle")}</div>
-        <p className="mt-2 text-[13px] leading-relaxed text-neutral-300">{t(l, "promoText")}</p>
-        <Link href="/#newsletter" className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-[#EA5514] px-4 py-2.5 text-[13px] font-semibold text-white hover:bg-[#D24A0F]">{t(l, "joinFree")} <Icon name="arrow" size={14} /></Link>
+      <div className="mt-auto border-t-2 border-[#16181D] pt-3">
+        <div className="text-[15px] font-semibold leading-snug">{t(l, "promoTitle")}</div>
+        <p className="mt-1.5 text-[12px] leading-relaxed text-neutral-500">{t(l, "promoText")}</p>
+        <Link href="/#newsletter" className="mt-2 inline-block text-[13px] font-semibold text-[#C2410C] hover:underline">{t(l, "joinFree")} →</Link>
       </div>
       <div className="flex flex-wrap gap-x-3 gap-y-1 px-3 text-[11px] text-neutral-400">
         <Link href="/legal/terms" className="hover:text-neutral-700">{t(l, "terms")}</Link>
