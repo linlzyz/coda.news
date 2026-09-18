@@ -16,6 +16,6 @@ export const orgLd = {
   "@type": "NewsMediaOrganization", name: SITE.name, url: SITE.url, logo: { "@type": "ImageObject", url: `${SITE.url}/og.png` },
   email: SITE.email, parentOrganization: { "@type": "Organization", name: SITE.operator, address: { "@type": "PostalAddress", addressLocality: "Melbourne", addressRegion: "VIC", addressCountry: "AU" } },
   publishingPrinciples: `${SITE.url}/about#standards`, correctionsPolicy: `${SITE.url}/about#corrections`,
-  ethicsPolicy: `${SITE.url}/about#standards`, ownershipFundingInfo: `${SITE.url}/about#who`, diversityPolicy: `${SITE.url}/sources`,
+  ethicsPolicy: `${SITE.url}/about#standards`, ownershipFundingInfo: `${SITE.url}/about#who`,
   contactPoint: { "@type": "ContactPoint", contactType: "editorial", email: SITE.email },
 };

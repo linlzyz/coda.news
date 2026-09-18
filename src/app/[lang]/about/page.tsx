@@ -1,7 +1,6 @@
 import { langFrom } from "@/lib/i18n";
 import { allSources } from "@/lib/data";
 import { SITE, orgLd } from "@/lib/site";
-import Link from "@/components/LLink";
 export const revalidate = 3600;
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
@@ -22,8 +21,7 @@ const EN: [string, string, string[]][] = [
     "Accuracy: facts must come from the linked sources. Unconfirmed reports are marked as such. Mistakes are corrected openly (see Corrections).",
     "Respect for publishers: we use only public feeds, show short excerpts, link to the original and never bypass paywalls. Photos come only from libraries with open licences, with credit."]],
   ["sources", "Where the news comes from", [
-    "{SOURCES} public RSS feeds from newsrooms in {COUNTRIES} countries and regions, plus official releases from companies and central banks. Each source is tagged with its country and language. A source is only used if it publishes a public feed; we never bypass paywalls. The full list is on the sources page.",
-    "Full article text is used only for analysis and deleted within 24 hours. Only the headline, a short summary and the link are kept."]],
+    "Public news feeds from newsrooms in {COUNTRIES} countries and regions, plus official releases. We summarise and link to the originals; we never republish articles or bypass paywalls."]],
   ["merge", "How articles become one event", [
     "Articles are grouped only when they report the same specific story: the same announcement, decision, deal or result. Roundups that cover several unrelated stories are left out.",
     "Events are re-checked automatically as they grow, and anything that belongs to a different story is removed and logged on the corrections page. Readers can report mistakes on every event page."]],
@@ -50,8 +48,7 @@ const ZH: [string, string, string[]][] = [
     "准确：事实必须来自所链接的来源。未经证实的消息会标明。错误会公开更正（见\"更正\"）。",
     "尊重原作者：只使用公开的新闻源，只显示简短摘录，链接原文，从不绕过付费墙。图片只来自开放许可的图库，并注明作者。"]],
   ["sources", "新闻来自哪里", [
-    "来自 {COUNTRIES} 个国家和地区的 {SOURCES} 个公开 RSS 新闻源，以及公司和央行的官方发布。每个来源都标注了国家和语言。只使用公开提供的新闻源，从不绕过付费墙。完整名单见新闻来源页。",
-    "文章全文只用于分析，24 小时内删除，只保留标题、简短摘要和链接。"]],
+    "来自 {COUNTRIES} 个国家和地区新闻机构的公开新闻源，以及官方发布。我们只做摘要并链接原文，从不转载文章，也不绕过付费墙。"]],
   ["merge", "文章如何归并成一个事件", [
     "只有报道同一件具体的事（同一个公告、决定、交易或比赛结果）的文章才会归为一个事件。一篇讲好几件事的综述类文章不会被归入任何事件。",
     "事件在增长过程中会被自动复查，属于别的新闻的内容会被移除，并记录在更正记录页。每个事件页都可以报告错误。"]],
@@ -78,7 +75,6 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
         <section key={id} id={id} className="mt-10 scroll-mt-24 border-t border-[#E5E7EB] pt-6">
           <h2 className="text-[22px] font-semibold tracking-[-0.02em]">{h}</h2>
           <div className="mt-3 space-y-3 text-[15px] leading-relaxed text-neutral-700">{ps.map((p, i) => <p key={i}>{p}</p>)}</div>
-          {id === "sources" && <Link href="/sources" className="mt-3 inline-block text-[14px] font-medium text-[#C2410C] underline underline-offset-2">{l === "zh" ? "查看全部新闻来源" : "See all sources"}</Link>}
         </section>
       ))}
     </div>

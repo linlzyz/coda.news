@@ -45,7 +45,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
               <div className="grid grid-cols-2 gap-6 sm:grid-cols-3">
                 {([
                   [zh ? "coda.news" : "coda.news", [["/about", zh ? "关于我们" : "About us"], ["/about#who", zh ? "谁在运营" : "Who runs it"], ["/about#standards", zh ? "编辑原则" : "Editorial standards"], ["/about#method", zh ? "方法说明" : "How it works"], ["/archive", zh ? "新闻归档" : "Archive"]]],
-                  [zh ? "透明度" : "Transparency", [["/sources", zh ? "新闻来源" : "Our sources"], ["/corrections", zh ? "更正记录" : "Corrections"], ["/about#ai", zh ? "AI 使用说明" : "Use of AI"], ["/about#contact", zh ? "联系我们" : "Contact"]]],
+                  [zh ? "透明度" : "Transparency", [["/corrections", zh ? "更正记录" : "Corrections"], ["/about#ai", zh ? "AI 使用说明" : "Use of AI"], ["/about#contact", zh ? "联系我们" : "Contact"]]],
                   [zh ? "法律" : "Legal", [["/legal/terms", t(l, "terms")], ["/legal/privacy", t(l, "privacy")], ["/legal/cookies", t(l, "cookies")]]],
                 ] as [string, [string, string][]][]).map(([h, items]) => (
                   <div key={h}>
