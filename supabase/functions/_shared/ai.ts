@@ -2,15 +2,20 @@
 import { env, log } from "./env.ts";
 
 const BASE = "https://generativelanguage.googleapis.com/v1beta/models";
+// Free tier quotas are per model per day, so each tier has a fallback chain.
 export const MODELS = {
-  fast: () => env("AI_MODEL_FAST", "gemini-3.5-flash-lite"),   // extraction, verification
-  smart: () => env("AI_MODEL_SMART", "gemini-3.5-flash"),      // summaries, perspectives
+  fast: () => env("AI_MODELS_FAST", "gemini-3.5-flash-lite,gemini-3.1-flash-lite,gemini-3.6-flash,gemini-3.5-flash").split(","),   // extraction, verification
+  smart: () => env("AI_MODELS_SMART", "gemini-3.5-flash,gemini-3.6-flash,gemini-3.7-flash,gemini-3.1-flash-lite").split(","),     // summaries, perspectives
   embed: () => env("AI_MODEL_EMBED", "gemini-embedding-001"),
 };
+const exhausted = new Set<string>();   // models out of daily quota during this run
 export const EMBED_DIM = 768;
 
 export class RateLimited extends Error {}
+class QuotaExhausted extends Error {}
+class NotFound extends Error {}
 
+// deno-lint-ignore no-explicit-any
 async function call(path: string, body: unknown, timeoutMs = 90000) {
   const key = env("GEMINI_API_KEY");
   if (!key) throw new Error("GEMINI_API_KEY missing");
@@ -24,9 +29,11 @@ async function call(path: string, body: unknown, timeoutMs = 90000) {
     if (r.ok) return await r.json();
     const text = await r.text();
     if (r.status === 429) {
+      if (/PerDay/i.test(text)) throw new QuotaExhausted(text.slice(0, 120));
       if (attempt < 2) { await new Promise((s) => setTimeout(s, 8000 * (attempt + 1))); continue; }
       throw new RateLimited(`AI rate limited: ${text.slice(0, 200)}`);
     }
+    if (r.status === 404) throw new NotFound(text.slice(0, 120));
     if (r.status >= 500 && attempt < 2) { await new Promise((s) => setTimeout(s, 3000)); continue; }
     throw new Error(`AI ${r.status}: ${text.slice(0, 300)}`);
   }
@@ -44,12 +51,22 @@ function parseLoose(text: string) {
   return JSON.parse(t);
 }
 async function generateOnce<T>(prompt: string, tier: "fast" | "smart"): Promise<T> {
-  const model = MODELS[tier]();
   const t0 = Date.now();
-  const j = await call(`${model}:generateContent`, {
-    contents: [{ role: "user", parts: [{ text: prompt }] }],
-    generationConfig: { responseMimeType: "application/json", temperature: 0.2, maxOutputTokens: 16384 },
-  });
+  let j: any = null, model = "";
+  for (const m of MODELS[tier]().filter((m) => !exhausted.has(m))) {
+    try {
+      model = m;
+      j = await call(`${m}:generateContent`, {
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: { responseMimeType: "application/json", temperature: 0.2, maxOutputTokens: 16384 },
+      });
+      break;
+    } catch (e) {
+      if (e instanceof QuotaExhausted || e instanceof NotFound) { exhausted.add(m); log(`ai ${m} unavailable, trying next model`); continue; }
+      throw e;
+    }
+  }
+  if (!j) throw new RateLimited("all AI models are out of daily quota");
   const text = (j.candidates?.[0]?.content?.parts ?? []).map((p: { text?: string }) => p.text ?? "").join("");
   log(`ai ${model} ${Date.now() - t0}ms in=${j.usageMetadata?.promptTokenCount} out=${j.usageMetadata?.candidatesTokenCount}`);
   try { return JSON.parse(text) as T; } catch { /* try a looser parse */ }

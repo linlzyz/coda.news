@@ -31,6 +31,8 @@ Fields per relevant item:
 - category: "technology" or "economy"
 - headline_en: the headline translated to neutral English
 - event: one short neutral English sentence naming the specific event (who did what), e.g. "Apple unveils iPhone 18 at September event"
+- event_zh: the same event title in natural Simplified Chinese
+- brief_zh: one neutral sentence in Simplified Chinese summarising the item
 - is_rumor: true if it is unconfirmed (reportedly, sources say, rumour)
 - companies: canonical English company names as commonly known (e.g. 苹果/アップル/Apple Inc. -> "Apple"; 英伟达 -> "NVIDIA"; Alphabet's Google news -> "Google"). Max 5.
 - topics: 1 to 3 from this list only: ${TOPICS.join(", ")}
@@ -39,7 +41,7 @@ Fields per relevant item:
   subject/object are short noun phrases (companies by canonical name). qualifier holds numbers/conditions or "".
   occurred_at is YYYY-MM-DD if known else "". text is the fact as one plain English sentence.
 
-Return JSON only: {"items":[{"i":0,"relevant":true,"category":"...","headline_en":"...","event":"...","is_rumor":false,"companies":[],"topics":[],"facts":[]}]}
+Return JSON only: {"items":[{"i":0,"relevant":true,"category":"...","headline_en":"...","event":"...","event_zh":"...","brief_zh":"...","is_rumor":false,"companies":[],"topics":[],"facts":[]}]}
 For irrelevant items return {"i":N,"relevant":false}.
 
 ITEMS:
@@ -85,12 +87,16 @@ Return JSON only:
  "summary": "2 to 3 neutral English sentences: what happened, key numbers, why it matters",
  "summary_zh": "same summary in Simplified Chinese",
  "agreed": ["2 to 4 short facts that all or nearly all sources report"],
+ "agreed_zh": ["the same facts in Simplified Chinese"],
  "perspectives": [ { "country": "US", "headline": "typical headline from this country's media, in English",
      "framing": "2 to 3 word label for the angle, e.g. Market opportunity",
      "emphasis": "one sentence: what this country's coverage puts first",
      "downplayed": "one sentence: what it mentions less or leaves out, or empty string",
-     "tone": "positive|neutral|negative" } ],
- "analysis": "if 2+ countries: 2 to 3 neutral sentences on why coverage differs (interests, audience, industry exposure). Else empty string."
+     "tone": "positive|neutral|negative",
+     "headline_zh": "...", "framing_zh": "...", "emphasis_zh": "...", "downplayed_zh": "..." } ],
+ "image_query": "2 to 4 generic English words for a stock photo scene that fits this story, with NO company, brand, product or person names (e.g. 'tokyo financial district', 'semiconductor wafer', 'container port')",
+ "analysis": "if 2+ countries: 2 to 3 neutral sentences on why coverage differs (interests, audience, industry exposure). Else empty string.",
+ "analysis_zh": "the analysis in Simplified Chinese, or empty string"
 }
-Include one perspective per country listed under COVERAGE BY COUNTRY, and only those.`;
+Include one perspective per country listed under COVERAGE BY COUNTRY, and only those. All *_zh fields are natural Simplified Chinese; for Taiwan and Hong Kong use 中国台湾 and 中国香港.`;
 }

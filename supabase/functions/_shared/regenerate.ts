@@ -7,8 +7,8 @@ import { generatePrompt } from "./prompts.ts";
 const DEBOUNCE_MIN = 10;
 
 interface Generated {
-  title: string; title_zh?: string; summary: string; summary_zh?: string; agreed?: string[]; analysis?: string;
-  perspectives?: { country: string; headline?: string; framing?: string; emphasis?: string; downplayed?: string; tone?: string }[];
+  title: string; title_zh?: string; image_query?: string; summary: string; summary_zh?: string; agreed?: string[]; agreed_zh?: string[]; analysis?: string; analysis_zh?: string;
+  perspectives?: { country: string; headline?: string; framing?: string; emphasis?: string; downplayed?: string; tone?: string; headline_zh?: string; framing_zh?: string; emphasis_zh?: string; downplayed_zh?: string }[];
 }
 
 export async function regenerate(limit = 3): Promise<number> {
@@ -44,19 +44,21 @@ export async function regenerate(limit = 3): Promise<number> {
     const [v] = await embed([`${g.title}\n${g.summary}`]);
     await sql.begin(async (tx) => {
       await tx`update events set title = ${g.title.slice(0, 200)}, title_zh = ${g.title_zh ?? null}, summary = ${g.summary}, summary_zh = ${g.summary_zh ?? null},
-                 summary_version = ${version}, summary_generated_at = now(), needs_regen = false, embedding = ${vec(v)}::extensions.vector
+                 summary_version = ${version}, summary_generated_at = now(), image_query = coalesce(image_query, ${g.image_query?.slice(0, 60) ?? null}), needs_regen = false, embedding = ${vec(v)}::extensions.vector
                where id = ${e.id}`;
       const valid = (g.perspectives ?? []).filter((p) => byCountry.has(p.country));
       for (const p of valid) {
         const tone = ["positive", "neutral", "negative"].includes(p.tone ?? "") ? p.tone : "neutral";
-        await tx`insert into perspectives (event_id, country, headline, framing, emphasis, downplayed, tone, article_count, updated_at)
+        await tx`insert into perspectives (event_id, country, headline, framing, emphasis, downplayed, tone, article_count, updated_at,
+                   headline_zh, framing_zh, emphasis_zh, downplayed_zh)
                  values (${e.id}, ${p.country}, ${p.headline ?? null}, ${p.framing ?? null}, ${p.emphasis ?? null}, ${p.downplayed ?? null}, ${tone!},
-                         ${byCountry.get(p.country)!.length}, now())
+                         ${byCountry.get(p.country)!.length}, now(), ${p.headline_zh ?? null}, ${p.framing_zh ?? null}, ${p.emphasis_zh ?? null}, ${p.downplayed_zh ?? null})
                  on conflict (event_id, country) do update set headline = excluded.headline, framing = excluded.framing, emphasis = excluded.emphasis,
-                   downplayed = excluded.downplayed, tone = excluded.tone, article_count = excluded.article_count, updated_at = now()`;
+                   downplayed = excluded.downplayed, tone = excluded.tone, article_count = excluded.article_count, updated_at = now(),
+                   headline_zh = excluded.headline_zh, framing_zh = excluded.framing_zh, emphasis_zh = excluded.emphasis_zh, downplayed_zh = excluded.downplayed_zh`;
       }
       await tx`insert into event_updates (event_id, type, content, version)
-               values (${e.id}, 'summary_updated', ${tx.json({ title: g.title, summary: g.summary, agreed: g.agreed ?? [], analysis: g.analysis ?? "", perspectives: valid })}, ${version})`;
+               values (${e.id}, 'summary_updated', ${tx.json({ title: g.title, summary: g.summary, agreed: g.agreed ?? [], agreed_zh: g.agreed_zh ?? [], analysis: g.analysis ?? "", analysis_zh: g.analysis_zh ?? "", perspectives: valid })}, ${version})`;
     });
     done++;
   }

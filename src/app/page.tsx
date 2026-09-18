@@ -1,109 +1,125 @@
 import Link from "next/link";
-import { allTopics, getPerspectives, listEvents, stats, type EventRow } from "@/lib/data";
-import { countryName, timeAgo, TONE } from "@/lib/ui";
-import { EventCard, EventMeta, EventMini } from "@/components/EventCard";
-import { Flag } from "@/components/Flag";
-import { CategoryLabel } from "@/components/Pills";
+import { allTopics, companyMap, getPerspectives, listEvents, trendingCompanies, type EventRow, type Perspective } from "@/lib/data";
+import { crypto, fx } from "@/lib/markets";
+import { Cover } from "@/components/Cover";
+import { Flag, Flags } from "@/components/Flag";
+import { Icon } from "@/components/Icons";
+import { Markets } from "@/components/Markets";
+import { NewsItem } from "@/components/NewsItem";
+import { Newsletter } from "@/components/Newsletter";
+import { TopicsGrid } from "@/components/TopicsGrid";
 import { Ticker } from "@/components/Ticker";
 import { AutoRefresh } from "@/components/AutoRefresh";
+import { getLang, t, type Lang } from "@/lib/i18n";
+import { countryL, persp as perspL, summary, timeAgoL, title } from "@/lib/loc";
+import { CategoryLabel } from "@/components/Pills";
 
-export const revalidate = 60;
 
-export default async function Home() {
-  const [events, topics, s] = await Promise.all([listEvents({ limit: 40 }), allTopics(), stats()]);
-  const persp = await getPerspectives(events.slice(0, 40).map((e) => e.id));
-  // Top story: most important event that already has 2+ country perspectives, else the most important
-  const top = events.find((e) => (persp.get(e.id)?.length ?? 0) >= 2) ?? events[0];
-  const rest = events.filter((e) => e.id !== top?.id);
-  const divided = events
-    .map((e) => ({ e, tones: new Set((persp.get(e.id) ?? []).map((p) => p.tone)).size, n: persp.get(e.id)?.length ?? 0 }))
-    .filter((x) => x.n >= 2).sort((a, b) => b.tones - a.tones || b.n - a.n).slice(0, 4);
+export default async function Home({ searchParams }: PageProps<"/">) {
+  const sp = await searchParams;
+  const tab = sp.tab === "economy" || sp.tab === "technology" ? sp.tab : undefined;
+  const [events, topics, trending, cq, fq] = await Promise.all([
+    listEvents({ limit: 60 }), allTopics(), trendingCompanies(10), crypto(), fx(),
+  ]);
+  const l = await getLang();
+  const persp = await getPerspectives(events.map((e) => e.id));
+  const companies = await companyMap(events);
+  const topicMap = new Map(topics.map((t) => [t.id, t]));
+  const multi = events.filter((e) => (persp.get(e.id)?.length ?? 0) >= 2);
+  const top = multi[0] ?? events[0];
+  const featured = multi.find((e) => e.id !== top?.id && e.image_url) ?? multi.find((e) => e.id !== top?.id);
+  const divided = multi.filter((e) => e.id !== top?.id && e.id !== featured?.id)
+    .sort((a, b) => new Set((persp.get(b.id) ?? []).map((p) => p.tone)).size - new Set((persp.get(a.id) ?? []).map((p) => p.tone)).size).slice(0, 4);
+  const list = events.filter((e) => e.id !== top?.id && (!tab || e.category === tab)).slice(0, 30);
+  const updated = new Date().toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit", timeZone: "Australia/Melbourne" }) + " AEST";
 
   return (
     <>
       <AutoRefresh />
-      <Ticker />
-      <div className="mx-auto grid max-w-[1280px] gap-10 px-4 py-8 sm:px-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <div className="min-w-0 space-y-10">
-          {top ? <TopStory e={top} perspectives={persp.get(top.id) ?? []} /> : <Empty />}
-          <section>
-            <div className="flex items-center gap-4 overflow-x-auto border-b border-[#D6E2F5] pb-3">
-              <h2 className="whitespace-nowrap text-xl font-semibold tracking-[-0.01em]">Latest events</h2>
-              <div className="flex gap-1 text-sm">
-                <span className="rounded-lg bg-[#EAF1FE] px-3 py-1.5 font-semibold text-[#1D4ED8]">All</span>
-                <Link href="/technology" className="rounded-lg px-3 py-1.5 text-slate-600 hover:bg-slate-100">Technology</Link>
-                <Link href="/economy" className="rounded-lg px-3 py-1.5 text-slate-600 hover:bg-slate-100">Economy</Link>
-              </div>
+      <Ticker lang={l} />
+      <div className="grid gap-8 px-4 py-6 sm:px-6 lg:px-8 xl:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="min-w-0 space-y-7">
+          {top ? <Hero e={top} perspectives={persp.get(top.id) ?? []} l={l} /> : <p className="rounded-3xl border border-dashed border-[#E5E7EB] p-10 text-center text-neutral-500">{t(l, "first")}</p>}
+
+          {trending.length > 0 && (
+            <div className="flex items-center gap-2 overflow-x-auto pb-1">
+              <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#FFF0EB] px-3.5 py-2 text-[13px] font-semibold text-[#C2410C]"><Icon name="flame" size={15} />{t(l, "trending")}</span>
+              {trending.map((c) => <Link key={c.id} href={`/company/${c.slug}`} className="shrink-0 rounded-full border border-[#E5E7EB] bg-white px-3.5 py-2 text-[13px] font-medium hover:border-[#F0A57F]">{c.name}</Link>)}
             </div>
-            {rest.map((e) => <EventCard key={e.id} e={e} />)}
+          )}
+
+          <section>
+            <div className="flex items-center gap-5 border-b border-[#E5E7EB]">
+              <h2 className="whitespace-nowrap py-3 text-[22px] font-semibold tracking-[-0.02em]">{t(l, "latest")}</h2>
+              <nav className="flex gap-1 text-[13px]">
+                {([["all", "/", undefined], ["economy", "/?tab=economy", "economy"], ["technology", "/?tab=technology", "technology"]] as const).map(([k, h, v]) => {
+                  const active = v === tab;
+                  return <Link key={k} href={h} scroll={false} className={`border-b-2 px-3 py-3 font-medium ${active ? "border-[#C2410C] text-[#C2410C]" : "border-transparent text-neutral-500 hover:text-[#16181D]"}`}>{t(l, k)}</Link>;
+                })}
+              </nav>
+            </div>
+            {list.map((e) => <NewsItem key={e.id} e={e} companies={companies} topics={topicMap} lang={l} />)}
           </section>
         </div>
 
-        <aside className="space-y-6">
-          {divided.length > 0 && (
-            <section className="rounded-2xl border border-[#D6E2F5] p-5">
-              <h2 className="text-base font-semibold">Where the world disagrees</h2>
-              <p className="mt-1 text-sm text-slate-500">Events where countries frame the story most differently.</p>
-              <div className="-mx-3 mt-3">{divided.map(({ e }) => <EventMini key={e.id} e={e} />)}</div>
+        <aside className="space-y-5">
+          <Markets title={t(l, "markets")} empty={t(l, "marketsDown")} updated={updated} tabs={[{ label: t(l, "crypto"), quotes: cq, note: t(l, "cryptoNote") }, { label: t(l, "fx"), quotes: fq, note: t(l, "fxNote") }]} />
+          <TopicsGrid topics={topics} lang={l} />
+          {featured && (
+            <section className="rounded-2xl border border-[#E5E7EB] bg-white p-5">
+              <h2 className="text-[17px] font-semibold tracking-[-0.015em]">{t(l, "featured")}</h2>
+              <Link href={`/event/${featured.slug}`} className="group mt-3 block">
+                <Cover e={featured} className="aspect-[16/9] w-full rounded-xl" />
+                <div className="mt-3 text-[17px] font-semibold leading-snug tracking-[-0.015em] group-hover:text-[#C2410C]">{title(featured, l)}</div>
+                <p className="mt-1.5 line-clamp-3 text-[13px] leading-relaxed text-neutral-600">{summary(featured, l)}</p>
+                <span className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-[#F4F5F7] px-3 py-2 text-[13px] font-medium text-[#C2410C]">{t(l, "compareN", { n: featured.countries.length })} <Icon name="arrow" size={14} /></span>
+              </Link>
             </section>
           )}
-          <section className="rounded-2xl border border-[#D6E2F5] p-5">
-            <h2 className="text-base font-semibold">Topics</h2>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {topics.map((t) => (
-                <Link key={t.id} href={`/topic/${t.slug}`} className="inline-flex items-center gap-2 rounded-full border border-[#D6E2F5] px-3 py-1.5 text-sm hover:border-[#7FA3E8]">
-                  <span className="h-2 w-2 rounded-full" style={{ background: t.color }} />{t.name}
-                </Link>
-              ))}
-            </div>
-          </section>
-          <section className="rounded-2xl bg-[#EEF4FF] p-5 text-[#0A1A33]">
-            <h2 className="text-base font-semibold">A knowledge base that updates itself</h2>
-            <p className="mt-2 text-sm leading-relaxed text-slate-600">Every 5 minutes coda.news reads {s.sources} newsrooms across the world, links every article to its event, and records the facts.</p>
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <div className="rounded-xl bg-white p-3 ring-1 ring-[#D6E2F5]"><div className="text-2xl font-semibold">{s.events}</div><div className="text-xs text-slate-500">events</div></div>
-              <div className="rounded-xl bg-white p-3 ring-1 ring-[#D6E2F5]"><div className="text-2xl font-semibold">{s.sources}</div><div className="text-xs text-slate-500">sources</div></div>
-            </div>
-          </section>
+          {divided.length > 0 && (
+            <section className="rounded-2xl border border-[#E5E7EB] bg-white p-5">
+              <h2 className="text-[17px] font-semibold tracking-[-0.015em]">{t(l, "disagree")}</h2>
+              <div className="mt-2 divide-y divide-[#E5E7EB]">
+                {divided.map((e) => (
+                  <Link key={e.id} href={`/event/${e.slug}`} className="block py-3">
+                    <div className="text-[14px] font-semibold leading-snug hover:text-[#C2410C]">{title(e, l)}</div>
+                    <div className="mt-1.5 flex items-center gap-2 text-[12px] text-neutral-500"><Flags codes={e.countries} max={6} size={11} />{e.countries.length} {t(l, "countries")}</div>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+          <Newsletter lang={l} status={typeof sp.subscribed === "string" ? sp.subscribed : undefined} />
         </aside>
       </div>
     </>
   );
 }
 
-function TopStory({ e, perspectives }: { e: EventRow; perspectives: Awaited<ReturnType<typeof getPerspectives>> extends Map<number, infer P> ? P : never }) {
+function Hero({ e, perspectives, l }: { e: EventRow; perspectives: Perspective[]; l: Lang }) {
   return (
-    <section className="grid overflow-hidden rounded-3xl bg-[#EEF4FF] text-[#0A1A33] ring-1 ring-[#D6E2F5] lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
-      <div className="flex flex-col gap-5 p-7 sm:p-9">
-        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#1D4ED8]">Top story · <CategoryLabel category={e.category} /></div>
-        <h1 className="text-3xl font-semibold leading-[1.1] tracking-[-0.02em] sm:text-[40px]">
-          <Link href={`/event/${e.slug}`} className="hover:text-[#1D4ED8]">{e.title}</Link>
+    <section className="relative grid overflow-hidden rounded-3xl bg-[#F4F5F7] md:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
+      <div className="relative z-10 flex flex-col gap-4 p-7 sm:p-9">
+        <div className="flex items-center gap-2"><span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#C2410C]">{t(l, "topStory")}</span><CategoryLabel category={e.category} lang={l} /></div>
+        <h1 className="text-[30px] font-semibold leading-[1.08] tracking-[-0.03em] text-[#16181D] sm:text-[40px]">
+          <Link href={`/event/${e.slug}`} className="hover:text-[#C2410C]">{title(e, l)}</Link>
         </h1>
-        {e.summary && <p className="text-[15px] leading-relaxed text-slate-600">{e.summary}</p>}
-        <EventMeta e={e} />
-        <div className="mt-auto flex items-center gap-4">
-          <Link href={`/event/${e.slug}`} className="rounded-xl bg-[#EA5514] px-5 py-3 text-sm font-semibold text-white hover:bg-[#D24A0F]">Compare the coverage →</Link>
-          <span className="text-xs text-slate-500">Updated {timeAgo(e.last_article_at)}</span>
+        {summary(e, l) && <p className="line-clamp-3 text-[15px] leading-relaxed text-neutral-600">{summary(e, l)}</p>}
+        {perspectives.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {perspectives.slice(0, 4).map((p) => (
+              <span key={p.country} className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 text-[12px] shadow-[0_1px_2px_rgba(22,24,29,.06)]" title={countryL(p.country, l)}>
+                <Flag code={p.country} size={11} /><span className="font-medium text-neutral-700">{perspL(p, l).framing}</span>
+              </span>
+            ))}
+          </div>
+        )}
+        <div className="mt-auto flex items-center gap-4 pt-2">
+          <Link href={`/event/${e.slug}`} className="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl bg-[#EA5514] px-5 py-3 text-[14px] font-semibold text-white hover:bg-[#D24A0F]">{t(l, "compare")} <Icon name="arrow" size={15} /></Link>
+          <span className="text-[12px] text-neutral-500">{e.source_count} {t(l, "sources")} · {e.countries.length} {t(l, "countries")} · {timeAgoL(e.last_article_at, l)}</span>
         </div>
       </div>
-      <div className="flex flex-col gap-2.5 bg-[#E3ECFD] p-6 sm:p-7">
-        <div className="text-xs font-semibold uppercase tracking-[0.1em] text-[#1D4ED8]">How the world reports it</div>
-        {perspectives.length === 0 && <p className="text-sm text-slate-600">Perspectives appear as soon as media in a second country cover this event.</p>}
-        {perspectives.slice(0, 5).map((p) => (
-          <div key={p.country} className="rounded-2xl bg-white p-4 shadow-[0_1px_2px_rgba(10,26,51,.06)]">
-            <div className="flex items-center gap-2.5">
-              <Flag code={p.country} size={14} />
-              <span className="text-sm font-semibold">{countryName(p.country)}</span>
-              <span className={`ml-auto rounded-full px-2 py-0.5 text-[11px] font-semibold ${TONE[p.tone]?.cls ?? ""}`}>{p.framing ?? TONE[p.tone]?.label}</span>
-            </div>
-            {p.emphasis && <p className="mt-2 text-[13px] leading-relaxed text-slate-600">{p.emphasis}</p>}
-          </div>
-        ))}
-      </div>
+      <Cover e={e} credit className="min-h-[220px] md:min-h-full" />
     </section>
   );
-}
-
-function Empty() {
-  return <div className="rounded-3xl border border-dashed border-slate-300 p-10 text-center text-slate-500">The first events are being assembled. Check back in a few minutes.</div>;
 }

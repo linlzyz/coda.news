@@ -1,8 +1,6 @@
 import { notFound } from "next/navigation";
 import { getCompany, listEvents } from "@/lib/data";
 import { EventList } from "@/components/EventList";
-export const revalidate = 300;
-export async function generateStaticParams() { return []; }
 export default async function Page({ params }: PageProps<"/company/[slug]">) {
   const c = await getCompany((await params).slug);
   if (!c) notFound();

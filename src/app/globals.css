@@ -2,12 +2,12 @@
 
 @theme {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --color-ink: #0A1A33;
+  --color-ink: #16181D;
   --color-brand: #EA5514;
 }
 
 :root { color-scheme: light; }
-body { background: #ffffff; color: #0A1A33; font-optical-sizing: auto; font-feature-settings: "cv05", "cv08", "ss03"; letter-spacing: -0.006em; }
+body { background: #ffffff; color: #16181D; font-optical-sizing: auto; font-feature-settings: "cv05", "cv08", "ss03"; letter-spacing: -0.006em; }
 h1, h2, h3 { text-wrap: balance; letter-spacing: -0.022em; }
 p { text-wrap: pretty; }
 

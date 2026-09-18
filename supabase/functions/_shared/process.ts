@@ -11,7 +11,7 @@ const ASK_MATCH = 0.83;    // between ASK and AUTO: LLM verifies
 const MATCH_WINDOW_DAYS = 10;
 
 interface Extracted {
-  i: number; relevant: boolean; category?: string; headline_en?: string; event?: string; is_rumor?: boolean;
+  i: number; relevant: boolean; category?: string; headline_en?: string; event?: string; event_zh?: string; brief_zh?: string; is_rumor?: boolean;
   companies?: string[]; topics?: string[];
   facts?: { subject: string; predicate: string; object: string; qualifier?: string; occurred_at?: string; text?: string }[];
 }
@@ -85,7 +85,8 @@ export async function processBatch(): Promise<{ claimed: number; relevant: numbe
       await addFacts(eventId, r.id, r.source_id, x!.facts ?? []);
       await sql`select refresh_event(${eventId})`;
       // narrative for a brand-new single-source event is assembled from its facts; AI writes it once a 2nd source arrives
-      await sql`update events set summary = coalesce(summary, ${factSummary(x!)}), summary_generated_at = coalesce(summary_generated_at, now())
+      await sql`update events set summary = coalesce(summary, ${factSummary(x!)}), summary_generated_at = coalesce(summary_generated_at, now()),
+                title_zh = coalesce(title_zh, ${x!.event_zh ?? null}), summary_zh = coalesce(summary_zh, ${x!.brief_zh ?? null})
                 where id = ${eventId}`;
     }
     log(`process: ${rows.length} claimed, ${relevant.length} relevant, ${newEvents} new events, ${matched} matched`);
