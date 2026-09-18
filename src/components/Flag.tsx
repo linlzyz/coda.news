@@ -3,8 +3,8 @@ import { countryName } from "@/lib/ui";
 
 export function Flag({ code, size = 16 }: { code: string; size?: number }) {
   const F = (FlagSet as Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>>)[code];
-  const style = { width: size * 1.5, height: size, borderRadius: 3, boxShadow: "0 0 0 1px rgba(17,17,17,.12)" };
-  if (!F) return <span className="inline-block bg-[#E6E6E6]" style={style} aria-label={countryName(code)} />;
+  const style = { width: size * 1.5, height: size, borderRadius: 3, boxShadow: "0 0 0 1px rgba(22,24,29,.12)" };
+  if (!F) return <span className="inline-block bg-[#E5E7EB]" style={style} aria-label={countryName(code)} />;
   return <F style={style} role="img" aria-label={countryName(code)} className="inline-block shrink-0" />;
 }
 

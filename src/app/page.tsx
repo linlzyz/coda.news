@@ -1,144 +1,127 @@
 import Link from "next/link";
-import { allTopics, getPerspectives, indices, listEvents, trendingCompanies, type EventRow, type Perspective } from "@/lib/data";
+import { allTopics, companyMap, indices, getPerspectives, listEvents, trendingCompanies, type EventRow, type Perspective } from "@/lib/data";
 import { crypto, fx } from "@/lib/markets";
-import { getLang, t, TOPIC_ZH, type Lang } from "@/lib/i18n";
-import { countryL, persp as perspL, summary, timeAgoL, title } from "@/lib/loc";
 import { Cover } from "@/components/Cover";
 import { Flag, Flags } from "@/components/Flag";
+import { Icon } from "@/components/Icons";
 import { Markets } from "@/components/Markets";
+import { NewsItem } from "@/components/NewsItem";
 import { Newsletter } from "@/components/Newsletter";
-import { SectionHead } from "@/components/Section";
-import { Meta, StoryCard, StoryRow } from "@/components/Story";
+import { TopicsGrid } from "@/components/TopicsGrid";
 import { Ticker } from "@/components/Ticker";
 import { AutoRefresh } from "@/components/AutoRefresh";
+import { getLang, t, type Lang } from "@/lib/i18n";
+import { countryL, persp as perspL, summary, timeAgoL, title } from "@/lib/loc";
+import { CategoryLabel } from "@/components/Pills";
+
 
 export default async function Home({ searchParams }: PageProps<"/">) {
   const sp = await searchParams;
-  const [events, topics, trending, iq, cq, fq, l] = await Promise.all([
-    listEvents({ limit: 80 }), allTopics(), trendingCompanies(12), indices(), crypto(), fx(), getLang(),
+  const tab = sp.tab === "economy" || sp.tab === "technology" ? sp.tab : undefined;
+  const [events, topics, trending, cq, fq] = await Promise.all([
+    listEvents({ limit: 60 }), allTopics(), trendingCompanies(10), crypto(), fx(),
   ]);
+  const iq = await indices();
+  const l = await getLang();
   const persp = await getPerspectives(events.map((e) => e.id));
-  const topicSlug = new Map(topics.map((x) => [x.id, x.slug]));
-  const icon = (e: EventRow) => topicSlug.get(e.topic_ids[0]);
-  const nP = (e: EventRow) => persp.get(e.id)?.length ?? 0;
-
-  const used = new Set<number>();
-  const take = (list: EventRow[], n: number) => { const out = list.filter((e) => !used.has(e.id)).slice(0, n); out.forEach((e) => used.add(e.id)); return out; };
-  const [lead] = take(events.filter((e) => nP(e) >= 2 && e.image_url).concat(events.filter((e) => nP(e) >= 2), events), 1);
-  const latest = take([...events].sort((a, b) => +new Date(b.last_article_at) - +new Date(a.last_article_at)), 7);
-  const divided = take(events.filter((e) => nP(e) >= 3).sort((a, b) => new Set((persp.get(b.id) ?? []).map((p) => p.tone)).size - new Set((persp.get(a.id) ?? []).map((p) => p.tone)).size || b.countries.length - a.countries.length), 4);
-  const tech = take(events.filter((e) => e.category === "technology"), 4);
-  const econ = take(events.filter((e) => e.category === "economy"), 4);
-  const rest = take(events, 16);
+  const companies = await companyMap(events);
+  const topicMap = new Map(topics.map((t) => [t.id, t]));
+  const multi = events.filter((e) => (persp.get(e.id)?.length ?? 0) >= 2);
+  const top = multi[0] ?? events[0];
+  const featured = multi.find((e) => e.id !== top?.id && e.image_url) ?? multi.find((e) => e.id !== top?.id);
+  const divided = multi.filter((e) => e.id !== top?.id && e.id !== featured?.id)
+    .sort((a, b) => new Set((persp.get(b.id) ?? []).map((p) => p.tone)).size - new Set((persp.get(a.id) ?? []).map((p) => p.tone)).size).slice(0, 4);
+  const list = events.filter((e) => e.id !== top?.id && (!tab || e.category === tab)).slice(0, 30);
+  const updated = new Date().toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit", timeZone: "Australia/Melbourne" }) + " AEST";
 
   return (
     <>
       <AutoRefresh />
       <Ticker lang={l} />
-      <div className="mx-auto max-w-[1240px] px-4 sm:px-6">
-        {/* Lead + latest */}
-        <div className="grid gap-8 py-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-10">
-          {lead ? <Lead e={lead} perspectives={persp.get(lead.id) ?? []} l={l} iconName={icon(lead)} /> : <p className="py-20 text-center text-neutral-500">{t(l, "first")}</p>}
-          <aside className="lg:border-l lg:border-[#E6E6E6] lg:pl-10">
-            <div className="border-t-2 border-[#111111] pt-2.5 text-[20px] font-semibold tracking-[-0.02em]">{t(l, "latestShort")}</div>
-            <ol className="divide-y divide-[#E6E6E6]">
-              {latest.map((e) => (
-                <li key={e.id} className="py-3.5">
-                  <div className="text-[12px] text-neutral-500">{timeAgoL(e.last_article_at, l)}</div>
-                  <Link href={`/event/${e.slug}`} className="mt-1 block text-[15px] font-semibold leading-snug hover:text-[#C2410C]">{title(e, l)}</Link>
-                </li>
-              ))}
-            </ol>
-            <p className="mt-3 border-t border-[#E6E6E6] pt-3 text-[11px] leading-relaxed text-neutral-400">{t(l, "disclaimer")}</p>
-          </aside>
-        </div>
+      <div className="grid gap-8 px-4 py-6 sm:px-6 lg:px-8 xl:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="min-w-0 space-y-7">
+          {top ? <Hero e={top} perspectives={persp.get(top.id) ?? []} l={l} /> : <p className="rounded-3xl border border-dashed border-[#E5E7EB] p-10 text-center text-neutral-500">{t(l, "first")}</p>}
 
-        {trending.length > 0 && (
-          <div className="flex items-center gap-x-5 gap-y-2 overflow-x-auto border-y border-[#E6E6E6] py-3 text-[14px]">
-            <span className="shrink-0 text-[11px] font-bold uppercase tracking-[0.12em] text-[#C2410C]">{t(l, "trending")}</span>
-            {trending.map((c) => <Link key={c.id} href={`/company/${c.slug}`} className="shrink-0 font-medium text-neutral-700 hover:text-[#C2410C]">{c.name}</Link>)}
-          </div>
-        )}
-
-        {divided.length > 0 && (
-          <section className="py-10">
-            <SectionHead title={t(l, "disagree")} />
-            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-              {divided.map((e, i) => (
-                <Link key={e.id} href={`/event/${e.slug}`} className="group block">
-                  <div className="text-[34px] font-semibold leading-none tracking-[-0.03em] text-[#EA5514]">{String(i + 1).padStart(2, "0")}</div>
-                  <div className="mt-3 text-[16px] font-semibold leading-snug group-hover:text-[#C2410C]">{title(e, l)}</div>
-                  <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1.5">
-                    {(persp.get(e.id) ?? []).slice(0, 4).map((p) => (
-                      <span key={p.country} className="inline-flex items-center gap-1.5 text-[12px] text-neutral-600"><Flag code={p.country} size={10} />{perspL(p, l).framing}</span>
-                    ))}
-                  </div>
-                </Link>
-              ))}
+          {trending.length > 0 && (
+            <div className="flex items-center gap-2 overflow-x-auto pb-1">
+              <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#FFF0EB] px-3.5 py-2 text-[13px] font-semibold text-[#C2410C]"><Icon name="flame" size={15} />{t(l, "trending")}</span>
+              {trending.map((c) => <Link key={c.id} href={`/company/${c.slug}`} className="shrink-0 rounded-full border border-[#E5E7EB] bg-white px-3.5 py-2 text-[13px] font-medium hover:border-[#F0A57F]">{c.name}</Link>)}
             </div>
-          </section>
-        )}
+          )}
 
-        <div className="grid gap-10 pb-4 lg:grid-cols-2">
-          {tech.length > 0 && <section><SectionHead title={t(l, "technology")} href="/technology" more={t(l, "more")} /><div className="grid gap-8 sm:grid-cols-2">{tech.map((e) => <StoryCard key={e.id} e={e} lang={l} iconName={icon(e)} />)}</div></section>}
-          {econ.length > 0 && <section><SectionHead title={t(l, "economy")} href="/economy" more={t(l, "more")} /><div className="grid gap-8 sm:grid-cols-2">{econ.map((e) => <StoryCard key={e.id} e={e} lang={l} iconName={icon(e)} />)}</div></section>}
-        </div>
-
-        <div className="grid gap-10 py-10 md:grid-cols-3">
-          <Markets title={t(l, "markets")} empty={t(l, "marketsDown")} tabs={[
-            { label: t(l, "indices"), quotes: iq, note: `${t(l, "indicesNote")}${iq[0] ? " · " + iq[0].as_of : ""}` },
-            { label: t(l, "crypto"), quotes: cq, note: t(l, "cryptoNote") },
-            { label: t(l, "fx"), quotes: fq, note: t(l, "fxNote") },
-          ]} />
           <section>
-            <SectionHead title={t(l, "topics")} href="/topics" more={t(l, "viewAll")} />
-            <ul className="grid grid-cols-2 gap-x-6">
-              {topics.map((x) => <li key={x.id} className="border-b border-[#E6E6E6]"><Link href={`/topic/${x.slug}`} className="block py-2.5 text-[14px] font-medium hover:text-[#C2410C]">{l === "zh" ? TOPIC_ZH[x.slug] : x.name}</Link></li>)}
-            </ul>
+            <div className="flex items-center gap-5 border-b border-[#E5E7EB]">
+              <h2 className="whitespace-nowrap py-3 text-[22px] font-semibold tracking-[-0.02em]">{t(l, "latest")}</h2>
+              <nav className="flex gap-1 text-[13px]">
+                {([["all", "/", undefined], ["economy", "/?tab=economy", "economy"], ["technology", "/?tab=technology", "technology"]] as const).map(([k, h, v]) => {
+                  const active = v === tab;
+                  return <Link key={k} href={h} scroll={false} className={`border-b-2 px-3 py-3 font-medium ${active ? "border-[#C2410C] text-[#C2410C]" : "border-transparent text-neutral-500 hover:text-[#16181D]"}`}>{t(l, k)}</Link>;
+                })}
+              </nav>
+            </div>
+            {list.map((e) => <NewsItem key={e.id} e={e} companies={companies} topics={topicMap} lang={l} />)}
+            <p className="mt-4 text-[12px] leading-relaxed text-neutral-500">{t(l, "disclaimer")}</p>
           </section>
-          <Newsletter lang={l} status={typeof sp.subscribed === "string" ? sp.subscribed : undefined} />
         </div>
 
-        {rest.length > 0 && (
-          <section className="pt-4">
-            <SectionHead title={t(l, "moreNews")} />
-            <div className="grid gap-x-10 lg:grid-cols-2">{rest.map((e) => <StoryRow key={e.id} e={e} lang={l} iconName={icon(e)} />)}</div>
-          </section>
-        )}
+        <aside className="space-y-5">
+          <Markets title={t(l, "markets")} empty={t(l, "marketsDown")} updated={updated} tabs={[{ label: t(l, "indices"), quotes: iq, note: `${t(l, "indicesNote")}${iq[0] ? " · " + iq[0].as_of : ""}` }, { label: t(l, "crypto"), quotes: cq, note: t(l, "cryptoNote") }, { label: t(l, "fx"), quotes: fq, note: t(l, "fxNote") }]} />
+          <TopicsGrid topics={topics} lang={l} />
+          {featured && (
+            <section className="rounded-2xl border border-[#E5E7EB] bg-white p-5">
+              <h2 className="text-[17px] font-semibold tracking-[-0.015em]">{t(l, "featured")}</h2>
+              <Link href={`/event/${featured.slug}`} className="group mt-3 block">
+                <Cover e={featured} className="aspect-[16/9] w-full rounded-xl" />
+                <div className="mt-3 text-[17px] font-semibold leading-snug tracking-[-0.015em] group-hover:text-[#C2410C]">{title(featured, l)}</div>
+                <p className="mt-1.5 line-clamp-3 text-[13px] leading-relaxed text-neutral-600">{summary(featured, l)}</p>
+                <span className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-[#F4F5F7] px-3 py-2 text-[13px] font-medium text-[#C2410C]">{t(l, "compareN", { n: featured.countries.length })} <Icon name="arrow" size={14} /></span>
+              </Link>
+            </section>
+          )}
+          {divided.length > 0 && (
+            <section className="rounded-2xl border border-[#E5E7EB] bg-white p-5">
+              <h2 className="text-[17px] font-semibold tracking-[-0.015em]">{t(l, "disagree")}</h2>
+              <div className="mt-2 divide-y divide-[#E5E7EB]">
+                {divided.map((e) => (
+                  <Link key={e.id} href={`/event/${e.slug}`} className="block py-3">
+                    <div className="text-[14px] font-semibold leading-snug hover:text-[#C2410C]">{title(e, l)}</div>
+                    <div className="mt-1.5 flex items-center gap-2 text-[12px] text-neutral-500"><Flags codes={e.countries} max={6} size={11} />{e.countries.length} {t(l, "countries")}</div>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+          <Newsletter lang={l} status={typeof sp.subscribed === "string" ? sp.subscribed : undefined} />
+        </aside>
       </div>
     </>
   );
 }
 
-function Lead({ e, perspectives, l, iconName }: { e: EventRow; perspectives: Perspective[]; l: Lang; iconName?: string }) {
+function Hero({ e, perspectives, l }: { e: EventRow; perspectives: Perspective[]; l: Lang }) {
   return (
-    <article className="min-w-0">
-      <Link href={`/event/${e.slug}`} className="block"><Cover e={e} credit iconName={iconName} className="aspect-[16/9] w-full" /></Link>
-      <div className="mt-5"><Meta e={e} lang={l} /></div>
-      <h1 className="mt-3 text-[30px] font-semibold leading-[1.1] tracking-[-0.03em] sm:text-[42px]">
-        <Link href={`/event/${e.slug}`} className="hover:text-[#C2410C]">{title(e, l)}</Link>
-      </h1>
-      {summary(e, l) && <p className="mt-3 max-w-[760px] text-[17px] leading-relaxed text-neutral-600">{summary(e, l)}</p>}
-      {perspectives.length > 0 && (
-        <div className="mt-6 border-t border-[#E6E6E6]">
-          <div className="pt-3 text-[11px] font-bold uppercase tracking-[0.12em] text-[#C2410C]">{t(l, "howEach")}</div>
-          <ul className="divide-y divide-[#E6E6E6]">
-            {perspectives.slice(0, 4).map((p) => {
-              const v = perspL(p, l);
-              return (
-                <li key={p.country} className="grid grid-cols-[132px_minmax(0,1fr)] gap-4 py-3 text-[14px]">
-                  <span className="inline-flex items-center gap-2 font-semibold"><Flag code={p.country} size={12} />{countryL(p.country, l)}</span>
-                  <span className="text-neutral-600"><span className="font-medium text-[#111111]">{v.framing}.</span> {v.emphasis}</span>
-                </li>
-              );
-            })}
-          </ul>
+    <section className="relative grid overflow-hidden rounded-3xl bg-[#F4F5F7] md:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
+      <div className="relative z-10 flex flex-col gap-4 p-7 sm:p-9">
+        <div className="flex items-center gap-2"><span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#C2410C]">{t(l, "topStory")}</span><CategoryLabel category={e.category} lang={l} /></div>
+        <h1 className="text-[30px] font-semibold leading-[1.08] tracking-[-0.03em] text-[#16181D] sm:text-[40px]">
+          <Link href={`/event/${e.slug}`} className="hover:text-[#C2410C]">{title(e, l)}</Link>
+        </h1>
+        {summary(e, l) && <p className="line-clamp-3 text-[15px] leading-relaxed text-neutral-600">{summary(e, l)}</p>}
+        {perspectives.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {perspectives.slice(0, 4).map((p) => (
+              <span key={p.country} className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 text-[12px] shadow-[0_1px_2px_rgba(22,24,29,.06)]" title={countryL(p.country, l)}>
+                <Flag code={p.country} size={11} /><span className="font-medium text-neutral-700">{perspL(p, l).framing}</span>
+              </span>
+            ))}
+          </div>
+        )}
+        <div className="mt-auto flex items-center gap-4 pt-2">
+          <Link href={`/event/${e.slug}`} className="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl bg-[#EA5514] px-5 py-3 text-[14px] font-semibold text-white hover:bg-[#D24A0F]">{t(l, "compare")} <Icon name="arrow" size={15} /></Link>
+          <span className="text-[12px] text-neutral-500">{e.source_count} {t(l, "sources")} · {e.countries.length} {t(l, "countries")} · {timeAgoL(e.last_article_at, l)}</span>
         </div>
-      )}
-      <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
-        <Link href={`/event/${e.slug}`} className="text-[15px] font-semibold text-[#111111] underline decoration-[#EA5514] decoration-2 underline-offset-[6px] hover:text-[#C2410C]">{t(l, "compare")} →</Link>
-        <span className="text-[13px] text-neutral-500"><Flags codes={e.countries} max={8} size={10} /> {e.source_count} {t(l, "sources")} · {e.countries.length} {t(l, "countries")}</span>
       </div>
-    </article>
+      <Cover e={e} credit className="min-h-[220px] md:min-h-full" />
+    </section>
   );
 }

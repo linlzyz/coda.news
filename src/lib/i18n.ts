@@ -37,7 +37,6 @@ const D = {
   resultsFor: ["Results for", "搜索结果："], searchH: ["Search", "搜索"], mostActive: ["Most active in the news over the last three days.", "过去三天新闻中最活跃的公司。"],
   techIntro: ["AI, chips, big tech and startups, compared across countries.", "AI、芯片、科技巨头与创业公司，按国家对比。"],
   econIntro: ["Rates, trade, markets and companies, compared across countries.", "利率、贸易、市场与公司，按国家对比。"],
-  latestShort: ["Latest", "最新"], moreNews: ["More news", "更多新闻"], more: ["More", "更多"],
   disclaimer: ["Summaries are AI-generated from the linked sources. We summarise and link; we never republish articles. Stock photos via Pexels.", "摘要由 AI 根据所链接的来源生成。我们只做摘要和链接，从不转载原文。图库照片来自 Pexels。"],
   first: ["The first events are being assembled. Check back in a few minutes.", "首批事件正在生成，请几分钟后再来。"],
 } as const;

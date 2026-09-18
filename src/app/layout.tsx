@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Inter } from "next/font/google";
-import { Masthead } from "@/components/Masthead";
+import { Sidebar } from "@/components/Sidebar";
+import { TopBar } from "@/components/TopBar";
+import Link from "next/link";
 import { getLang, t } from "@/lib/i18n";
 import "./globals.css";
 
@@ -19,20 +20,21 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang={l === "zh" ? "zh-CN" : "en"} className={`${inter.variable} antialiased`}>
       <body className="font-sans">
-        <Masthead />
-        <main>{children}</main>
-        <footer className="mt-16 border-t-2 border-[#111111]">
-          <div className="mx-auto flex max-w-[1240px] flex-col gap-4 px-4 py-8 text-[13px] text-neutral-500 sm:flex-row sm:items-center sm:px-6">
-            <img src="/logo.svg" alt="coda.news" className="h-auto w-[110px]" />
-            <span className="sm:ml-4">© {new Date().getFullYear()} coda.news</span>
-            <span className="flex flex-wrap gap-5 sm:ml-auto">
-              <Link href="/about" className="hover:text-[#111111]">{t(l, "about")}</Link>
-              <Link href="/legal/terms" className="hover:text-[#111111]">{t(l, "terms")}</Link>
-              <Link href="/legal/privacy" className="hover:text-[#111111]">{t(l, "privacy")}</Link>
-              <Link href="/legal/cookies" className="hover:text-[#111111]">{t(l, "cookies")}</Link>
-            </span>
+        <div className="flex min-h-screen">
+          <Sidebar />
+          <div className="flex min-w-0 flex-1 flex-col">
+            <TopBar />
+            <main className="flex-1">{children}</main>
+            <footer className="flex flex-col gap-2 border-t border-[#E5E7EB] px-4 py-6 text-[12px] text-neutral-500 sm:px-6 md:flex-row lg:px-8">
+              <span>© {new Date().getFullYear()} coda.news</span>
+              <span className="flex shrink-0 gap-4 md:ml-auto">
+                <Link href="/legal/terms" className="hover:text-neutral-800">{t(l, "terms")}</Link>
+                <Link href="/legal/privacy" className="hover:text-neutral-800">{t(l, "privacy")}</Link>
+                <Link href="/legal/cookies" className="hover:text-neutral-800">{t(l, "cookies")}</Link>
+              </span>
+            </footer>
           </div>
-        </footer>
+        </div>
       </body>
     </html>
   );
