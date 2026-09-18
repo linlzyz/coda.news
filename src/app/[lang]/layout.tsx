@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import Link from "@/components/LLink";
 import { langFrom, t } from "@/lib/i18n";
 import { SITE } from "@/lib/site";
+import { Brand } from "@/components/Brand";
 import "../globals.css";
 import { Analytics } from "@vercel/analytics/next";
 
@@ -48,13 +49,13 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
                   [zh ? "法律" : "Legal", [["/legal/terms", t(l, "terms")], ["/legal/privacy", t(l, "privacy")], ["/legal/cookies", t(l, "cookies")]]],
                 ] as [string, [string, string][]][]).map(([h, items]) => (
                   <div key={h}>
-                    <div className="text-[12px] font-semibold uppercase tracking-[0.06em] text-[#16181D]">{h}</div>
+                    <div className="text-[12px] font-semibold uppercase tracking-[0.06em] text-[#16181D]">{h === "coda.news" ? <Brand /> : h}</div>
                     <ul className="mt-3 space-y-2">{items.map(([href, label]) => <li key={href}>{href === "/feed.xml" ? <a href={href} className="hover:text-[#C2410C]">{label}</a> : <Link href={href} className="hover:text-[#C2410C]">{label}</Link>}</li>)}</ul>
                   </div>
                 ))}
               </div>
               <div className="mt-8 flex flex-col gap-1 border-t border-[#E5E7EB] pt-4 text-[12px] text-neutral-500 md:flex-row md:justify-between">
-                <span>© {new Date().getFullYear()} coda.news</span>
+                <span>© {new Date().getFullYear()} <Brand /></span>
                 <a href={`mailto:${SITE.email}`} className="hover:text-neutral-800">{SITE.email}</a>
               </div>
             </footer>

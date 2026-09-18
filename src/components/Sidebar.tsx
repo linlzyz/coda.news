@@ -1,3 +1,4 @@
+import { Brand } from "./Brand";
 import Link from "@/components/LLink";
 import { t, type Lang } from "@/lib/i18n";
 import { Icon } from "./Icons";
@@ -30,7 +31,7 @@ export function Sidebar({ l }: { l: Lang }) {
         <Link href="/legal/terms" className="hover:text-neutral-700">{t(l, "terms")}</Link>
         <Link href="/legal/privacy" className="hover:text-neutral-700">{t(l, "privacy")}</Link>
         <Link href="/legal/cookies" className="hover:text-neutral-700">{t(l, "cookies")}</Link>
-        <span className="w-full">© {new Date().getFullYear()} coda.news</span>
+        <span className="w-full">© {new Date().getFullYear()} <Brand /></span>
       </div>
     </aside>
   );

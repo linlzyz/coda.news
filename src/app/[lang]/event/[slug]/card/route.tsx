@@ -5,6 +5,7 @@ import { getEvent, getPerspectives } from "@/lib/data";
 import { COUNTRY_ZH } from "@/lib/i18n";
 import { COUNTRY } from "@/lib/ui";
 import { LOGO_DATA_URI } from "@/lib/logo-data";
+import { brandParts } from "@/lib/og-font";
 
 export const revalidate = 3600;
 const W = 1080, H = 1350;
@@ -70,7 +71,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ lang: stri
         <div style={{ display: "flex", alignItems: "flex-end", padding: "20px 64px 44px" }}>
           <div style={{ display: "flex", flexDirection: "column", fontSize: 25 }}>
             <div style={{ display: "flex", color: "#6B7280" }}>{labels.meta}</div>
-            <div style={{ display: "flex", marginTop: 8, fontWeight: 700, color: "#EA5514", fontSize: 28 }}>{labels.cta}</div>
+            <div style={{ display: "flex", marginTop: 8, fontWeight: 700, color: "#16181D", fontSize: 28 }}>{brandParts(labels.cta).map((p, i) => <span key={i} style={p.dot ? { color: "#EA5514" } : {}}>{p.t}</span>)}</div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginLeft: "auto" }}>
             <img src={qr} width={120} height={120} alt="" />
