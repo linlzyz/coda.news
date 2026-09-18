@@ -46,7 +46,7 @@ export function ShareBar({ url, title, card, slug, zh, t }: { url: string; title
   const copy = async (m = t.copied) => { try { await navigator.clipboard.writeText(url); flash(m); } catch { /* blocked */ } };
   const getFile = async () => {
     const b = await (await fetch(card)).blob();
-    return new File([b], `coda-${slug}.png`, { type: "image/png" });
+    return new File([b], `coda.news-${slug}${zh ? "-zh" : ""}.png`, { type: "image/png" });
   };
   const save = (f: File) => {
     const a = document.createElement("a");
@@ -96,7 +96,7 @@ export function ShareBar({ url, title, card, slug, zh, t }: { url: string; title
             <div className="text-[12px] leading-relaxed text-neutral-600">
               <p className="font-semibold text-[#16181D]">{t.qr}</p>
               <p>{t.qrHint}</p>
-              {qr && <a href={qr} download={`coda-${slug}-qr.png`} className="mt-1 inline-block text-[#C2410C] underline underline-offset-2">{t.qrSave}</a>}
+              {qr && <a href={qr} download={`coda.news-${slug}-qr.png`} className="mt-1 inline-block text-[#C2410C] underline underline-offset-2">{t.qrSave}</a>}
             </div>
           </div>
           {typeof navigator !== "undefined" && "share" in navigator && <button type="button" onClick={native} className="mt-3 w-full rounded-xl border border-[#E5E7EB] py-2 text-[12px] font-medium hover:border-[#16181D]">{t.more}</button>}

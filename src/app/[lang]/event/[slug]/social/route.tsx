@@ -2,6 +2,7 @@
 //   ?s=1  cover: full-bleed licensed photo (or graphite typographic cover), serif headline, logo
 //   ?s=2  "How the world reports it": one line per country with its framing and tone
 import { ImageResponse } from "next/og";
+import { withPngMeta } from "@/lib/png-meta";
 import QRCode from "qrcode";
 import { getEvent, getPerspectives } from "@/lib/data";
 import { COUNTRY_ZH } from "@/lib/i18n";
@@ -101,5 +102,11 @@ export async function GET(req: Request, { params }: { params: Promise<{ lang: st
     </div>
   );
 
-  return new ImageResponse(slide === 1 ? cover : list, { width: W, height: H, fonts, headers: { "cache-control": "public, max-age=0, s-maxage=3600" } });
+  const img = new ImageResponse(slide === 1 ? cover : list, { width: W, height: H, fonts, headers: { "cache-control": "public, max-age=0, s-maxage=3600" } });
+  const pageUrl = `https://coda.news${zh ? "/zh" : ""}/event/${slug}`;
+  return withPngMeta(img, {
+    Title: title, Source: pageUrl, Author: "coda.news", Copyright: `© ${new Date().getFullYear()} coda.news. ${pageUrl}`,
+    Description: `${title} | coda.news: one story, every perspective. ${pageUrl}`,
+    ...(e.image_credit ? { "Photo credit": e.image_credit } : {}),
+  }, `coda.news-${slug}${zh ? "-zh" : ""}-${slide}.png`);
 }

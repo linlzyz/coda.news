@@ -1,7 +1,7 @@
 // Step 2: pending articles -> extraction -> embedding -> event matching -> facts -> event update.
 import { db, vec } from "./db.ts";
 import { log } from "./env.ts";
-import { embed, generateJSON } from "./ai.ts";
+import { embed, generateJSON, onFallback } from "./ai.ts";
 import { CATEGORIES, extractPrompt, verifyPrompt, PREDICATES, TOPICS } from "./prompts.ts";
 import { fetchText, slugify } from "./text.ts";
 
@@ -18,6 +18,9 @@ interface Extracted {
 
 export async function processBatch(): Promise<{ claimed: number; relevant: number; newEvents: number; matched: number }> {
   const sql = db();
+  // Groq fallback has a small per-minute token budget: fewer, shorter items per call
+  const small = await onFallback();
+  const BATCH_NOW = small ? 5 : BATCH, TEXT_MAX = small ? 700 : 2500;
   const rows = await sql<{ id: number; url: string; title: string; rss_summary: string | null; source_id: number; source: string; country: string; language: string; type: string }[]>`
     update articles a set status = 'processing', attempts = attempts + 1
     from sources s
@@ -26,7 +29,7 @@ export async function processBatch(): Promise<{ claimed: number; relevant: numbe
       select id from (
         select a2.id, s2.priority, row_number() over (partition by s2.priority order by a2.published_at desc nulls last) as rn
         from articles a2 join sources s2 on s2.id = a2.source_id where a2.status = 'pending'
-      ) q order by (rn - 1) / (case when priority = 1 then 3 else 2 end), priority limit ${BATCH})
+      ) q order by (rn - 1) / (case when priority = 1 then 3 else 2 end), priority limit ${BATCH_NOW})
       and a.status = 'pending' and pg_try_advisory_xact_lock(a.id)
     returning a.id, a.url, a.title, a.rss_summary, a.source_id, s.name as source, s.country, s.language, s.type`;
   if (!rows.length) return { claimed: 0, relevant: 0, newEvents: 0, matched: 0 };
@@ -38,9 +41,14 @@ export async function processBatch(): Promise<{ claimed: number; relevant: numbe
 
     const res = await generateJSON<{ items: Extracted[] }>(extractPrompt(rows.map((r, k) => ({
       i: k, country: r.country, source: r.source, lang: r.language, title: r.title,
-      text: (texts[k] ?? r.rss_summary ?? "").slice(0, 2500),
+      text: (texts[k] ?? r.rss_summary ?? "").slice(0, TEXT_MAX),
     }))), "fast");
-    const byI = new Map((res.items ?? []).map((x) => [x.i, x]));
+    // models sometimes return the index as a string, or drop the list entirely: never treat that as "irrelevant"
+    // deno-lint-ignore no-explicit-any
+    const raw: any = res;
+    const items: Extracted[] = Array.isArray(raw) ? raw : Array.isArray(raw?.items) ? raw.items : (Object.values(raw ?? {}).find(Array.isArray) as Extracted[] | undefined) ?? [];
+    if (items.length === 0) throw new Error("AI returned no items");
+    const byI = new Map(items.map((x) => [Number(x.i), x]));
 
     const relevant = rows.map((r, k) => ({ r, x: byI.get(k) })).filter((o) => o.x?.relevant && o.x.event);
     const irrelevant = rows.filter((_, k) => !byI.get(k)?.relevant || !byI.get(k)?.event).map((r) => r.id);

@@ -1,5 +1,6 @@
 // 4:5 share image (1080×1350) for Instagram, Threads and X, with the coda.news logo.
 import { ImageResponse } from "next/og";
+import { withPngMeta } from "@/lib/png-meta";
 import QRCode from "qrcode";
 import { getEvent, getPerspectives } from "@/lib/data";
 import { COUNTRY_ZH } from "@/lib/i18n";
@@ -44,7 +45,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ lang: stri
   const family = zh ? "Noto+Sans+SC" : "Inter";
   const [bold, regular] = await Promise.all([font(family, 700, text), font(family, 400, text)]);
 
-  return new ImageResponse(
+  const img = new ImageResponse(
     (
       <div style={{ width: W, height: H, display: "flex", flexDirection: "column", background: "#ffffff", fontFamily: "F" }}>
         <div style={{ display: "flex", alignItems: "center", padding: "56px 64px 36px" }}>
@@ -84,4 +85,10 @@ export async function GET(_: Request, { params }: { params: Promise<{ lang: stri
     { width: W, height: H, fonts: [{ name: "F", data: bold, weight: 700 }, { name: "F", data: regular, weight: 400 }],
       headers: { "cache-control": "public, max-age=0, s-maxage=3600" } },
   );
+  const pageUrl = `https://coda.news${zh ? "/zh" : ""}/event/${slug}`;
+  return withPngMeta(img, {
+    Title: title, Source: pageUrl, Author: "coda.news", Copyright: `© ${new Date().getFullYear()} coda.news. ${pageUrl}`,
+    Description: `${title} | coda.news: one story, every perspective. ${pageUrl}`,
+    ...(e.image_credit ? { "Photo credit": e.image_credit } : {}),
+  }, `coda.news-${slug}${zh ? "-zh" : ""}.png`);
 }

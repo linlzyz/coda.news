@@ -9,7 +9,7 @@ export function Cover({ e, className = "", credit = false, iconName, priority = 
   if (e.image_url) {
     return (
       <figure className={`relative overflow-hidden bg-[#F4F5F7] ${className}`}>
-        <img src={e.image_url} alt="" className="h-full w-full object-cover" loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : "auto"} decoding="async" />
+        <img src={e.image_url} alt={e.title} title={e.image_credit ? `Photo: ${e.image_credit}` : undefined} className="h-full w-full object-cover" loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : "auto"} decoding="async" />
         {credit && e.image_credit && (
           <figcaption className="absolute bottom-2 right-2 rounded-md bg-black/45 px-2 py-0.5 text-[10px] text-white/90">
             {e.image_link ? <a href={e.image_link} target="_blank" rel="noopener noreferrer">Photo: {e.image_credit}</a> : <>Photo: {e.image_credit}</>}

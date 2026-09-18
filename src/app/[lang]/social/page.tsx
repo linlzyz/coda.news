@@ -26,7 +26,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
           return (
             <section key={e.id} className="grid gap-4 border-t border-[#E5E7EB] pt-6 md:grid-cols-[1fr_1fr_1.1fr]">
               {[1, 2].map((s) => (
-                <a key={s} href={`${p}/event/${e.slug}/social?s=${s}`} download={`coda-${e.slug}-${s}.png`} className="block">
+                <a key={s} href={`${p}/event/${e.slug}/social?s=${s}`} download={`coda.news-${e.slug}${zh ? "-zh" : ""}-${s}.png`} className="block">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={`${p}/event/${e.slug}/social?s=${s}`} alt="" loading="lazy" className="aspect-[4/5] w-full rounded-xl border border-[#E5E7EB] object-cover" />
                   <span className="mt-1 block text-center text-[12px] text-neutral-500">{zh ? `下载第 ${s} 张` : `Download slide ${s}`}</span>
