@@ -130,7 +130,10 @@ export async function enrichCompanies(limit = 15): Promise<number> {
       // logo: Commons only hosts freely licensed files (non-free logos live on Wikipedia, not Commons), so any P154 file is usable
       const logoFile = single(e, "P154");
       const logo = logoFile ? `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(logoFile.replace(/ /g, "_"))}?width=320` : null;
-      const sloganC = ((e.claims?.P1451 ?? []) as Ent[]).map((c) => c.mainsnak?.datavalue?.value).find((v: Ent) => v?.language === "en") ?? ((e.claims?.P1451 ?? []) as Ent[])[0]?.mainsnak?.datavalue?.value;
+      // slogan: current ones only (skip any with an end date, e.g. Google's old "Don't be evil"); preferred rank first, English first
+      const slogans = ((e.claims?.P1451 ?? []) as Ent[]).filter((c) => c.rank !== "deprecated" && !c.qualifiers?.P582);
+      const pickS = slogans.find((c) => c.rank === "preferred") ?? slogans.find((c) => c.mainsnak?.datavalue?.value?.language === "en") ?? slogans[0];
+      const sloganC = pickS?.mainsnak?.datavalue?.value;
       const parentId = idOf(e, "P749");
       const sector = sectorOf(en(indId), e.descriptions?.en?.value, en(parentId));
       await sql`update companies set wikidata_id = ${e.id}, name_zh = ${zhOf(e.labels) ?? null},
