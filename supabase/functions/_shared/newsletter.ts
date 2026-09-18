@@ -1,8 +1,8 @@
-// The Daily Coda: welcome emails for new subscribers, and one brief a day (07:00 Melbourne).
+// the coda.news Daily Brief: welcome emails for new subscribers, and one brief a day (07:00 Melbourne).
 import { db } from "./db.ts";
 import { env, log } from "./env.ts";
 
-const FROM = "The Daily Coda <brief@coda.news>";
+const FROM = "coda.news Daily Brief <brief@coda.news>";
 const SITE = "https://coda.news";
 export const esc = (s: string) => String(s ?? "").replace(/[<>&"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]!));
 
@@ -44,11 +44,11 @@ export async function sendWelcomes(): Promise<number> {
   const n = await send(subs.map((s) => {
     const zh = s.lang === "zh"; const unsub = `${SITE}/unsubscribe?t=${s.token}`;
     const body = `<tr><td style="padding:16px 32px 24px;font-size:16px;line-height:1.6">
-      <h1 style="font-size:22px;margin:8px 0 12px">${zh ? "欢迎订阅 Coda 每日简报" : "Welcome to The Daily Coda"}</h1>
+      <h1 style="font-size:22px;margin:8px 0 12px">${zh ? "欢迎订阅 coda.news 每日简报" : "Welcome to the coda.news Daily Brief"}</h1>
       <p style="margin:0 0 12px">${zh ? "每天早上 7 点（墨尔本时间），我们会把最重要的科技与经济事件发给你，并告诉你各国媒体分别怎么报道。" : "Every morning at 7am (Melbourne time) you'll get the day's biggest technology and economy events, and how media in each country told them."}</p>
       <p style="margin:0 0 20px">${zh ? "在第一期到来之前，可以先看看今天的事件：" : "Until the first issue arrives, here is today's front page:"}</p>
       <a href="${SITE}" style="display:inline-block;background:#EA5514;color:#ffffff;text-decoration:none;font-weight:600;padding:12px 20px;font-size:14px">${zh ? "打开 coda.news" : "Open coda.news"} →</a></td></tr>`;
-    return { to: s.email, subject: zh ? "欢迎订阅 Coda 每日简报" : "Welcome to The Daily Coda", html: shell(body, unsub, zh), unsub };
+    return { to: s.email, subject: zh ? "欢迎订阅 coda.news 每日简报" : "Welcome to the coda.news Daily Brief", html: shell(body, unsub, zh), unsub };
   }));
   if (n) await sql`update subscribers set welcomed_at = now() where id in ${sql(subs.slice(0, n).map((s) => s.id))}`;
   log(`newsletter: ${n} welcome emails`);
@@ -87,7 +87,7 @@ export async function sendDailyBrief(force = false): Promise<number> {
   const n = await send(subs.map((s) => {
     const zh = s.lang === "zh"; const unsub = `${SITE}/unsubscribe?t=${s.token}`;
     const head = `<tr><td style="padding:8px 32px 4px;font-size:13px;color:#6B7280">${dateLabel(zh)}</td></tr>`;
-    return { to: s.email, subject: `${zh ? "Coda 每日简报" : "The Daily Coda"}: ${(zh && events[0].title_zh) || events[0].title}`, html: shell(head + render(zh), unsub, zh), unsub };
+    return { to: s.email, subject: `${zh ? "coda.news 每日简报" : "the coda.news Daily Brief"}: ${(zh && events[0].title_zh) || events[0].title}`, html: shell(head + render(zh), unsub, zh), unsub };
   }));
   await sql`insert into newsletter_issues (sent_on, event_ids, recipients) values (${today}, ${ids}, ${n}) on conflict (sent_on) do update set recipients = excluded.recipients`;
   if (n) await sql`update subscribers set last_sent_at = now() where unsubscribed_at is null and welcomed_at is not null`;

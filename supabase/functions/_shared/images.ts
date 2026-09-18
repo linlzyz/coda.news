@@ -231,8 +231,9 @@ export async function assignImages(limit = 12): Promise<number> {
 
   // 2) stories about a brand with a known logo (and no person photo): the brand's logo beats a generic stock photo
   const brands = await sql<{ id: number; logo: string }[]>`
-    select e.id, replace(c.logo_url, 'width=320', 'width=640') as logo from events e join companies c on c.id = e.company_ids[1]
-    where e.brand_checked_at is null and e.summary is not null and c.logo_url is not null and coalesce(e.image_focus, '') <> 'top'
+    select e.id, replace(c.logo_url, 'width=320', 'width=640') as logo from events e
+      join companies c on c.id = any(e.company_ids) and lower(c.name) = lower(e.image_brand)
+    where e.brand_checked_at is null and e.image_brand is not null and e.summary is not null and c.logo_url is not null and coalesce(e.image_focus, '') <> 'top'
       and (e.image_url is null or e.image_source in ('pexels','unsplash','pixabay','openverse'))
     order by e.importance desc, e.last_article_at desc limit 40`;
   for (const b of brands) {

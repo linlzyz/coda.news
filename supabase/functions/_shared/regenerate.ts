@@ -7,7 +7,7 @@ import { generatePrompt } from "./prompts.ts";
 const DEBOUNCE_MIN = 10;
 
 interface Generated {
-  title: string; title_zh?: string; image_query?: string; image_person?: string; summary: string; summary_zh?: string; agreed?: string[]; agreed_zh?: string[]; analysis?: string; analysis_zh?: string;
+  title: string; title_zh?: string; image_query?: string; image_person?: string; image_brand?: string; summary: string; summary_zh?: string; agreed?: string[]; agreed_zh?: string[]; analysis?: string; analysis_zh?: string;
   perspectives?: { country: string; headline?: string; framing?: string; emphasis?: string; downplayed?: string; tone?: string; headline_zh?: string; framing_zh?: string; emphasis_zh?: string; downplayed_zh?: string }[];
 }
 
@@ -44,7 +44,7 @@ export async function regenerate(limit = 3): Promise<number> {
     const [v] = await embed([`${g.title}\n${g.summary}`]);
     await sql.begin(async (tx) => {
       await tx`update events set title = ${g.title.slice(0, 200)}, title_zh = ${g.title_zh ?? null}, summary = ${g.summary}, summary_zh = ${g.summary_zh ?? null},
-                 summary_version = ${version}, summary_generated_at = now(), image_query = coalesce(image_query, ${g.image_query?.slice(0, 60) ?? null}), image_person = coalesce(image_person, ${g.image_person?.trim().slice(0, 80) || null}), needs_regen = false, embedding = ${vec(v)}::extensions.vector
+                 summary_version = ${version}, summary_generated_at = now(), image_query = coalesce(image_query, ${g.image_query?.slice(0, 60) ?? null}), image_person = coalesce(image_person, ${g.image_person?.trim().slice(0, 80) || null}), image_brand = coalesce(image_brand, ${g.image_brand?.trim().slice(0, 80) || null}), needs_regen = false, embedding = ${vec(v)}::extensions.vector
                where id = ${e.id}`;
       const valid = (g.perspectives ?? []).filter((p) => byCountry.has(p.country));
       for (const p of valid) {
