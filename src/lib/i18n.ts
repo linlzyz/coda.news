@@ -61,6 +61,7 @@ export function t(lang: Lang, key: Key, vars: Record<string, string | number> = 
 }
 
 export const TOPIC_ZH: Record<string, string> = {
+  celebrity: "明星",
   "artificial-intelligence": "人工智能", semiconductors: "半导体", "big-tech": "科技巨头", economy: "宏观经济", markets: "市场",
   trade: "贸易", "electric-vehicles": "电动车", energy: "能源", startups: "创业公司", crypto: "加密货币",
   football: "足球", tennis: "网球", cricket: "板球", basketball: "篮球", motorsport: "赛车", "olympic-sports": "奥运项目",

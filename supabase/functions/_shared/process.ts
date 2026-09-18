@@ -22,7 +22,12 @@ export async function processBatch(): Promise<{ claimed: number; relevant: numbe
     update articles a set status = 'processing', attempts = attempts + 1
     from sources s
     where s.id = a.source_id and a.id in (
-      select a2.id from articles a2 join sources s2 on s2.id = a2.source_id where a2.status = 'pending' order by s2.priority, a2.published_at desc nulls last limit ${BATCH} for update of a2 skip locked)
+      -- fair share: round-robin between priority tiers (newest first within each), so sections outside tech/economy are not starved
+      select id from (
+        select a2.id, s2.priority, row_number() over (partition by s2.priority order by a2.published_at desc nulls last) as rn
+        from articles a2 join sources s2 on s2.id = a2.source_id where a2.status = 'pending'
+      ) q order by (rn - 1) / (case when priority = 1 then 3 else 2 end), priority limit ${BATCH})
+      and a.status = 'pending' and pg_try_advisory_xact_lock(a.id)
     returning a.id, a.url, a.title, a.rss_summary, a.source_id, s.name as source, s.country, s.language, s.type`;
   if (!rows.length) return { claimed: 0, relevant: 0, newEvents: 0, matched: 0 };
 

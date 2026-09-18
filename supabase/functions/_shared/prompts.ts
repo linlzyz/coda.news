@@ -1,7 +1,7 @@
 // All AI prompts in one place. Editorial rules live here.
 
 export const TOPICS = ["artificial-intelligence", "semiconductors", "big-tech", "economy", "markets", "trade", "electric-vehicles", "energy", "startups", "crypto",
-  "football", "tennis", "cricket", "basketball", "motorsport", "olympic-sports", "film", "music", "tv-streaming", "gaming",
+  "football", "tennis", "cricket", "basketball", "motorsport", "olympic-sports", "film", "music", "tv-streaming", "gaming", "celebrity",
   "luxury", "fashion-week", "fashion-retail", "design"];
 export const CATEGORIES = ["technology", "economy", "sport", "entertainment", "fashion"];
 
@@ -15,7 +15,8 @@ export const PREDICATES = [
 
 export const EDITORIAL_RULES = `
 Editorial rules (always follow):
-- Coda covers technology, economy/business, sport, entertainment (film, music, TV, games, arts) and fashion/design. No politics, military, crime, celebrity gossip about private lives, or tabloid stories.
+- Coda covers technology, economy/business, sport, entertainment (film, music, TV, games, arts, celebrities) and fashion/design. No politics, military or crime.
+- Celebrity news is reported as what outlets report, attributed to them ("according to People"), never as our own claim. Unconfirmed claims are marked as rumours. Never speculate about health, sexuality or private matters that the person has not made public, and never report on minors' private lives.
 - Describe, never judge. Neutral wording. Never use loaded words such as propaganda, regime, biased, spin, lies.
 - Each country's perspective comes only from that country's own media. Never speak for a country from another country's sources.
 - Report what outlets emphasise; do not say which side is right.
@@ -29,9 +30,9 @@ ${EDITORIAL_RULES}
 For each item decide "relevant": true only if it reports a specific, concrete development in one of Coda's categories:
 - technology / economy: announcement, launch, deal, earnings, funding, policy or regulation affecting business, economic data, market move, layoffs, lawsuit, property market
 - sport: a result, match, transfer, record, tournament, team or league decision
-- entertainment: a release, box office, award, festival, deal, record, major casting or industry news
+- entertainment: a release, box office, award, festival, deal, record, casting or industry news; celebrity news such as engagements, weddings, breakups, births, public feuds, statements, red-carpet moments, tours and deaths of public figures
 - fashion: a collection, show, designer appointment, brand business news, notable design news
-false for: market roundups, live blogs and "what happened today" digests that cover several unrelated stories, opinion columns, how-to guides, product reviews, shopping deals, horoscopes, quizzes, podcasts, recipes, politics, military, crime, courts about individuals, accidents, weather, celebrity private lives.
+false for: market roundups, live blogs and "what happened today" digests that cover several unrelated stories, opinion columns, how-to guides, product reviews, shopping deals, horoscopes, quizzes, podcasts, recipes, politics, military, crime and criminal allegations, accidents, weather, anonymous blind items, paparazzi speculation about bodies, health or sexuality.
 
 Fields per relevant item:
 - category: one of "technology", "economy", "sport", "entertainment", "fashion"
