@@ -6,9 +6,9 @@ const STATUS_ZH: Record<string, string> = { rumor: "传闻", breaking: "突发",
 
 export function StatusPill({ status, lang = "en" }: { status: Status; lang?: Lang }) {
   const s = STATUS[status];
-  return <span className={`text-[12px] ${status === "breaking" ? "font-semibold text-[#C2410C]" : "text-neutral-500"}`}>{lang === "zh" ? STATUS_ZH[status] : s.label}</span>;
+  return <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ring-inset ${s.cls}`}>{lang === "zh" ? STATUS_ZH[status] : s.label}</span>;
 }
 export function CategoryLabel({ category, lang = "en" }: { category: string; lang?: Lang }) {
   const zh = category === "economy" ? "经济" : "科技";
-  return <span className="inline-flex items-center rounded-full border border-[#16181D] px-2.5 py-[1px] text-[10.5px] font-semibold uppercase tracking-[0.08em] text-[#16181D]">{lang === "zh" ? zh : category}</span>;
+  return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em] ${category === "economy" ? "bg-[#ECFDF5] text-[#0F766E]" : "bg-[#F3F0FF] text-[#6D28D9]"}`}>{lang === "zh" ? zh : category}</span>;
 }

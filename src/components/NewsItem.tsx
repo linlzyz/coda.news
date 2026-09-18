@@ -14,7 +14,7 @@ export function NewsItem({ e, companies, topics, lang }: { e: EventRow; companie
   const topicSlug = topics.get(e.topic_ids[0])?.slug;
   return (
     <article className="grid gap-5 border-b border-[#E5E7EB] py-5 sm:grid-cols-[208px_minmax(0,1fr)]">
-      <Link href={`/event/${e.slug}`} className="block"><Cover e={e} iconName={topicSlug} className="aspect-[3/2] w-full sm:h-[136px]" /></Link>
+      <Link href={`/event/${e.slug}`} className="block"><Cover e={e} iconName={topicSlug} className="aspect-[16/10] w-full rounded-2xl sm:h-[130px]" /></Link>
       <div className="min-w-0">
         <div className="flex items-center gap-2 text-[11px]">
           <CategoryLabel category={e.category} lang={lang} />
@@ -26,7 +26,7 @@ export function NewsItem({ e, companies, topics, lang }: { e: EventRow; companie
         </h3>
         {summary(e, lang) && <p className="mt-1.5 line-clamp-2 text-[14px] leading-relaxed text-neutral-600">{summary(e, lang)}</p>}
         <div className="mt-3 flex flex-wrap items-center gap-1.5">
-          <span className="text-[12px] text-neutral-500">{tags.map((t, i) => <span key={t.href}>{i > 0 && " · "}<Link href={t.href} className="hover:text-[#C2410C] hover:underline">{t.label}</Link></span>)}</span>
+          {tags.map((t) => <Link key={t.href} href={t.href} className="rounded-full bg-[#F4F5F7] px-2.5 py-1 text-[12px] font-medium text-neutral-700 hover:bg-[#ECEEF1]">{t.label}</Link>)}
           <span className="ml-auto inline-flex items-center gap-2 text-[12px] text-neutral-500">
             {e.countries.length > 0 && <Flags codes={e.countries} max={5} size={11} />}
             {e.source_count} {lang === "zh" ? "个来源" : e.source_count === 1 ? "source" : "sources"}

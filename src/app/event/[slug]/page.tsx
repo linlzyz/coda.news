@@ -50,17 +50,17 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
             <div className="flex flex-wrap items-center gap-2 text-[12px]"><CategoryLabel category={e.category} lang={l} /><StatusPill status={e.status} lang={l} /><span className="text-neutral-500">{t(l, "updated")} {timeAgoL(e.last_article_at, l)} · {t(l, "since")} {fmtDate(e.started_at)}</span></div>
             <h1 className="text-[32px] font-semibold leading-[1.08] tracking-[-0.03em] sm:text-[44px]">{title(e, l)}</h1>
             <p className="max-w-3xl text-[17px] leading-relaxed text-neutral-600">{summary(e, l)}</p>
-            <div className="flex flex-wrap gap-x-4 gap-y-2 border-y border-[#E5E7EB] py-3 text-[13px]">
+            <div className="flex flex-wrap gap-2 text-[13px]">
               <Chip>{n(e.source_count, "source", "sources")}</Chip><Chip>{n(e.countries.length, "country", "countries")}</Chip><Chip>{n(e.article_count, "article", "articles")}</Chip>
               <Chip>{t(l, "confidence")} {e.confidence}</Chip>{e.has_official && <Chip strong>{t(l, "official")}</Chip>}
-              {shownCos.map((c) => <Link key={c.id} href={`/company/${c.slug}`} className="font-medium text-[#C2410C] underline-offset-4 hover:underline">{c.name}</Link>)}
+              {shownCos.map((c) => <Link key={c.id} href={`/company/${c.slug}`} className="rounded-full bg-[#FFF1EA] px-3 py-1 font-medium text-[#C2410C] hover:bg-[#FFE3D4]">{c.name}</Link>)}
             </div>
           </header>
 
-          <Cover e={e} credit className="aspect-[21/9] w-full " />
+          <Cover e={e} credit className="aspect-[21/9] w-full rounded-3xl" />
 
           {agreed.length > 0 && (
-            <section className="border-t-2 border-[#16181D] pt-3">
+            <section className="rounded-2xl border border-[#E5E7EB] p-6">
               <h2 className="text-[18px] font-semibold tracking-[-0.015em]">{t(l, "agreed")}</h2>
               <ol className="mt-4 grid gap-3 sm:grid-cols-2">
                 {agreed.map((f, i) => <li key={i} className="flex gap-3 text-[15px] leading-relaxed"><span className="font-semibold text-[#C2410C]">{String(i + 1).padStart(2, "0")}</span><span>{f}</span></li>)}
@@ -69,7 +69,7 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
           )}
 
           {perspectives.length >= 2 && (
-            <section className="bg-[#16181D] p-6 text-white">
+            <section className="rounded-2xl bg-[#1F2328] p-6 text-white">
               <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1"><h2 className="text-[18px] font-semibold">{t(l, "spectrum")}</h2><span className="text-[13px] text-neutral-400">{t(l, "spectrumSub")}</span></div>
               <div className="relative mt-5">
                 <div className="absolute inset-x-0 top-[9px] h-1 rounded-full bg-gradient-to-r from-emerald-400/70 via-white/25 to-rose-400/70" />
@@ -78,7 +78,7 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
                     const group = perspectives.filter((p) => p.tone === tone);
                     return (
                       <div key={tone} className={`flex flex-col ${i === 0 ? "items-start" : i === 1 ? "items-center" : "items-end"}`}>
-                        <span className={`h-[22px] w-[22px] rounded-full border-4 border-[#16181D] ${group.length ? "bg-[#EA5514]" : "bg-neutral-600"}`} />
+                        <span className={`h-[22px] w-[22px] rounded-full border-4 border-[#1F2328] ${group.length ? "bg-[#EA5514]" : "bg-neutral-600"}`} />
                         <span className="mt-2 text-[12px] font-semibold text-neutral-300">{t(l, tone === "negative" ? "cautious" : tone)}</span>
                         <div className={`mt-2 flex flex-wrap gap-1.5 ${i === 0 ? "justify-start" : i === 1 ? "justify-center" : "justify-end"}`}>
                           {group.map((p) => (
@@ -97,16 +97,16 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
           )}
 
           <section className="space-y-4">
-            <h2 className="border-t-2 border-[#16181D] pt-3 text-[22px] font-semibold tracking-[-0.02em]">{t(l, "howEach")}</h2>
+            <h2 className="text-[24px] font-semibold tracking-[-0.02em]">{t(l, "howEach")}</h2>
             {perspectives.length === 0 && <p className="text-neutral-500">{t(l, "oneCountry")}</p>}
             <div className="grid gap-4 md:grid-cols-2">
               {perspectives.map((p) => {
                 const v = perspL(p, l);
                 return (
-                  <article key={p.country} className="flex flex-col gap-3 border-t border-[#16181D] pt-4">
+                  <article key={p.country} className="flex flex-col gap-3 rounded-2xl border border-[#E5E7EB] p-5">
                     <div className="flex items-center gap-2.5"><Flag code={p.country} size={16} /><span className="font-semibold">{countryL(p.country, l)}</span>
                       <span className={`ml-auto rounded-full px-2.5 py-0.5 text-[12px] font-semibold ${TONE[p.tone]?.cls ?? ""}`}>{v.framing ?? t(l, p.tone === "negative" ? "cautious" : p.tone)}</span></div>
-                    {v.headline && <div className="border-l-2 border-[#EA5514] pl-4"><div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-neutral-500">{t(l, "typicalHeadline")}</div><div className="mt-1 text-[17px] font-semibold leading-snug">{v.headline}</div></div>}
+                    {v.headline && <div className="rounded-xl bg-[#F4F5F7] p-4"><div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-neutral-500">{t(l, "typicalHeadline")}</div><div className="mt-1 text-[17px] font-semibold leading-snug">{v.headline}</div></div>}
                     {v.emphasis && <div><div className="text-[12px] font-semibold text-emerald-700">{t(l, "emphasises")}</div><p className="mt-1 text-[14px] leading-relaxed text-neutral-700">{v.emphasis}</p></div>}
                     {v.downplayed && <div><div className="text-[12px] font-semibold text-rose-700">{t(l, "mentionsLess")}</div><p className="mt-1 text-[14px] leading-relaxed text-neutral-700">{v.downplayed}</p></div>}
                     <div className="mt-auto border-t border-[#F0F1F3] pt-3 text-[12px] text-neutral-500">{n(p.article_count, "article", "articles")} · {[...new Set((byCountry.get(p.country) ?? []).map((a) => a.sources.name))].join(", ")}</div>
@@ -117,7 +117,7 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
           </section>
 
           {analysis && (
-            <section className="border-l-4 border-[#EA5514] bg-[#FAFAF9] p-6">
+            <section className="rounded-2xl bg-[#FFF1EA] p-6">
               <div className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#C2410C]">{t(l, "analysis")}</div>
               <h2 className="mt-2 text-[24px] font-semibold tracking-[-0.02em]">{t(l, "whyDiffers")}</h2>
               <p className="mt-3 text-[16px] leading-relaxed text-neutral-800">{analysis}</p>
@@ -126,10 +126,10 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
           )}
 
           <section className="space-y-3">
-            <h2 className="border-t-2 border-[#16181D] pt-3 text-[20px] font-semibold tracking-[-0.015em]">{t(l, "sourcesH")}</h2>
+            <h2 className="text-[20px] font-semibold tracking-[-0.015em]">{t(l, "sourcesH")}</h2>
             <p className="text-[12px] text-neutral-500">{t(l, "disclaimer")}</p>
             {[...byCountry].map(([c, list]) => (
-              <div key={c} className="border-b border-[#E5E7EB] pb-4">
+              <div key={c} className="rounded-2xl border border-[#E5E7EB] p-4">
                 <div className="flex items-center gap-2 text-[14px] font-semibold"><Flag code={c} size={13} />{countryL(c, l)}</div>
                 <ul className="mt-2 space-y-1.5">
                   {list.map((a) => (
@@ -146,7 +146,7 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
 
         <aside className="space-y-5">
           {timeline.length > 0 && (
-            <section className="border-t-2 border-[#16181D] pt-3">
+            <section className="rounded-2xl border border-[#E5E7EB] p-5">
               <h2 className="text-[17px] font-semibold">{t(l, "timeline")}</h2>
               <ol className="mt-4">
                 {timeline.map((f, i) => (
@@ -159,7 +159,7 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
             </section>
           )}
           {related.length > 0 && (
-            <section className="border-t-2 border-[#16181D] pt-3">
+            <section className="rounded-2xl border border-[#E5E7EB] p-5">
               <h2 className="text-[17px] font-semibold">{t(l, "moreOn")} {shownCos[0].name}</h2>
               <div className="mt-2 divide-y divide-[#F0F1F3]">
                 {related.map((r) => (
@@ -178,7 +178,7 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
 }
 
 function Chip({ children, strong }: { children: React.ReactNode; strong?: boolean }) {
-  return <span className={`${strong ? "font-semibold text-[#16181D]" : "text-neutral-600"}`}>{children}</span>;
+  return <span className={`rounded-full px-3 py-1 ${strong ? "bg-[#1F2328] text-white" : "bg-[#F4F5F7] text-neutral-700"}`}>{children}</span>;
 }
 
 /** Drop facts that repeat an earlier one in different words (word-overlap check). */
