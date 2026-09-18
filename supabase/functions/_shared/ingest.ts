@@ -32,8 +32,8 @@ export async function ingest(): Promise<{ sources: number; added: number; failed
         const rows = items.map((i) => ({
           source_id: s.id, url: i.url, title: i.title.slice(0, 500), rss_summary: i.summary || null,
           published_at: i.published ?? new Date(),
-          // image rule: only official sources' own RSS images are used
-          image_url: s.type === "official" ? i.image : null,
+          // image rule: publisher images are never used (licence unclear); photos come from open-licence libraries only
+          image_url: null,
         }));
         const res = await sql`insert into articles ${sql(rows)} on conflict (url) do nothing returning id`;
         added += res.length;

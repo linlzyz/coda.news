@@ -21,7 +21,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ lang: stri
   const zh = lang === "zh";
   const e = await getEvent(slug);
   if (!e) return new Response("Not found", { status: 404 });
-  const photoOk = !!e.image_url && (!e.image_credit || (/\/ (Pexels|Unsplash|Pixabay)$/.test(e.image_credit) || /Wikimedia Commons \((CC BY \d|CC0|Public domain)/i.test(e.image_credit)));
+  const photoOk = !!e.image_url && !!e.image_credit && (/\/ (Pexels|Unsplash|Pixabay)$/.test(e.image_credit) || /\((CC BY \d|CC0|Public domain|PDM)/i.test(e.image_credit));
   const ps = ((await getPerspectives([e.id])).get(e.id) ?? []).slice(0, photoOk ? 3 : 4);
   const cut = (s: string, n: number) => {
     if (s.length <= n) return s;
