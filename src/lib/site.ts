@@ -5,7 +5,7 @@ export const SITE = {
   operator: "Pino Australia",
   city: "Melbourne, Australia",
   cityZh: "澳大利亚墨尔本",
-  abn: "",               // fill in to show "ABN ..." in the footer and legal pages
+  abn: "33 605 608 580",             // fill in to show "ABN ..." in the footer and legal pages
   email: "hello@coda.news",
 };
 export const operatorLine = (zh = false) =>
