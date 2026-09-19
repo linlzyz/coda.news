@@ -5,6 +5,8 @@ import { log } from "./env.ts";
 import { cheapJSON } from "./ai.ts";
 
 // obvious non-news by title (free, no AI)
+// crime and policing stories never fit coda.news, whatever section they would land in (e.g. "Thai police arrest fugitive tied to Pattaya tourism")
+export const CRIME = /\b((?<!cardiac )arrest(ed|s)?|fugitive|murder(ed|er)?|homicide|stabb(ed|ing)|shooting|gunman|kidnap(ped|ping)?|smuggl(ing|er|ed)|traffick(ing|er)|drug (bust|lord|ring)|jailed|imprisoned|sentenced|convicted|extradit(ed|ion))\b|逮捕|逃犯|通缉|警方|嫌犯|嫌疑人|被捕|拘留|刑拘|判刑|诈骗团伙|走私|贩毒|杀人|命案/i;
 const RULE = /\b(horoscope|astrology|wordle|crossword|sudoku|quiz|recipe|recipes|live blog|live updates|as it happened|deal of the day|best deals|discount code|coupon|podcast|newsletter|weather forecast|lottery|obituar)/i;
 
 export async function screenArticles(limit = 360): Promise<{ screened: number; dropped: number }> {
@@ -14,7 +16,7 @@ export async function screenArticles(limit = 360): Promise<{ screened: number; d
     where a.status = 'pending' and a.screened_at is null order by a.published_at desc nulls last limit ${limit}`;
   if (!rows.length) return { screened: 0, dropped: 0 };
   let dropped = 0;
-  const ruled = rows.filter((r) => r.type !== "official" && RULE.test(r.title));
+  const ruled = rows.filter((r) => r.type !== "official" && (RULE.test(r.title) || CRIME.test(r.title)));
   if (ruled.length) {
     await sql`update articles set status = 'skipped', screen = 'rule', screened_at = now() where id in ${sql(ruled.map((r) => r.id))}`;
     dropped += ruled.length;
