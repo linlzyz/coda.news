@@ -13,15 +13,13 @@ const oneSource = (e: EventRow) => e.source_count < 2 && !!e.lead_url && !!e.lea
 export function NewsItem({ e, companies, lang }: { e: EventRow; companies?: Map<number, Company>; topics?: Map<number, Topic>; lang: Lang }) {
   const single = oneSource(e);
   const sum = summary(e, lang);
-  // only rows with something more to show (a picture or key points) open in place; the rest stay a plain row with a link to the original
-  const pts = (lang === "zh" ? e.points?.zh : e.points?.en)?.filter(Boolean) ?? [];
-  if (single && ((e.image_url && e.image_focus !== "logo") || pts.length)) return <SingleItem e={e} companies={companies} lang={lang} sum={sum} />;
+  // one-source rows: title opens the original, our picture and key points sit in the row; multi-source rows open our comparison page
+  if (single) return <SingleItem e={e} companies={companies} lang={lang} sum={sum} />;
   return (
     <article className="grid grid-cols-[minmax(0,1fr)_auto] gap-4 border-b border-[#E5E7EB] py-4">
       <div className="min-w-0">
         <h3 className="text-[16px] font-semibold leading-snug text-[#16181D]">
-          {single ? <a href={e.lead_url!} target="_blank" rel="noopener noreferrer" className="hover:text-[#C2410C]">{title(e, lang)}</a>
-            : <Link href={`/event/${e.slug}`} className="hover:text-[#C2410C]">{title(e, lang)}</Link>}
+          <Link href={`/event/${e.slug}`} className="hover:text-[#C2410C]">{title(e, lang)}</Link>
         </h3>
         {sum && <p className="mt-1 line-clamp-2 text-[14px] leading-relaxed text-neutral-600">{sum}</p>}
         <div className="mt-2 flex items-center gap-2 text-[12px] text-neutral-500">
@@ -34,57 +32,50 @@ export function NewsItem({ e, companies, lang }: { e: EventRow; companies?: Map<
   );
 }
 
-/** One-source stories have no page of their own: the row opens in place with the picture, the key points and a link to the original. */
+/** One-source stories have no page of their own: the title opens the original, and whatever we have (picture, AI key points) sits right in the row.
+ *  Same right-hand column as every other row, so all rows line up. */
 function SingleItem({ e, companies, lang, sum }: { e: EventRow; companies?: Map<number, Company>; lang: Lang; sum: string | null }) {
   const zh = lang === "zh";
   const pts = (zh ? e.points?.zh : e.points?.en)?.filter(Boolean) ?? [];
   const cos = e.company_ids.map((id) => companies?.get(id)).filter(Boolean) as Company[];
   const logo = e.image_focus === "logo";
+  const photo = !!e.image_url && !logo;
   return (
-    <details open className="group border-b border-[#E5E7EB]">
-      <summary className="grid cursor-pointer list-none grid-cols-[minmax(0,1fr)_auto] gap-4 pt-4 pb-4 group-open:pb-2.5 [&::-webkit-details-marker]:hidden">
-        <div className="min-w-0">
-          <h3 className="text-[16px] font-semibold leading-snug text-[#16181D] group-hover:text-[#C2410C]">{title(e, lang)}</h3>
-          {sum && <p className={`mt-1 line-clamp-2 text-[14px] leading-relaxed text-neutral-600${pts.length ? " group-open:hidden" : " group-open:line-clamp-none"}`}>{sum}</p>}
-          <div className="mt-2 flex items-center gap-2 text-[12px] text-neutral-500">
-            <CategoryLabel category={e.category} lang={lang} />
-            <span>{timeAgoL(e.last_article_at, lang)}</span>
-          </div>
+    <article className="grid grid-cols-[minmax(0,1fr)_auto] gap-4 border-b border-[#E5E7EB] py-4">
+      <div className="min-w-0">
+        <h3 className="text-[16px] font-semibold leading-snug text-[#16181D]">
+          <a href={e.lead_url!} target="_blank" rel="noopener noreferrer" className="hover:text-[#C2410C]">{title(e, lang)}</a>
+        </h3>
+        {!pts.length && sum && <p className="mt-1 line-clamp-2 text-[14px] leading-relaxed text-neutral-600">{sum}</p>}
+        <div className="mt-2 flex items-center gap-2 text-[12px] text-neutral-500">
+          <CategoryLabel category={e.category} lang={lang} />
+          <span>{timeAgoL(e.last_article_at, lang)}</span>
         </div>
-        <div className="flex w-[108px] shrink-0 flex-col items-end gap-1.5 pt-1 text-right text-[12px] text-neutral-500">
-          <span className="flex h-3 items-center">{e.countries[0] && <Flag code={e.countries[0]} size={11} />}</span>
-          <span className="max-w-full truncate">{e.lead_source}</span>
-          <a href={e.lead_url!} target="_blank" rel="noopener noreferrer" className="font-medium text-[#C2410C] hover:underline">{zh ? "阅读原文" : "Read original"} ↗</a>
-          <span aria-hidden className="mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full border border-[#E5E7EB] text-[11px] text-neutral-600 transition group-open:rotate-180">⌄</span>
-        </div>
-      </summary>
-      <div className="pb-5 sm:pr-[124px]">
-        {e.image_url && !logo && (
-          <div className="mb-4 overflow-hidden rounded-xl">
+        {photo && (
+          <a href={e.lead_url!} target="_blank" rel="noopener noreferrer" className="mt-3 block overflow-hidden rounded-xl">
             <Cover e={e} credit className="aspect-[16/9] w-full" />
-          </div>
+          </a>
         )}
-        <div className={logo ? "flex items-start gap-4" : ""}>
-        {logo && <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-[#E5E7EB] sm:h-20 sm:w-20"><Cover e={e} className="h-full w-full" /></div>}
-        <div className="min-w-0 flex-1">
         {pts.length > 0 && (
-          // our own AI summary, boxed and labelled so it is never mistaken for the outlet's text
-          <div className="rounded-xl border border-[#FBD9C6] bg-[#FFF6F0] px-4 py-3">
-            <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#C2410C]">{zh ? "coda.news AI 摘要" : "coda.news AI summary"}</div>
-            <ul className="space-y-1.5 text-[14px] leading-relaxed text-neutral-800">
-              {pts.map((p, k) => <li key={k} className="flex gap-2"><span className="mt-[9px] h-1 w-1 shrink-0 rounded-full bg-neutral-400" />{p}</li>)}
-            </ul>
+          <div className={`mt-3 ${logo && e.image_url ? "flex items-start gap-3" : ""}`}>
+            {logo && e.image_url && <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-[#E5E7EB] sm:h-16 sm:w-16"><Cover e={e} className="h-full w-full" /></div>}
+            {/* our own AI summary, boxed and labelled so it is never mistaken for the outlet's text */}
+            <div className="min-w-0 flex-1 rounded-xl border border-[#FBD9C6] bg-[#FFF6F0] px-4 py-3">
+              <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#C2410C]">{zh ? "coda.news AI 摘要" : "coda.news AI summary"}</div>
+              <ul className="space-y-1 text-[14px] leading-relaxed text-neutral-800">
+                {pts.map((p, k) => <li key={k} className="flex gap-2"><span className="mt-[9px] h-1 w-1 shrink-0 rounded-full bg-neutral-400" />{p}</li>)}
+              </ul>
+            </div>
           </div>
         )}
-        {cos.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-1.5 text-[12px]">
+        {cos.length > 0 && (pts.length > 0 || photo) && (
+          <div className="mt-2.5 flex flex-wrap gap-1.5 text-[12px]">
             {cos.map((c) => <Link key={c.id} href={`/company/${c.slug}`} className="rounded-full bg-[#FFF1EA] px-2.5 py-0.5 font-medium text-[#C2410C] hover:bg-[#FFE3D4]">{c.name}</Link>)}
           </div>
         )}
-        </div>
-        </div>
       </div>
-    </details>
+      <Source e={e} lang={lang} />
+    </article>
   );
 }
 
