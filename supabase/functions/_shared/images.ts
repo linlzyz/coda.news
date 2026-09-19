@@ -233,18 +233,21 @@ async function fillQueries(max = 80) {
 q = 2 to 4 English words for a stock photo that shows what the story is about (the activity, place or object), e.g. "fitness race athletes", "steam locomotive", "tokyo stock exchange", "fashion runway". No brand or person names.
 Write q = "" when a generic stock photo would be wrong or tasteless: a person's illness, health, surgery, death, grief, relationships, pregnancy, crime, court case or scandal, and any story that is really about one person.
 p = the full name of the one well-known person the story is about, or "".
-Return JSON only, one entry for EVERY item: {"r":{"1":{"q":"...","p":""},"2":{"q":"","p":"Nicole Polizzi"}}}
+b = the one brand, franchise or company the story is mainly about (e.g. "Pokémon", "Dior", "Toyota"), or "".
+Return JSON only, one entry for EVERY item: {"r":{"1":{"q":"...","p":"","b":"Pokémon"},"2":{"q":"","p":"Nicole Polizzi","b":""}}}
 ${rows.map((r, k) => `${k + 1}. ${r.title}`).join("\n")}`;
   try {
-    const res = await cheapJSON<{ r?: Record<string, { q?: string; p?: string } | string> }>(prompt);
+    const res = await cheapJSON<{ r?: Record<string, { q?: string; p?: string; b?: string } | string> }>(prompt);
     for (const [k, r] of rows.entries()) {
       const v = res.r?.[String(k + 1)];
       if (v === undefined) continue;
       const q = String(typeof v === "string" ? v : v.q ?? "").replace(/[^\p{L}\p{N} -]/gu, " ").trim().slice(0, 60);
       const p = typeof v === "string" ? "" : String(v.p ?? "").trim().slice(0, 80);
+      const b = typeof v === "string" ? "" : String(v.b ?? "").trim().slice(0, 80);
       // "-" = no stock photo for this story: a real portrait, a logo or our designed cover instead
       await sql`update events set image_query = ${q || "-"}, image_checked_at = null,
-                image_person = coalesce(image_person, ${p || null}), person_checked_at = case when ${!!p} and image_person is null then null else person_checked_at end where id = ${r.id}`;
+                image_person = coalesce(image_person, ${p || null}), image_brand = coalesce(image_brand, ${b || null}),
+                brand_checked_at = case when ${!!b} and image_brand is null then null else brand_checked_at end, person_checked_at = case when ${!!p} and image_person is null then null else person_checked_at end where id = ${r.id}`;
     }
   } catch (e) { log("image queries:", (e as Error).message.slice(0, 120)); }
 }
@@ -298,6 +301,19 @@ async function gameArt(name: string): Promise<(Img & { focus: string | null }) |
   if (!pick) return null;
   return { url: `https://images.igdb.com/igdb/image/upload/t_1080p/${pick.id}.jpg`, credit: `${g.name} / IGDB`, link: g.url ?? "https://www.igdb.com",
     source: "igdb", license: "Publicity image", focus: pick.focus };
+}
+
+// the logo of a brand or franchise that is not one of our companies (e.g. Pokémon), straight from its Wikidata entry
+async function wikiLogo(name: string): Promise<string | null> {
+  try {
+    const w = "https://www.wikidata.org/w/api.php?format=json&";
+    const s = await (await fetch(`${w}action=wbsearchentities&search=${encodeURIComponent(name)}&language=en&type=item&limit=3`, { headers: UA, signal: AbortSignal.timeout(8000) })).json();
+    const hit = (s.search ?? []).find((x: { label?: string }) => norm(x.label ?? "") === norm(name));
+    if (!hit) return null;
+    const c = await (await fetch(`${w}action=wbgetclaims&entity=${hit.id}&property=P154`, { headers: UA, signal: AbortSignal.timeout(8000) })).json();
+    const file = c.claims?.P154?.find((x: { rank: string }) => x.rank !== "deprecated")?.mainsnak?.datavalue?.value as string | undefined;
+    return file ? `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file.replace(/ /g, "_"))}?width=640` : null;
+  } catch { return null; }
 }
 
 export async function assignImages(limit = 12): Promise<number> {
@@ -394,6 +410,17 @@ ${games.map((g, i) => `${i + 1}. ${g.title}`).join("\n")}`)).g ?? {};
               image_license_url = null, image_focus = 'logo', image_checked_at = now(), brand_checked_at = now() where id = ${b.id}`;
   }
   if (brands.length) log(`images: ${brands.length} brand logos`);
+  // brands and franchises we do not track as companies
+  const loose = await sql<{ id: number; image_brand: string }[]>`
+    select id, image_brand from events where brand_checked_at is null and image_brand is not null and summary is not null and status <> 'archived'
+      and coalesce(image_focus, '') <> 'top' and (image_url is null or image_source in ('pexels','unsplash','pixabay'))
+    order by last_article_at desc limit 20`;
+  for (const b of loose) {
+    const logo = await wikiLogo(b.image_brand);
+    if (logo) await sql`update events set image_url = ${logo}, image_credit = 'Logo: Wikimedia Commons', image_link = null, image_source = 'logo', image_license = null,
+              image_license_url = null, image_focus = 'logo', image_checked_at = now(), brand_checked_at = now() where id = ${b.id}`;
+    else await sql`update events set brand_checked_at = now() where id = ${b.id}`;
+  }
   await sql`update events set brand_checked_at = now() where brand_checked_at is null and summary is not null and image_url is not null and image_source not in ('pexels','unsplash','pixabay','openverse','commons')`;
 
   const events = await sql<{ id: number; image_query: string | null; slugs: string[] | null }[]>`
