@@ -44,7 +44,13 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   const fresh = multi.filter((e) => Date.now() - Date.parse(e.started_at) < 36 * 3600_000);
   const top = fresh[0] ?? multi[0] ?? events[0];
   // the headline slot turns through up to five multi-country stories (the ones that show what coda.news is for)
-  const tops = [top, ...[...fresh, ...multi].filter((e, k, a) => e.id !== top?.id && a.findIndex((x) => x.id === e.id) === k)].filter(Boolean).slice(0, 5) as EventRow[];
+  // a mix of sections: one story per section first, then a second from any section, never all football on a Sunday
+  const pool = [top, ...[...fresh, ...multi].filter((e, k, a) => e.id !== top?.id && a.findIndex((x) => x.id === e.id) === k)].filter(Boolean) as EventRow[];
+  const tops: EventRow[] = [];
+  for (const cap of [1, 2]) for (const e of pool) {
+    if (tops.length >= 5) break;
+    if (!tops.includes(e) && tops.filter((x) => x.category === e.category).length < cap) tops.push(e);
+  }
   const divided = multi.filter((e) => !tops.some((x) => x.id === e.id))
     .sort((a, b) => new Set((persp.get(b.id) ?? []).map((p) => p.tone)).size - new Set((persp.get(a.id) ?? []).map((p) => p.tone)).size).slice(0, 4);
   // 4 key stories with pictures up top (picked for importance and sources, not for having a photo); everything else is the uniform Latest list
