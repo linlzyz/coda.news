@@ -11,46 +11,50 @@ const oneSource = (e: EventRow) => e.source_count < 2 && !!e.lead_url && !!e.lea
 /** One row of the Latest list. Every row has the same shape: one sentence, then category · time on the left and flags + source on the right.
  *  One-source stories link straight to the original; stories with more sources open our comparison page. */
 export function NewsItem({ e, lang }: { e: EventRow; companies?: Map<number, Company>; topics?: Map<number, Topic>; lang: Lang }) {
-  const zh = lang === "zh";
   const single = oneSource(e);
-  const t = title(e, lang).replace(/[。.]$/, "");
+  const sum = summary(e, lang);
   return (
-    <article className="border-b border-[#E5E7EB] py-4">
-      <p className="text-[16px] leading-snug text-[#16181D]">
-        {single ? (
-          <a href={e.lead_url!} target="_blank" rel="noopener noreferrer" className="hover:text-[#C2410C]">
-            {zh ? <>据 <span className="font-semibold">{e.lead_source}</span> 报道，{t}。</> : <><span className="font-semibold">{e.lead_source}</span> reports: {t}.</>}
-          </a>
-        ) : (
-          <Link href={`/event/${e.slug}`} className="font-semibold hover:text-[#C2410C]">{t}</Link>
-        )}
-      </p>
-      <Meta e={e} lang={lang} />
+    <article className="grid grid-cols-[minmax(0,1fr)_auto] gap-4 border-b border-[#E5E7EB] py-4">
+      <div className="min-w-0">
+        <h3 className="text-[16px] font-semibold leading-snug text-[#16181D]">
+          <Link href={`/event/${e.slug}`} className="hover:text-[#C2410C]">{title(e, lang)}</Link>
+        </h3>
+        {/* our own one-line account, never the original's text */}
+        {sum && single && <p className="mt-1 line-clamp-2 text-[14px] leading-relaxed text-neutral-600">{sum}</p>}
+        <div className="mt-2 flex items-center gap-2 text-[12px] text-neutral-500">
+          <CategoryLabel category={e.category} lang={lang} />
+          <span>{timeAgoL(e.last_article_at, lang)}</span>
+        </div>
+      </div>
+      <Source e={e} lang={lang} />
     </article>
   );
 }
 
-function Meta({ e, lang }: { e: EventRow; lang: Lang }) {
+/** Right-hand column, the same on every card: flags on top, then the source line. */
+function Source({ e, lang }: { e: EventRow; lang: Lang }) {
   const zh = lang === "zh";
   const single = oneSource(e);
   return (
-    <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-neutral-500">
-      <CategoryLabel category={e.category} lang={lang} />
-      <span>{timeAgoL(e.last_article_at, lang)}</span>
-      <span className="ml-auto inline-flex items-center gap-2">
-        {single ? (
-          <>
-            {e.countries[0] && <Flag code={e.countries[0]} size={11} />}
-            <span>{e.lead_source}</span><span aria-hidden>·</span>
-            <a href={e.lead_url!} target="_blank" rel="noopener noreferrer" className="font-medium text-[#C2410C] hover:underline">{zh ? "查看原文" : "Read original"} ↗</a>
-          </>
-        ) : (
-          <>
-            {e.countries.length > 0 && <Flags codes={e.countries} max={5} size={11} />}
-            <Link href={`/event/${e.slug}`} className="font-medium text-[#C2410C] hover:underline">{e.source_count} {zh ? "个来源" : "sources"} →</Link>
-          </>
-        )}
-      </span>
+    <div className="flex w-[108px] shrink-0 flex-col items-end gap-1.5 pt-1 text-right text-[12px] text-neutral-500">
+      <span className="flex h-3 items-center">{single ? (e.countries[0] && <Flag code={e.countries[0]} size={11} />) : e.countries.length > 0 && <Flags codes={e.countries} max={4} size={11} />}</span>
+      {single ? (
+        <>
+          <span className="max-w-full truncate">{e.lead_source}</span>
+          <a href={e.lead_url!} target="_blank" rel="noopener noreferrer" className="font-medium text-[#C2410C] hover:underline">{zh ? "查看原文" : "Original"} ↗</a>
+        </>
+      ) : (
+        <Link href={`/event/${e.slug}`} className="font-medium text-[#C2410C] hover:underline">{e.source_count} {zh ? "个来源" : "sources"} →</Link>
+      )}
+    </div>
+  );
+}
+
+function Meta({ e, lang }: { e: EventRow; lang: Lang }) {
+  return (
+    <div className="mt-2 flex items-end justify-between gap-3 text-[12px] text-neutral-500">
+      <span className="flex items-center gap-2"><CategoryLabel category={e.category} lang={lang} /><span>{timeAgoL(e.last_article_at, lang)}</span></span>
+      <Source e={e} lang={lang} />
     </div>
   );
 }
