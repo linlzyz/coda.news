@@ -90,7 +90,7 @@ export default async function Page({ params }: PageProps<"/[lang]/company/[slug]
     [zh ? "首席执行官" : "CEO", zh ? c.ceo_zh ?? c.ceo : c.ceo],
     [zh ? "母公司" : "Parent company", parentCo ? <Link href={`/company/${parentCo.slug}`} className="text-[#C2410C] hover:underline">{(zh && parentCo.name_zh) || parentCo.name}</Link> : zh ? c.parent_zh ?? c.parent : c.parent],
     [zh ? "旗下品牌/公司" : "Owns", owned.length ? <span className="flex flex-wrap gap-x-2 gap-y-1">{owned.slice(0, 12).map((x) => <Link key={x.id} href={`/company/${x.slug}`} className="text-[#C2410C] hover:underline">{(zh && x.name_zh) || x.name}</Link>)}</span> : null],
-    [zh ? "指数" : "Index", c.indices?.includes("SP500") ? "S&P 500" : null],
+    [zh ? "指数" : "Index", c.indices?.length ? [["SP500", "S&P 500"], ["SP100", "S&P 100"], ["NDX100", "Nasdaq-100"]].filter(([k]) => c.indices!.includes(k)).map(([, v]) => v).join(" · ") : null],
     [zh ? "上市" : "Listed", ticker(c.ticker)],
     [zh ? "官网" : "Website", c.website ? <a href={c.website} target="_blank" rel="noopener noreferrer" className="text-[#C2410C] hover:underline">{host(c.website)} ↗</a> : null],
   ] as [string, React.ReactNode][]).filter(([, v]) => v);

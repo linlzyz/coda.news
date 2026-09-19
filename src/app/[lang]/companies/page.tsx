@@ -82,7 +82,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
           )}
     
               </>}
-          items={all.map((c) => ({ id: c.id, name: nameOf(c), sector: c.sector ?? "other", country: c.country, events: c.events, last: c.last_at ? Date.parse(c.last_at) : 0, node: card(c) }))}
+          items={all.map((c) => ({ id: c.id, name: nameOf(c), sector: c.sector ?? "other", country: c.country, events: c.events, last: c.last_at ? Date.parse(c.last_at) : 0, node: card(c), indices: c.indices ?? [] }))}
           sectors={sectors.map((s) => [s, sectorLabel(s, zh)])}
           countries={countries.map(([c, label]) => [c, label, <Flag key={c} code={c} size={12} />])}
           t={{ heading: zh ? "全部公司" : "All companies", all: zh ? "全部" : "All", search: zh ? "按名称筛选" : "Filter by name", recent: zh ? "最近活跃" : "Most recent", az: "A-Z", allCountries: zh ? "所有国家和地区" : "All countries & regions",

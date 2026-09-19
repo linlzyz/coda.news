@@ -16,7 +16,7 @@ const get = async (q: string) => {
 const ORG = /\b(company|corporation|business|manufacturer|firm|brand|bank|startup|conglomerate|retailer|airline|maker|carrier|developer|operator|holding|enterprise|chain|publisher|studio|record label|exchange|insurer|automaker|producer|provider|platform|club|franchise|team|league|organi[sz]ation|agency|regulator|central bank|fund|group)\b/i;
 const HARD = ["P414", "P452", "P1128", "P2139", "P169", "P1454", "P118"];
 // leagues, federations, regulators, central banks, ministries, universities...: in the news, but not companies
-export const NOT_CO = /\b(sports? league|league|football association|federation|confederation|governing body|central bank|regulator|regulatory|government agency|space agency|ministry|government department|government|public university|university|college|trade union|labor union|labour union|council|committee|olympic|court|parliament|police|armed forces|army|navy|tournament|championship|competition|football club|association football club|basketball team|baseball team|ice hockey team|american football team|sports team|sports club|team (competing|playing|based)|college athletic|athletic program|charity|non-?profit|united nations agency)\b/i;
+export const NOT_CO = /\b(sports? league|league|football association|federation|confederation|governing body|central bank|regulator|regulatory|government agency|space agency|ministry|government department|government|public university|university|college|trade union|labor union|labour union|council|committee|olympic|court|parliament|police|armed forces|army|navy|tournament|championship|competition|football club|association football club|basketball team|baseball team|ice hockey team|american football team|sports team|sports club|cycling team|racing team|esports team|team (competing|playing|based)|college athletic|athletic program|charity|non-?profit|united nations agency)\b/i;
 const norm = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
 // corporate words that may follow a short name ("Toyota" = "Toyota Motor Corporation"); anything else (e.g. "Kodak Japan") is a different entity
 const SUFFIX = new Set("inc incorporated corp corporation co company companies ltd limited plc llc ag sa se nv bv gmbh kk group holdings holding motor motors energy technologies technology international global platforms".split(" "));
@@ -112,6 +112,8 @@ export async function enrichCompanies(limit = 15): Promise<number> {
         ? (Object.values((await get(`action=wbgetentities&ids=${c.wikidata_id}&props=labels|aliases|descriptions|claims|sitelinks&languages=en|zh|zh-hans|zh-cn&sitefilter=enwiki|zhwiki`)).entities ?? {})[0] as Ent | undefined) ?? null
         : await pick(c.name);
       if (!e) { await sql`update companies set enriched_at = now() where id = ${c.id}`; continue; }
+      // an acronym (e.g. "CGC") that resolves to a sports team or club is almost always the wrong entity: leave it unmatched
+      if (!c.wikidata_id && /^[A-Z0-9&.]{2,5}$/.test(c.name) && /\b(team|club)\b/i.test(String(e.descriptions?.en?.value ?? ""))) { await sql`update companies set enriched_at = now() where id = ${c.id}`; continue; }
       // founders (up to 3) and the current CEO: only a CEO claim with no end date, the most recent start first
       const founderIds = ((e.claims?.P112 ?? []) as Ent[]).filter((c) => c.rank !== "deprecated").map((c) => c.mainsnak?.datavalue?.value?.id).filter(Boolean).slice(0, 3) as string[];
       const ceoC = ((e.claims?.P169 ?? []) as Ent[]).filter((c) => c.rank !== "deprecated" && !c.qualifiers?.P582)

@@ -1,0 +1,1212 @@
+{
+"SP100": [
+{
+"title": "Apple Inc.",
+"name": "Apple Inc.",
+"qid": "Q312",
+"wiki": "Apple Inc."
+},
+{
+"title": "AbbVie",
+"name": "AbbVie",
+"qid": "Q14662364",
+"wiki": "AbbVie"
+},
+{
+"title": "Abbott Laboratories",
+"name": "Abbott Laboratories",
+"qid": "Q306764",
+"wiki": "Abbott Laboratories"
+},
+{
+"title": "Accenture",
+"name": "Accenture",
+"qid": "Q338825",
+"wiki": "Accenture"
+},
+{
+"title": "Adobe Inc.",
+"name": "Adobe Inc.",
+"qid": "Q11463",
+"wiki": "Adobe Inc."
+},
+{
+"title": "Applied Materials",
+"name": "Applied Materials",
+"qid": "Q621610",
+"wiki": "Applied Materials"
+},
+{
+"title": "AMD",
+"name": "Advanced Micro Devices",
+"qid": "Q128896",
+"wiki": "AMD"
+},
+{
+"title": "Amgen",
+"name": "Amgen",
+"qid": "Q470517",
+"wiki": "Amgen"
+},
+{
+"title": "American Tower",
+"name": "American Tower",
+"qid": "Q4745263",
+"wiki": "American Tower"
+},
+{
+"title": "Amazon (company)",
+"name": "Amazon",
+"qid": "Q3884",
+"wiki": "Amazon (company)"
+},
+{
+"title": "Broadcom",
+"name": "Broadcom",
+"qid": "Q790060",
+"wiki": "Broadcom"
+},
+{
+"title": "American Express",
+"name": "American Express",
+"qid": "Q194360",
+"wiki": "American Express"
+},
+{
+"title": "Boeing",
+"name": "Boeing",
+"qid": "Q66",
+"wiki": "Boeing"
+},
+{
+"title": "Bank of America",
+"name": "Bank of America",
+"qid": "Q487907",
+"wiki": "Bank of America"
+},
+{
+"title": "Booking Holdings",
+"name": "Booking Holdings",
+"qid": "Q18674747",
+"wiki": "Booking Holdings"
+},
+{
+"title": "BlackRock",
+"name": "BlackRock",
+"qid": "Q219635",
+"wiki": "BlackRock"
+},
+{
+"title": "Bristol Myers Squibb",
+"name": "Bristol Myers Squibb",
+"qid": "Q266423",
+"wiki": "Bristol Myers Squibb"
+},
+{
+"title": "BNY",
+"name": "BNY Mellon",
+"qid": "Q589288",
+"wiki": "BNY"
+},
+{
+"title": "Berkshire Hathaway",
+"name": "Berkshire Hathaway",
+"qid": "Q217583",
+"wiki": "Berkshire Hathaway"
+},
+{
+"title": "Citigroup",
+"name": "Citigroup",
+"qid": "Q219508",
+"wiki": "Citigroup"
+},
+{
+"title": "Caterpillar Inc.",
+"name": "Caterpillar Inc.",
+"qid": "Q459965",
+"wiki": "Caterpillar Inc."
+},
+{
+"title": "Colgate-Palmolive",
+"name": "Colgate-Palmolive",
+"qid": "Q609466",
+"wiki": "Colgate-Palmolive"
+},
+{
+"title": "Comcast",
+"name": "Comcast",
+"qid": "Q1113804",
+"wiki": "Comcast"
+},
+{
+"title": "Capital One",
+"name": "Capital One",
+"qid": "Q1034654",
+"wiki": "Capital One"
+},
+{
+"title": "ConocoPhillips",
+"name": "ConocoPhillips",
+"qid": "Q214763",
+"wiki": "ConocoPhillips"
+},
+{
+"title": "Costco",
+"name": "Costco",
+"qid": "Q715583",
+"wiki": "Costco"
+},
+{
+"title": "Salesforce",
+"name": "Salesforce",
+"qid": "Q941127",
+"wiki": "Salesforce"
+},
+{
+"title": "Cisco",
+"name": "Cisco",
+"qid": "Q173395",
+"wiki": "Cisco"
+},
+{
+"title": "CVS Health",
+"name": "CVS Health",
+"qid": "Q624375",
+"wiki": "CVS Health"
+},
+{
+"title": "Chevron Corporation",
+"name": "Chevron Corporation",
+"qid": "Q319642",
+"wiki": "Chevron Corporation"
+},
+{
+"title": "John Deere",
+"name": "Deere & Company",
+"qid": "Q496302",
+"wiki": "John Deere"
+},
+{
+"title": "Danaher Corporation",
+"name": "Danaher Corporation",
+"qid": "Q1159256",
+"wiki": "Danaher Corporation"
+},
+{
+"title": "The Walt Disney Company",
+"name": "Walt Disney Company (The)",
+"qid": "Q7414",
+"wiki": "The Walt Disney Company"
+},
+{
+"title": "Duke Energy",
+"name": "Duke Energy",
+"qid": "Q1264404",
+"wiki": "Duke Energy"
+},
+{
+"title": "Emerson Electric",
+"name": "Emerson Electric",
+"qid": "Q1335585",
+"wiki": "Emerson Electric"
+},
+{
+"title": "FedEx",
+"name": "FedEx",
+"qid": "Q459477",
+"wiki": "FedEx"
+},
+{
+"title": "General Dynamics",
+"name": "General Dynamics",
+"qid": "Q502940",
+"wiki": "General Dynamics"
+},
+{
+"title": "GE Aerospace",
+"name": "GE Aerospace",
+"qid": "Q1485061",
+"wiki": "GE Aerospace"
+},
+{
+"title": "GE Vernova",
+"name": "GE Vernova",
+"qid": "Q118957699",
+"wiki": "GE Vernova"
+},
+{
+"title": "Gilead Sciences",
+"name": "Gilead Sciences",
+"qid": "Q663596",
+"wiki": "Gilead Sciences"
+},
+{
+"title": "General Motors",
+"name": "General Motors",
+"qid": "Q81965",
+"wiki": "General Motors"
+},
+{
+"title": "Alphabet Inc.",
+"name": "Alphabet Inc.",
+"qid": "Q20800404",
+"wiki": "Alphabet Inc."
+},
+{
+"title": "Alphabet Inc.",
+"name": "Alphabet Inc.",
+"qid": "Q20800404",
+"wiki": "Alphabet Inc."
+},
+{
+"title": "Goldman Sachs",
+"name": "Goldman Sachs",
+"qid": "Q193326",
+"wiki": "Goldman Sachs"
+},
+{
+"title": "Home Depot",
+"name": "Home Depot",
+"qid": "Q864407",
+"wiki": "Home Depot"
+},
+{
+"title": "Honeywell Aerospace",
+"name": "Honeywell Aerospace",
+"qid": "Q5893992",
+"wiki": "Honeywell Aerospace"
+},
+{
+"title": "Intel",
+"name": "Intel",
+"qid": "Q248",
+"wiki": "Intel"
+},
+{
+"title": "Intuit",
+"name": "Intuit",
+"qid": "Q1318848",
+"wiki": "Intuit"
+},
+{
+"title": "Intuitive Surgical",
+"name": "Intuitive Surgical",
+"qid": "Q2743863",
+"wiki": "Intuitive Surgical"
+},
+{
+"title": "Johnson & Johnson",
+"name": "Johnson & Johnson",
+"qid": "Q333718",
+"wiki": "Johnson & Johnson"
+},
+{
+"title": "JPMorgan Chase",
+"name": "JPMorgan Chase",
+"qid": "Q192314",
+"wiki": "JPMorgan Chase"
+},
+{
+"title": "The Coca-Cola Company",
+"name": "Coca-Cola Company (The)",
+"qid": "Q3295867",
+"wiki": "The Coca-Cola Company"
+},
+{
+"title": "Linde plc",
+"name": "Linde plc",
+"qid": "Q682759",
+"wiki": "Linde plc"
+},
+{
+"title": "Eli Lilly and Company",
+"name": "Eli Lilly and Company",
+"qid": "Q632240",
+"wiki": "Eli Lilly and Company"
+},
+{
+"title": "Lockheed Martin",
+"name": "Lockheed Martin",
+"qid": "Q7240",
+"wiki": "Lockheed Martin"
+},
+{
+"title": "Lowe's",
+"name": "Lowe's",
+"qid": "Q1373493",
+"wiki": "Lowe's"
+},
+{
+"title": "Lam Research",
+"name": "Lam Research",
+"qid": "Q1342041",
+"wiki": "Lam Research"
+},
+{
+"title": "Mastercard",
+"name": "Mastercard",
+"qid": "Q489921",
+"wiki": "Mastercard"
+},
+{
+"title": "McDonald's",
+"name": "McDonald's",
+"qid": "Q38076",
+"wiki": "McDonald's"
+},
+{
+"title": "Mondelēz International",
+"name": "Mondelēz International",
+"qid": "Q12857502",
+"wiki": "Mondelez International"
+},
+{
+"title": "Medtronic",
+"name": "Medtronic",
+"qid": "Q642189",
+"wiki": "Medtronic"
+},
+{
+"title": "Meta Platforms",
+"name": "Meta Platforms",
+"qid": "Q380",
+"wiki": "Meta Platforms"
+},
+{
+"title": "3M",
+"name": "3M",
+"qid": "Q159433",
+"wiki": "3M"
+},
+{
+"title": "Altria",
+"name": "Altria",
+"qid": "Q445007",
+"wiki": "Altria"
+},
+{
+"title": "Merck & Co.",
+"name": "Merck & Co.",
+"qid": "Q247489",
+"wiki": "Merck & Co."
+},
+{
+"title": "Morgan Stanley",
+"name": "Morgan Stanley",
+"qid": "Q334204",
+"wiki": "Morgan Stanley"
+},
+{
+"title": "Microsoft",
+"name": "Microsoft",
+"qid": "Q2283",
+"wiki": "Microsoft"
+},
+{
+"title": "Micron Technology",
+"name": "Micron Technology",
+"qid": "Q1197548",
+"wiki": "Micron Technology"
+},
+{
+"title": "NextEra Energy",
+"name": "NextEra Energy",
+"qid": "Q967868",
+"wiki": "NextEra Energy"
+},
+{
+"title": "Netflix, Inc.",
+"name": "Netflix, Inc.",
+"qid": "Q116452644",
+"wiki": "Netflix, Inc."
+},
+{
+"title": "Nike, Inc.",
+"name": "Nike, Inc.",
+"qid": "Q483915",
+"wiki": "Nike, Inc."
+},
+{
+"title": "ServiceNow",
+"name": "ServiceNow",
+"qid": "Q7455653",
+"wiki": "ServiceNow"
+},
+{
+"title": "Nvidia",
+"name": "Nvidia",
+"qid": "Q182477",
+"wiki": "Nvidia"
+},
+{
+"title": "Oracle Corporation",
+"name": "Oracle Corporation",
+"qid": "Q19900",
+"wiki": "Oracle Corporation"
+},
+{
+"title": "PepsiCo",
+"name": "PepsiCo",
+"qid": "Q334800",
+"wiki": "PepsiCo"
+},
+{
+"title": "Pfizer",
+"name": "Pfizer",
+"qid": "Q206921",
+"wiki": "Pfizer"
+},
+{
+"title": "Procter & Gamble",
+"name": "Procter & Gamble",
+"qid": "Q212405",
+"wiki": "Procter & Gamble"
+},
+{
+"title": "Palantir Technologies",
+"name": "Palantir Technologies",
+"qid": "Q2047336",
+"wiki": "Palantir"
+},
+{
+"title": "Philip Morris International",
+"name": "Philip Morris International",
+"qid": "Q1852556",
+"wiki": "Philip Morris International"
+},
+{
+"title": "Qualcomm",
+"name": "Qualcomm",
+"qid": "Q544847",
+"wiki": "Qualcomm"
+},
+{
+"title": "RTX Corporation",
+"name": "RTX Corporation",
+"qid": "Q89368734",
+"wiki": "RTX Corporation"
+},
+{
+"title": "Starbucks",
+"name": "Starbucks",
+"qid": "Q37158",
+"wiki": "Starbucks"
+},
+{
+"title": "Charles Schwab Corporation",
+"name": "Charles Schwab Corporation",
+"qid": "Q1066028",
+"wiki": "Charles Schwab Corporation"
+},
+{
+"title": "Southern Company",
+"name": "Southern Company",
+"qid": "Q2304693",
+"wiki": "Southern Company"
+},
+{
+"title": "Simon Property Group",
+"name": "Simon Property Group",
+"qid": "Q2287759",
+"wiki": "Simon Property Group"
+},
+{
+"title": "AT&T",
+"name": "AT&T",
+"qid": "Q35476",
+"wiki": "AT&T"
+},
+{
+"title": "Thermo Fisher Scientific",
+"name": "Thermo Fisher Scientific",
+"qid": "Q643674",
+"wiki": "Thermo Fisher Scientific"
+},
+{
+"title": "T-Mobile US",
+"name": "T-Mobile US",
+"qid": "Q3511885",
+"wiki": "T-Mobile US"
+},
+{
+"title": "Tesla, Inc.",
+"name": "Tesla, Inc.",
+"qid": "Q478214",
+"wiki": "Tesla, Inc."
+},
+{
+"title": "Texas Instruments",
+"name": "Texas Instruments",
+"qid": "Q193412",
+"wiki": "Texas Instruments"
+},
+{
+"title": "Uber",
+"name": "Uber",
+"qid": "Q780442",
+"wiki": "Uber"
+},
+{
+"title": "UnitedHealth Group",
+"name": "UnitedHealth Group",
+"qid": "Q2103926",
+"wiki": "UnitedHealth Group"
+},
+{
+"title": "Union Pacific Corporation",
+"name": "Union Pacific Corporation",
+"qid": "Q20183163",
+"wiki": "Union Pacific Corporation"
+},
+{
+"title": "United Parcel Service",
+"name": "United Parcel Service",
+"qid": "Q155026",
+"wiki": "United Parcel Service"
+},
+{
+"title": "U.S. Bancorp",
+"name": "U.S. Bancorp",
+"qid": "Q739084",
+"wiki": "U.S. Bancorp"
+},
+{
+"title": "Visa Inc.",
+"name": "Visa Inc.",
+"qid": "Q328840",
+"wiki": "Visa Inc."
+},
+{
+"title": "Verizon",
+"name": "Verizon",
+"qid": "Q467752",
+"wiki": "Verizon"
+},
+{
+"title": "Wells Fargo",
+"name": "Wells Fargo",
+"qid": "Q744149",
+"wiki": "Wells Fargo"
+},
+{
+"title": "Walmart",
+"name": "Walmart",
+"qid": "Q483551",
+"wiki": "Walmart"
+},
+{
+"title": "ExxonMobil",
+"name": "ExxonMobil",
+"qid": "Q156238",
+"wiki": "ExxonMobil"
+}
+],
+"NDX100": [
+{
+"title": "Adobe Inc.",
+"name": "Adobe Inc.",
+"qid": "Q11463",
+"wiki": "Adobe Inc."
+},
+{
+"title": "AMD",
+"name": "Advanced Micro Devices",
+"qid": "Q128896",
+"wiki": "AMD"
+},
+{
+"title": "Airbnb",
+"name": "Airbnb",
+"qid": "Q63327",
+"wiki": "Airbnb"
+},
+{
+"title": "Alnylam Pharmaceuticals",
+"name": "Alnylam Pharmaceuticals",
+"qid": "Q16974682",
+"wiki": "Alnylam Pharmaceuticals"
+},
+{
+"title": "Alphabet Inc.",
+"name": "Alphabet Inc.",
+"qid": "Q20800404",
+"wiki": "Alphabet Inc."
+},
+{
+"title": "Alphabet Inc.",
+"name": "Alphabet Inc.",
+"qid": "Q20800404",
+"wiki": "Alphabet Inc."
+},
+{
+"title": "Amazon (company)",
+"name": "Amazon",
+"qid": "Q3884",
+"wiki": "Amazon (company)"
+},
+{
+"title": "American Electric Power",
+"name": "American Electric Power",
+"qid": "Q464092",
+"wiki": "American Electric Power"
+},
+{
+"title": "Amgen",
+"name": "Amgen",
+"qid": "Q470517",
+"wiki": "Amgen"
+},
+{
+"title": "Analog Devices",
+"name": "Analog Devices",
+"qid": "Q484930",
+"wiki": "Analog Devices"
+},
+{
+"title": "Apple Inc.",
+"name": "Apple Inc.",
+"qid": "Q312",
+"wiki": "Apple Inc."
+},
+{
+"title": "Applied Materials",
+"name": "Applied Materials",
+"qid": "Q621610",
+"wiki": "Applied Materials"
+},
+{
+"title": "AppLovin",
+"name": "AppLovin",
+"qid": "Q27150212",
+"wiki": "AppLovin"
+},
+{
+"title": "Arm Holdings",
+"name": "Arm Holdings",
+"qid": "Q296782",
+"wiki": "Arm Holdings"
+},
+{
+"title": "ASML Holding",
+"name": "ASML Holding",
+"qid": "Q297879",
+"wiki": "ASML"
+},
+{
+"title": "Astera Labs",
+"name": "Astera Labs",
+"qid": "Q125028873",
+"wiki": "Astera Labs"
+},
+{
+"title": "Autodesk",
+"name": "Autodesk",
+"qid": "Q628051",
+"wiki": "Autodesk"
+},
+{
+"title": "ADP (company)",
+"name": "Automatic Data Processing",
+"qid": "Q489080",
+"wiki": "ADP (company)"
+},
+{
+"title": "Axon Enterprise",
+"name": "Axon Enterprise",
+"qid": "Q690604",
+"wiki": "Axon Enterprise"
+},
+{
+"title": "Baker Hughes",
+"name": "Baker Hughes",
+"qid": "Q804353",
+"wiki": "Baker Hughes"
+},
+{
+"title": "Booking Holdings",
+"name": "Booking Holdings",
+"qid": "Q18674747",
+"wiki": "Booking Holdings"
+},
+{
+"title": "Broadcom",
+"name": "Broadcom",
+"qid": "Q790060",
+"wiki": "Broadcom"
+},
+{
+"title": "Cadence Design Systems",
+"name": "Cadence Design Systems",
+"qid": "Q608776",
+"wiki": "Cadence Design Systems"
+},
+{
+"title": "Cintas",
+"name": "Cintas",
+"qid": "Q1092571",
+"wiki": "Cintas"
+},
+{
+"title": "Cisco",
+"name": "Cisco",
+"qid": "Q173395",
+"wiki": "Cisco"
+},
+{
+"title": "Coca-Cola Europacific Partners",
+"name": "Coca-Cola Europacific Partners",
+"qid": "Q20811256",
+"wiki": "Coca-Cola Europacific Partners"
+},
+{
+"title": "Comcast",
+"name": "Comcast",
+"qid": "Q1113804",
+"wiki": "Comcast"
+},
+{
+"title": "Constellation Energy",
+"name": "Constellation Energy",
+"qid": "Q259195",
+"wiki": "Constellation Energy"
+},
+{
+"title": "Copart",
+"name": "Copart",
+"qid": "Q16951448",
+"wiki": "Copart"
+},
+{
+"title": "CoreWeave",
+"name": "CoreWeave",
+"qid": "Q121875386",
+"wiki": "CoreWeave"
+},
+{
+"title": "Costco",
+"name": "Costco",
+"qid": "Q715583",
+"wiki": "Costco"
+},
+{
+"title": "CrowdStrike",
+"name": "CrowdStrike",
+"qid": "Q24890758",
+"wiki": "CrowdStrike"
+},
+{
+"title": "CSX Corporation",
+"name": "CSX Corporation",
+"qid": "Q1024454",
+"wiki": "CSX Corporation"
+},
+{
+"title": "Datadog",
+"name": "Datadog",
+"qid": "Q16248637",
+"wiki": "Datadog"
+},
+{
+"title": "DexCom",
+"name": "DexCom",
+"qid": "Q15109865",
+"wiki": "Dexcom"
+},
+{
+"title": "Diamondback Energy",
+"name": "Diamondback Energy",
+"qid": "Q65091423",
+"wiki": "Diamondback Energy"
+},
+{
+"title": "DoorDash",
+"name": "DoorDash",
+"qid": "Q20714323",
+"wiki": "DoorDash"
+},
+{
+"title": "Exelon",
+"name": "Exelon",
+"qid": "Q1383669",
+"wiki": "Exelon"
+},
+{
+"title": "Fastenal",
+"name": "Fastenal",
+"qid": "Q3067119",
+"wiki": "Fastenal"
+},
+{
+"title": "Ferrovial",
+"name": "Ferrovial",
+"qid": "Q1408037",
+"wiki": "Ferrovial"
+},
+{
+"title": "Fortinet",
+"name": "Fortinet",
+"qid": "Q2749364",
+"wiki": "Fortinet"
+},
+{
+"title": "GE HealthCare",
+"name": "GE HealthCare",
+"qid": "Q1152374",
+"wiki": "GE HealthCare"
+},
+{
+"title": "Gilead Sciences",
+"name": "Gilead Sciences",
+"qid": "Q663596",
+"wiki": "Gilead Sciences"
+},
+{
+"title": "Honeywell Aerospace",
+"name": "Honeywell Aerospace",
+"qid": "Q5893992",
+"wiki": "Honeywell Aerospace"
+},
+{
+"title": "Honeywell",
+"name": "Honeywell Technologies",
+"qid": "Q898208",
+"wiki": "Honeywell"
+},
+{
+"title": "Idexx Laboratories",
+"name": "Idexx Laboratories",
+"qid": "Q1758392",
+"wiki": "Idexx Laboratories"
+},
+{
+"title": "Intel",
+"name": "Intel",
+"qid": "Q248",
+"wiki": "Intel"
+},
+{
+"title": "Intuit",
+"name": "Intuit",
+"qid": "Q1318848",
+"wiki": "Intuit"
+},
+{
+"title": "Intuitive Surgical",
+"name": "Intuitive Surgical",
+"qid": "Q2743863",
+"wiki": "Intuitive Surgical"
+},
+{
+"title": "Keurig Dr Pepper",
+"name": "Keurig Dr Pepper",
+"qid": "Q3116111",
+"wiki": "Keurig Dr Pepper"
+},
+{
+"title": "KLA Corporation",
+"name": "KLA Corporation",
+"qid": "Q624649",
+"wiki": "KLA Corporation"
+},
+{
+"title": "Lam Research",
+"name": "Lam Research",
+"qid": "Q1342041",
+"wiki": "Lam Research"
+},
+{
+"title": "Linde plc",
+"name": "Linde plc",
+"qid": "Q682759",
+"wiki": "Linde plc"
+},
+{
+"title": "Lumentum",
+"name": "Lumentum",
+"qid": "Q138786899",
+"wiki": "Lumentum"
+},
+{
+"title": "Marriott International",
+"name": "Marriott International",
+"qid": "Q1141173",
+"wiki": "Marriott International"
+},
+{
+"title": "Marvell Technology",
+"name": "Marvell Technology",
+"qid": "Q1347782",
+"wiki": "Marvell Technology"
+},
+{
+"title": "Mercado Libre",
+"name": "Mercado Libre",
+"qid": "Q950419",
+"wiki": "MercadoLibre"
+},
+{
+"title": "Meta Platforms",
+"name": "Meta Platforms",
+"qid": "Q380",
+"wiki": "Meta Platforms"
+},
+{
+"title": "Microchip Technology",
+"name": "Microchip Technology",
+"qid": "Q1545076",
+"wiki": "Microchip Technology"
+},
+{
+"title": "Micron Technology",
+"name": "Micron Technology",
+"qid": "Q1197548",
+"wiki": "Micron Technology"
+},
+{
+"title": "Microsoft",
+"name": "Microsoft",
+"qid": "Q2283",
+"wiki": "Microsoft"
+},
+{
+"title": "MicroStrategy",
+"name": "MicroStrategy",
+"qid": "Q1192211",
+"wiki": "MicroStrategy"
+},
+{
+"title": "Mondelez International",
+"name": "Mondelez International",
+"qid": "Q12857502",
+"wiki": "Mondelez International"
+},
+{
+"title": "Monolithic Power Systems",
+"name": "Monolithic Power Systems",
+"qid": "Q22058448",
+"wiki": "Monolithic Power Systems"
+},
+{
+"title": "Monster Beverage",
+"name": "Monster Beverage",
+"qid": "Q1945295",
+"wiki": "Monster Beverage"
+},
+{
+"title": "Nebius Group",
+"name": "Nebius Group",
+"qid": "Q47120756",
+"wiki": "Nebius Group"
+},
+{
+"title": "Netflix, Inc.",
+"name": "Netflix, Inc.",
+"qid": "Q116452644",
+"wiki": "Netflix, Inc."
+},
+{
+"title": "Nvidia",
+"name": "Nvidia",
+"qid": "Q182477",
+"wiki": "Nvidia"
+},
+{
+"title": "NXP Semiconductors",
+"name": "NXP Semiconductors",
+"qid": "Q1155668",
+"wiki": "NXP Semiconductors"
+},
+{
+"title": "O'Reilly Automotive",
+"name": "O'Reilly Automotive",
+"qid": "Q7071951",
+"wiki": "O'Reilly Auto Parts"
+},
+{
+"title": "Old Dominion Freight Line",
+"name": "Old Dominion Freight Line",
+"qid": "Q7083862",
+"wiki": "Old Dominion Freight Line"
+},
+{
+"title": "Paccar",
+"name": "Paccar",
+"qid": "Q1477661",
+"wiki": "Paccar"
+},
+{
+"title": "Palantir Technologies",
+"name": "Palantir Technologies",
+"qid": "Q2047336",
+"wiki": "Palantir"
+},
+{
+"title": "Palo Alto Networks",
+"name": "Palo Alto Networks",
+"qid": "Q7128508",
+"wiki": "Palo Alto Networks"
+},
+{
+"title": "Paychex",
+"name": "Paychex",
+"qid": "Q946080",
+"wiki": "Paychex"
+},
+{
+"title": "PayPal",
+"name": "PayPal",
+"qid": "Q483959",
+"wiki": "PayPal"
+},
+{
+"title": "Pinduoduo",
+"name": "PDD Holdings",
+"qid": "Q47015652",
+"wiki": "Pinduoduo"
+},
+{
+"title": "PepsiCo",
+"name": "PepsiCo",
+"qid": "Q334800",
+"wiki": "PepsiCo"
+},
+{
+"title": "Qualcomm",
+"name": "Qualcomm",
+"qid": "Q544847",
+"wiki": "Qualcomm"
+},
+{
+"title": "Regeneron Pharmaceuticals",
+"name": "Regeneron Pharmaceuticals",
+"qid": "Q7308054",
+"wiki": "Regeneron Pharmaceuticals"
+},
+{
+"title": "Rocket Lab",
+"name": "Rocket Lab",
+"qid": "Q116319",
+"wiki": "Rocket Lab"
+},
+{
+"title": "Roper Technologies",
+"name": "Roper Technologies",
+"qid": "Q16932392",
+"wiki": "Roper Technologies"
+},
+{
+"title": "Ross Stores",
+"name": "Ross Stores",
+"qid": "Q3442791",
+"wiki": "Ross Stores"
+},
+{
+"title": "Sandisk",
+"name": "Sandisk",
+"qid": "Q260833",
+"wiki": "Sandisk"
+},
+{
+"title": "Seagate Technology",
+"name": "Seagate Technology",
+"qid": "Q705392",
+"wiki": "Seagate Technology"
+},
+{
+"title": "Shopify",
+"name": "Shopify",
+"qid": "Q7501150",
+"wiki": "Shopify"
+},
+{
+"title": "SpaceX",
+"name": "SpaceX",
+"qid": "Q193701",
+"wiki": "SpaceX"
+},
+{
+"title": "Starbucks",
+"name": "Starbucks",
+"qid": "Q37158",
+"wiki": "Starbucks"
+},
+{
+"title": "Synopsys",
+"name": "Synopsys",
+"qid": "Q2303478",
+"wiki": "Synopsys"
+},
+{
+"title": "T-Mobile US",
+"name": "T-Mobile US",
+"qid": "Q3511885",
+"wiki": "T-Mobile US"
+},
+{
+"title": "Take-Two Interactive",
+"name": "Take-Two Interactive",
+"qid": "Q94933",
+"wiki": "Take-Two Interactive"
+},
+{
+"title": "Teradyne",
+"name": "Teradyne",
+"qid": "Q2404292",
+"wiki": "Teradyne"
+},
+{
+"title": "Tesla, Inc.",
+"name": "Tesla, Inc.",
+"qid": "Q478214",
+"wiki": "Tesla, Inc."
+},
+{
+"title": "Texas Instruments",
+"name": "Texas Instruments",
+"qid": "Q193412",
+"wiki": "Texas Instruments"
+},
+{
+"title": "Thomson Reuters",
+"name": "Thomson Reuters",
+"qid": "Q1141267",
+"wiki": "Thomson Reuters"
+},
+{
+"title": "Vertex Pharmaceuticals",
+"name": "Vertex Pharmaceuticals",
+"qid": "Q2744099",
+"wiki": "Vertex Pharmaceuticals"
+},
+{
+"title": "Walmart",
+"name": "Walmart",
+"qid": "Q483551",
+"wiki": "Walmart"
+},
+{
+"title": "Warner Bros. Discovery",
+"name": "Warner Bros. Discovery",
+"qid": "Q107074885",
+"wiki": "Warner Bros. Discovery"
+},
+{
+"title": "Western Digital",
+"name": "Western Digital",
+"qid": "Q738770",
+"wiki": "Western Digital"
+},
+{
+"title": "Workday, Inc.",
+"name": "Workday, Inc.",
+"qid": "Q8034666",
+"wiki": "Workday, Inc."
+},
+{
+"title": "Xcel Energy",
+"name": "Xcel Energy",
+"qid": "Q1486956",
+"wiki": "Xcel Energy"
+}
+]
+}
