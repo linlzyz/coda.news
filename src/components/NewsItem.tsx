@@ -92,3 +92,29 @@ export function FeaturedCards({ events, lang, heading }: { events: EventRow[]; l
     </section>
   );
 }
+
+/** Magazine layout (travel): every story as a picture card in a grid. */
+export function MagazineGrid({ events, lang }: { events: EventRow[]; lang: Lang }) {
+  const zh = lang === "zh";
+  return (
+    <div className="grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+      {events.map((e) => {
+        const single = oneSource(e);
+        const href = `/event/${e.slug}`;
+        return (
+          <article key={e.id} className="group min-w-0">
+            <Link href={href} className="block"><Cover e={e} className="aspect-[4/3] w-full rounded-2xl" /></Link>
+            <div className="mt-3 flex items-center gap-2 text-[12px] text-neutral-500">
+              {e.countries[0] && <Flag code={e.countries[0]} size={10} />}
+              <span className="truncate">{single ? e.lead_source : zh ? `${e.source_count} 个来源` : `${e.source_count} sources`}</span>
+              <span aria-hidden>·</span><span className="shrink-0">{timeAgoL(e.last_article_at, lang)}</span>
+            </div>
+            <h3 className="mt-1.5 text-[19px] font-semibold leading-snug tracking-[-0.015em] text-[#16181D]"><Link href={href} className="hover:text-[#C2410C]">{title(e, lang)}</Link></h3>
+            {summary(e, lang) && <p className="mt-1.5 line-clamp-3 text-[14px] leading-relaxed text-neutral-600">{summary(e, lang)}</p>}
+            {single && <a href={e.lead_url!} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-[13px] font-medium text-[#C2410C] hover:underline">{zh ? "查看原文" : "Read original"} ↗</a>}
+          </article>
+        );
+      })}
+    </div>
+  );
+}

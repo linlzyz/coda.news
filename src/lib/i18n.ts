@@ -49,7 +49,7 @@ const D = {
   automotiveIntro: ["Carmakers, EVs, launches and sales, compared across countries.", "车企、电动车、新车与销量，按国家对比。"],
   gamingIntro: ["Games, studios, consoles and esports, compared across countries.", "游戏、厂商、主机与电竞，按国家对比。"],
   cnIntro: ["Stories that happen in or mainly concern China, and how the world reports them.", "发生在中国或主要与中国有关的新闻，以及世界各地如何报道。"],
-  travelIntro: ["Airlines, tourism, destinations and travel rules, compared across countries.", "航空、旅游、目的地和出行政策，按国家对比。"],
+  travelIntro: ["New hotels, places worth the trip, and what is changing for travellers.", "新开的酒店、值得去的地方，以及出行的新变化。"],
   fashionIntro: ["Collections, brands and design, compared across countries.", "时装系列、品牌与设计，按国家对比。"],
   auIntro: ["Australian business, technology, sport and culture, and how the world reports Australia.", "澳洲的商业、科技、体育与文化，以及世界如何报道澳洲。"],
   econIntro: ["Rates, trade, markets and companies, compared across countries.", "利率、贸易、市场与公司，按国家对比。"],
