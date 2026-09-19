@@ -28,6 +28,7 @@ const INFO: Record<string, { c?: string; en: string; zh: string }> = {
   "NAT GAS": { c: "US", en: "US natural gas price (Henry Hub), US dollars per million BTU.", zh: "美国天然气价格（Henry Hub），美元/百万英热单位。" },
 };
 // the unit under each name, so a reader knows what the number means
+const NAME_ZH: Record<string, string> = { SHANGHAI: "上证指数", SHENZHEN: "深证成指", "CSI 300": "沪深300", "SSE B-SHARE": "上证B股", "SZSE B-SHARE": "深证B股", "HANG SENG": "恒生指数", "HS TECH": "恒生科技" };
 function unitOf(name: string, zh: boolean): string {
   const fx = name.match(/^([A-Z]{3})\/([A-Z]{3})$/);
   if (fx) return zh ? `1 ${fx[1]} 兑 ${fx[2]}` : `${fx[2]} per 1 ${fx[1]}`;
@@ -72,7 +73,7 @@ export function Markets({ tabs, updated, title, empty, zh = false }: { tabs: { l
           <div key={q.name} className="grid grid-cols-[108px_minmax(0,1fr)_80px_58px] items-center gap-2 py-2 text-[13px]">
             <span className="flex min-w-0 items-center gap-1 font-semibold" title={INFO[q.name] ? (zh ? INFO[q.name].zh : INFO[q.name].en) : undefined}>
               {flagsOf(q.name).length > 0 && <span className="flex shrink-0 -space-x-0.5">{flagsOf(q.name).map((c) => <Flg key={c} c={c} />)}</span>}
-              <span className="min-w-0"><span className="block truncate text-[12px]">{q.name}</span><span className="block truncate text-[10px] font-normal text-neutral-400">{unitOf(q.name, zh)}</span></span>
+              <span className="min-w-0"><span className="block truncate text-[12px]">{(zh && NAME_ZH[q.name]) || q.name}</span><span className="block truncate text-[10px] font-normal text-neutral-400">{unitOf(q.name, zh)}</span></span>
             </span>
             <Spark s={q.series} up={q.change >= 0} />
             <span className="whitespace-nowrap text-right tabular-nums">{q.value.toLocaleString("en-US", { minimumFractionDigits: q.digits, maximumFractionDigits: q.digits })}</span>
@@ -85,7 +86,7 @@ export function Markets({ tabs, updated, title, empty, zh = false }: { tabs: { l
           <summary className="cursor-pointer select-none font-medium text-neutral-700">{zh ? "这些是什么？" : "What are these?"}</summary>
           <dl className="mt-2 space-y-1.5">
             {cur.quotes.filter((q) => INFO[q.name]).map((q) => (
-              <div key={q.name}><dt className="inline font-semibold text-neutral-800">{q.name}</dt><dd className="inline">{zh ? "：" : ": "}{zh ? INFO[q.name].zh : INFO[q.name].en}</dd></div>
+              <div key={q.name}><dt className="inline font-semibold text-neutral-800">{(zh && NAME_ZH[q.name]) || q.name}</dt><dd className="inline">{zh ? "：" : ": "}{zh ? INFO[q.name].zh : INFO[q.name].en}</dd></div>
             ))}
           </dl>
         </details>
