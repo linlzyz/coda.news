@@ -230,7 +230,7 @@ async function fillQueries(max = 80) {
     and status <> 'archived' order by last_article_at desc limit ${max}`;
   if (!rows.length) return;
   const prompt = `For each news headline:
-q = 2 to 4 English words for a stock photo that shows what the story is about (the activity, place or object), e.g. "fitness race athletes", "steam locomotive", "tokyo stock exchange", "fashion runway". No brand or person names. For travel stories use an inviting scenic view of the place, e.g. "dubrovnik old town coast", "kyoto temple garden", "luxury hotel pool".
+q = 2 to 4 English words for a stock photo that shows what the story is about (the activity, place or object), e.g. "fitness race athletes", "steam locomotive", "tokyo stock exchange". No brand or person names, and never people as the subject (no models, runways or outfits). For travel stories use an inviting scenic view of the place, e.g. "dubrovnik old town coast", "kyoto temple garden", "luxury hotel pool".
 Write q = "" when a generic stock photo would be wrong or tasteless: a person's illness, health, surgery, death, grief, relationships, pregnancy, crime, court case or scandal, and any story that is really about one person.
 p = the full name of the one well-known person the story is about, or "".
 b = the one brand, franchise or company the story is mainly about (e.g. "Pokémon", "Dior", "Toyota"), or "".
@@ -428,6 +428,8 @@ ${games.map((g, i) => `${i + 1}. ${g.title}`).join("\n")}`)).g ?? {};
     from events e where e.image_url is null and e.image_checked_at is null and e.summary is not null
       -- people stories get a real portrait or our cover, never a stock photo; nor do stories about illness, death or crime
       and e.image_person is null
+      -- fashion: a stock model reads as the brand's own collection, so fashion gets the brand's logo, a press image or our cover instead
+      and e.category <> 'fashion' and coalesce(e.image_query, '') !~* '(runway|catwalk|fashion|outfit|streetwear|celebrit|portrait|red carpet)'
       and e.title !~* '(cancer|tumou?r|illness|diagnos|surgery|hysterectomy|hospital|died|dies|death|dead|funeral|passed away|grief|miscarriage|pregnan|divorce|arrest|charged|lawsuit|sued|assault|abuse|rehab|overdose|suicide)'
     order by e.importance desc, e.last_article_at desc limit ${limit}`;
   let n = 0;
