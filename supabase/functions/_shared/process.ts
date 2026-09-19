@@ -127,7 +127,7 @@ async function upsertCompanies(names: string[]): Promise<number[]> {
     const found = await sql<{ id: number }[]>`
       select id from companies where lower(name) = lower(${name}) or exists (select 1 from unnest(aliases) a where lower(a) = lower(${name})) limit 1`;
     if (found[0]) { ids.push(found[0].id); continue; }
-    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || `company`;
+    const slug = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || `company`;
     const [c] = await sql<{ id: number }[]>`
       insert into companies (name, slug) values (${name}, ${slug})
       on conflict (name) do update set name = excluded.name returning id`.catch(async () =>

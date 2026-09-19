@@ -130,6 +130,7 @@ async function commons(q: string): Promise<Img | null> {
     const ii = p.imageinfo?.[0]; const m = ii?.extmetadata ?? {};
     const lic = String(m.LicenseShortName?.value ?? "");
     if (!ii || ii.mime !== "image/jpeg" || ii.width < 1200 || ii.width < ii.height || !FREE.test(lic) || NOT_PHOTO.test(p.title)) continue;
+    if (!relevant(q, `${p.title} ${String(m.ImageDescription?.value ?? "").replace(/<[^>]+>/g, " ")} ${String(m.Categories?.value ?? "")}`)) continue;
     const artist = String(m.Artist?.value ?? "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().slice(0, 60) || "Unknown";
     list.push({ url: ii.thumburl ?? ii.url, credit: `${artist} / Wikimedia Commons (${lic})`, link: ii.descriptionurl,
       source: "commons", license: lic, licenseUrl: String(m.LicenseUrl?.value ?? "") || undefined });
@@ -151,6 +152,7 @@ async function openverse(q: string): Promise<Img | null> {
     const base = OV_LIC[p.license];
     const tags = (p.tags ?? []).map((t: { name: string }) => t.name).join(" ");
     if (!base || !p.url || !p.foreign_landing_url || p.source === "wikimedia" || NOT_PHOTO.test(`${p.title} ${tags}`) || /illustration|manipulation|photoshop|render/i.test(`${p.title} ${tags}`)) continue;
+    if (!relevant(q, `${p.title ?? ""} ${tags}`)) continue;
     const lic = base.startsWith("CC BY") && p.license_version ? `${base} ${p.license_version}` : base;
     const where = String(p.source ?? p.provider ?? "Openverse").replace(/^\w/, (c: string) => c.toUpperCase());
     list.push({ url: p.url, credit: `${String(p.creator ?? "Unknown").slice(0, 60)} / ${where} via Openverse (${lic})`, link: p.foreign_landing_url,
@@ -263,16 +265,18 @@ export async function assignImages(limit = 12): Promise<number> {
   // 2) stories about a brand with a known logo (and no person photo): the brand's logo beats a generic stock photo
   const brands = await sql<{ id: number; logo: string }[]>`
     select e.id, replace(c.logo_url, 'width=320', 'width=640') as logo from events e
-      join companies c on c.id = any(e.company_ids) and lower(c.name) = lower(e.image_brand)
-    where e.brand_checked_at is null and e.image_brand is not null and e.summary is not null and c.logo_url is not null and coalesce(e.image_focus, '') <> 'top'
-      and (e.image_url is null or e.image_source in ('pexels','unsplash','pixabay','openverse'))
-    order by e.importance desc, e.last_article_at desc limit 40`;
+      join companies c on c.id = any(e.company_ids) and (lower(c.name) = lower(e.image_brand)
+        -- no brand named, but the story is plainly about its one company (named in the headline)
+        or (e.image_brand is null and cardinality(e.company_ids) = 1 and e.title ~* ('(^|[^a-z])' || regexp_replace(c.name, '([.^$*+?()\\[\\]{}|\\\\])', '\\\\\\1', 'g') || '($|[^a-z])')))
+    where e.brand_checked_at is null and e.summary is not null and c.logo_url is not null and coalesce(e.image_focus, '') <> 'top'
+      and (e.image_url is null or e.image_source in ('pexels','unsplash','pixabay','openverse','commons'))
+    order by e.importance desc, e.last_article_at desc limit 300`;
   for (const b of brands) {
     await sql`update events set image_url = ${b.logo}, image_credit = 'Logo: Wikimedia Commons', image_link = null, image_source = 'logo', image_license = null,
               image_license_url = null, image_focus = 'logo', image_checked_at = now(), brand_checked_at = now() where id = ${b.id}`;
   }
   if (brands.length) log(`images: ${brands.length} brand logos`);
-  await sql`update events set brand_checked_at = now() where brand_checked_at is null and summary is not null and image_url is not null and image_source not in ('pexels','unsplash','pixabay','openverse')`;
+  await sql`update events set brand_checked_at = now() where brand_checked_at is null and summary is not null and image_url is not null and image_source not in ('pexels','unsplash','pixabay','openverse','commons')`;
 
   const events = await sql<{ id: number; image_query: string | null; slugs: string[] | null }[]>`
     select e.id, e.image_query, (select array_agg(t.slug) from topics t where t.id = any(e.topic_ids)) as slugs

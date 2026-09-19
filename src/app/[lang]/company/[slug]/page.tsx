@@ -1,6 +1,6 @@
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import Link from "@/components/LLink";
-import { allTopics, companyDirectory, companyMap, getCompany, listEvents, notable, type CompanyCard } from "@/lib/data";
+import { allTopics, companyDirectory, companyRedirect, companyMap, getCompany, listEvents, notable, type CompanyCard } from "@/lib/data";
 import { alternates, langFrom } from "@/lib/i18n";
 import { summary, timeAgoL, title } from "@/lib/loc";
 import { Cover } from "@/components/Cover";
@@ -53,7 +53,7 @@ type Social = { instagram: string | null; x_handle: string | null; facebook: str
 export default async function Page({ params }: PageProps<"/[lang]/company/[slug]">) {
   const p = await params;
   const c = await getCompany(p.slug);
-  if (!c) notFound();
+  if (!c) { const to = await companyRedirect(p.slug); if (to) permanentRedirect(`${p.lang === "zh" ? "/zh" : ""}/company/${to}`); notFound(); }
   const l = await langFrom(params); const zh = l === "zh";
   const [events, dir, topics] = await Promise.all([listEvents({ companyId: c.id, order: "recent", limit: 60 }), companyDirectory(), allTopics()]);
   const companies = await companyMap(events);

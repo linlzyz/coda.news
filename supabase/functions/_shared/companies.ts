@@ -143,6 +143,10 @@ export async function enrichCompanies(limit = 15): Promise<number> {
       const sloganC = pickS?.mainsnak?.datavalue?.value;
       const parentId = idOf(e, "P749");
       const sector = sectorOf(en(indId), e.descriptions?.en?.value, en(parentId));
+      // the same entity already exists under another name (e.g. "Meta" and "Meta Platforms"): fold this one into it
+      const first = (x: string) => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().match(/[a-z0-9]+/)?.[0] ?? "";
+      const [twin] = await sql<{ id: number; name: string }[]>`select id, name from companies where wikidata_id = ${e.id} and id <> ${c.id} limit 1`;
+      if (twin && first(twin.name) === first(c.name)) { await sql`select merge_companies(${twin.id}, ${c.id})`; log("companies: merged", c.name, "into", twin.name); n++; continue; }
       await sql`update companies set wikidata_id = ${e.id}, name_zh = ${zhOf(e.labels) ?? null},
         description = coalesce(description, ${e.descriptions?.en?.value ?? null}), description_zh = ${zhOf(e.descriptions) ?? null},
         about_en = ${aboutEn}, about_zh = ${aboutZh}, website = coalesce(website, ${site}), founded = ${founded ? Number(founded) : null},

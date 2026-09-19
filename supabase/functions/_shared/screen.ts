@@ -24,7 +24,7 @@ export async function screenArticles(limit = 360): Promise<{ screened: number; d
     const chunk = rest.slice(i, i + 60);
     const prompt = `You screen news items for coda.news.
 K = keep: a specific, new event in technology, business/economy/markets, sport (results, transfers, squads, coaches), entertainment (releases, box office, awards, celebrities), fashion (shows, collections, brands, designers), travel (airlines, tourism, visas, hotels), cars (carmakers, EVs, launches) or video games (games, studios, consoles, esports).
-D = drop: politics, government, diplomacy, war, military, crime, courts, accidents, disasters, weather, health advice, education, memorials, religion, lifestyle or beauty tips, how-to guides, reviews, shopping deals, listicles, horoscopes, recipes, opinion or analysis columns, previews, explainers, live blogs, roundups.
+D = drop: politics, government, diplomacy, war, military, crime, courts, accidents, disasters, weather, health advice, education, memorials, religion, lifestyle or beauty tips, how-to guides, reviews, shopping deals, listicles, horoscopes, recipes, opinion or analysis columns, local or city-level news (a city, district or county project, local government notices, community or neighbourhood works, regional livelihood programmes), previews, explainers, live blogs, roundups.
 U = unsure: only when it really cannot be judged. When in doubt between K and D, choose K. Items can be in any language.
 Return JSON only, with one entry for EVERY item (${chunk.length} entries): {"r":{"1":"K","2":"D"}}
 ${chunk.map((r, k) => `${k + 1}. [${r.country}] ${r.title}${r.rss_summary ? " | " + r.rss_summary.replace(/\s+/g, " ").slice(0, 140) : ""}`).join("\n")}`;

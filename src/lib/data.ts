@@ -97,6 +97,10 @@ async function _getCompany(slug: string) {
     .eq("slug", slug).maybeSingle();
   return data as CompanyProfile | null;
 }
+export async function companyRedirect(slug: string): Promise<string | null> {
+  const { data } = await supabase.from("company_redirects").select("companies(slug)").eq("slug", slug).maybeSingle();
+  return (data as { companies: { slug: string } | null } | null)?.companies?.slug ?? null;
+}
 async function _getTopic(slug: string) {
   const { data } = await supabase.from("topics").select("id,name,slug,color").eq("slug", slug).maybeSingle();
   return data as Topic | null;
