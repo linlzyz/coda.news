@@ -266,6 +266,31 @@ async function pressImage(url: string): Promise<string | null> {
   } catch { return null; }
 }
 
+// IGDB (Twitch's game database): official covers, key art and screenshots for the game a story is about.
+let igdbToken: string | null = null;
+async function igdb(body: string): Promise<any[]> {
+  const id = env("IGDB_CLIENT_ID"), secret = env("IGDB_CLIENT_SECRET");
+  if (!id || !secret) return [];
+  if (!igdbToken) {
+    const t = await (await fetch(`https://id.twitch.tv/oauth2/token?client_id=${id}&client_secret=${secret}&grant_type=client_credentials`, { method: "POST", signal: AbortSignal.timeout(8000) })).json();
+    igdbToken = t.access_token ?? null; if (!igdbToken) return [];
+  }
+  const r = await fetch("https://api.igdb.com/v4/games", { method: "POST", headers: { "Client-ID": id, Authorization: `Bearer ${igdbToken}` }, body, signal: AbortSignal.timeout(8000) });
+  return r.ok ? await r.json() : [];
+}
+const norm = (x: string) => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+async function gameArt(name: string): Promise<(Img & { focus: string | null }) | null> {
+  const list = await igdb(`search "${name.replace(/"/g, "")}"; fields name,url,cover.image_id,artworks.image_id,screenshots.image_id; limit 5;`);
+  const want = norm(name);
+  const g = list.find((x) => norm(x.name) === want) ?? list.find((x) => norm(x.name).startsWith(want) || want.startsWith(norm(x.name)));
+  if (!g) return null;
+  const art = g.artworks?.[0]?.image_id ?? g.screenshots?.[0]?.image_id;
+  const pick = art ? { id: art, focus: null } : g.cover?.image_id ? { id: g.cover.image_id, focus: "top" } : null;
+  if (!pick) return null;
+  return { url: `https://images.igdb.com/igdb/image/upload/t_1080p/${pick.id}.jpg`, credit: `${g.name} / IGDB`, link: g.url ?? "https://www.igdb.com",
+    source: "igdb", license: "Publicity image", focus: pick.focus };
+}
+
 export async function assignImages(limit = 12): Promise<number> {
   const sql = db();
   await fillQueries();
@@ -293,6 +318,30 @@ export async function assignImages(limit = 12): Promise<number> {
     } else await sql`update events set person_checked_at = now() where id = ${p.id}`;
   }
   if (people.length) log(`images: ${swapped}/${people.length} person portraits`);
+
+  // 1a) game stories: the game's official art from IGDB (name picked out of the headline by the cheap model)
+  const games = await sql<{ id: number; title: string }[]>`
+    select id, title from events where category = 'gaming' and game_checked_at is null and summary is not null and status <> 'archived'
+      and coalesce(image_focus, '') <> 'top' order by last_article_at desc limit 40`;
+  if (games.length && env("IGDB_CLIENT_ID")) {
+    let names: Record<string, string> = {};
+    try {
+      names = (await cheapJSON<{ g: Record<string, string> }>(`For each headline, give the exact title of the one video game it is about, or "" if it is not about one specific game (e.g. a studio, console, company or industry story).
+Return JSON only: {"g":{"1":"Fire Emblem: Fortune's Weave","2":""}}
+${games.map((g, i) => `${i + 1}. ${g.title}`).join("\n")}`)).g ?? {};
+    } catch { names = {}; }
+    let gameN = 0;
+    for (const [i, g] of games.entries()) {
+      const name = (names[String(i + 1)] ?? "").trim();
+      const img = name ? await gameArt(name).catch(() => null) : null;
+      if (img) {
+        await sql`update events set image_url = ${img.url}, image_credit = ${img.credit}, image_link = ${img.link}, image_source = 'igdb', image_license = ${img.license ?? null},
+                  image_license_url = null, image_focus = ${img.focus}, image_checked_at = now(), brand_checked_at = now(), press_checked_at = now(), game_checked_at = now() where id = ${g.id}`;
+        gameN++;
+      } else await sql`update events set game_checked_at = now() where id = ${g.id}`;
+    }
+    log(`images: ${gameN}/${games.length} game art`);
+  }
 
   // 1b) games, cars, tech products, travel, films: the publicity image used by the story's own article
   const press = await sql<{ id: number; arts: { url: string; source: string }[] }[]>`
