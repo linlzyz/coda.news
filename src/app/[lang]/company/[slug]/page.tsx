@@ -8,6 +8,7 @@ import { Flag } from "@/components/Flag";
 import { NewsItem } from "@/components/NewsItem";
 import { CategoryLabel } from "@/components/Pills";
 import { FollowBox } from "@/components/FollowBox";
+import { Avatar } from "@/components/Avatar";
 import { CompanyLogo } from "@/components/companies/Logo";
 import { Tabs } from "@/components/companies/Tabs";
 import { sectorLabel } from "@/components/companies/sectors";
@@ -217,8 +218,7 @@ export default async function Page({ params }: PageProps<"/[lang]/company/[slug]
             <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {st.people.map((x) => (
                 <div key={x.name} className="flex items-center gap-4 rounded-2xl border border-[#E5E7EB] bg-white p-4">
-                  {x.photo ? <img src={x.photo} alt={x.name} className="h-16 w-16 shrink-0 rounded-full object-cover object-top" loading="lazy" />
-                    : <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[#F4F5F7] text-[20px] font-semibold text-neutral-500">{x.name[0]}</span>}
+                  <Avatar src={x.photo} name={x.name} />
                   <div className="min-w-0"><div className="truncate text-[15px] font-semibold">{x.name}</div><div className="text-[13px] text-neutral-500">{zh ? x.role_zh : x.role}</div></div>
                 </div>
               ))}
