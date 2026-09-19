@@ -113,8 +113,8 @@ export async function enrichCompanies(limit = 15): Promise<number> {
         .sort((a, b) => (b.rank === "preferred" ? 1 : 0) - (a.rank === "preferred" ? 1 : 0) || String(b.qualifiers?.P580?.[0]?.datavalue?.value?.time ?? "").localeCompare(String(a.qualifiers?.P580?.[0]?.datavalue?.value?.time ?? "")))[0];
       const ceoId = ceoC?.mainsnak?.datavalue?.value?.id as string | undefined;
       const refs = [idOf(e, "P159"), idOf(e, "P452"), idOf(e, "P414"), idOf(e, "P17"), idOf(e, "P749"), ...founderIds, ceoId].filter(Boolean) as string[];
-      const labels = refs.length ? (await get(`action=wbgetentities&ids=${[...new Set(refs)].join("|")}&props=labels|claims&languages=en|zh|zh-hans|zh-cn`)).entities ?? {} : {};
-      const en = (id?: string) => (id ? labels[id]?.labels?.en?.value : undefined) as string | undefined;
+      const labels = refs.length ? (await get(`action=wbgetentities&ids=${[...new Set(refs)].join("|")}&props=labels|claims&languages=en|mul|zh|zh-hans|zh-cn`)).entities ?? {} : {};
+      const en = (id?: string) => (id ? (labels[id]?.labels?.en ?? labels[id]?.labels?.mul)?.value : undefined) as string | undefined;
       const zh = (id?: string) => (id ? zhOf(labels[id]?.labels) : undefined);
       const hqId = idOf(e, "P159"), countryId = idOf(e, "P17"), indId = idOf(e, "P452");
       // show the HQ city only when it is a real settlement (has a population); buildings, airports and districts fall back to the country

@@ -8,7 +8,7 @@ import { env, log } from "./env.ts";
 import { cheapJSON } from "./ai.ts";
 import { UA as BOT } from "./text.ts";
 
-type Img = { url: string; credit: string; link: string; source?: string; license?: string; licenseUrl?: string };
+export type Img = { url: string; credit: string; link: string; source?: string; license?: string; licenseUrl?: string };
 
 const TOPIC_QUERIES: Record<string, string[]> = {
   "artificial-intelligence": ["artificial intelligence abstract", "data center servers", "circuit board macro"],
@@ -170,7 +170,7 @@ async function openverse(q: string): Promise<Img | null> {
 // A real portrait of the person the story is about: their Wikidata entry's main image (P18), which always lives on Commons.
 // We check it is a human with that exact name, and that the file's licence is free, before using it.
 const UA = { "user-agent": "CodaNewsBot/0.1 (https://coda.news; info@coda.news)" };
-async function personPhoto(name: string, eventId: number): Promise<Img | null> {
+export async function personPhoto(name: string, eventId: number): Promise<Img | null> {
   const w = "https://www.wikidata.org/w/api.php?format=json&";
   const s = await (await fetch(`${w}action=wbsearchentities&search=${encodeURIComponent(name)}&language=en&type=item&limit=5`, { headers: UA, signal: AbortSignal.timeout(10000) })).json();
   const ids: string[] = (s.search ?? []).map((x: { id: string }) => x.id);
