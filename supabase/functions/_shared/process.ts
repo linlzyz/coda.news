@@ -28,7 +28,7 @@ export async function processBatch(): Promise<{ claimed: number; relevant: numbe
       -- fair share: round-robin between priority tiers (newest first within each), so sections outside tech/economy are not starved
       select id from (
         select a2.id, s2.priority, row_number() over (partition by s2.priority order by a2.published_at desc nulls last) as rn
-        from articles a2 join sources s2 on s2.id = a2.source_id where a2.status = 'pending' and a2.screened_at is not null
+        from articles a2 join sources s2 on s2.id = a2.source_id where a2.status = 'pending' and a2.screened_at is not null and s2.active
       ) q order by (rn - 1) / (case when priority = 1 then 3 else 2 end), priority limit ${BATCH_NOW})
       and a.status = 'pending' and pg_try_advisory_xact_lock(a.id)
     returning a.id, a.url, a.title, a.rss_summary, a.source_id, s.name as source, s.country, s.language, s.type`;
