@@ -33,11 +33,14 @@ const exhausted = new Set<string>();
 
 // a stock photo must actually show the query: at least one meaningful query word appears in its description or tags
 const STOP = new Set("a an the of in on at and or for with to from by new old modern generic scene photo".split(" "));
-const relevant = (q: string, text: string) => {
+const relevant = (q: string, text: string, all = false) => {
   const words = q.toLowerCase().split(/[^a-z]+/).filter((w) => w.length > 2 && !STOP.has(w));
   const t = ` ${text.toLowerCase()} `;
-  return words.some((w) => t.includes(w.replace(/s$/, "")));
+  const hit = (w: string) => t.includes(w.replace(/s$/, ""));
+  return words.length > 0 && (all ? words.every(hit) : words.some(hit));
 };
+// open archives (Commons, Openverse) hold documentary photos of protests, wars and people; they must match every word, and never show these
+const SENSITIVE = /\b(protest|rally in support|demonstrat|riot|war|soldier|military|funeral|victim|refugee|police|arrest|blood|weapon|gun|flag of|ukrain|russia|israel|gaza|palestin|politic|election|campaign|march for|strike)/i;
 
 async function unused(candidates: Img[]): Promise<Img | null> {
   if (!candidates.length) return null;
@@ -130,7 +133,8 @@ async function commons(q: string): Promise<Img | null> {
     const ii = p.imageinfo?.[0]; const m = ii?.extmetadata ?? {};
     const lic = String(m.LicenseShortName?.value ?? "");
     if (!ii || ii.mime !== "image/jpeg" || ii.width < 1200 || ii.width < ii.height || !FREE.test(lic) || NOT_PHOTO.test(p.title)) continue;
-    if (!relevant(q, `${p.title} ${String(m.ImageDescription?.value ?? "").replace(/<[^>]+>/g, " ")} ${String(m.Categories?.value ?? "")}`)) continue;
+    const about = `${p.title} ${String(m.ImageDescription?.value ?? "").replace(/<[^>]+>/g, " ")} ${String(m.Categories?.value ?? "")}`;
+    if (!relevant(q, about, true) || SENSITIVE.test(about)) continue;
     const artist = String(m.Artist?.value ?? "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().slice(0, 60) || "Unknown";
     list.push({ url: ii.thumburl ?? ii.url, credit: `${artist} / Wikimedia Commons (${lic})`, link: ii.descriptionurl,
       source: "commons", license: lic, licenseUrl: String(m.LicenseUrl?.value ?? "") || undefined });
@@ -152,7 +156,7 @@ async function openverse(q: string): Promise<Img | null> {
     const base = OV_LIC[p.license];
     const tags = (p.tags ?? []).map((t: { name: string }) => t.name).join(" ");
     if (!base || !p.url || !p.foreign_landing_url || p.source === "wikimedia" || NOT_PHOTO.test(`${p.title} ${tags}`) || /illustration|manipulation|photoshop|render/i.test(`${p.title} ${tags}`)) continue;
-    if (!relevant(q, `${p.title ?? ""} ${tags}`)) continue;
+    if (!relevant(q, `${p.title ?? ""} ${tags}`, true) || SENSITIVE.test(`${p.title ?? ""} ${tags}`)) continue;
     const lic = base.startsWith("CC BY") && p.license_version ? `${base} ${p.license_version}` : base;
     const where = String(p.source ?? p.provider ?? "Openverse").replace(/^\w/, (c: string) => c.toUpperCase());
     list.push({ url: p.url, credit: `${String(p.creator ?? "Unknown").slice(0, 60)} / ${where} via Openverse (${lic})`, link: p.foreign_landing_url,
