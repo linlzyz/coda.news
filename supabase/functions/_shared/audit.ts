@@ -34,7 +34,14 @@ Return JSON only: {"foreign_articles":[123],"foreign_facts":[456]}`, "fast");
       const zh = [fa.length ? `移除了 ${fa.length} 篇其实在报道另一件事的文章${titles ? `（${titles}）` : ""}。` : "",
                   ff.length ? `移除了 ${ff.length} 条属于另一件事的事实。` : ""].filter(Boolean).join("");
       await sql`insert into corrections (event_id, event_slug, event_title, kind, detail_en, detail_zh)
-                select id, slug, title, ${fa.length ? "removed_articles" : "removed_facts"}, ${en}, ${zh} from events where id = ${e.id}`;
+                select id, slug, title, ${fa.length ? "removed_articles" : "removed_facts"}, ${en}, ${zh} from events where id = ${e.id}`;    } else {
+      // a clean check is logged too (once a day per event), so the log shows what was confirmed, not only what was wrong
+      await sql`insert into corrections (event_id, event_slug, event_title, kind, detail_en, detail_zh)
+        select e.id, e.slug, e.title, 'verified',
+          ${`Re-checked ${arts.length} reports and ${facts.length} facts: all belong to this story, nothing to correct.`},
+          ${`复查了 ${arts.length} 篇报道和 ${facts.length} 条事实，全部属于同一事件，无需更正。`}
+        from events e where e.id = ${e.id} and cardinality(e.countries) >= 2
+          and not exists (select 1 from corrections c where c.event_id = e.id and c.kind = 'verified' and c.created_at > now() - interval '1 day')`;
     }
   }
   return fixed;

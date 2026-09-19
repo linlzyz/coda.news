@@ -219,12 +219,20 @@ export async function followToken(token: string, action: "confirm" | "stop") {
 
 // ---- corrections log ----
 export type Correction = { id: number; event_slug: string | null; event_title: string | null; kind: string; detail_en: string; detail_zh: string | null; created_at: string };
+export async function correctionStats() {
+  const since = new Date(Date.now() - 7 * 86400_000).toISOString();
+  const [v, c] = await Promise.all([
+    supabase.from("corrections").select("id", { count: "exact", head: true }).eq("kind", "verified").gte("created_at", since),
+    supabase.from("corrections").select("id", { count: "exact", head: true }).neq("kind", "verified").gte("created_at", since),
+  ]);
+  return { verified: v.count ?? 0, corrected: c.count ?? 0 };
+}
 async function _listCorrections(limit = 100) {
   const { data } = await supabase.from("corrections").select("id,event_slug,event_title,kind,detail_en,detail_zh,created_at").order("created_at", { ascending: false }).limit(limit);
   return (data ?? []) as Correction[];
 }
 async function _eventCorrections(eventId: number) {
-  const { data } = await supabase.from("corrections").select("id,event_slug,event_title,kind,detail_en,detail_zh,created_at").eq("event_id", eventId).order("created_at", { ascending: false }).limit(20);
+  const { data } = await supabase.from("corrections").select("id,event_slug,event_title,kind,detail_en,detail_zh,created_at").eq("event_id", eventId).neq("kind", "verified").order("created_at", { ascending: false }).limit(20);
   return (data ?? []) as Correction[];
 }
 export const listCorrections = unstable_cache(_listCorrections, ["listCorrections"], { revalidate: 300 });
