@@ -7,7 +7,7 @@ import { Cover } from "@/components/Cover";
 import { Flag, Flags } from "@/components/Flag";
 import { Icon } from "@/components/Icons";
 import { Markets } from "@/components/Markets";
-import { NewsItem } from "@/components/NewsItem";
+import { FeaturedCards, NewsItem, pickFeatured } from "@/components/NewsItem";
 import { Newsletter } from "@/components/Newsletter";
 import { TopicsGrid } from "@/components/TopicsGrid";
 import { Ticker } from "@/components/Ticker";
@@ -41,16 +41,18 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   // headline: the most important multi-country story that still has new reports in the last 12 hours
   const fresh = multi.filter((e) => Date.now() - Date.parse(e.last_article_at) < 12 * 3600_000);
   const top = fresh[0] ?? multi[0] ?? events[0];
-  const featured = multi.find((e) => e.id !== top?.id && e.image_url) ?? multi.find((e) => e.id !== top?.id);
-  const divided = multi.filter((e) => e.id !== top?.id && e.id !== featured?.id)
+  const divided = multi.filter((e) => e.id !== top?.id)
     .sort((a, b) => new Set((persp.get(b.id) ?? []).map((p) => p.tone)).size - new Set((persp.get(a.id) ?? []).map((p) => p.tone)).size).slice(0, 4);
-  const list = events.filter((e) => e.id !== top?.id).slice(0, 75);
+  // 4 key stories with pictures up top (picked for importance and sources, not for having a photo); everything else is the uniform Latest list
+  const key = pickFeatured([...events, ...byCat.flat()].filter((e, i, a) => a.findIndex((x) => x.id === e.id) === i), 4, new Set([top?.id ?? 0]));
+  const keyIds = new Set([top?.id ?? 0, ...key.map((e) => e.id)]);
+  const list = events.filter((e) => !keyIds.has(e.id)).slice(0, 75);
   const inList = new Set(list.map((e) => e.id));
-  const auOnly = au.filter((e) => !inList.has(e.id));
-  const cnOnly = cn.filter((e) => !inList.has(e.id) && !auOnly.some((a) => a.id === e.id));
+  const auOnly = au.filter((e) => !inList.has(e.id) && !keyIds.has(e.id));
+  const cnOnly = cn.filter((e) => !inList.has(e.id) && !keyIds.has(e.id) && !auOnly.some((a) => a.id === e.id));
   const seen = new Set([...inList, ...auOnly.map((e) => e.id), ...cnOnly.map((e) => e.id)]);
   const regionTags = (e: { regions?: string[] }) => (e.regions?.length ?? 0) > 2 ? [] : [...(e.regions?.includes("AU") ? ["australia"] : []), ...(e.regions?.includes("CN") ? ["china"] : [])];
-  const catOnly = byCat.flat().filter((e) => e.id !== top?.id && !seen.has(e.id) && (seen.add(e.id), true));
+  const catOnly = byCat.flat().filter((e) => !keyIds.has(e.id) && !seen.has(e.id) && (seen.add(e.id), true));
   const updated = new Date().toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit", timeZone: "Australia/Melbourne" }) + " AEST";
 
   const siteLd = { "@context": "https://schema.org", "@graph": [
@@ -74,6 +76,8 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
             </div>
           )}
 
+          <FeaturedCards events={key} lang={l} heading={t(l, "keyStories")} />
+
           <Feed title={t(l, "latest")} more={t(l, "loadMore")} disclaimer={t(l, "disclaimer")}
             tabs={(["all", "australia", "china", "economy", "technology", "sport", "entertainment", "fashion", "travel", "automotive", "gaming"] as const).map((k) => [t(l, k), k === "all" ? undefined : k])}
             items={[
@@ -87,17 +91,6 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
         <aside className="space-y-5">
           <Markets zh={l === "zh"} title={t(l, "markets")} empty={t(l, "marketsDown")} updated={updated} tabs={[{ label: t(l, "indices"), quotes: iq, note: `${t(l, "indicesNote")}${iq[0] ? " · " + iq[0].as_of : ""}` }, { label: t(l, "crypto"), quotes: cq, note: t(l, "cryptoNote") }, { label: t(l, "fx"), quotes: fq, note: t(l, "fxNote") }, { label: t(l, "rates"), quotes: rq, note: `${t(l, "indicesNote")}${rq[0] ? " · " + rq[0].as_of : ""}` }]} />
           <TopicsGrid topics={topics} lang={l} />
-          {featured && (
-            <section className="rounded-2xl border border-[#E5E7EB] bg-white p-5">
-              <h2 className="text-[17px] font-semibold tracking-[-0.015em]">{t(l, "featured")}</h2>
-              <Link href={`/event/${featured.slug}`} className="group mt-3 block">
-                <Cover e={featured} className="aspect-[16/9] w-full rounded-xl" />
-                <div className="mt-3 text-[17px] font-semibold leading-snug tracking-[-0.015em] group-hover:text-[#C2410C]">{title(featured, l)}</div>
-                <p className="mt-1.5 line-clamp-3 text-[13px] leading-relaxed text-neutral-600">{summary(featured, l)}</p>
-                <span className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-[#F4F5F7] px-3 py-2 text-[13px] font-medium text-[#C2410C]">{t(l, "compareN", { n: featured.countries.length })} <Icon name="arrow" size={14} /></span>
-              </Link>
-            </section>
-          )}
           {divided.length > 0 && (
             <section className="rounded-2xl border border-[#E5E7EB] bg-white p-5">
               <h2 className="text-[17px] font-semibold tracking-[-0.015em]">{t(l, "disagree")}</h2>
