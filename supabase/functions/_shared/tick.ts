@@ -56,9 +56,11 @@ export async function tick(budgetMs = 120_000, opts: { skipIngest?: boolean } = 
   // tell the website which story pages changed in this run, so only those are rebuilt
   await step("revalidate", async () => {
     const secret = env("REVALIDATE_SECRET"); if (!secret) return 0;
-    const rows = await db()<{ slug: string }[]>`select slug from events where updated_at > ${new Date(t0).toISOString()} and summary is not null and status <> 'archived' order by importance desc limit 100`;
+    const rows = await db()<{ slug: string }[]>`select slug from events where updated_at > ${new Date(t0).toISOString()} and summary is not null order by importance desc limit 100`;
     if (!rows.length) return 0;
-    const r = await fetch("https://coda.news/api/revalidate", { method: "POST", headers: { "content-type": "application/json", "x-revalidate-secret": secret }, body: JSON.stringify({ events: rows.map((x) => x.slug) }), signal: AbortSignal.timeout(10000) });
+    // an archived (removed) story must also disappear from the lists straight away
+    const [gone] = await db()<{ n: number }[]>`select count(*)::int as n from events where updated_at > ${new Date(t0).toISOString()} and status = 'archived'`;
+    const r = await fetch("https://coda.news/api/revalidate", { method: "POST", headers: { "content-type": "application/json", "x-revalidate-secret": secret }, body: JSON.stringify({ events: rows.map((x) => x.slug), sections: gone.n > 0 }), signal: AbortSignal.timeout(10000) });
     return r.ok ? rows.length : `http ${r.status}`;
   });
   report.ms = Date.now() - t0;
