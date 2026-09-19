@@ -1,7 +1,7 @@
 import Link from "@/components/LLink";
 import type { Company, EventRow, Topic } from "@/lib/data";
 import { type Lang } from "@/lib/i18n";
-import { timeAgoL, title } from "@/lib/loc";
+import { summary, timeAgoL, title } from "@/lib/loc";
 import { Cover } from "./Cover";
 import { Flag, Flags } from "./Flag";
 import { CategoryLabel } from "./Pills";
@@ -71,14 +71,17 @@ export function FeaturedCards({ events, lang, heading }: { events: EventRow[]; l
   return (
     <section>
       <h2 className="border-b border-[#E5E7EB] py-3 text-[22px] font-semibold tracking-[-0.02em]">{heading}</h2>
-      <div className="mt-4 grid gap-5 sm:grid-cols-2">
+      <div>
         {events.map((e) => (
-          <article key={e.id} className="min-w-0">
-            <Link href={`/event/${e.slug}`} className="group block">
-              <Cover e={e} className="aspect-[16/9] w-full rounded-2xl" />
-              <h3 className="mt-3 text-[18px] font-semibold leading-snug tracking-[-0.015em] text-[#16181D] group-hover:text-[#C2410C]">{title(e, lang)}</h3>
-            </Link>
-            <Meta e={e} lang={lang} />
+          <article key={e.id} className="grid gap-5 border-b border-[#E5E7EB] py-5 sm:grid-cols-[240px_minmax(0,1fr)]">
+            <Link href={`/event/${e.slug}`} className="block"><Cover e={e} className="aspect-[16/10] w-full rounded-2xl sm:h-[150px]" /></Link>
+            <div className="flex min-w-0 flex-col">
+              <h3 className="text-[19px] font-semibold leading-snug tracking-[-0.015em] text-[#16181D]">
+                <Link href={`/event/${e.slug}`} className="hover:text-[#C2410C]">{title(e, lang)}</Link>
+              </h3>
+              {summary(e, lang) && <p className="mt-1.5 line-clamp-2 text-[14px] leading-relaxed text-neutral-600">{summary(e, lang)}</p>}
+              <div className="mt-auto"><Meta e={e} lang={lang} /></div>
+            </div>
           </article>
         ))}
       </div>
