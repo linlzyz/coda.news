@@ -73,13 +73,13 @@ export function FeaturedCards({ events, lang, heading }: { events: EventRow[]; l
       <h2 className="border-b border-[#E5E7EB] py-3 text-[22px] font-semibold tracking-[-0.02em]">{heading}</h2>
       <div>
         {events.map((e) => (
-          <article key={e.id} className="grid gap-5 border-b border-[#E5E7EB] py-5 sm:grid-cols-[240px_minmax(0,1fr)]">
-            <Link href={`/event/${e.slug}`} className="block"><Cover e={e} className="aspect-[16/10] w-full rounded-2xl sm:h-[150px]" /></Link>
+          <article key={e.id} className="grid grid-cols-[104px_minmax(0,1fr)] gap-3 border-b border-[#E5E7EB] py-4 sm:grid-cols-[240px_minmax(0,1fr)] sm:gap-5 sm:py-5">
+            <Link href={`/event/${e.slug}`} className="block"><Cover e={e} className="aspect-[4/3] w-full rounded-xl sm:aspect-auto sm:h-[150px] sm:rounded-2xl" /></Link>
             <div className="flex min-w-0 flex-col">
-              <h3 className="text-[19px] font-semibold leading-snug tracking-[-0.015em] text-[#16181D]">
+              <h3 className="text-[16px] font-semibold leading-snug tracking-[-0.015em] text-[#16181D] sm:text-[19px]">
                 <Link href={`/event/${e.slug}`} className="hover:text-[#C2410C]">{title(e, lang)}</Link>
               </h3>
-              {summary(e, lang) && <p className="mt-1.5 line-clamp-2 text-[14px] leading-relaxed text-neutral-600">{summary(e, lang)}</p>}
+              {summary(e, lang) && <p className="mt-1.5 hidden text-[14px] leading-relaxed text-neutral-600 sm:line-clamp-2">{summary(e, lang)}</p>}
               <div className="mt-auto"><Meta e={e} lang={lang} /></div>
             </div>
           </article>
