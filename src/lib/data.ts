@@ -20,12 +20,13 @@ export interface Company { id: number; name: string; slug: string }
 
 const EVENT_COLS = "id,slug,title,title_zh,category,status,confidence,importance,summary,summary_zh,countries,source_count,article_count,has_official,image_url,image_credit,image_link,company_ids,topic_ids,started_at,last_article_at,summary_version,regions,image_focus,lead_url,lead_source,pinned_at,points";
 
-async function _listEvents(opts: { category?: string; region?: string; companyId?: number; topicId?: number; limit?: number; order?: "importance" | "recent" } = {}) {
+async function _listEvents(opts: { category?: string; region?: string; companyId?: number; topicId?: number; limit?: number; order?: "importance" | "recent"; sinceHours?: number } = {}) {
   let q = supabase.from("events").select(EVENT_COLS).not("summary", "is", null).neq("status", "archived").eq("hidden", false);
   if (opts.category) q = q.eq("category", opts.category);
   if (opts.region) q = q.contains("regions", [opts.region]);
   if (opts.companyId) q = q.contains("company_ids", [opts.companyId]);
   if (opts.topicId) q = q.contains("topic_ids", [opts.topicId]);
+  if (opts.sinceHours) q = q.gte("started_at", new Date(Date.now() - opts.sinceHours * 3600_000).toISOString());
   q = opts.order === "recent" ? q.order("last_article_at", { ascending: false }) : q.order("importance", { ascending: false }).order("last_article_at", { ascending: false });
   const { data, error } = await q.limit((opts.limit ?? 30) + (opts.region ? 40 : 0));
   if (error) throw error;
@@ -193,7 +194,7 @@ async function _officialPicks() {
 }
 export const officialPicks = unstable_cache(_officialPicks, ["officialPicks"], { revalidate: 1800, tags: ["list"] });
 export const pinnedEvents = unstable_cache(_pinnedEvents, ["pinnedEvents"], { revalidate: 3600, tags: ["list"] });
-export const listEvents = unstable_cache(_listEvents, ["listEvents2"], { revalidate: 300, tags: ["list"] });
+export const listEvents = unstable_cache(_listEvents, ["listEvents3"], { revalidate: 300, tags: ["list"] });
 export const getEvent = unstable_cache(_getEvent, ["getEvent"], { revalidate: 1800, tags: ["ev"] });
 export const getLatestSummary = unstable_cache(_getLatestSummary, ["getLatestSummary"], { revalidate: 1800, tags: ["ev"] });
 export const getFacts = unstable_cache(_getFacts, ["getFacts"], { revalidate: 1800, tags: ["ev"] });
@@ -296,3 +297,8 @@ export const companyDirectory = unstable_cache(_companyDirectory, ["companyDirec
 /** Directory shows notable companies only: known to Wikidata, or covered in at least 3 events. */
 /** Leagues, regulators, central banks and the like are in the news but are not companies: never listed. */
 export const notable = (c: { wikidata_id: string | null; events: number; kind?: string }) => (c.kind ?? "company") === "company" && (!!c.wikidata_id || c.events >= 3);
+
+/** How much a story deserves the top of the page right now: its importance, halved for every day since it first broke.
+ *  A big story keeps collecting follow-up reports for days; without the decay the same two stories would lead all week. */
+export const hotness = (e: { importance: number | null; started_at: string }) =>
+  (e.importance ?? 0) * Math.pow(0.5, Math.max(0, Date.now() - Date.parse(e.started_at)) / (24 * 3600_000));

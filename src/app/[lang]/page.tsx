@@ -1,7 +1,7 @@
 import { dayLabel } from "@/lib/loc";
 import { orgLd } from "@/lib/site";
 import Link from "@/components/LLink";
-import { allTopics, pinnedEvents, officialPicks, companyMap, indices, getPerspectives, listEvents, trendingCompanies, type EventRow, type Perspective } from "@/lib/data";
+import { allTopics, hotness, pinnedEvents, officialPicks, companyMap, indices, getPerspectives, listEvents, trendingCompanies, type EventRow, type Perspective } from "@/lib/data";
 import { crypto, fx } from "@/lib/markets";
 import { Cover } from "@/components/Cover";
 import { Flag, Flags } from "@/components/Flag";
@@ -29,7 +29,7 @@ export const revalidate = 3600;
 export default async function Home({ params }: PageProps<"/[lang]">) {
   const CATS = ["economy", "technology", "sport", "entertainment", "fashion", "travel", "automotive", "gaming"] as const;
   const [events, pinnedList, official, topics, trending, cq, fq, ...byCat] = await Promise.all([
-    listEvents({ limit: 36 }), pinnedEvents(), officialPicks(), allTopics(), trendingCompanies(10), crypto(), fx(),
+    listEvents({ limit: 60, sinceHours: 72 }), pinnedEvents(), officialPicks(), allTopics(), trendingCompanies(10), crypto(), fx(),
     // each tab gets its own list, same as its section page (the main list is dominated by the biggest economy/tech stories)
     ...CATS.map((c) => listEvents({ category: c, limit: 6 })),   // only for the picks (magazine reads)
   ]);
@@ -38,9 +38,10 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   const persp = await getPerspectives(events.map((e) => e.id));
   const companies = await companyMap(events);
   const topicMap = new Map(topics.map((t) => [t.id, t]));
-  const multi = events.filter((e) => (persp.get(e.id)?.length ?? 0) >= 2);
-  // headline: the most important multi-country story that still has new reports in the last 12 hours
-  const fresh = multi.filter((e) => Date.now() - Date.parse(e.last_article_at) < 12 * 3600_000);
+  // ranked by importance that halves every day since the story broke, so the top changes day to day
+  const multi = events.filter((e) => (persp.get(e.id)?.length ?? 0) >= 2).sort((a, b) => hotness(b) - hotness(a));
+  // headline: multi-country stories that broke in the last 36 hours come first
+  const fresh = multi.filter((e) => Date.now() - Date.parse(e.started_at) < 36 * 3600_000);
   const top = fresh[0] ?? multi[0] ?? events[0];
   // the headline slot turns through up to five multi-country stories (the ones that show what coda.news is for)
   const tops = [top, ...[...fresh, ...multi].filter((e, k, a) => e.id !== top?.id && a.findIndex((x) => x.id === e.id) === k)].filter(Boolean).slice(0, 5) as EventRow[];
@@ -49,7 +50,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   // 4 key stories with pictures up top (picked for importance and sources, not for having a photo); everything else is the uniform Latest list
   const key = pickFeatured([...pinnedList, ...events, ...byCat.flat(), ...official].filter((e, i, a) => a.findIndex((x) => x.id === e.id) === i), 4, new Set(tops.map((e) => e.id)));   // 4 news + 2 magazine reads
   const keyIds = new Set([...tops.map((e) => e.id), ...key.map((e) => e.id)]);
-  const list = events.filter((e) => !keyIds.has(e.id)).slice(0, 30);
+  const list = events.filter((e) => !keyIds.has(e.id)).sort((a, b) => Date.parse(b.last_article_at) - Date.parse(a.last_article_at)).slice(0, 30);
   const regionTags = (e: { regions?: string[] }) => (e.regions?.length ?? 0) > 2 ? [] : [...(e.regions?.includes("AU") ? ["australia"] : []), ...(e.regions?.includes("CN") ? ["china"] : [])];
   const updated = "";
 

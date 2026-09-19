@@ -1,5 +1,6 @@
 import Link from "@/components/LLink";
 import type { Company, EventRow, Topic } from "@/lib/data";
+import { hotness } from "@/lib/data";
 import { type Lang } from "@/lib/i18n";
 import { summary, timeAgoL, title } from "@/lib/loc";
 import { Cover } from "./Cover";
@@ -115,9 +116,10 @@ export function pickFeatured(events: EventRow[], n: number, skip: Set<number> = 
   const pinned = events.filter((e) => !skip.has(e.id) && e.pinned_at && Date.now() - Date.parse(e.pinned_at) < 72 * 3600_000)
     .sort((a, b) => Date.parse(b.pinned_at!) - Date.parse(a.pinned_at!));
   pinned.forEach((e) => skip.add(e.id));
+  const broke = (e: EventRow, h: number) => Date.now() - Date.parse(e.started_at) < h * 3600_000;
   const news = events
-    .filter((e) => !skip.has(e.id) && e.source_count >= 2 && fresh(e, 48))
-    .sort((a, b) => (b.importance ?? 0) - (a.importance ?? 0) || b.countries.length - a.countries.length || b.source_count - a.source_count)
+    .filter((e) => !skip.has(e.id) && e.source_count >= 2 && broke(e, 48))
+    .sort((a, b) => hotness(b) - hotness(a) || b.countries.length - a.countries.length || b.source_count - a.source_count)
     .slice(0, n * 3)
     .sort((a, b) => Number(!!b.image_url && b.image_focus !== "logo") - Number(!!a.image_url && a.image_focus !== "logo"))
     .slice(0, n);
