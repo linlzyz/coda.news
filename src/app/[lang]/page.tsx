@@ -107,15 +107,15 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
 
 function Hero({ e, perspectives, l }: { e: EventRow; perspectives: Perspective[]; l: Lang }) {
   return (
-    <section className="relative grid overflow-hidden rounded-3xl bg-[#F4F5F7] md:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
+    <section className="relative grid h-full overflow-hidden rounded-3xl bg-[#F4F5F7] md:h-[420px] md:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
       <div className="relative z-10 order-2 flex flex-col gap-3 p-5 sm:gap-4 sm:p-9 md:order-1">
         <div className="flex items-center gap-2"><span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#C2410C]">{t(l, "topStory")}</span><CategoryLabel category={e.category} lang={l} /></div>
-        <h1 className="text-[26px] font-semibold leading-[1.1] tracking-[-0.03em] text-[#16181D] sm:text-[40px]">
+        <h1 className="line-clamp-3 text-[26px] font-semibold leading-[1.1] tracking-[-0.03em] text-[#16181D] sm:text-[36px]">
           <Link href={`/event/${e.slug}`} className="hover:text-[#C2410C]">{title(e, l)}</Link>
         </h1>
-        {summary(e, l) && <p className="line-clamp-2 text-[15px] leading-relaxed text-neutral-600 sm:line-clamp-3">{summary(e, l)}</p>}
+        {summary(e, l) && <p className="line-clamp-2 text-[15px] leading-relaxed text-neutral-600">{summary(e, l)}</p>}
         {perspectives.length > 0 && (
-          <div className="hidden flex-wrap gap-2 sm:flex">
+          <div className="hidden max-h-[34px] flex-wrap gap-2 overflow-hidden sm:flex">
             {perspectives.slice(0, 4).map((p) => (
               <span key={p.country} className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 text-[12px] shadow-[0_1px_2px_rgba(22,24,29,.06)]" title={countryL(p.country, l)}>
                 <Flag code={p.country} size={11} /><span className="font-medium text-neutral-700">{perspL(p, l).framing}</span>
