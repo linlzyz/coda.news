@@ -18,6 +18,7 @@ export async function invariants(): Promise<Hit[]> {
     ["人物被当成公司挂在新闻上", sql`select c.name as x from companies c where c.kind = 'person' and exists (select 1 from events e where c.id = any(e.company_ids) and not e.hidden) limit 5`],
     ["时尚新闻用了图库照片", sql`select title as x from events where not hidden and category = 'fashion' and image_source in ('pexels','unsplash','pixabay','openverse') limit 5`],
     ["单一来源新闻用了图库或人物照", sql`select title as x from events where not hidden and source_count < 2 and image_source in ('pexels','unsplash','pixabay','openverse','commons') limit 5`],
+    ["中文里混进了其他文字（印地文、阿拉伯文、泰文）", sql`select title_zh as x from events where not hidden and (title_zh ~ '[\u0900-\u097F\u0600-\u06FF\u0E00-\u0E7F]' or summary_zh ~ '[\u0900-\u097F\u0600-\u06FF\u0E00-\u0E7F]') limit 5`],
     ["已知错误回归：马斯克是特斯拉母公司", sql`select name as x from companies where name = 'Tesla' and parent ilike '%musk%'`],
     ["已知错误回归：荣耀创始人是华为", sql`select name as x from companies where name = 'Honor' and founders ilike '%huawei%'`],
     ["已知错误回归：真实公司被当成非公司", sql`select name as x from companies where name in ('Adobe','Nasdaq','OpenAI','The New York Times','China Mobile','YouTube','Tesla','Apple') and kind <> 'company'`],

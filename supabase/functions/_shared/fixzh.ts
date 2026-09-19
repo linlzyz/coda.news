@@ -4,7 +4,8 @@ import { db } from "./db.ts";
 import { log } from "./env.ts";
 import { cheapJSON } from "./ai.ts";
 
-const STRAY = "(^|[^A-Za-z])[a-z]{4,}([^A-Za-z]|$)";
+// stray lowercase English words, or characters from another script (Hindi, Arabic, Thai) that a model mixed into Chinese
+const STRAY = "(^|[^A-Za-z])[a-z]{4,}([^A-Za-z]|$)|[\\u0900-\\u097F\\u0600-\\u06FF\\u0E00-\\u0E7F]";
 
 export async function fixChinese(limit = 20): Promise<number> {
   const sql = db();
