@@ -17,7 +17,29 @@ export function Directory({ items, sectors, countries, t, sectorCards, middle }:
   const cBox = useRef<HTMLDivElement>(null);
   useEffect(() => { const off = (e: MouseEvent) => { if (!cBox.current?.contains(e.target as Node)) setCOpen(false); }; document.addEventListener("mousedown", off); return () => document.removeEventListener("mousedown", off); }, []);
   const curC = countries.find(([c]) => c === country);
-  useEffect(() => { const v = new URLSearchParams(window.location.search).get("sector"); if (v) setSector(v); }, []);
+  // filters live in the URL, so going back from a company page returns to the same filtered list and scroll position
+  const ready = useRef(false);
+  useEffect(() => {
+    const u = new URLSearchParams(window.location.search);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time read of the URL after hydration
+    setSector(u.get("sector") ?? ""); setCountry(u.get("country") ?? ""); setIndex(u.get("index") ?? ""); setQ(u.get("q") ?? "");
+    if (u.get("sort") === "az") setSort("az");
+    const more = Number(u.get("n")); if (more > 48) setN(more);
+    ready.current = true;
+    let y = 0; try { y = Number(sessionStorage.getItem("co-scroll:" + location.search) ?? 0); } catch {}
+    if (y) requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo(0, y)));
+    const save = () => { try { sessionStorage.setItem("co-scroll:" + location.search, String(window.scrollY)); } catch {} };
+    window.addEventListener("pagehide", save); document.addEventListener("click", save, true);
+    return () => { save(); window.removeEventListener("pagehide", save); document.removeEventListener("click", save, true); };
+  }, []);
+  useEffect(() => {
+    if (!ready.current) return;
+    const u = new URLSearchParams();
+    if (sector) u.set("sector", sector); if (country) u.set("country", country); if (index) u.set("index", index);
+    if (q.trim()) u.set("q", q.trim()); if (sort === "az") u.set("sort", "az"); if (n > 48) u.set("n", String(n));
+    const qs = u.toString();
+    window.history.replaceState(window.history.state, "", location.pathname + (qs ? "?" + qs : "") + location.hash);
+  }, [sector, country, index, q, sort, n]);
   const pick = (k: string) => { setSector(k); setN(48); document.getElementById("all")?.scrollIntoView({ behavior: "smooth", block: "start" }); };
   const list = useMemo(() => {
     const s = q.trim().toLowerCase();

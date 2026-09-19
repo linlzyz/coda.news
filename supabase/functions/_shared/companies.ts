@@ -121,8 +121,9 @@ export async function enrichCompanies(limit = 15): Promise<number> {
       const ceoC = ((e.claims?.P169 ?? []) as Ent[]).filter((c) => c.rank !== "deprecated" && !c.qualifiers?.P582)
         .sort((a, b) => (b.rank === "preferred" ? 1 : 0) - (a.rank === "preferred" ? 1 : 0) || String(b.qualifiers?.P580?.[0]?.datavalue?.value?.time ?? "").localeCompare(String(a.qualifiers?.P580?.[0]?.datavalue?.value?.time ?? "")))[0];
       const ceoId = ceoC?.mainsnak?.datavalue?.value?.id as string | undefined;
-      const refs = [idOf(e, "P159"), idOf(e, "P452"), idOf(e, "P414"), idOf(e, "P17"), idOf(e, "P749"), idOf(e, "P127"), ...founderIds, ceoId].filter(Boolean) as string[];
+      const refs = [idOf(e, "P159"), idOf(e, "P452"), idOf(e, "P414"), idOf(e, "P17"), idOf(e, "P749"), idOf(e, "P127"), ...founderIds, ...((e.claims?.P127 ?? []) as Ent[]).map((c) => c.mainsnak?.datavalue?.value?.id), ceoId].filter(Boolean) as string[];
       const labels = refs.length ? (await get(`action=wbgetentities&ids=${[...new Set(refs)].join("|")}&props=labels|claims&languages=en|mul|zh|zh-hans|zh-cn`)).entities ?? {} : {};
+      const isHuman = (id?: string) => !!id && ((labels[id]?.claims?.P31 ?? []) as Ent[]).some((c) => c.mainsnak?.datavalue?.value?.id === "Q5");
       const en = (id?: string) => (id ? (labels[id]?.labels?.en ?? labels[id]?.labels?.mul)?.value : undefined) as string | undefined;
       const zh = (id?: string) => (id ? zhOf(labels[id]?.labels) : undefined);
       const hqId = idOf(e, "P159"), countryId = idOf(e, "P17"), indId = idOf(e, "P452");
@@ -150,7 +151,10 @@ export async function enrichCompanies(limit = 15): Promise<number> {
       const slogans = ((e.claims?.P1451 ?? []) as Ent[]).filter((c) => c.rank !== "deprecated" && !c.qualifiers?.P582);
       const pickS = slogans.find((c) => c.rank === "preferred") ?? slogans.find((c) => c.mainsnak?.datavalue?.value?.language === "en") ?? slogans[0];
       const sloganC = pickS?.mainsnak?.datavalue?.value;
-      const parentId = idOf(e, "P749") ?? idOf(e, "P127");   // parent organisation, else owner (e.g. a brand owned by a group)
+      // parent organisation; else the owner, but only a single owner that is a company (Dior -> LVMH), never a person or a list of shareholders (Tesla -> Elon Musk is wrong)
+      const owners = ((e.claims?.P127 ?? []) as Ent[]).filter((c) => c.rank !== "deprecated" && !c.qualifiers?.P582);
+      const ownerId = owners.length === 1 ? owners[0].mainsnak?.datavalue?.value?.id as string | undefined : undefined;
+      const parentId = idOf(e, "P749") ?? (ownerId && !isHuman(ownerId) ? ownerId : undefined);
       const sector = sectorOf(en(indId), e.descriptions?.en?.value, en(parentId));
       // the same entity already exists under another name (e.g. "Meta" and "Meta Platforms"): fold this one into it
       const first = (x: string) => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().match(/[a-z0-9]+/)?.[0] ?? "";
@@ -162,7 +166,7 @@ export async function enrichCompanies(limit = 15): Promise<number> {
         description = coalesce(description, ${e.descriptions?.en?.value ?? null}), description_zh = ${zhOf(e.descriptions) ?? null},
         about_en = ${aboutEn}, about_zh = ${aboutZh}, website = coalesce(website, ${site}), founded = ${founded ? Number(founded) : null},
         hq = ${hq}, hq_zh = ${hqZh}, industry = ${en(indId) ?? null}, industry_zh = ${zh(indId) ?? null}, ceo = ${ceoId ? en(ceoId) ?? null : null}, ceo_zh = ${ceoId ? zh(ceoId) ?? null : null},
-        founders = ${founderIds.map((id) => en(id)).filter(Boolean).join(", ") || null}, founders_zh = ${founderIds.map((id) => zh(id) ?? en(id)).filter(Boolean).join("、") || null},
+        founders = ${founderIds.filter(isHuman).map((id) => en(id)).filter(Boolean).join(", ") || null}, founders_zh = ${founderIds.filter(isHuman).map((id) => zh(id) ?? en(id)).filter(Boolean).join("、") || null},
         ticker = ${sym ? (exch ? `${exch}: ${sym}` : sym) : null},
         wikipedia_en = ${enT ? `https://en.wikipedia.org/wiki/${encodeURIComponent(enT.replace(/ /g, "_"))}` : null},
         wikipedia_zh = ${zhT ? `https://zh.wikipedia.org/wiki/${encodeURIComponent(zhT.replace(/ /g, "_"))}` : null},
@@ -170,7 +174,7 @@ export async function enrichCompanies(limit = 15): Promise<number> {
         parent = ${en(parentId) ?? null}, parent_zh = ${zh(parentId) ?? null},
         instagram = ${handle(e, "P2003")}, x_handle = ${handle(e, "P2002")}, facebook = ${handle(e, "P2013")}, youtube = ${handle(e, "P2397")}, linkedin = ${handle(e, "P4264")},
         sector = ${sector}, country = ${regionOf((labels[countryId ?? ""]?.claims?.P297?.[0]?.mainsnak?.datavalue?.value as string | undefined) ?? null, `${hq ?? ""} ${hqZh ?? ""}`)},
-        kind = ${NOT_CO.test(String(e.descriptions?.en?.value ?? "")) ? "org" : "company"}, enriched_at = now() where id = ${c.id}`;
+        kind = ${((e.claims?.P31 ?? []) as Ent[]).some((c) => c.mainsnak?.datavalue?.value?.id === "Q5") ? "person" : NOT_CO.test(String(e.descriptions?.en?.value ?? "")) ? "org" : "company"}, enriched_at = now() where id = ${c.id}`;
       n++;
     } catch (err) { log("companies:", c.name, (err as Error).message); break; }   // network trouble: try again next run
   }
@@ -183,4 +187,43 @@ export async function enrichCompanies(limit = 15): Promise<number> {
     where c.id = x.id and x.s is not null`;
   if (rows.length) log(`companies: ${n}/${rows.length}`);
   return n;
+}
+
+// The extractor sometimes files people, products, shows or places as companies (e.g. "Warren Buffett").
+// A cheap model sorts each name once; anything that is not a company or brand is taken off its stories and hidden.
+const KEEP = new Set(["company", "brand"]);
+export async function classifyCompanies(max = 200): Promise<number> {
+  const { cheapJSON } = await import("./ai.ts");
+  const sql = db(); let out = 0;
+  for (let round = 0; round < Math.ceil(max / 40); round++) {
+    const rows = await sql<{ id: number; name: string; description: string | null; ex: string | null }[]>`
+      select c.id, c.name, c.description, (select e.title from events e where c.id = any(e.company_ids) order by e.last_article_at desc limit 1) ex
+      from companies c where c.kind = 'company' and c.kind_checked_at is null order by c.id limit 40`;
+    if (!rows.length) break;
+    const prompt = `Each line is a name that appeared as a "company" in a news story, with a description and an example headline.
+Classify what the name really is:
+company = a business or corporation (e.g. Apple, Berkshire Hathaway, LVMH)
+brand = a commercial brand, label, platform or service with its own identity (e.g. Dior, COS, YouTube, Instagram, WhatsApp, Uber Eats)
+person = a human being (e.g. Warren Buffett, Taylor Swift)
+product = one specific product, model, game or device (e.g. iPhone 18, Galaxy S26, GTA VI, Model Y)
+work = a film, show, song, album, book or franchise title
+event = an event, show, festival, tournament or award
+place = a city, country, region, venue or building
+org = government, agency, league, team, school, charity or other non-business body
+other = anything else, or too vague ("local firms", "investors")
+Return JSON only: {"r":{"1":"company","2":"person"}} with one entry for EVERY line.
+${rows.map((r, k) => `${k + 1}. ${r.name}${r.description ? ` | ${r.description.slice(0, 80)}` : ""}${r.ex ? ` | ${r.ex.slice(0, 100)}` : ""}`).join("\n")}`;
+    let res: { r?: Record<string, string> } = {};
+    try { res = await cheapJSON<{ r?: Record<string, string> }>(prompt); } catch (e) { log("classify companies:", (e as Error).message.slice(0, 100)); break; }
+    for (const [k, r] of rows.entries()) {
+      const t = String(res.r?.[String(k + 1)] ?? "").toLowerCase().trim();
+      if (!t) continue;   // no answer: ask again next run
+      if (KEEP.has(t)) { await sql`update companies set kind_checked_at = now() where id = ${r.id}`; continue; }
+      const kind = ["person", "product", "work", "event", "place", "org", "other"].includes(t) ? t : "other";
+      await sql`update companies set kind = ${kind}, kind_checked_at = now() where id = ${r.id}`;
+      if (kind !== "org") await sql`update events set company_ids = array_remove(company_ids, ${r.id}::bigint) where ${r.id}::bigint = any(company_ids)`;
+      out++; log("companies: not a company", r.name, "->", kind);
+    }
+  }
+  return out;
 }

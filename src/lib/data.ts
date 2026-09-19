@@ -12,13 +12,13 @@ export interface EventRow {
   id: number; slug: string; title: string; title_zh: string | null; category: string; status: Status; regions?: string[]; image_focus?: string | null; lead_url?: string | null; lead_source?: string | null; pinned_at?: string | null;
   confidence: number; importance: number; summary: string | null; summary_zh: string | null; countries: string[]; source_count: number;
   article_count: number; has_official: boolean; image_url: string | null; image_credit: string | null; image_link: string | null; company_ids: number[]; topic_ids: number[];
-  started_at: string; last_article_at: string; summary_version: number;
+  started_at: string; last_article_at: string; summary_version: number; points?: { en?: string[]; zh?: string[] } | null;
 }
 export interface Perspective { country: string; headline: string | null; framing: string | null; emphasis: string | null; downplayed: string | null; tone: "positive" | "neutral" | "negative"; article_count: number; headline_zh: string | null; framing_zh: string | null; emphasis_zh: string | null; downplayed_zh: string | null }
 export interface Topic { id: number; name: string; slug: string; color: string }
 export interface Company { id: number; name: string; slug: string }
 
-const EVENT_COLS = "id,slug,title,title_zh,category,status,confidence,importance,summary,summary_zh,countries,source_count,article_count,has_official,image_url,image_credit,image_link,company_ids,topic_ids,started_at,last_article_at,summary_version,regions,image_focus,lead_url,lead_source,pinned_at";
+const EVENT_COLS = "id,slug,title,title_zh,category,status,confidence,importance,summary,summary_zh,countries,source_count,article_count,has_official,image_url,image_credit,image_link,company_ids,topic_ids,started_at,last_article_at,summary_version,regions,image_focus,lead_url,lead_source,pinned_at,points";
 
 async function _listEvents(opts: { category?: string; region?: string; companyId?: number; topicId?: number; limit?: number; order?: "importance" | "recent" } = {}) {
   let q = supabase.from("events").select(EVENT_COLS).not("summary", "is", null).neq("status", "archived").eq("hidden", false);
@@ -82,7 +82,7 @@ async function _allTopics() {
 }
 async function _companiesByIds(ids: number[]) {
   if (!ids.length) return [] as Company[];
-  const { data } = await supabase.from("companies").select("id,name,slug").in("id", ids);
+  const { data } = await supabase.from("companies").select("id,name,slug").in("id", ids).in("kind", ["company", "org"]);
   return (data ?? []) as Company[];
 }
 export type CompanyProfile = Company & {
@@ -103,7 +103,7 @@ export type CompanyStory = {
 async function _getCompany(slug: string) {
   const { data } = await supabase.from("companies")
     .select("id,name,slug,website,description,wikidata_id,name_zh,description_zh,about_en,about_zh,founded,hq,hq_zh,industry,industry_zh,ticker,wikipedia_en,wikipedia_zh,logo_url,slogan,parent,parent_zh,sector,country,instagram,x_handle,facebook,youtube,linkedin,founders,founders_zh,ceo,ceo_zh,story,indices,kind")
-    .eq("slug", slug).maybeSingle();
+    .eq("slug", slug).in("kind", ["company", "org"]).maybeSingle();
   return data as CompanyProfile | null;
 }
 export async function companyRedirect(slug: string): Promise<string | null> {
@@ -142,7 +142,7 @@ export async function companyMap(events: EventRow[]) {
 async function _searchEvents(q: string) {
   const term = q.replace(/[%_,()]/g, " ").trim().slice(0, 80);
   if (!term) return [] as EventRow[];
-  const { data: cos } = await supabase.from("companies").select("id").ilike("name", `%${term}%`).limit(10);
+  const { data: cos } = await supabase.from("companies").select("id").ilike("name", `%${term}%`).in("kind", ["company", "org"]).limit(10);
   let query = supabase.from("events").select(EVENT_COLS).not("summary", "is", null).eq("hidden", false);
   const ors = [`title.ilike.%${term}%`, `summary.ilike.%${term}%`];
   if (cos?.length) ors.push(`company_ids.ov.{${cos.map((c) => c.id).join(",")}}`);
@@ -186,15 +186,15 @@ async function _pinnedEvents() {
   return (data ?? []) as EventRow[];
 }
 export const pinnedEvents = unstable_cache(_pinnedEvents, ["pinnedEvents"], { revalidate: 3600, tags: ["list"] });
-export const listEvents = unstable_cache(_listEvents, ["listEvents"], { revalidate: 300, tags: ["list"] });
+export const listEvents = unstable_cache(_listEvents, ["listEvents2"], { revalidate: 300, tags: ["list"] });
 export const getEvent = unstable_cache(_getEvent, ["getEvent"], { revalidate: 1800, tags: ["ev"] });
 export const getLatestSummary = unstable_cache(_getLatestSummary, ["getLatestSummary"], { revalidate: 1800, tags: ["ev"] });
 export const getFacts = unstable_cache(_getFacts, ["getFacts"], { revalidate: 1800, tags: ["ev"] });
 export const getArticles = unstable_cache(_getArticles, ["getArticles"], { revalidate: 1800, tags: ["ev"] });
 export const latestUpdates = unstable_cache(_latestUpdates, ["latestUpdates"], { revalidate: 600 });
 export const allTopics = unstable_cache(_allTopics, ["allTopics"], { revalidate: 3600 });
-export const companiesByIds = unstable_cache(_companiesByIds, ["companiesByIds"], { revalidate: 3600 });
-export const getCompany = unstable_cache(_getCompany, ["getCompany"], { revalidate: 86400 });
+export const companiesByIds = unstable_cache(_companiesByIds, ["companiesByIds2"], { revalidate: 3600 });
+export const getCompany = unstable_cache(_getCompany, ["getCompany2"], { revalidate: 86400 });
 export const getTopic = unstable_cache(_getTopic, ["getTopic"], { revalidate: 86400 });
 export const stats = unstable_cache(_stats, ["stats"], { revalidate: 3600 });
 export const trendingCompanies = unstable_cache(_trendingCompanies, ["trendingCompanies"], { revalidate: 3600 });
@@ -284,8 +284,8 @@ async function _companyDirectory() {
   }
   return rows.map((r) => ({ ...r, id: Number(r.id), ...(stats.get(Number(r.id)) ?? { events: 0, last_at: null }) })) as CompanyCard[];
 }
-export const companyDirectory = unstable_cache(_companyDirectory, ["companyDirectory"], { revalidate: 3600 });
+export const companyDirectory = unstable_cache(_companyDirectory, ["companyDirectory2"], { revalidate: 3600 });
 
 /** Directory shows notable companies only: known to Wikidata, or covered in at least 3 events. */
 /** Leagues, regulators, central banks and the like are in the news but are not companies: never listed. */
-export const notable = (c: { wikidata_id: string | null; events: number; kind?: string }) => c.kind !== "org" && (!!c.wikidata_id || c.events >= 3);
+export const notable = (c: { wikidata_id: string | null; events: number; kind?: string }) => (c.kind ?? "company") === "company" && (!!c.wikidata_id || c.events >= 3);

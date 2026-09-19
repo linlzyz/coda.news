@@ -45,7 +45,7 @@ Fields per relevant item:
 - event_zh: the same event title in natural Simplified Chinese
 - brief_zh: one neutral sentence in Simplified Chinese summarising the item
 - is_rumor: true if it is unconfirmed (reportedly, sources say, rumour)
-- companies: canonical English company names as commonly known (e.g. 苹果/アップル/Apple Inc. -> "Apple"; 英伟达 -> "NVIDIA"; Alphabet's Google news -> "Google"). Max 5. Only real, named companies or brands; never governments, agencies, districts or vague groups like "local firms".
+- companies: canonical English company names as commonly known (e.g. 苹果/アップル/Apple Inc. -> "Apple"; 英伟达 -> "NVIDIA"; Alphabet's Google news -> "Google"). Max 5. Only real, named companies or brands; never people (Warren Buffett is not a company, Berkshire Hathaway is), products or models (iPhone -> "Apple"), films, shows, games, events, places, governments, agencies, districts or vague groups like "local firms".
 - topics: 1 to 3 from this list only: ${TOPICS.join(", ")}
 - facts: 1 to 5 atomic facts about THIS event only (never about other stories mentioned in passing). Each: {"subject","predicate","object","qualifier","occurred_at","text","text_zh"}.
   predicate must be one of: ${PREDICATES.join(", ")}.

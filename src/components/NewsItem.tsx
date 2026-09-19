@@ -9,18 +9,17 @@ import { CategoryLabel } from "./Pills";
 const oneSource = (e: EventRow) => e.source_count < 2 && !!e.lead_url && !!e.lead_source;
 
 /** One row of the Latest list. Every row has the same shape: one sentence, then category · time on the left and flags + source on the right.
- *  One-source stories link straight to the original; stories with more sources open our comparison page. */
-export function NewsItem({ e, lang }: { e: EventRow; companies?: Map<number, Company>; topics?: Map<number, Topic>; lang: Lang }) {
+ *  One-source stories open in place; stories with more sources open our comparison page. */
+export function NewsItem({ e, companies, lang }: { e: EventRow; companies?: Map<number, Company>; topics?: Map<number, Topic>; lang: Lang }) {
   const single = oneSource(e);
   const sum = summary(e, lang);
+  if (single) return <SingleItem e={e} companies={companies} lang={lang} sum={sum} />;
   return (
     <article className="grid grid-cols-[minmax(0,1fr)_auto] gap-4 border-b border-[#E5E7EB] py-4">
       <div className="min-w-0">
         <h3 className="text-[16px] font-semibold leading-snug text-[#16181D]">
           <Link href={`/event/${e.slug}`} className="hover:text-[#C2410C]">{title(e, lang)}</Link>
         </h3>
-        {/* our own one-line account, never the original's text */}
-        {sum && single && <p className="mt-1 line-clamp-2 text-[14px] leading-relaxed text-neutral-600">{sum}</p>}
         <div className="mt-2 flex items-center gap-2 text-[12px] text-neutral-500">
           <CategoryLabel category={e.category} lang={lang} />
           <span>{timeAgoL(e.last_article_at, lang)}</span>
@@ -28,6 +27,54 @@ export function NewsItem({ e, lang }: { e: EventRow; companies?: Map<number, Com
       </div>
       <Source e={e} lang={lang} />
     </article>
+  );
+}
+
+/** One-source stories have no page of their own: the row opens in place with the picture, the key points and a link to the original. */
+function SingleItem({ e, companies, lang, sum }: { e: EventRow; companies?: Map<number, Company>; lang: Lang; sum: string | null }) {
+  const zh = lang === "zh";
+  const pts = (zh ? e.points?.zh : e.points?.en)?.filter(Boolean) ?? [];
+  const cos = e.company_ids.map((id) => companies?.get(id)).filter(Boolean) as Company[];
+  const when = new Date(e.last_article_at).toLocaleDateString(zh ? "zh-CN" : "en-AU", { month: zh ? "numeric" : "short", day: "numeric", timeZone: "Australia/Melbourne" });
+  return (
+    <details className="group border-b border-[#E5E7EB]">
+      <summary className="grid cursor-pointer list-none grid-cols-[minmax(0,1fr)_auto] gap-4 py-4 [&::-webkit-details-marker]:hidden">
+        <div className="min-w-0">
+          <h3 className="text-[16px] font-semibold leading-snug text-[#16181D] group-hover:text-[#C2410C]">{title(e, lang)}</h3>
+          {sum && <p className="mt-1 line-clamp-2 text-[14px] leading-relaxed text-neutral-600 group-open:line-clamp-none">{sum}</p>}
+          <div className="mt-2 flex items-center gap-2 text-[12px] text-neutral-500">
+            <CategoryLabel category={e.category} lang={lang} />
+            <span>{timeAgoL(e.last_article_at, lang)}</span>
+          </div>
+        </div>
+        <div className="flex w-[108px] shrink-0 flex-col items-end gap-1.5 pt-1 text-right text-[12px] text-neutral-500">
+          <span className="flex h-3 items-center">{e.countries[0] && <Flag code={e.countries[0]} size={11} />}</span>
+          <span className="max-w-full truncate">{e.lead_source}</span>
+          <span aria-hidden className="mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full border border-[#E5E7EB] text-[11px] text-neutral-600 transition group-open:rotate-180">⌄</span>
+        </div>
+      </summary>
+      <div className="pb-5 sm:pr-[124px]">
+        {e.image_url && (
+          <div className="mb-4 overflow-hidden rounded-xl">
+            <Cover e={e} credit className="aspect-[16/9] w-full" />
+          </div>
+        )}
+        {pts.length > 0 && (
+          <ul className="space-y-1.5 text-[14px] leading-relaxed text-neutral-800">
+            {pts.map((p, k) => <li key={k} className="flex gap-2"><span className="mt-[9px] h-1 w-1 shrink-0 rounded-full bg-neutral-400" />{p}</li>)}
+          </ul>
+        )}
+        {cos.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-1.5 text-[12px]">
+            {cos.map((c) => <Link key={c.id} href={`/company/${c.slug}`} className="rounded-full bg-[#FFF1EA] px-2.5 py-0.5 font-medium text-[#C2410C] hover:bg-[#FFE3D4]">{c.name}</Link>)}
+          </div>
+        )}
+        <div className="mt-3 flex flex-wrap items-center gap-x-2 text-[12px] text-neutral-500">
+          <span>{zh ? `据 ${e.lead_source}` : `Reported by ${e.lead_source}`}</span><span>·</span><span>{when}</span><span>·</span>
+          <a href={e.lead_url!} target="_blank" rel="noopener noreferrer" className="font-medium text-[#C2410C] hover:underline">{zh ? "阅读原文" : "Read the original"} ↗</a>
+        </div>
+      </div>
+    </details>
   );
 }
 
