@@ -40,9 +40,14 @@ export function InstallPrompt({ zh }: { zh: boolean }) {
         <div className="min-w-0 flex-1">
           <p className="text-[15px] font-semibold">{zh ? "把 coda.news 放到主屏幕" : "Put coda.news on your home screen"}</p>
           {mode === "ios" ? (
-            <p className="mt-1 text-[13px] leading-relaxed text-neutral-300">
-              {zh ? <>点下方 Safari 的分享按钮 <ShareIcon />，再选“添加到主屏幕”。</> : <>Tap Safari&apos;s Share button <ShareIcon />, then “Add to Home Screen”.</>}
-            </p>
+            <ol className="mt-2 space-y-1.5 text-[13px] leading-snug text-neutral-200">
+              {(zh
+                ? [<>点 Safari 右下角的 <MenuIcon /> 按钮</>, <>点“分享” <ShareIcon /></>, <>点“查看更多”</>, <>选“添加到主屏幕”</>]
+                : [<>Tap Safari&apos;s <MenuIcon /> button (bottom right)</>, <>Tap “Share” <ShareIcon /></>, <>Tap “View More”</>, <>Choose “Add to Home Screen”</>]
+              ).map((x, i) => (
+                <li key={i} className="flex items-center gap-2"><span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#EA5514] text-[11px] font-semibold text-white">{i + 1}</span><span>{x}</span></li>
+              ))}
+            </ol>
           ) : (
             <p className="mt-1 text-[13px] leading-relaxed text-neutral-300">{zh ? "像 App 一样一点就开，每天的新闻不用再找。" : "Open it in one tap, like an app."}</p>
           )}
@@ -55,6 +60,10 @@ export function InstallPrompt({ zh }: { zh: boolean }) {
       )}
     </div>
   );
+}
+
+function MenuIcon() {
+  return <svg className="mx-0.5 inline-block align-[-3px]" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>;
 }
 
 function ShareIcon() {
