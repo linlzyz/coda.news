@@ -13,15 +13,18 @@ export function InstallPrompt({ zh }: { zh: boolean }) {
 
   useEffect(() => {
     const standalone = matchMedia("(display-mode: standalone)").matches || (navigator as { standalone?: boolean }).standalone;
-    if (standalone || window.innerWidth > 820) return;
+    // ?install=1 shows it straight away (for checking on a phone)
+    const force = new URLSearchParams(location.search).has("install");
+    if (standalone || (!force && window.innerWidth > 820)) return;
     let st: { visits?: number; until?: number } = {};
     try { st = JSON.parse(localStorage.getItem(KEY) ?? "{}"); st.visits = (st.visits ?? 0) + 1; localStorage.setItem(KEY, JSON.stringify(st)); } catch { return; }
-    if ((st.visits ?? 0) < 2 || (st.until ?? 0) > Date.now()) return;
+    if (!force && ((st.visits ?? 0) < 2 || (st.until ?? 0) > Date.now())) return;
+    const wait = force ? 800 : 15000;
     const ua = navigator.userAgent;
     const iosSafari = /iPhone|iPad|iPod/.test(ua) && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|Instagram|FBAN|FBAV|Line|MicroMessenger/.test(ua);
-    const onBip = (e: Event) => { e.preventDefault(); setEvt(e as BIP); setTimeout(() => setMode("android"), 15000); };
+    const onBip = (e: Event) => { e.preventDefault(); setEvt(e as BIP); setTimeout(() => setMode("android"), wait); };
     window.addEventListener("beforeinstallprompt", onBip);
-    const t = iosSafari ? setTimeout(() => setMode("ios"), 15000) : undefined;
+    const t = iosSafari || (force && !/Android/.test(ua)) ? setTimeout(() => setMode("ios"), wait) : undefined;
     return () => { window.removeEventListener("beforeinstallprompt", onBip); if (t) clearTimeout(t); };
   }, []);
 
