@@ -1,0 +1,4018 @@
+[
+{
+"sym": "MMM",
+"title": "3M",
+"name": "3M",
+"sector": "Industrials",
+"qid": "Q159433",
+"wiki": "3M"
+},
+{
+"sym": "AOS",
+"title": "A. O. Smith",
+"name": "A. O. Smith",
+"sector": "Industrials",
+"qid": "Q4648219",
+"wiki": "A. O. Smith"
+},
+{
+"sym": "ABT",
+"title": "Abbott Laboratories",
+"name": "Abbott Laboratories",
+"sector": "Health Care",
+"qid": "Q306764",
+"wiki": "Abbott Laboratories"
+},
+{
+"sym": "ABBV",
+"title": "AbbVie",
+"name": "AbbVie",
+"sector": "Health Care",
+"qid": "Q14662364",
+"wiki": "AbbVie"
+},
+{
+"sym": "ACN",
+"title": "Accenture",
+"name": "Accenture",
+"sector": "Information Technology",
+"qid": "Q338825",
+"wiki": "Accenture"
+},
+{
+"sym": "ADBE",
+"title": "Adobe Inc.",
+"name": "Adobe Inc.",
+"sector": "Information Technology",
+"qid": "Q11463",
+"wiki": "Adobe Inc."
+},
+{
+"sym": "AMD",
+"title": "AMD",
+"name": "Advanced Micro Devices",
+"sector": "Information Technology",
+"qid": "Q128896",
+"wiki": "AMD"
+},
+{
+"sym": "AES",
+"title": "AES Corporation",
+"name": "AES Corporation",
+"sector": "Utilities",
+"qid": "Q291508",
+"wiki": "AES Corporation"
+},
+{
+"sym": "AFL",
+"title": "Aflac",
+"name": "Aflac",
+"sector": "Financials",
+"qid": "Q26311",
+"wiki": "Aflac"
+},
+{
+"sym": "A",
+"title": "Agilent Technologies",
+"name": "Agilent Technologies",
+"sector": "Health Care",
+"qid": "Q393762",
+"wiki": "Agilent Technologies"
+},
+{
+"sym": "APD",
+"title": "Air Products",
+"name": "Air Products",
+"sector": "Materials",
+"qid": "Q407744",
+"wiki": "Air Products"
+},
+{
+"sym": "ABNB",
+"title": "Airbnb",
+"name": "Airbnb",
+"sector": "Consumer Discretionary",
+"qid": "Q63327",
+"wiki": "Airbnb"
+},
+{
+"sym": "AKAM",
+"title": "Akamai Technologies",
+"name": "Akamai Technologies",
+"sector": "Information Technology",
+"qid": "Q415598",
+"wiki": "Akamai Technologies"
+},
+{
+"sym": "ALB",
+"title": "Albemarle Corporation",
+"name": "Albemarle Corporation",
+"sector": "Materials",
+"qid": "Q127074",
+"wiki": "Albemarle Corporation"
+},
+{
+"sym": "ARE",
+"title": "Alexandria Real Estate Equities",
+"name": "Alexandria Real Estate Equities",
+"sector": "Real Estate",
+"qid": "Q48739877",
+"wiki": "Alexandria Real Estate Equities"
+},
+{
+"sym": "ALGN",
+"title": "Align Technology",
+"name": "Align Technology",
+"sector": "Health Care",
+"qid": "Q30272258",
+"wiki": "Align Technology"
+},
+{
+"sym": "ALLE",
+"title": "Allegion",
+"name": "Allegion",
+"sector": "Industrials",
+"qid": "Q16738121",
+"wiki": "Allegion"
+},
+{
+"sym": "LNT",
+"title": "Alliant Energy",
+"name": "Alliant Energy",
+"sector": "Utilities",
+"qid": "Q4732492",
+"wiki": "Alliant Energy"
+},
+{
+"sym": "ALL",
+"title": "Allstate",
+"name": "Allstate",
+"sector": "Financials",
+"qid": "Q2645636",
+"wiki": "Allstate"
+},
+{
+"sym": "GOOGL",
+"title": "Alphabet Inc.",
+"name": "Alphabet Inc.",
+"sector": "Communication Services",
+"qid": "Q20800404",
+"wiki": "Alphabet Inc."
+},
+{
+"sym": "GOOG",
+"title": "Alphabet Inc.",
+"name": "Alphabet Inc.",
+"sector": "Communication Services",
+"qid": "Q20800404",
+"wiki": "Alphabet Inc."
+},
+{
+"sym": "MO",
+"title": "Altria",
+"name": "Altria",
+"sector": "Consumer Staples",
+"qid": "Q445007",
+"wiki": "Altria"
+},
+{
+"sym": "AMZN",
+"title": "Amazon (company)",
+"name": "Amazon",
+"sector": "Consumer Discretionary",
+"qid": "Q3884",
+"wiki": "Amazon (company)"
+},
+{
+"sym": "AMCR",
+"title": "Amcor",
+"name": "Amcor",
+"sector": "Materials",
+"qid": "Q460307",
+"wiki": "Amcor"
+},
+{
+"sym": "AEE",
+"title": "Ameren",
+"name": "Ameren",
+"sector": "Utilities",
+"qid": "Q462984",
+"wiki": "Ameren"
+},
+{
+"sym": "AEP",
+"title": "American Electric Power",
+"name": "American Electric Power",
+"sector": "Utilities",
+"qid": "Q464092",
+"wiki": "American Electric Power"
+},
+{
+"sym": "AXP",
+"title": "American Express",
+"name": "American Express",
+"sector": "Financials",
+"qid": "Q194360",
+"wiki": "American Express"
+},
+{
+"sym": "AIG",
+"title": "American International Group",
+"name": "American International Group",
+"sector": "Financials",
+"qid": "Q212235",
+"wiki": "American International Group"
+},
+{
+"sym": "AMT",
+"title": "American Tower",
+"name": "American Tower",
+"sector": "Real Estate",
+"qid": "Q4745263",
+"wiki": "American Tower"
+},
+{
+"sym": "AWK",
+"title": "American Water Works",
+"name": "American Water Works",
+"sector": "Utilities",
+"qid": "Q467238",
+"wiki": "American Water Works"
+},
+{
+"sym": "AMP",
+"title": "Ameriprise Financial",
+"name": "Ameriprise Financial",
+"sector": "Financials",
+"qid": "Q2843129",
+"wiki": "Ameriprise Financial"
+},
+{
+"sym": "AME",
+"title": "Ametek",
+"name": "Ametek",
+"sector": "Industrials",
+"qid": "Q470317",
+"wiki": "Ametek"
+},
+{
+"sym": "AMGN",
+"title": "Amgen",
+"name": "Amgen",
+"sector": "Health Care",
+"qid": "Q470517",
+"wiki": "Amgen"
+},
+{
+"sym": "APH",
+"title": "Amphenol",
+"name": "Amphenol",
+"sector": "Information Technology",
+"qid": "Q474621",
+"wiki": "Amphenol"
+},
+{
+"sym": "ADI",
+"title": "Analog Devices",
+"name": "Analog Devices",
+"sector": "Information Technology",
+"qid": "Q484930",
+"wiki": "Analog Devices"
+},
+{
+"sym": "AON",
+"title": "Aon (company)",
+"name": "Aon plc",
+"sector": "Financials",
+"qid": "Q739518",
+"wiki": "Aon plc"
+},
+{
+"sym": "APA",
+"title": "APA Corporation",
+"name": "APA Corporation",
+"sector": "Energy",
+"qid": "Q119991",
+"wiki": "APA Corporation"
+},
+{
+"sym": "APO",
+"title": "Apollo Global Management",
+"name": "Apollo Global Management",
+"sector": "Financials",
+"qid": "Q619121",
+"wiki": "Apollo Global Management"
+},
+{
+"sym": "AAPL",
+"title": "Apple Inc.",
+"name": "Apple Inc.",
+"sector": "Information Technology",
+"qid": "Q312",
+"wiki": "Apple Inc."
+},
+{
+"sym": "AMAT",
+"title": "Applied Materials",
+"name": "Applied Materials",
+"sector": "Information Technology",
+"qid": "Q621610",
+"wiki": "Applied Materials"
+},
+{
+"sym": "APP",
+"title": "AppLovin",
+"name": "AppLovin",
+"sector": "Communication Services",
+"qid": "Q27150212",
+"wiki": "AppLovin"
+},
+{
+"sym": "APTV",
+"title": "Aptiv",
+"name": "Aptiv",
+"sector": "Consumer Discretionary",
+"qid": "Q643626",
+"wiki": "Aptiv"
+},
+{
+"sym": "ACGL",
+"title": "Arch Capital Group",
+"name": "Arch Capital Group",
+"sector": "Financials",
+"qid": "Q28155430",
+"wiki": "Arch Capital Group"
+},
+{
+"sym": "ADM",
+"title": "Archer Daniels Midland",
+"name": "Archer Daniels Midland",
+"sector": "Consumer Staples",
+"qid": "Q632694",
+"wiki": "Archer Daniels Midland"
+},
+{
+"sym": "ARES",
+"title": "Ares Management",
+"name": "Ares Management",
+"sector": "Financials",
+"qid": "Q4789079",
+"wiki": "Ares Management"
+},
+{
+"sym": "ANET",
+"title": "Arista Networks",
+"name": "Arista Networks",
+"sector": "Information Technology",
+"qid": "Q2861324",
+"wiki": "Arista Networks"
+},
+{
+"sym": "AJG",
+"title": "Arthur J. Gallagher & Co.",
+"name": "Arthur J. Gallagher & Co.",
+"sector": "Financials",
+"qid": "Q4799191",
+"wiki": "Arthur J. Gallagher & Co."
+},
+{
+"sym": "AIZ",
+"title": "Assurant",
+"name": "Assurant",
+"sector": "Financials",
+"qid": "Q4810399",
+"wiki": "Assurant"
+},
+{
+"sym": "T",
+"title": "AT&T",
+"name": "AT&T",
+"sector": "Communication Services",
+"qid": "Q35476",
+"wiki": "AT&T"
+},
+{
+"sym": "ATO",
+"title": "Atmos Energy",
+"name": "Atmos Energy",
+"sector": "Utilities",
+"qid": "Q4817084",
+"wiki": "Atmos Energy"
+},
+{
+"sym": "ADSK",
+"title": "Autodesk",
+"name": "Autodesk",
+"sector": "Information Technology",
+"qid": "Q628051",
+"wiki": "Autodesk"
+},
+{
+"sym": "ADP",
+"title": "ADP (company)",
+"name": "Automatic Data Processing",
+"sector": "Industrials",
+"qid": "Q489080",
+"wiki": "ADP (company)"
+},
+{
+"sym": "AZO",
+"title": "AutoZone",
+"name": "AutoZone",
+"sector": "Consumer Discretionary",
+"qid": "Q4826087",
+"wiki": "AutoZone"
+},
+{
+"sym": "AVY",
+"title": "Avery Dennison",
+"name": "Avery Dennison",
+"sector": "Materials",
+"qid": "Q790650",
+"wiki": "Avery Dennison"
+},
+{
+"sym": "AXON",
+"title": "Axon Enterprise",
+"name": "Axon Enterprise",
+"sector": "Industrials",
+"qid": "Q690604",
+"wiki": "Axon Enterprise"
+},
+{
+"sym": "BKR",
+"title": "Baker Hughes",
+"name": "Baker Hughes",
+"sector": "Energy",
+"qid": "Q804353",
+"wiki": "Baker Hughes"
+},
+{
+"sym": "BALL",
+"title": "Ball Corporation",
+"name": "Ball Corporation",
+"sector": "Materials",
+"qid": "Q4034815",
+"wiki": "Ball Corporation"
+},
+{
+"sym": "BAC",
+"title": "Bank of America",
+"name": "Bank of America",
+"sector": "Financials",
+"qid": "Q487907",
+"wiki": "Bank of America"
+},
+{
+"sym": "BAX",
+"title": "Baxter International",
+"name": "Baxter International",
+"sector": "Health Care",
+"qid": "Q761965",
+"wiki": "Baxter International"
+},
+{
+"sym": "BDX",
+"title": "BD (company)",
+"name": "Becton Dickinson",
+"sector": "Health Care",
+"qid": "Q813780",
+"wiki": "BD (company)"
+},
+{
+"sym": "BRK.B",
+"title": "Berkshire Hathaway",
+"name": "Berkshire Hathaway",
+"sector": "Financials",
+"qid": "Q217583",
+"wiki": "Berkshire Hathaway"
+},
+{
+"sym": "BBY",
+"title": "Best Buy",
+"name": "Best Buy",
+"sector": "Consumer Discretionary",
+"qid": "Q533415",
+"wiki": "Best Buy"
+},
+{
+"sym": "TECH",
+"title": "Bio-Techne",
+"name": "Bio-Techne",
+"sector": "Health Care",
+"qid": "Q19873469",
+"wiki": "Bio-Techne"
+},
+{
+"sym": "BIIB",
+"title": "Biogen",
+"name": "Biogen",
+"sector": "Health Care",
+"qid": "Q864338",
+"wiki": "Biogen"
+},
+{
+"sym": "BLK",
+"title": "BlackRock",
+"name": "BlackRock",
+"sector": "Financials",
+"qid": "Q219635",
+"wiki": "BlackRock"
+},
+{
+"sym": "BX",
+"title": "Blackstone Inc.",
+"name": "Blackstone Inc.",
+"sector": "Financials",
+"qid": "Q880942",
+"wiki": "Blackstone Inc."
+},
+{
+"sym": "XYZ",
+"title": "Block, Inc.",
+"name": "Block, Inc.",
+"sector": "Financials",
+"qid": "Q110778747",
+"wiki": "Block, Inc."
+},
+{
+"sym": "BNY",
+"title": "BNY",
+"name": "BNY Mellon",
+"sector": "Financials",
+"qid": "Q589288",
+"wiki": "BNY"
+},
+{
+"sym": "BA",
+"title": "Boeing",
+"name": "Boeing",
+"sector": "Industrials",
+"qid": "Q66",
+"wiki": "Boeing"
+},
+{
+"sym": "BKNG",
+"title": "Booking Holdings",
+"name": "Booking Holdings",
+"sector": "Consumer Discretionary",
+"qid": "Q18674747",
+"wiki": "Booking Holdings"
+},
+{
+"sym": "BSX",
+"title": "Boston Scientific",
+"name": "Boston Scientific",
+"sector": "Health Care",
+"qid": "Q894585",
+"wiki": "Boston Scientific"
+},
+{
+"sym": "BMY",
+"title": "Bristol Myers Squibb",
+"name": "Bristol Myers Squibb",
+"sector": "Health Care",
+"qid": "Q266423",
+"wiki": "Bristol Myers Squibb"
+},
+{
+"sym": "AVGO",
+"title": "Broadcom",
+"name": "Broadcom",
+"sector": "Information Technology",
+"qid": "Q790060",
+"wiki": "Broadcom"
+},
+{
+"sym": "BR",
+"title": "Broadridge Financial Solutions",
+"name": "Broadridge Financial Solutions",
+"sector": "Industrials",
+"qid": "Q4972280",
+"wiki": "Broadridge Financial Solutions"
+},
+{
+"sym": "BRO",
+"title": "Brown & Brown",
+"name": "Brown & Brown",
+"sector": "Financials",
+"qid": "Q4976010",
+"wiki": "Brown & Brown"
+},
+{
+"sym": "BF.B",
+"title": "Brown–Forman",
+"name": "Brown–Forman",
+"sector": "Consumer Staples",
+"qid": "Q392221",
+"wiki": "Brown-Forman"
+},
+{
+"sym": "BLDR",
+"title": "Builders FirstSource",
+"name": "Builders FirstSource",
+"sector": "Industrials",
+"qid": "Q27686100",
+"wiki": "Builders FirstSource"
+},
+{
+"sym": "BG",
+"title": "Bunge Global",
+"name": "Bunge Global",
+"sector": "Consumer Staples",
+"qid": "Q1009458",
+"wiki": "Bunge Global"
+},
+{
+"sym": "BXP",
+"title": "BXP, Inc.",
+"name": "BXP, Inc.",
+"sector": "Real Estate",
+"qid": "Q4844439",
+"wiki": "BXP, Inc."
+},
+{
+"sym": "CHRW",
+"title": "C.H. Robinson",
+"name": "C.H. Robinson",
+"sector": "Industrials",
+"qid": "Q931200",
+"wiki": "C. H. Robinson"
+},
+{
+"sym": "CDNS",
+"title": "Cadence Design Systems",
+"name": "Cadence Design Systems",
+"sector": "Information Technology",
+"qid": "Q608776",
+"wiki": "Cadence Design Systems"
+},
+{
+"sym": "CPT",
+"title": "Camden Property Trust",
+"name": "Camden Property Trust",
+"sector": "Real Estate",
+"qid": "Q5025803",
+"wiki": "Camden Property Trust"
+},
+{
+"sym": "COF",
+"title": "Capital One",
+"name": "Capital One",
+"sector": "Financials",
+"qid": "Q1034654",
+"wiki": "Capital One"
+},
+{
+"sym": "CAH",
+"title": "Cardinal Health",
+"name": "Cardinal Health",
+"sector": "Health Care",
+"qid": "Q902397",
+"wiki": "Cardinal Health"
+},
+{
+"sym": "CCL",
+"title": "Carnival Corporation",
+"name": "Carnival Corporation",
+"sector": "Consumer Discretionary",
+"qid": "Q1044059",
+"wiki": "Carnival Corporation"
+},
+{
+"sym": "CARR",
+"title": "Carrier Global",
+"name": "Carrier Global",
+"sector": "Industrials",
+"qid": "Q731912",
+"wiki": "Carrier Global"
+},
+{
+"sym": "CVNA",
+"title": "Carvana",
+"name": "Carvana",
+"sector": "Consumer Discretionary",
+"qid": "Q16247191",
+"wiki": "Carvana"
+},
+{
+"sym": "CASY",
+"title": "Casey's",
+"name": "Casey's",
+"sector": "Consumer Staples",
+"qid": "Q2940968",
+"wiki": "Casey's"
+},
+{
+"sym": "CAT",
+"title": "Caterpillar Inc.",
+"name": "Caterpillar Inc.",
+"sector": "Industrials",
+"qid": "Q459965",
+"wiki": "Caterpillar Inc."
+},
+{
+"sym": "CBOE",
+"title": "Cboe Global Markets",
+"name": "Cboe Global Markets",
+"sector": "Financials",
+"qid": "Q30635731",
+"wiki": "Cboe Global Markets"
+},
+{
+"sym": "CBRE",
+"title": "CBRE Group",
+"name": "CBRE Group",
+"sector": "Real Estate",
+"qid": "Q1023013",
+"wiki": "CBRE Group"
+},
+{
+"sym": "CDW",
+"title": "CDW",
+"name": "CDW Corporation",
+"sector": "Information Technology",
+"qid": "Q1023155",
+"wiki": "CDW"
+},
+{
+"sym": "COR",
+"title": "Cencora",
+"name": "Cencora",
+"sector": "Health Care",
+"qid": "Q470156",
+"wiki": "Cencora"
+},
+{
+"sym": "CNC",
+"title": "Centene Corporation",
+"name": "Centene Corporation",
+"sector": "Health Care",
+"qid": "Q5059102",
+"wiki": "Centene Corporation"
+},
+{
+"sym": "CNP",
+"title": "CenterPoint Energy",
+"name": "CenterPoint Energy",
+"sector": "Utilities",
+"qid": "Q1053560",
+"wiki": "CenterPoint Energy"
+},
+{
+"sym": "CF",
+"title": "CF Industries",
+"name": "CF Industries",
+"sector": "Materials",
+"qid": "Q905806",
+"wiki": "CF Industries"
+},
+{
+"sym": "CRL",
+"title": "Charles River Laboratories",
+"name": "Charles River Laboratories",
+"sector": "Health Care",
+"qid": "Q5082076",
+"wiki": "Charles River Laboratories"
+},
+{
+"sym": "SCHW",
+"title": "Charles Schwab Corporation",
+"name": "Charles Schwab Corporation",
+"sector": "Financials",
+"qid": "Q1066028",
+"wiki": "Charles Schwab Corporation"
+},
+{
+"sym": "CHTR",
+"title": "Charter Communications",
+"name": "Charter Communications",
+"sector": "Communication Services",
+"qid": "Q2961234",
+"wiki": "Charter Communications"
+},
+{
+"sym": "CVX",
+"title": "Chevron Corporation",
+"name": "Chevron Corporation",
+"sector": "Energy",
+"qid": "Q319642",
+"wiki": "Chevron Corporation"
+},
+{
+"sym": "CMG",
+"title": "Chipotle Mexican Grill",
+"name": "Chipotle Mexican Grill",
+"sector": "Consumer Discretionary",
+"qid": "Q465751",
+"wiki": "Chipotle Mexican Grill"
+},
+{
+"sym": "CB",
+"title": "Chubb Limited",
+"name": "Chubb Limited",
+"sector": "Financials",
+"qid": "Q1089060",
+"wiki": "Chubb Limited"
+},
+{
+"sym": "CHD",
+"title": "Church & Dwight",
+"name": "Church & Dwight",
+"sector": "Consumer Staples",
+"qid": "Q5116536",
+"wiki": "Church & Dwight"
+},
+{
+"sym": "CIEN",
+"title": "Ciena",
+"name": "Ciena",
+"sector": "Information Technology",
+"qid": "Q1091783",
+"wiki": "Ciena"
+},
+{
+"sym": "CI",
+"title": "Cigna",
+"name": "Cigna",
+"sector": "Health Care",
+"qid": "Q642271",
+"wiki": "The Cigna Group"
+},
+{
+"sym": "CINF",
+"title": "Cincinnati Financial",
+"name": "Cincinnati Financial",
+"sector": "Financials",
+"qid": "Q5120253",
+"wiki": "Cincinnati Financial"
+},
+{
+"sym": "CTAS",
+"title": "Cintas",
+"name": "Cintas",
+"sector": "Industrials",
+"qid": "Q1092571",
+"wiki": "Cintas"
+},
+{
+"sym": "CSCO",
+"title": "Cisco",
+"name": "Cisco",
+"sector": "Information Technology",
+"qid": "Q173395",
+"wiki": "Cisco"
+},
+{
+"sym": "C",
+"title": "Citigroup",
+"name": "Citigroup",
+"sector": "Financials",
+"qid": "Q219508",
+"wiki": "Citigroup"
+},
+{
+"sym": "CFG",
+"title": "Citizens Financial Group",
+"name": "Citizens Financial Group",
+"sector": "Financials",
+"qid": "Q5122694",
+"wiki": "Citizens Financial Group"
+},
+{
+"sym": "CLX",
+"title": "Clorox",
+"name": "Clorox",
+"sector": "Consumer Staples",
+"qid": "Q910368",
+"wiki": "Clorox"
+},
+{
+"sym": "CME",
+"title": "CME Group",
+"name": "CME Group",
+"sector": "Financials",
+"qid": "Q1023876",
+"wiki": "CME Group"
+},
+{
+"sym": "CMS",
+"title": "CMS Energy",
+"name": "CMS Energy",
+"sector": "Utilities",
+"qid": "Q5013012",
+"wiki": "CMS Energy"
+},
+{
+"sym": "KO",
+"title": "The Coca-Cola Company",
+"name": "Coca-Cola Company (The)",
+"sector": "Consumer Staples",
+"qid": "Q3295867",
+"wiki": "The Coca-Cola Company"
+},
+{
+"sym": "CTSH",
+"title": "Cognizant",
+"name": "Cognizant",
+"sector": "Information Technology",
+"qid": "Q1107035",
+"wiki": "Cognizant"
+},
+{
+"sym": "COHR",
+"title": "Coherent Corp.",
+"name": "Coherent Corp.",
+"sector": "Information Technology",
+"qid": "Q15109887",
+"wiki": "Coherent Corp."
+},
+{
+"sym": "COIN",
+"title": "Coinbase",
+"name": "Coinbase",
+"sector": "Financials",
+"qid": "Q16972754",
+"wiki": "Coinbase"
+},
+{
+"sym": "CL",
+"title": "Colgate-Palmolive",
+"name": "Colgate-Palmolive",
+"sector": "Consumer Staples",
+"qid": "Q609466",
+"wiki": "Colgate-Palmolive"
+},
+{
+"sym": "CMCSA",
+"title": "Comcast",
+"name": "Comcast",
+"sector": "Communication Services",
+"qid": "Q1113804",
+"wiki": "Comcast"
+},
+{
+"sym": "FIX",
+"title": "Comfort Systems USA",
+"name": "Comfort Systems USA",
+"sector": "Industrials",
+"qid": "Q5151691",
+"wiki": "Comfort Systems USA"
+},
+{
+"sym": "COP",
+"title": "ConocoPhillips",
+"name": "ConocoPhillips",
+"sector": "Energy",
+"qid": "Q214763",
+"wiki": "ConocoPhillips"
+},
+{
+"sym": "ED",
+"title": "Consolidated Edison",
+"name": "Consolidated Edison",
+"sector": "Utilities",
+"qid": "Q1127536",
+"wiki": "Consolidated Edison"
+},
+{
+"sym": "STZ",
+"title": "Constellation Brands",
+"name": "Constellation Brands",
+"sector": "Consumer Staples",
+"qid": "Q1128160",
+"wiki": "Constellation Brands"
+},
+{
+"sym": "CEG",
+"title": "Constellation Energy",
+"name": "Constellation Energy",
+"sector": "Utilities",
+"qid": "Q259195",
+"wiki": "Constellation Energy"
+},
+{
+"sym": "COO",
+"title": "The Cooper Companies",
+"name": "Cooper Companies (The)",
+"sector": "Health Care",
+"qid": "Q1129792",
+"wiki": "The Cooper Companies"
+},
+{
+"sym": "CPRT",
+"title": "Copart",
+"name": "Copart",
+"sector": "Industrials",
+"qid": "Q16951448",
+"wiki": "Copart"
+},
+{
+"sym": "GLW",
+"title": "Corning Inc.",
+"name": "Corning Inc.",
+"sector": "Information Technology",
+"qid": "Q5842736",
+"wiki": "Corning Inc."
+},
+{
+"sym": "CPAY",
+"title": "Corpay",
+"name": "Corpay",
+"sector": "Financials",
+"qid": "Q16838618",
+"wiki": "Corpay"
+},
+{
+"sym": "CTVA",
+"title": "Corteva",
+"name": "Corteva",
+"sector": "Materials",
+"qid": "Q63197674",
+"wiki": "Corteva"
+},
+{
+"sym": "CSGP",
+"title": "CoStar Group",
+"name": "CoStar Group",
+"sector": "Real Estate",
+"qid": "Q16988748",
+"wiki": "CoStar Group"
+},
+{
+"sym": "COST",
+"title": "Costco",
+"name": "Costco",
+"sector": "Consumer Staples",
+"qid": "Q715583",
+"wiki": "Costco"
+},
+{
+"sym": "CRH",
+"title": "CRH plc",
+"name": "CRH plc",
+"sector": "Materials",
+"qid": "Q1053299",
+"wiki": "CRH plc"
+},
+{
+"sym": "CRWD",
+"title": "CrowdStrike",
+"name": "CrowdStrike",
+"sector": "Information Technology",
+"qid": "Q24890758",
+"wiki": "CrowdStrike"
+},
+{
+"sym": "CCI",
+"title": "Crown Castle",
+"name": "Crown Castle",
+"sector": "Real Estate",
+"qid": "Q5189320",
+"wiki": "Crown Castle"
+},
+{
+"sym": "CSX",
+"title": "CSX Corporation",
+"name": "CSX Corporation",
+"sector": "Industrials",
+"qid": "Q1024454",
+"wiki": "CSX Corporation"
+},
+{
+"sym": "CMI",
+"title": "Cummins",
+"name": "Cummins",
+"sector": "Industrials",
+"qid": "Q173476",
+"wiki": "Cummins"
+},
+{
+"sym": "CVS",
+"title": "CVS Health",
+"name": "CVS Health",
+"sector": "Health Care",
+"qid": "Q624375",
+"wiki": "CVS Health"
+},
+{
+"sym": "DHR",
+"title": "Danaher Corporation",
+"name": "Danaher Corporation",
+"sector": "Health Care",
+"qid": "Q1159256",
+"wiki": "Danaher Corporation"
+},
+{
+"sym": "DRI",
+"title": "Darden Restaurants",
+"name": "Darden Restaurants",
+"sector": "Consumer Discretionary",
+"qid": "Q742196",
+"wiki": "Darden Restaurants"
+},
+{
+"sym": "DDOG",
+"title": "Datadog",
+"name": "Datadog",
+"sector": "Information Technology",
+"qid": "Q16248637",
+"wiki": "Datadog"
+},
+{
+"sym": "DVA",
+"title": "DaVita",
+"name": "DaVita",
+"sector": "Health Care",
+"qid": "Q5207184",
+"wiki": "DaVita"
+},
+{
+"sym": "DECK",
+"title": "Deckers Brands",
+"name": "Deckers Brands",
+"sector": "Consumer Discretionary",
+"qid": "Q1181953",
+"wiki": "Deckers Brands"
+},
+{
+"sym": "DE",
+"title": "John Deere",
+"name": "Deere & Company",
+"sector": "Industrials",
+"qid": "Q496302",
+"wiki": "John Deere"
+},
+{
+"sym": "DELL",
+"title": "Dell Technologies",
+"name": "Dell Technologies",
+"sector": "Information Technology",
+"qid": "Q27500963",
+"wiki": "Dell Technologies"
+},
+{
+"sym": "DAL",
+"title": "Delta Air Lines",
+"name": "Delta Air Lines",
+"sector": "Industrials",
+"qid": "Q188920",
+"wiki": "Delta Air Lines"
+},
+{
+"sym": "DVN",
+"title": "Devon Energy",
+"name": "Devon Energy",
+"sector": "Energy",
+"qid": "Q1206980",
+"wiki": "Devon Energy"
+},
+{
+"sym": "DXCM",
+"title": "Dexcom",
+"name": "Dexcom",
+"sector": "Health Care",
+"qid": "Q15109865",
+"wiki": "Dexcom"
+},
+{
+"sym": "FANG",
+"title": "Diamondback Energy",
+"name": "Diamondback Energy",
+"sector": "Energy",
+"qid": "Q65091423",
+"wiki": "Diamondback Energy"
+},
+{
+"sym": "DLR",
+"title": "Digital Realty",
+"name": "Digital Realty",
+"sector": "Real Estate",
+"qid": "Q5275969",
+"wiki": "Digital Realty"
+},
+{
+"sym": "DG",
+"title": "Dollar General",
+"name": "Dollar General",
+"sector": "Consumer Staples",
+"qid": "Q145168",
+"wiki": "Dollar General"
+},
+{
+"sym": "DLTR",
+"title": "Dollar Tree",
+"name": "Dollar Tree",
+"sector": "Consumer Staples",
+"qid": "Q5289230",
+"wiki": "Dollar Tree"
+},
+{
+"sym": "D",
+"title": "Dominion Energy",
+"name": "Dominion Energy",
+"sector": "Utilities",
+"qid": "Q677464",
+"wiki": "Dominion Energy"
+},
+{
+"sym": "DPZ",
+"title": "Domino's",
+"name": "Domino's",
+"sector": "Consumer Discretionary",
+"qid": "Q839466",
+"wiki": "Domino's"
+},
+{
+"sym": "DASH",
+"title": "DoorDash",
+"name": "DoorDash",
+"sector": "Consumer Discretionary",
+"qid": "Q20714323",
+"wiki": "DoorDash"
+},
+{
+"sym": "DOV",
+"title": "Dover Corporation",
+"name": "Dover Corporation",
+"sector": "Industrials",
+"qid": "Q16974527",
+"wiki": "Dover Corporation"
+},
+{
+"sym": "DOW",
+"title": "Dow Chemical Company",
+"name": "Dow Inc.",
+"sector": "Materials",
+"qid": "Q855639",
+"wiki": "Dow Chemical Company"
+},
+{
+"sym": "DHI",
+"title": "D. R. Horton",
+"name": "D. R. Horton",
+"sector": "Consumer Discretionary",
+"qid": "Q5203782",
+"wiki": "D. R. Horton"
+},
+{
+"sym": "DTE",
+"title": "DTE Energy",
+"name": "DTE Energy",
+"sector": "Utilities",
+"qid": "Q5206232",
+"wiki": "DTE Energy"
+},
+{
+"sym": "DUK",
+"title": "Duke Energy",
+"name": "Duke Energy",
+"sector": "Utilities",
+"qid": "Q1264404",
+"wiki": "Duke Energy"
+},
+{
+"sym": "DD",
+"title": "DuPont",
+"name": "DuPont",
+"sector": "Industrials",
+"qid": "Q221062",
+"wiki": "DuPont"
+},
+{
+"sym": "ETN",
+"title": "Eaton Corporation",
+"name": "Eaton Corporation",
+"sector": "Industrials",
+"qid": "Q48872",
+"wiki": "Eaton Corporation"
+},
+{
+"sym": "EBAY",
+"title": "EBay",
+"name": "eBay Inc.",
+"sector": "Consumer Discretionary",
+"qid": "Q58024",
+"wiki": "EBay"
+},
+{
+"sym": "ECHO",
+"title": "EchoStar",
+"name": "EchoStar",
+"sector": "Communication Services",
+"qid": "Q1280748",
+"wiki": "EchoStar"
+},
+{
+"sym": "ECL",
+"title": "Ecolab",
+"name": "Ecolab",
+"sector": "Materials",
+"qid": "Q1282031",
+"wiki": "Ecolab"
+},
+{
+"sym": "EIX",
+"title": "Edison International",
+"name": "Edison International",
+"sector": "Utilities",
+"qid": "Q662095",
+"wiki": "Edison International"
+},
+{
+"sym": "EW",
+"title": "Edwards Lifesciences",
+"name": "Edwards Lifesciences",
+"sector": "Health Care",
+"qid": "Q16966841",
+"wiki": "Edwards Lifesciences"
+},
+{
+"sym": "ELV",
+"title": "Elevance Health",
+"name": "Elevance Health",
+"sector": "Health Care",
+"qid": "Q677488",
+"wiki": "Elevance Health"
+},
+{
+"sym": "EME",
+"title": "Emcor",
+"name": "Emcor",
+"sector": "Industrials",
+"qid": "Q5370289",
+"wiki": "Emcor"
+},
+{
+"sym": "EMR",
+"title": "Emerson Electric",
+"name": "Emerson Electric",
+"sector": "Industrials",
+"qid": "Q1335585",
+"wiki": "Emerson Electric"
+},
+{
+"sym": "ETR",
+"title": "Entergy",
+"name": "Entergy",
+"sector": "Utilities",
+"qid": "Q1344587",
+"wiki": "Entergy"
+},
+{
+"sym": "EOG",
+"title": "EOG Resources",
+"name": "EOG Resources",
+"sector": "Energy",
+"qid": "Q1275577",
+"wiki": "EOG Resources"
+},
+{
+"sym": "EQT",
+"title": "EQT Corporation",
+"name": "EQT Corporation",
+"sector": "Energy",
+"qid": "Q5323987",
+"wiki": "EQT Corporation"
+},
+{
+"sym": "EFX",
+"title": "Equifax",
+"name": "Equifax",
+"sector": "Industrials",
+"qid": "Q5384453",
+"wiki": "Equifax"
+},
+{
+"sym": "EQIX",
+"title": "Equinix",
+"name": "Equinix",
+"sector": "Real Estate",
+"qid": "Q851641",
+"wiki": "Equinix"
+},
+{
+"sym": "ERIE",
+"title": "Erie Insurance Group",
+"name": "Erie Indemnity",
+"sector": "Financials",
+"qid": "Q5388314",
+"wiki": "Erie Insurance Group"
+},
+{
+"sym": "ESS",
+"title": "Essex Property Trust",
+"name": "Essex Property Trust",
+"sector": "Real Estate",
+"qid": "Q27964091",
+"wiki": "Essex Property Trust"
+},
+{
+"sym": "EL",
+"title": "The Estée Lauder Companies",
+"name": "Estée Lauder Companies (The)",
+"sector": "Consumer Staples",
+"qid": "Q1260606",
+"wiki": "Estée Lauder Companies"
+},
+{
+"sym": "EG",
+"title": "Everest Group",
+"name": "Everest Group",
+"sector": "Financials",
+"qid": "Q1381973",
+"wiki": "Everest Group"
+},
+{
+"sym": "EVRG",
+"title": "Evergy",
+"name": "Evergy",
+"sector": "Utilities",
+"qid": "Q7987107",
+"wiki": "Evergy"
+},
+{
+"sym": "ES",
+"title": "Eversource Energy",
+"name": "Eversource Energy",
+"sector": "Utilities",
+"qid": "Q3344199",
+"wiki": "Eversource Energy"
+},
+{
+"sym": "EXC",
+"title": "Exelon",
+"name": "Exelon",
+"sector": "Utilities",
+"qid": "Q1383669",
+"wiki": "Exelon"
+},
+{
+"sym": "EXE",
+"title": "Expand Energy",
+"name": "Expand Energy",
+"sector": "Energy",
+"qid": "Q2962826",
+"wiki": "Expand Energy"
+},
+{
+"sym": "EXPE",
+"title": "Expedia Group",
+"name": "Expedia Group",
+"sector": "Consumer Discretionary",
+"qid": "Q8085893",
+"wiki": "Expedia Group"
+},
+{
+"sym": "EXPD",
+"title": "Expeditors International",
+"name": "Expeditors International",
+"sector": "Industrials",
+"qid": "Q1384324",
+"wiki": "Expeditors International"
+},
+{
+"sym": "EXR",
+"title": "Extra Space Storage",
+"name": "Extra Space Storage",
+"sector": "Real Estate",
+"qid": "Q5422162",
+"wiki": "Extra Space Storage"
+},
+{
+"sym": "XOM",
+"title": "ExxonMobil",
+"name": "ExxonMobil",
+"sector": "Energy",
+"qid": "Q156238",
+"wiki": "ExxonMobil"
+},
+{
+"sym": "FFIV",
+"title": "F5, Inc.",
+"name": "F5, Inc.",
+"sector": "Information Technology",
+"qid": "Q3029296",
+"wiki": "F5, Inc."
+},
+{
+"sym": "FDS",
+"title": "FactSet",
+"name": "FactSet",
+"sector": "Financials",
+"qid": "Q1885491",
+"wiki": "FactSet"
+},
+{
+"sym": "FICO",
+"title": "FICO",
+"name": "Fair Isaac",
+"sector": "Information Technology",
+"qid": "Q1392999",
+"wiki": "FICO"
+},
+{
+"sym": "FAST",
+"title": "Fastenal",
+"name": "Fastenal",
+"sector": "Industrials",
+"qid": "Q3067119",
+"wiki": "Fastenal"
+},
+{
+"sym": "FRT",
+"title": "Federal Realty Investment Trust",
+"name": "Federal Realty Investment Trust",
+"sector": "Real Estate",
+"qid": "Q27988152",
+"wiki": "Federal Realty Investment Trust"
+},
+{
+"sym": "FDX",
+"title": "FedEx",
+"name": "FedEx",
+"sector": "Industrials",
+"qid": "Q459477",
+"wiki": "FedEx"
+},
+{
+"sym": "FDXF",
+"title": "FedEx Freight",
+"name": "FedEx Freight",
+"sector": "Industrials",
+"qid": "Q459477",
+"wiki": "FedEx"
+},
+{
+"sym": "FERG",
+"title": "Ferguson Enterprises",
+"name": "Ferguson Enterprises",
+"sector": "Industrials",
+"qid": "Q5444235",
+"wiki": "Ferguson Enterprises"
+},
+{
+"sym": "FIS",
+"title": "FIS (company)",
+"name": "Fidelity National Information Services",
+"sector": "Financials",
+"qid": "Q1411295",
+"wiki": "FIS (company)"
+},
+{
+"sym": "FITB",
+"title": "Fifth Third Bancorp",
+"name": "Fifth Third Bancorp",
+"sector": "Financials",
+"qid": "Q1411810",
+"wiki": "Fifth Third Bank"
+},
+{
+"sym": "FSLR",
+"title": "First Solar",
+"name": "First Solar",
+"sector": "Information Technology",
+"qid": "Q1138888",
+"wiki": "First Solar"
+},
+{
+"sym": "FE",
+"title": "FirstEnergy",
+"name": "FirstEnergy",
+"sector": "Utilities",
+"qid": "Q1419248",
+"wiki": "FirstEnergy"
+},
+{
+"sym": "FISV",
+"title": "Fiserv",
+"name": "Fiserv",
+"sector": "Financials",
+"qid": "Q1420513",
+"wiki": "Fiserv"
+},
+{
+"sym": "FLEX",
+"title": "Flex Ltd.",
+"name": "Flex Ltd.",
+"sector": "Information Technology",
+"qid": "Q1140680",
+"wiki": "Flex Ltd."
+},
+{
+"sym": "F",
+"title": "Ford Motor Company",
+"name": "Ford Motor Company",
+"sector": "Consumer Discretionary",
+"qid": "Q44294",
+"wiki": "Ford Motor Company"
+},
+{
+"sym": "FTNT",
+"title": "Fortinet",
+"name": "Fortinet",
+"sector": "Information Technology",
+"qid": "Q2749364",
+"wiki": "Fortinet"
+},
+{
+"sym": "FTV",
+"title": "Fortive",
+"name": "Fortive",
+"sector": "Industrials",
+"qid": "Q27919383",
+"wiki": "Fortive"
+},
+{
+"sym": "FOXA",
+"title": "Fox Corporation",
+"name": "Fox Corporation",
+"sector": "Communication Services",
+"qid": "Q60238941",
+"wiki": "Fox Corporation"
+},
+{
+"sym": "FOX",
+"title": "Fox Corporation",
+"name": "Fox Corporation",
+"sector": "Communication Services",
+"qid": "Q60238941",
+"wiki": "Fox Corporation"
+},
+{
+"sym": "BEN",
+"title": "Franklin Templeton Investments",
+"name": "Franklin Resources",
+"sector": "Financials",
+"qid": "Q744683",
+"wiki": "Franklin Templeton"
+},
+{
+"sym": "FCX",
+"title": "Freeport-McMoRan",
+"name": "Freeport-McMoRan",
+"sector": "Materials",
+"qid": "Q1453620",
+"wiki": "Freeport-McMoRan"
+},
+{
+"sym": "GRMN",
+"title": "Garmin",
+"name": "Garmin",
+"sector": "Consumer Discretionary",
+"qid": "Q658789",
+"wiki": "Garmin"
+},
+{
+"sym": "IT",
+"title": "Gartner",
+"name": "Gartner",
+"sector": "Information Technology",
+"qid": "Q174198",
+"wiki": "Gartner"
+},
+{
+"sym": "GE",
+"title": "GE Aerospace",
+"name": "GE Aerospace",
+"sector": "Industrials",
+"qid": "Q1485061",
+"wiki": "GE Aerospace"
+},
+{
+"sym": "GEHC",
+"title": "GE HealthCare",
+"name": "GE HealthCare",
+"sector": "Health Care",
+"qid": "Q1152374",
+"wiki": "GE HealthCare"
+},
+{
+"sym": "GEV",
+"title": "GE Vernova",
+"name": "GE Vernova",
+"sector": "Industrials",
+"qid": "Q118957699",
+"wiki": "GE Vernova"
+},
+{
+"sym": "GEN",
+"title": "Gen Digital",
+"name": "Gen Digital",
+"sector": "Information Technology",
+"qid": "Q677085",
+"wiki": "Gen Digital"
+},
+{
+"sym": "GNRC",
+"title": "Generac",
+"name": "Generac",
+"sector": "Industrials",
+"qid": "Q5531627",
+"wiki": "Generac"
+},
+{
+"sym": "GD",
+"title": "General Dynamics",
+"name": "General Dynamics",
+"sector": "Industrials",
+"qid": "Q502940",
+"wiki": "General Dynamics"
+},
+{
+"sym": "GIS",
+"title": "General Mills",
+"name": "General Mills",
+"sector": "Consumer Staples",
+"qid": "Q629998",
+"wiki": "General Mills"
+},
+{
+"sym": "GM",
+"title": "General Motors",
+"name": "General Motors",
+"sector": "Consumer Discretionary",
+"qid": "Q81965",
+"wiki": "General Motors"
+},
+{
+"sym": "GPC",
+"title": "Genuine Parts Company",
+"name": "Genuine Parts Company",
+"sector": "Consumer Discretionary",
+"qid": "Q5533818",
+"wiki": "Genuine Parts Company"
+},
+{
+"sym": "GILD",
+"title": "Gilead Sciences",
+"name": "Gilead Sciences",
+"sector": "Health Care",
+"qid": "Q663596",
+"wiki": "Gilead Sciences"
+},
+{
+"sym": "GPN",
+"title": "Global Payments",
+"name": "Global Payments",
+"sector": "Financials",
+"qid": "Q5570544",
+"wiki": "Global Payments"
+},
+{
+"sym": "GL",
+"title": "Globe Life",
+"name": "Globe Life",
+"sector": "Financials",
+"qid": "Q7825574",
+"wiki": "Globe Life"
+},
+{
+"sym": "GDDY",
+"title": "GoDaddy",
+"name": "GoDaddy",
+"sector": "Information Technology",
+"qid": "Q1416215",
+"wiki": "GoDaddy"
+},
+{
+"sym": "GS",
+"title": "Goldman Sachs",
+"name": "Goldman Sachs",
+"sector": "Financials",
+"qid": "Q193326",
+"wiki": "Goldman Sachs"
+},
+{
+"sym": "HAL",
+"title": "Halliburton",
+"name": "Halliburton",
+"sector": "Energy",
+"qid": "Q656165",
+"wiki": "Halliburton"
+},
+{
+"sym": "HIG",
+"title": "The Hartford",
+"name": "Hartford (The)",
+"sector": "Financials",
+"qid": "Q444110",
+"wiki": "The Hartford"
+},
+{
+"sym": "HAS",
+"title": "Hasbro",
+"name": "Hasbro",
+"sector": "Consumer Discretionary",
+"qid": "Q501476",
+"wiki": "Hasbro"
+},
+{
+"sym": "HCA",
+"title": "HCA Healthcare",
+"name": "HCA Healthcare",
+"sector": "Health Care",
+"qid": "Q1630431",
+"wiki": "HCA Healthcare"
+},
+{
+"sym": "DOC",
+"title": "Healthpeak Properties",
+"name": "Healthpeak Properties",
+"sector": "Real Estate",
+"qid": "Q16975567",
+"wiki": "Healthpeak Properties"
+},
+{
+"sym": "HSIC",
+"title": "Henry Schein",
+"name": "Henry Schein",
+"sector": "Health Care",
+"qid": "Q905086",
+"wiki": "Henry Schein"
+},
+{
+"sym": "HSY",
+"title": "The Hershey Company",
+"name": "Hershey Company (The)",
+"sector": "Consumer Staples",
+"qid": "Q1056637",
+"wiki": "The Hershey Company"
+},
+{
+"sym": "HPE",
+"title": "Hewlett Packard Enterprise",
+"name": "Hewlett Packard Enterprise",
+"sector": "Information Technology",
+"qid": "Q19923099",
+"wiki": "Hewlett Packard Enterprise"
+},
+{
+"sym": "HLT",
+"title": "Hilton Worldwide",
+"name": "Hilton Worldwide",
+"sector": "Consumer Discretionary",
+"qid": "Q1057464",
+"wiki": "Hilton Worldwide"
+},
+{
+"sym": "HD",
+"title": "Home Depot",
+"name": "Home Depot (The)",
+"sector": "Consumer Discretionary",
+"qid": "Q864407",
+"wiki": "Home Depot"
+},
+{
+"sym": "HONA",
+"title": "Honeywell Aerospace",
+"name": "Honeywell Aerospace",
+"sector": "Industrials",
+"qid": "Q5893992",
+"wiki": "Honeywell Aerospace"
+},
+{
+"sym": "HON",
+"title": "Honeywell",
+"name": "Honeywell Technologies",
+"sector": "Industrials",
+"qid": "Q898208",
+"wiki": "Honeywell"
+},
+{
+"sym": "HRL",
+"title": "Hormel Foods",
+"name": "Hormel Foods",
+"sector": "Consumer Staples",
+"qid": "Q1454852",
+"wiki": "Hormel Foods"
+},
+{
+"sym": "HST",
+"title": "Host Hotels & Resorts",
+"name": "Host Hotels & Resorts",
+"sector": "Real Estate",
+"qid": "Q1630559",
+"wiki": "Host Hotels & Resorts"
+},
+{
+"sym": "HWM",
+"title": "Howmet Aerospace",
+"name": "Howmet Aerospace",
+"sector": "Industrials",
+"qid": "Q25104597",
+"wiki": "Howmet Aerospace"
+},
+{
+"sym": "HPQ",
+"title": "HP Inc.",
+"name": "HP Inc.",
+"sector": "Information Technology",
+"qid": "Q21404084",
+"wiki": "HP Inc."
+},
+{
+"sym": "HUBB",
+"title": "Hubbell Incorporated",
+"name": "Hubbell Incorporated",
+"sector": "Industrials",
+"qid": "Q21036456",
+"wiki": "Hubbell Incorporated"
+},
+{
+"sym": "HUM",
+"title": "Humana",
+"name": "Humana",
+"sector": "Health Care",
+"qid": "Q910866",
+"wiki": "Humana"
+},
+{
+"sym": "HBAN",
+"title": "Huntington Bancshares",
+"name": "Huntington Bancshares",
+"sector": "Financials",
+"qid": "Q798819",
+"wiki": "Huntington Bancshares"
+},
+{
+"sym": "HII",
+"title": "Huntington Ingalls Industries",
+"name": "Huntington Ingalls Industries",
+"sector": "Industrials",
+"qid": "Q7257522",
+"wiki": "Huntington Ingalls Industries"
+},
+{
+"sym": "IBM",
+"title": "IBM",
+"name": "IBM",
+"sector": "Information Technology",
+"qid": "Q37156",
+"wiki": "IBM"
+},
+{
+"sym": "IEX",
+"title": "IDEX Corporation",
+"name": "IDEX Corporation",
+"sector": "Industrials",
+"qid": "Q5970002",
+"wiki": "IDEX Corporation"
+},
+{
+"sym": "IDXX",
+"title": "Idexx Laboratories",
+"name": "Idexx Laboratories",
+"sector": "Health Care",
+"qid": "Q1758392",
+"wiki": "Idexx Laboratories"
+},
+{
+"sym": "ITW",
+"title": "Illinois Tool Works",
+"name": "Illinois Tool Works",
+"sector": "Industrials",
+"qid": "Q1510378",
+"wiki": "Illinois Tool Works"
+},
+{
+"sym": "INCY",
+"title": "Incyte",
+"name": "Incyte",
+"sector": "Health Care",
+"qid": "Q6015591",
+"wiki": "Incyte"
+},
+{
+"sym": "IR",
+"title": "Ingersoll Rand",
+"name": "Ingersoll Rand",
+"sector": "Industrials",
+"qid": "Q55453962",
+"wiki": "Ingersoll Rand"
+},
+{
+"sym": "INTC",
+"title": "Intel",
+"name": "Intel",
+"sector": "Information Technology",
+"qid": "Q248",
+"wiki": "Intel"
+},
+{
+"sym": "IBKR",
+"title": "Interactive Brokers",
+"name": "Interactive Brokers",
+"sector": "Financials",
+"qid": "Q20011294",
+"wiki": "Interactive Brokers"
+},
+{
+"sym": "ICE",
+"title": "Intercontinental Exchange",
+"name": "Intercontinental Exchange",
+"sector": "Financials",
+"qid": "Q841458",
+"wiki": "Intercontinental Exchange"
+},
+{
+"sym": "IFF",
+"title": "International Flavors & Fragrances",
+"name": "International Flavors & Fragrances",
+"sector": "Materials",
+"qid": "Q1666568",
+"wiki": "International Flavors & Fragrances"
+},
+{
+"sym": "IP",
+"title": "International Paper",
+"name": "International Paper",
+"sector": "Materials",
+"qid": "Q202972",
+"wiki": "International Paper"
+},
+{
+"sym": "INTU",
+"title": "Intuit",
+"name": "Intuit",
+"sector": "Information Technology",
+"qid": "Q1318848",
+"wiki": "Intuit"
+},
+{
+"sym": "ISRG",
+"title": "Intuitive Surgical",
+"name": "Intuitive Surgical",
+"sector": "Health Care",
+"qid": "Q2743863",
+"wiki": "Intuitive Surgical"
+},
+{
+"sym": "IVZ",
+"title": "Invesco",
+"name": "Invesco",
+"sector": "Financials",
+"qid": "Q522617",
+"wiki": "Invesco"
+},
+{
+"sym": "INVH",
+"title": "Invitation Homes",
+"name": "Invitation Homes",
+"sector": "Real Estate",
+"qid": "Q85769855",
+"wiki": "Invitation Homes"
+},
+{
+"sym": "IQV",
+"title": "IQVIA",
+"name": "IQVIA",
+"sector": "Health Care",
+"qid": "Q305473",
+"wiki": "IQVIA"
+},
+{
+"sym": "IRM",
+"title": "Iron Mountain (company)",
+"name": "Iron Mountain",
+"sector": "Real Estate",
+"qid": "Q1673079",
+"wiki": "Iron Mountain (company)"
+},
+{
+"sym": "JBHT",
+"title": "J.B. Hunt",
+"name": "J.B. Hunt",
+"sector": "Industrials",
+"qid": "Q4041705",
+"wiki": "J. B. Hunt"
+},
+{
+"sym": "JBL",
+"title": "Jabil",
+"name": "Jabil",
+"sector": "Information Technology",
+"qid": "Q2171646",
+"wiki": "Jabil"
+},
+{
+"sym": "JKHY",
+"title": "Jack Henry & Associates",
+"name": "Jack Henry & Associates",
+"sector": "Financials",
+"qid": "Q6113060",
+"wiki": "Jack Henry & Associates"
+},
+{
+"sym": "J",
+"title": "Jacobs Solutions",
+"name": "Jacobs Solutions",
+"sector": "Industrials",
+"qid": "Q3157622",
+"wiki": "Jacobs Solutions"
+},
+{
+"sym": "JNJ",
+"title": "Johnson & Johnson",
+"name": "Johnson & Johnson",
+"sector": "Health Care",
+"qid": "Q333718",
+"wiki": "Johnson & Johnson"
+},
+{
+"sym": "JCI",
+"title": "Johnson Controls",
+"name": "Johnson Controls",
+"sector": "Industrials",
+"qid": "Q667865",
+"wiki": "Johnson Controls"
+},
+{
+"sym": "JPM",
+"title": "JPMorgan Chase",
+"name": "JPMorgan Chase",
+"sector": "Financials",
+"qid": "Q192314",
+"wiki": "JPMorgan Chase"
+},
+{
+"sym": "KVUE",
+"title": "Kenvue",
+"name": "Kenvue",
+"sector": "Consumer Staples",
+"qid": "Q118905792",
+"wiki": "Kenvue"
+},
+{
+"sym": "KDP",
+"title": "Keurig Dr Pepper",
+"name": "Keurig Dr Pepper",
+"sector": "Consumer Staples",
+"qid": "Q3116111",
+"wiki": "Keurig Dr Pepper"
+},
+{
+"sym": "KEY",
+"title": "KeyCorp",
+"name": "KeyCorp",
+"sector": "Financials",
+"qid": "Q1740314",
+"wiki": "KeyBank"
+},
+{
+"sym": "KEYS",
+"title": "Keysight Technologies",
+"name": "Keysight Technologies",
+"sector": "Information Technology",
+"qid": "Q17551096",
+"wiki": "Keysight"
+},
+{
+"sym": "KMB",
+"title": "Kimberly-Clark",
+"name": "Kimberly-Clark",
+"sector": "Consumer Staples",
+"qid": "Q1741634",
+"wiki": "Kimberly-Clark"
+},
+{
+"sym": "KIM",
+"title": "Kimco Realty",
+"name": "Kimco Realty",
+"sector": "Real Estate",
+"qid": "Q6410043",
+"wiki": "Kimco Realty"
+},
+{
+"sym": "KMI",
+"title": "Kinder Morgan",
+"name": "Kinder Morgan",
+"sector": "Energy",
+"qid": "Q931032",
+"wiki": "Kinder Morgan"
+},
+{
+"sym": "KKR",
+"title": "Kohlberg Kravis Roberts",
+"name": "KKR & Co.",
+"sector": "Financials",
+"qid": "Q1570773",
+"wiki": "KKR & Co."
+},
+{
+"sym": "KLAC",
+"title": "KLA Corporation",
+"name": "KLA Corporation",
+"sector": "Information Technology",
+"qid": "Q624649",
+"wiki": "KLA Corporation"
+},
+{
+"sym": "KHC",
+"title": "Kraft Heinz",
+"name": "Kraft Heinz",
+"sector": "Consumer Staples",
+"qid": "Q19681433",
+"wiki": "Kraft Heinz"
+},
+{
+"sym": "KR",
+"title": "Kroger",
+"name": "Kroger",
+"sector": "Consumer Staples",
+"qid": "Q153417",
+"wiki": "Kroger"
+},
+{
+"sym": "LHX",
+"title": "L3Harris",
+"name": "L3Harris",
+"sector": "Industrials",
+"qid": "Q30291091",
+"wiki": "L3Harris"
+},
+{
+"sym": "LH",
+"title": "Labcorp",
+"name": "Labcorp",
+"sector": "Health Care",
+"qid": "Q6466630",
+"wiki": "Labcorp"
+},
+{
+"sym": "LRCX",
+"title": "Lam Research",
+"name": "Lam Research",
+"sector": "Information Technology",
+"qid": "Q1342041",
+"wiki": "Lam Research"
+},
+{
+"sym": "LVS",
+"title": "Las Vegas Sands",
+"name": "Las Vegas Sands",
+"sector": "Consumer Discretionary",
+"qid": "Q1506045",
+"wiki": "Las Vegas Sands"
+},
+{
+"sym": "LDOS",
+"title": "Leidos",
+"name": "Leidos",
+"sector": "Industrials",
+"qid": "Q502132",
+"wiki": "Leidos"
+},
+{
+"sym": "LEN",
+"title": "Lennar",
+"name": "Lennar",
+"sector": "Consumer Discretionary",
+"qid": "Q16981175",
+"wiki": "Lennar"
+},
+{
+"sym": "LII",
+"title": "Lennox International",
+"name": "Lennox International",
+"sector": "Industrials",
+"qid": "Q224751",
+"wiki": "Lennox International"
+},
+{
+"sym": "LLY",
+"title": "Eli Lilly and Company",
+"name": "Lilly (Eli)",
+"sector": "Health Care",
+"qid": "Q632240",
+"wiki": "Eli Lilly and Company"
+},
+{
+"sym": "LIN",
+"title": "Linde plc",
+"name": "Linde plc",
+"sector": "Materials",
+"qid": "Q682759",
+"wiki": "Linde plc"
+},
+{
+"sym": "LYV",
+"title": "Live Nation Entertainment",
+"name": "Live Nation Entertainment",
+"sector": "Communication Services",
+"qid": "Q1061903",
+"wiki": "Live Nation Entertainment"
+},
+{
+"sym": "LMT",
+"title": "Lockheed Martin",
+"name": "Lockheed Martin",
+"sector": "Industrials",
+"qid": "Q7240",
+"wiki": "Lockheed Martin"
+},
+{
+"sym": "L",
+"title": "Loews Corporation",
+"name": "Loews Corporation",
+"sector": "Financials",
+"qid": "Q826526",
+"wiki": "Loews Corporation"
+},
+{
+"sym": "LOW",
+"title": "Lowe's",
+"name": "Lowe's",
+"sector": "Consumer Discretionary",
+"qid": "Q1373493",
+"wiki": "Lowe's"
+},
+{
+"sym": "LULU",
+"title": "Lululemon",
+"name": "Lululemon Athletica",
+"sector": "Consumer Discretionary",
+"qid": "Q6702957",
+"wiki": "Lululemon"
+},
+{
+"sym": "LITE",
+"title": "Lumentum",
+"name": "Lumentum",
+"sector": "Information Technology",
+"qid": "Q138786899",
+"wiki": "Lumentum"
+},
+{
+"sym": "LYB",
+"title": "LyondellBasell",
+"name": "LyondellBasell",
+"sector": "Materials",
+"qid": "Q899255",
+"wiki": "LyondellBasell"
+},
+{
+"sym": "MTB",
+"title": "M&T Bank",
+"name": "M&T Bank",
+"sector": "Financials",
+"qid": "Q3272257",
+"wiki": "M&T Bank"
+},
+{
+"sym": "MPC",
+"title": "Marathon Petroleum",
+"name": "Marathon Petroleum",
+"sector": "Energy",
+"qid": "Q458363",
+"wiki": "Marathon Petroleum"
+},
+{
+"sym": "MAR",
+"title": "Marriott International",
+"name": "Marriott International",
+"sector": "Consumer Discretionary",
+"qid": "Q1141173",
+"wiki": "Marriott International"
+},
+{
+"sym": "MRSH",
+"title": "Marsh McLennan",
+"name": "Marsh McLennan",
+"sector": "Financials",
+"qid": "Q1786345",
+"wiki": "Marsh McLennan"
+},
+{
+"sym": "MLM",
+"title": "Martin Marietta Materials",
+"name": "Martin Marietta Materials",
+"sector": "Materials",
+"qid": "Q6776123",
+"wiki": "Martin Marietta Materials"
+},
+{
+"sym": "MRVL",
+"title": "Marvell Technology",
+"name": "Marvell Technology",
+"sector": "Information Technology",
+"qid": "Q1347782",
+"wiki": "Marvell Technology"
+},
+{
+"sym": "MAS",
+"title": "Masco",
+"name": "Masco",
+"sector": "Industrials",
+"qid": "Q6782872",
+"wiki": "Masco"
+},
+{
+"sym": "MA",
+"title": "Mastercard",
+"name": "Mastercard",
+"sector": "Financials",
+"qid": "Q489921",
+"wiki": "Mastercard"
+},
+{
+"sym": "MKC",
+"title": "McCormick & Company",
+"name": "McCormick & Company",
+"sector": "Consumer Staples",
+"qid": "Q1915049",
+"wiki": "McCormick & Company"
+},
+{
+"sym": "MCD",
+"title": "McDonald's",
+"name": "McDonald's",
+"sector": "Consumer Discretionary",
+"qid": "Q38076",
+"wiki": "McDonald's"
+},
+{
+"sym": "MCK",
+"title": "McKesson Corporation",
+"name": "McKesson Corporation",
+"sector": "Health Care",
+"qid": "Q570473",
+"wiki": "McKesson"
+},
+{
+"sym": "MDT",
+"title": "Medtronic",
+"name": "Medtronic",
+"sector": "Health Care",
+"qid": "Q642189",
+"wiki": "Medtronic"
+},
+{
+"sym": "MRK",
+"title": "Merck & Co.",
+"name": "Merck & Co.",
+"sector": "Health Care",
+"qid": "Q247489",
+"wiki": "Merck & Co."
+},
+{
+"sym": "META",
+"title": "Meta Platforms",
+"name": "Meta Platforms",
+"sector": "Communication Services",
+"qid": "Q380",
+"wiki": "Meta Platforms"
+},
+{
+"sym": "MET",
+"title": "MetLife",
+"name": "MetLife",
+"sector": "Financials",
+"qid": "Q607131",
+"wiki": "MetLife"
+},
+{
+"sym": "MTD",
+"title": "Mettler Toledo",
+"name": "Mettler Toledo",
+"sector": "Health Care",
+"qid": "Q680186",
+"wiki": "Mettler Toledo"
+},
+{
+"sym": "MGM",
+"title": "MGM Resorts",
+"name": "MGM Resorts",
+"sector": "Consumer Discretionary",
+"qid": "Q568532",
+"wiki": "MGM Resorts International"
+},
+{
+"sym": "MCHP",
+"title": "Microchip Technology",
+"name": "Microchip Technology",
+"sector": "Information Technology",
+"qid": "Q1545076",
+"wiki": "Microchip Technology"
+},
+{
+"sym": "MU",
+"title": "Micron Technology",
+"name": "Micron Technology",
+"sector": "Information Technology",
+"qid": "Q1197548",
+"wiki": "Micron Technology"
+},
+{
+"sym": "MSFT",
+"title": "Microsoft",
+"name": "Microsoft",
+"sector": "Information Technology",
+"qid": "Q2283",
+"wiki": "Microsoft"
+},
+{
+"sym": "MAA",
+"title": "Mid-America Apartment Communities",
+"name": "Mid-America Apartment Communities",
+"sector": "Real Estate",
+"qid": "Q27988239",
+"wiki": "Mid-America Apartment Communities"
+},
+{
+"sym": "MRNA",
+"title": "Moderna",
+"name": "Moderna",
+"sector": "Health Care",
+"qid": "Q17081612",
+"wiki": "Moderna"
+},
+{
+"sym": "TAP",
+"title": "Molson Coors",
+"name": "Molson Coors Beverage Company",
+"sector": "Consumer Staples",
+"qid": "Q3319685",
+"wiki": "Molson Coors"
+},
+{
+"sym": "MDLZ",
+"title": "Mondelez International",
+"name": "Mondelez International",
+"sector": "Consumer Staples",
+"qid": "Q12857502",
+"wiki": "Mondelez International"
+},
+{
+"sym": "MPWR",
+"title": "Monolithic Power Systems",
+"name": "Monolithic Power Systems",
+"sector": "Information Technology",
+"qid": "Q22058448",
+"wiki": "Monolithic Power Systems"
+},
+{
+"sym": "MNST",
+"title": "Monster Beverage",
+"name": "Monster Beverage",
+"sector": "Consumer Staples",
+"qid": "Q1945295",
+"wiki": "Monster Beverage"
+},
+{
+"sym": "MCO",
+"title": "Moody's Corporation",
+"name": "Moody's Corporation",
+"sector": "Financials",
+"qid": "Q675585",
+"wiki": "Moody's Corporation"
+},
+{
+"sym": "MS",
+"title": "Morgan Stanley",
+"name": "Morgan Stanley",
+"sector": "Financials",
+"qid": "Q334204",
+"wiki": "Morgan Stanley"
+},
+{
+"sym": "MOS",
+"title": "The Mosaic Company",
+"name": "Mosaic Company (The)",
+"sector": "Materials",
+"qid": "Q7752327",
+"wiki": "The Mosaic Company"
+},
+{
+"sym": "MSI",
+"title": "Motorola Solutions",
+"name": "Motorola Solutions",
+"sector": "Information Technology",
+"qid": "Q634815",
+"wiki": "Motorola Solutions"
+},
+{
+"sym": "MSCI",
+"title": "MSCI",
+"name": "MSCI",
+"sector": "Financials",
+"qid": "Q768773",
+"wiki": "MSCI"
+},
+{
+"sym": "NDAQ",
+"title": "Nasdaq, Inc.",
+"name": "Nasdaq, Inc.",
+"sector": "Financials",
+"qid": "Q1472929",
+"wiki": "Nasdaq, Inc."
+},
+{
+"sym": "NTAP",
+"title": "NetApp",
+"name": "NetApp",
+"sector": "Information Technology",
+"qid": "Q727883",
+"wiki": "NetApp"
+},
+{
+"sym": "NFLX",
+"title": "Netflix, Inc.",
+"name": "Netflix",
+"sector": "Communication Services",
+"qid": "Q116452644",
+"wiki": "Netflix, Inc."
+},
+{
+"sym": "NEM",
+"title": "Newmont",
+"name": "Newmont",
+"sector": "Materials",
+"qid": "Q1785405",
+"wiki": "Newmont"
+},
+{
+"sym": "NWSA",
+"title": "News Corp",
+"name": "News Corp",
+"sector": "Communication Services",
+"qid": "Q14289857",
+"wiki": "News Corp"
+},
+{
+"sym": "NWS",
+"title": "News Corp",
+"name": "News Corp",
+"sector": "Communication Services",
+"qid": "Q14289857",
+"wiki": "News Corp"
+},
+{
+"sym": "NEE",
+"title": "NextEra Energy",
+"name": "NextEra Energy",
+"sector": "Utilities",
+"qid": "Q967868",
+"wiki": "NextEra Energy"
+},
+{
+"sym": "NKE",
+"title": "Nike, Inc.",
+"name": "Nike, Inc.",
+"sector": "Consumer Discretionary",
+"qid": "Q483915",
+"wiki": "Nike, Inc."
+},
+{
+"sym": "NI",
+"title": "NiSource",
+"name": "NiSource",
+"sector": "Utilities",
+"qid": "Q1984481",
+"wiki": "NiSource"
+},
+{
+"sym": "NDSN",
+"title": "Nordson Corporation",
+"name": "Nordson Corporation",
+"sector": "Industrials",
+"qid": "Q1998662",
+"wiki": "Nordson Corporation"
+},
+{
+"sym": "NSC",
+"title": "Norfolk Southern Railway",
+"name": "Norfolk Southern",
+"sector": "Industrials",
+"qid": "Q1321054",
+"wiki": "Norfolk Southern Railway"
+},
+{
+"sym": "NTRS",
+"title": "Northern Trust",
+"name": "Northern Trust",
+"sector": "Financials",
+"qid": "Q970695",
+"wiki": "Northern Trust"
+},
+{
+"sym": "NOC",
+"title": "Northrop Grumman",
+"name": "Northrop Grumman",
+"sector": "Industrials",
+"qid": "Q329953",
+"wiki": "Northrop Grumman"
+},
+{
+"sym": "NCLH",
+"title": "Norwegian Cruise Line Holdings",
+"name": "Norwegian Cruise Line Holdings",
+"sector": "Consumer Discretionary",
+"qid": "Q60767471",
+"wiki": "Norwegian Cruise Line Holdings"
+},
+{
+"sym": "NRG",
+"title": "NRG Energy",
+"name": "NRG Energy",
+"sector": "Utilities",
+"qid": "Q6955139",
+"wiki": "NRG Energy"
+},
+{
+"sym": "NUE",
+"title": "Nucor",
+"name": "Nucor",
+"sector": "Materials",
+"qid": "Q1645081",
+"wiki": "Nucor"
+},
+{
+"sym": "NVDA",
+"title": "Nvidia",
+"name": "Nvidia",
+"sector": "Information Technology",
+"qid": "Q182477",
+"wiki": "Nvidia"
+},
+{
+"sym": "NVR",
+"title": "NVR, Inc.",
+"name": "NVR, Inc.",
+"sector": "Consumer Discretionary",
+"qid": "Q6955706",
+"wiki": "NVR, Inc."
+},
+{
+"sym": "NXPI",
+"title": "NXP Semiconductors",
+"name": "NXP Semiconductors",
+"sector": "Information Technology",
+"qid": "Q1155668",
+"wiki": "NXP Semiconductors"
+},
+{
+"sym": "ORLY",
+"title": "O'Reilly Auto Parts",
+"name": "O'Reilly Automotive",
+"sector": "Consumer Discretionary",
+"qid": "Q7071951",
+"wiki": "O'Reilly Auto Parts"
+},
+{
+"sym": "OXY",
+"title": "Occidental Petroleum",
+"name": "Occidental Petroleum",
+"sector": "Energy",
+"qid": "Q2013357",
+"wiki": "Occidental Petroleum"
+},
+{
+"sym": "ODFL",
+"title": "Old Dominion Freight Line",
+"name": "Old Dominion",
+"sector": "Industrials",
+"qid": "Q7083862",
+"wiki": "Old Dominion Freight Line"
+},
+{
+"sym": "OMC",
+"title": "Omnicom Group",
+"name": "Omnicom Group",
+"sector": "Communication Services",
+"qid": "Q1519267",
+"wiki": "Omnicom Group"
+},
+{
+"sym": "ON",
+"title": "Onsemi",
+"name": "ON Semiconductor",
+"sector": "Information Technology",
+"qid": "Q1671509",
+"wiki": "Onsemi"
+},
+{
+"sym": "OKE",
+"title": "Oneok",
+"name": "Oneok",
+"sector": "Energy",
+"qid": "Q11074156",
+"wiki": "Oneok"
+},
+{
+"sym": "ORCL",
+"title": "Oracle Corporation",
+"name": "Oracle Corporation",
+"sector": "Information Technology",
+"qid": "Q19900",
+"wiki": "Oracle Corporation"
+},
+{
+"sym": "OTIS",
+"title": "Otis Worldwide",
+"name": "Otis Worldwide",
+"sector": "Industrials",
+"qid": "Q1134069",
+"wiki": "Otis Worldwide"
+},
+{
+"sym": "PCAR",
+"title": "Paccar",
+"name": "Paccar",
+"sector": "Industrials",
+"qid": "Q1477661",
+"wiki": "Paccar"
+},
+{
+"sym": "PKG",
+"title": "Packaging Corporation of America",
+"name": "Packaging Corporation of America",
+"sector": "Materials",
+"qid": "Q16983334",
+"wiki": "Packaging Corporation of America"
+},
+{
+"sym": "PLTR",
+"title": "Palantir Technologies",
+"name": "Palantir Technologies",
+"sector": "Information Technology",
+"qid": "Q2047336",
+"wiki": "Palantir"
+},
+{
+"sym": "PANW",
+"title": "Palo Alto Networks",
+"name": "Palo Alto Networks",
+"sector": "Information Technology",
+"qid": "Q7128508",
+"wiki": "Palo Alto Networks"
+},
+{
+"sym": "PSKY",
+"title": "Paramount Skydance",
+"name": "Paramount Skydance Corporation",
+"sector": "Communication Services",
+"qid": "Q135485147",
+"wiki": "Paramount Skydance"
+},
+{
+"sym": "PH",
+"title": "Parker Hannifin",
+"name": "Parker Hannifin",
+"sector": "Industrials",
+"qid": "Q1470619",
+"wiki": "Parker Hannifin"
+},
+{
+"sym": "PAYX",
+"title": "Paychex",
+"name": "Paychex",
+"sector": "Industrials",
+"qid": "Q946080",
+"wiki": "Paychex"
+},
+{
+"sym": "PYPL",
+"title": "PayPal",
+"name": "PayPal",
+"sector": "Financials",
+"qid": "Q483959",
+"wiki": "PayPal"
+},
+{
+"sym": "PNR",
+"title": "Pentair",
+"name": "Pentair",
+"sector": "Industrials",
+"qid": "Q7165001",
+"wiki": "Pentair"
+},
+{
+"sym": "PEP",
+"title": "PepsiCo",
+"name": "PepsiCo",
+"sector": "Consumer Staples",
+"qid": "Q334800",
+"wiki": "PepsiCo"
+},
+{
+"sym": "PFE",
+"title": "Pfizer",
+"name": "Pfizer",
+"sector": "Health Care",
+"qid": "Q206921",
+"wiki": "Pfizer"
+},
+{
+"sym": "PCG",
+"title": "PG&E",
+"name": "PG&E Corporation",
+"sector": "Utilities",
+"qid": "Q1815011",
+"wiki": "Pacific Gas and Electric Company"
+},
+{
+"sym": "PM",
+"title": "Philip Morris International",
+"name": "Philip Morris International",
+"sector": "Consumer Staples",
+"qid": "Q1852556",
+"wiki": "Philip Morris International"
+},
+{
+"sym": "PSX",
+"title": "Phillips 66",
+"name": "Phillips 66",
+"sector": "Energy",
+"qid": "Q1656230",
+"wiki": "Phillips 66"
+},
+{
+"sym": "PNW",
+"title": "Pinnacle West Capital",
+"name": "Pinnacle West Capital",
+"sector": "Utilities",
+"qid": "Q26110522",
+"wiki": "Pinnacle West Capital"
+},
+{
+"sym": "PNC",
+"title": "PNC Financial Services",
+"name": "PNC Financial Services",
+"sector": "Financials",
+"qid": "Q38928",
+"wiki": "PNC Financial Services"
+},
+{
+"sym": "PPG",
+"title": "PPG Industries",
+"name": "PPG Industries",
+"sector": "Materials",
+"qid": "Q48754",
+"wiki": "PPG Industries"
+},
+{
+"sym": "PPL",
+"title": "PPL Corporation",
+"name": "PPL Corporation",
+"sector": "Utilities",
+"qid": "Q2044512",
+"wiki": "PPL Corporation"
+},
+{
+"sym": "PFG",
+"title": "Principal Financial Group",
+"name": "Principal Financial Group",
+"sector": "Financials",
+"qid": "Q3403513",
+"wiki": "Principal Financial Group"
+},
+{
+"sym": "PG",
+"title": "Procter & Gamble",
+"name": "Procter & Gamble",
+"sector": "Consumer Staples",
+"qid": "Q212405",
+"wiki": "Procter & Gamble"
+},
+{
+"sym": "PGR",
+"title": "Progressive Corporation",
+"name": "Progressive Corporation",
+"sector": "Financials",
+"qid": "Q7248721",
+"wiki": "Progressive Corporation"
+},
+{
+"sym": "PLD",
+"title": "Prologis",
+"name": "Prologis",
+"sector": "Real Estate",
+"qid": "Q16983765",
+"wiki": "Prologis"
+},
+{
+"sym": "PRU",
+"title": "Prudential Financial",
+"name": "Prudential Financial",
+"sector": "Financials",
+"qid": "Q2114414",
+"wiki": "Prudential Financial"
+},
+{
+"sym": "PEG",
+"title": "Public Service Enterprise Group",
+"name": "Public Service Enterprise Group",
+"sector": "Utilities",
+"qid": "Q930919",
+"wiki": "Public Service Enterprise Group"
+},
+{
+"sym": "PTC",
+"title": "PTC (software company)",
+"name": "PTC Inc.",
+"sector": "Information Technology",
+"qid": "Q1760641",
+"wiki": "PTC Inc."
+},
+{
+"sym": "PSA",
+"title": "Public Storage",
+"name": "Public Storage",
+"sector": "Real Estate",
+"qid": "Q1156045",
+"wiki": "Public Storage"
+},
+{
+"sym": "PHM",
+"title": "PulteGroup",
+"name": "PulteGroup",
+"sector": "Consumer Discretionary",
+"qid": "Q7259716",
+"wiki": "PulteGroup"
+},
+{
+"sym": "PWR",
+"title": "Quanta Services",
+"name": "Quanta Services",
+"sector": "Industrials",
+"qid": "Q7268886",
+"wiki": "Quanta Services"
+},
+{
+"sym": "QCOM",
+"title": "Qualcomm",
+"name": "Qualcomm",
+"sector": "Information Technology",
+"qid": "Q544847",
+"wiki": "Qualcomm"
+},
+{
+"sym": "DGX",
+"title": "Quest Diagnostics",
+"name": "Quest Diagnostics",
+"sector": "Health Care",
+"qid": "Q7271456",
+"wiki": "Quest Diagnostics"
+},
+{
+"sym": "Q",
+"title": "Qnity Electronics",
+"name": "Qnity Electronics",
+"sector": "Information Technology",
+"qid": "Q138685636",
+"wiki": "Qnity Electronics"
+},
+{
+"sym": "RL",
+"title": "Ralph Lauren Corporation",
+"name": "Ralph Lauren Corporation",
+"sector": "Consumer Discretionary",
+"qid": "Q1641437",
+"wiki": "Ralph Lauren Corporation"
+},
+{
+"sym": "RJF",
+"title": "Raymond James Financial",
+"name": "Raymond James Financial",
+"sector": "Financials",
+"qid": "Q7298901",
+"wiki": "Raymond James Financial"
+},
+{
+"sym": "RDDT",
+"title": "Reddit",
+"name": "Reddit",
+"sector": "Communication Services",
+"qid": "Q1136",
+"wiki": "Reddit"
+},
+{
+"sym": "RTX",
+"title": "RTX Corporation",
+"name": "RTX Corporation",
+"sector": "Industrials",
+"qid": "Q89368734",
+"wiki": "RTX Corporation"
+},
+{
+"sym": "O",
+"title": "Realty Income",
+"name": "Realty Income",
+"sector": "Real Estate",
+"qid": "Q7301386",
+"wiki": "Realty Income"
+},
+{
+"sym": "REG",
+"title": "Regency Centers",
+"name": "Regency Centers",
+"sector": "Real Estate",
+"qid": "Q7308000",
+"wiki": "Regency Centers"
+},
+{
+"sym": "REGN",
+"title": "Regeneron Pharmaceuticals",
+"name": "Regeneron Pharmaceuticals",
+"sector": "Health Care",
+"qid": "Q7308054",
+"wiki": "Regeneron Pharmaceuticals"
+},
+{
+"sym": "RF",
+"title": "Regions Financial Corporation",
+"name": "Regions Financial Corporation",
+"sector": "Financials",
+"qid": "Q917131",
+"wiki": "Regions Financial Corporation"
+},
+{
+"sym": "RSG",
+"title": "Republic Services",
+"name": "Republic Services",
+"sector": "Industrials",
+"qid": "Q7314415",
+"wiki": "Republic Services"
+},
+{
+"sym": "RMD",
+"title": "ResMed",
+"name": "ResMed",
+"sector": "Health Care",
+"qid": "Q7314903",
+"wiki": "ResMed"
+},
+{
+"sym": "RVTY",
+"title": "Revvity",
+"name": "Revvity",
+"sector": "Health Care",
+"qid": "Q120467527",
+"wiki": "Revvity"
+},
+{
+"sym": "HOOD",
+"title": "Robinhood Markets",
+"name": "Robinhood Markets",
+"sector": "Financials",
+"qid": "Q18155123",
+"wiki": "Robinhood Markets"
+},
+{
+"sym": "ROK",
+"title": "Rockwell Automation",
+"name": "Rockwell Automation",
+"sector": "Industrials",
+"qid": "Q1529234",
+"wiki": "Rockwell Automation"
+},
+{
+"sym": "ROL",
+"title": "Rollins, Inc.",
+"name": "Rollins, Inc.",
+"sector": "Industrials",
+"qid": "Q7361273",
+"wiki": "Rollins, Inc."
+},
+{
+"sym": "ROP",
+"title": "Roper Technologies",
+"name": "Roper Technologies",
+"sector": "Information Technology",
+"qid": "Q16932392",
+"wiki": "Roper Technologies"
+},
+{
+"sym": "ROST",
+"title": "Ross Stores",
+"name": "Ross Stores",
+"sector": "Consumer Discretionary",
+"qid": "Q3442791",
+"wiki": "Ross Stores"
+},
+{
+"sym": "RCL",
+"title": "Royal Caribbean Group",
+"name": "Royal Caribbean Group",
+"sector": "Consumer Discretionary",
+"qid": "Q427881",
+"wiki": "Royal Caribbean Group"
+},
+{
+"sym": "SPGI",
+"title": "S&P Global",
+"name": "S&P Global",
+"sector": "Financials",
+"qid": "Q868587",
+"wiki": "S&P Global"
+},
+{
+"sym": "CRM",
+"title": "Salesforce",
+"name": "Salesforce",
+"sector": "Information Technology",
+"qid": "Q941127",
+"wiki": "Salesforce"
+},
+{
+"sym": "SNDK",
+"title": "Sandisk",
+"name": "Sandisk",
+"sector": "Information Technology",
+"qid": "Q260833",
+"wiki": "Sandisk"
+},
+{
+"sym": "SBAC",
+"title": "SBA Communications",
+"name": "SBA Communications",
+"sector": "Real Estate",
+"qid": "Q7388926",
+"wiki": "SBA Communications"
+},
+{
+"sym": "SLB",
+"title": "Schlumberger",
+"name": "Schlumberger",
+"sector": "Energy",
+"qid": "Q1425316",
+"wiki": "SLB"
+},
+{
+"sym": "STX",
+"title": "Seagate Technology",
+"name": "Seagate Technology",
+"sector": "Information Technology",
+"qid": "Q705392",
+"wiki": "Seagate Technology"
+},
+{
+"sym": "SRE",
+"title": "Sempra",
+"name": "Sempra",
+"sector": "Utilities",
+"qid": "Q7449804",
+"wiki": "Sempra"
+},
+{
+"sym": "NOW",
+"title": "ServiceNow",
+"name": "ServiceNow",
+"sector": "Information Technology",
+"qid": "Q7455653",
+"wiki": "ServiceNow"
+},
+{
+"sym": "SHW",
+"title": "Sherwin-Williams",
+"name": "Sherwin-Williams",
+"sector": "Materials",
+"qid": "Q48881",
+"wiki": "Sherwin-Williams"
+},
+{
+"sym": "SPG",
+"title": "Simon Property Group",
+"name": "Simon Property Group",
+"sector": "Real Estate",
+"qid": "Q2287759",
+"wiki": "Simon Property Group"
+},
+{
+"sym": "SWKS",
+"title": "Skyworks Solutions",
+"name": "Skyworks Solutions",
+"sector": "Information Technology",
+"qid": "Q7538146",
+"wiki": "Skyworks Solutions"
+},
+{
+"sym": "SJM",
+"title": "The J.M. Smucker Company",
+"name": "J.M. Smucker Company (The)",
+"sector": "Consumer Staples",
+"qid": "Q7742790",
+"wiki": "The J.M. Smucker Company"
+},
+{
+"sym": "SW",
+"title": "Smurfit Westrock",
+"name": "Smurfit Westrock",
+"sector": "Materials",
+"qid": "Q1536176",
+"wiki": "Smurfit Westrock"
+},
+{
+"sym": "SNA",
+"title": "Snap-on",
+"name": "Snap-on",
+"sector": "Industrials",
+"qid": "Q1631922",
+"wiki": "Snap-on"
+},
+{
+"sym": "SOLV",
+"title": "Solventum",
+"name": "Solventum",
+"sector": "Health Care",
+"qid": "Q124795355",
+"wiki": "Solventum"
+},
+{
+"sym": "SO",
+"title": "Southern Company",
+"name": "Southern Company",
+"sector": "Utilities",
+"qid": "Q2304693",
+"wiki": "Southern Company"
+},
+{
+"sym": "LUV",
+"title": "Southwest Airlines",
+"name": "Southwest Airlines",
+"sector": "Industrials",
+"qid": "Q503308",
+"wiki": "Southwest Airlines"
+},
+{
+"sym": "SWK",
+"title": "Stanley Black & Decker",
+"name": "Stanley Black & Decker",
+"sector": "Industrials",
+"qid": "Q706094",
+"wiki": "Stanley Black & Decker"
+},
+{
+"sym": "SBUX",
+"title": "Starbucks",
+"name": "Starbucks",
+"sector": "Consumer Discretionary",
+"qid": "Q37158",
+"wiki": "Starbucks"
+},
+{
+"sym": "STT",
+"title": "State Street Corporation",
+"name": "State Street Corporation",
+"sector": "Financials",
+"qid": "Q2037125",
+"wiki": "State Street Corporation"
+},
+{
+"sym": "STLD",
+"title": "Steel Dynamics",
+"name": "Steel Dynamics",
+"sector": "Materials",
+"qid": "Q7605667",
+"wiki": "Steel Dynamics"
+},
+{
+"sym": "STE",
+"title": "Steris",
+"name": "Steris",
+"sector": "Health Care",
+"qid": "Q80947821",
+"wiki": "Steris"
+},
+{
+"sym": "SYK",
+"title": "Stryker Corporation",
+"name": "Stryker Corporation",
+"sector": "Health Care",
+"qid": "Q2357515",
+"wiki": "Stryker Corporation"
+},
+{
+"sym": "SMCI",
+"title": "Supermicro",
+"name": "Supermicro",
+"sector": "Information Technology",
+"qid": "Q1817174",
+"wiki": "Supermicro"
+},
+{
+"sym": "SYF",
+"title": "Synchrony Financial",
+"name": "Synchrony Financial",
+"sector": "Financials",
+"qid": "Q18387139",
+"wiki": "Synchrony Financial"
+},
+{
+"sym": "SNPS",
+"title": "Synopsys",
+"name": "Synopsys",
+"sector": "Information Technology",
+"qid": "Q2303478",
+"wiki": "Synopsys"
+},
+{
+"sym": "SYY",
+"title": "Sysco",
+"name": "Sysco",
+"sector": "Consumer Staples",
+"qid": "Q2376711",
+"wiki": "Sysco"
+},
+{
+"sym": "TMUS",
+"title": "T-Mobile US",
+"name": "T-Mobile US",
+"sector": "Communication Services",
+"qid": "Q3511885",
+"wiki": "T-Mobile US"
+},
+{
+"sym": "TROW",
+"title": "T. Rowe Price",
+"name": "T. Rowe Price",
+"sector": "Financials",
+"qid": "Q3511946",
+"wiki": "T. Rowe Price"
+},
+{
+"sym": "TTWO",
+"title": "Take-Two Interactive",
+"name": "Take-Two Interactive",
+"sector": "Communication Services",
+"qid": "Q94933",
+"wiki": "Take-Two Interactive"
+},
+{
+"sym": "TPR",
+"title": "Tapestry, Inc.",
+"name": "Tapestry, Inc.",
+"sector": "Consumer Discretionary",
+"qid": "Q56273715",
+"wiki": "Tapestry, Inc."
+},
+{
+"sym": "TRGP",
+"title": "Targa Resources",
+"name": "Targa Resources",
+"sector": "Energy",
+"qid": "Q7685824",
+"wiki": "Targa Resources"
+},
+{
+"sym": "TGT",
+"title": "Target Corporation",
+"name": "Target Corporation",
+"sector": "Consumer Staples",
+"qid": "Q1046951",
+"wiki": "Target Corporation"
+},
+{
+"sym": "TEL",
+"title": "TE Connectivity",
+"name": "TE Connectivity",
+"sector": "Information Technology",
+"qid": "Q663452",
+"wiki": "TE Connectivity"
+},
+{
+"sym": "TDY",
+"title": "Teledyne Technologies",
+"name": "Teledyne Technologies",
+"sector": "Information Technology",
+"qid": "Q7696127",
+"wiki": "Teledyne Technologies"
+},
+{
+"sym": "TER",
+"title": "Teradyne",
+"name": "Teradyne",
+"sector": "Information Technology",
+"qid": "Q2404292",
+"wiki": "Teradyne"
+},
+{
+"sym": "TSLA",
+"title": "Tesla, Inc.",
+"name": "Tesla, Inc.",
+"sector": "Consumer Discretionary",
+"qid": "Q478214",
+"wiki": "Tesla, Inc."
+},
+{
+"sym": "TXN",
+"title": "Texas Instruments",
+"name": "Texas Instruments",
+"sector": "Information Technology",
+"qid": "Q193412",
+"wiki": "Texas Instruments"
+},
+{
+"sym": "TPL",
+"title": "Texas Pacific Land Corporation",
+"name": "Texas Pacific Land Corporation",
+"sector": "Energy",
+"qid": "Q7707900",
+"wiki": "Texas Pacific Land Corporation"
+},
+{
+"sym": "TXT",
+"title": "Textron",
+"name": "Textron",
+"sector": "Industrials",
+"qid": "Q2140315",
+"wiki": "Textron"
+},
+{
+"sym": "TMO",
+"title": "Thermo Fisher Scientific",
+"name": "Thermo Fisher Scientific",
+"sector": "Health Care",
+"qid": "Q643674",
+"wiki": "Thermo Fisher Scientific"
+},
+{
+"sym": "TJX",
+"title": "TJX Companies",
+"name": "TJX Companies",
+"sector": "Consumer Discretionary",
+"qid": "Q1285819",
+"wiki": "TJX"
+},
+{
+"sym": "TKO",
+"title": "TKO Group Holdings",
+"name": "TKO Group Holdings",
+"sector": "Communication Services",
+"qid": "Q120435068",
+"wiki": "TKO Group Holdings"
+},
+{
+"sym": "TTD",
+"title": "The Trade Desk",
+"name": "Trade Desk (The)",
+"sector": "Communication Services",
+"qid": "Q60744565",
+"wiki": "The Trade Desk"
+},
+{
+"sym": "TSCO",
+"title": "Tractor Supply",
+"name": "Tractor Supply",
+"sector": "Consumer Discretionary",
+"qid": "Q15109925",
+"wiki": "Tractor Supply Company"
+},
+{
+"sym": "TT",
+"title": "Trane Technologies",
+"name": "Trane Technologies",
+"sector": "Industrials",
+"qid": "Q131744111",
+"wiki": "Trane Technologies"
+},
+{
+"sym": "TDG",
+"title": "TransDigm Group",
+"name": "TransDigm Group",
+"sector": "Industrials",
+"qid": "Q7833612",
+"wiki": "TransDigm Group"
+},
+{
+"sym": "TRV",
+"title": "The Travelers Companies",
+"name": "Travelers Companies (The)",
+"sector": "Financials",
+"qid": "Q942471",
+"wiki": "The Travelers Companies"
+},
+{
+"sym": "TRMB",
+"title": "Trimble Inc.",
+"name": "Trimble Inc.",
+"sector": "Information Technology",
+"qid": "Q2297063",
+"wiki": "Trimble Inc."
+},
+{
+"sym": "TFC",
+"title": "Truist Financial",
+"name": "Truist Financial",
+"sector": "Financials",
+"qid": "Q795486",
+"wiki": "Truist"
+},
+{
+"sym": "TYL",
+"title": "Tyler Technologies",
+"name": "Tyler Technologies",
+"sector": "Information Technology",
+"qid": "Q48802335",
+"wiki": "Tyler Technologies"
+},
+{
+"sym": "TSN",
+"title": "Tyson Foods",
+"name": "Tyson Foods",
+"sector": "Consumer Staples",
+"qid": "Q1325987",
+"wiki": "Tyson Foods"
+},
+{
+"sym": "USB",
+"title": "U.S. Bancorp",
+"name": "U.S. Bancorp",
+"sector": "Financials",
+"qid": "Q739084",
+"wiki": "U.S. Bancorp"
+},
+{
+"sym": "UBER",
+"title": "Uber",
+"name": "Uber",
+"sector": "Industrials",
+"qid": "Q780442",
+"wiki": "Uber"
+},
+{
+"sym": "UDR",
+"title": "UDR, Inc.",
+"name": "UDR, Inc.",
+"sector": "Real Estate",
+"qid": "Q27988153",
+"wiki": "UDR, Inc."
+},
+{
+"sym": "ULTA",
+"title": "Ulta Beauty",
+"name": "Ulta Beauty",
+"sector": "Consumer Discretionary",
+"qid": "Q7880076",
+"wiki": "Ulta Beauty"
+},
+{
+"sym": "UNP",
+"title": "Union Pacific Corporation",
+"name": "Union Pacific Corporation",
+"sector": "Industrials",
+"qid": "Q20183163",
+"wiki": "Union Pacific Corporation"
+},
+{
+"sym": "UAL",
+"title": "United Airlines Holdings",
+"name": "United Airlines Holdings",
+"sector": "Industrials",
+"qid": "Q174769",
+"wiki": "United Airlines"
+},
+{
+"sym": "UPS",
+"title": "United Parcel Service",
+"name": "United Parcel Service",
+"sector": "Industrials",
+"qid": "Q155026",
+"wiki": "United Parcel Service"
+},
+{
+"sym": "URI",
+"title": "United Rentals",
+"name": "United Rentals",
+"sector": "Industrials",
+"qid": "Q7889101",
+"wiki": "United Rentals"
+},
+{
+"sym": "UNH",
+"title": "UnitedHealth Group",
+"name": "UnitedHealth Group",
+"sector": "Health Care",
+"qid": "Q2103926",
+"wiki": "UnitedHealth Group"
+},
+{
+"sym": "UHS",
+"title": "Universal Health Services",
+"name": "Universal Health Services",
+"sector": "Health Care",
+"qid": "Q7893967",
+"wiki": "Universal Health Services"
+},
+{
+"sym": "VLO",
+"title": "Valero Energy",
+"name": "Valero Energy",
+"sector": "Energy",
+"qid": "Q1283291",
+"wiki": "Valero Energy"
+},
+{
+"sym": "VEEV",
+"title": "Veeva Systems",
+"name": "Veeva Systems",
+"sector": "Health Care",
+"qid": "Q24204493",
+"wiki": "Veeva Systems"
+},
+{
+"sym": "VTR",
+"title": "Ventas (company)",
+"name": "Ventas",
+"sector": "Real Estate",
+"qid": "Q19865761",
+"wiki": "Ventas (company)"
+},
+{
+"sym": "VLTO",
+"title": "Veralto",
+"name": "Veralto",
+"sector": "Industrials",
+"qid": "Q124721239",
+"wiki": "Veralto"
+},
+{
+"sym": "VRSN",
+"title": "Verisign",
+"name": "Verisign",
+"sector": "Information Technology",
+"qid": "Q734338",
+"wiki": "Verisign"
+},
+{
+"sym": "VRSK",
+"title": "Verisk Analytics",
+"name": "Verisk Analytics",
+"sector": "Industrials",
+"qid": "Q7921370",
+"wiki": "Verisk Analytics"
+},
+{
+"sym": "VZ",
+"title": "Verizon",
+"name": "Verizon",
+"sector": "Communication Services",
+"qid": "Q467752",
+"wiki": "Verizon"
+},
+{
+"sym": "VRTX",
+"title": "Vertex Pharmaceuticals",
+"name": "Vertex Pharmaceuticals",
+"sector": "Health Care",
+"qid": "Q2744099",
+"wiki": "Vertex Pharmaceuticals"
+},
+{
+"sym": "VRT",
+"title": "Vertiv",
+"name": "Vertiv",
+"sector": "Industrials",
+"qid": "Q5370909",
+"wiki": "Vertiv"
+},
+{
+"sym": "VTRS",
+"title": "Viatris",
+"name": "Viatris",
+"sector": "Health Care",
+"qid": "Q101983981",
+"wiki": "Viatris"
+},
+{
+"sym": "VICI",
+"title": "Vici Properties",
+"name": "Vici Properties",
+"sector": "Real Estate",
+"qid": "Q54263910",
+"wiki": "Vici Properties"
+},
+{
+"sym": "V",
+"title": "Visa Inc.",
+"name": "Visa Inc.",
+"sector": "Financials",
+"qid": "Q328840",
+"wiki": "Visa Inc."
+},
+{
+"sym": "VST",
+"title": "Vistra Corp",
+"name": "Vistra Corp",
+"sector": "Utilities",
+"qid": "Q104158381",
+"wiki": "Vistra Corp."
+},
+{
+"sym": "VMRK",
+"title": "Vivmark Residential",
+"name": "Vivmark Residential",
+"sector": "Real Estate",
+"qid": "Q187740",
+"wiki": "Vivmark Residential"
+},
+{
+"sym": "VMC",
+"title": "Vulcan Materials Company",
+"name": "Vulcan Materials Company",
+"sector": "Materials",
+"qid": "Q1685287",
+"wiki": "Vulcan Materials Company"
+},
+{
+"sym": "WRB",
+"title": "W. R. Berkley Corporation",
+"name": "W. R. Berkley Corporation",
+"sector": "Financials",
+"qid": "Q1369955",
+"wiki": "W. R. Berkley Corporation"
+},
+{
+"sym": "GWW",
+"title": "W. W. Grainger",
+"name": "W. W. Grainger",
+"sector": "Industrials",
+"qid": "Q1627894",
+"wiki": "W. W. Grainger"
+},
+{
+"sym": "WAB",
+"title": "Wabtec",
+"name": "Wabtec",
+"sector": "Industrials",
+"qid": "Q741707",
+"wiki": "Wabtec"
+},
+{
+"sym": "WMT",
+"title": "Walmart",
+"name": "Walmart",
+"sector": "Consumer Staples",
+"qid": "Q483551",
+"wiki": "Walmart"
+},
+{
+"sym": "DIS",
+"title": "The Walt Disney Company",
+"name": "Walt Disney Company (The)",
+"sector": "Communication Services",
+"qid": "Q7414",
+"wiki": "The Walt Disney Company"
+},
+{
+"sym": "WBD",
+"title": "Warner Bros. Discovery",
+"name": "Warner Bros. Discovery",
+"sector": "Communication Services",
+"qid": "Q107074885",
+"wiki": "Warner Bros. Discovery"
+},
+{
+"sym": "WM",
+"title": "Waste Management, Inc.",
+"name": "Waste Management",
+"sector": "Industrials",
+"qid": "Q2552219",
+"wiki": "Waste Management, Inc."
+},
+{
+"sym": "WAT",
+"title": "Waters Corporation",
+"name": "Waters Corporation",
+"sector": "Health Care",
+"qid": "Q1322011",
+"wiki": "Waters Corporation"
+},
+{
+"sym": "WEC",
+"title": "WEC Energy Group",
+"name": "WEC Energy Group",
+"sector": "Utilities",
+"qid": "Q8027166",
+"wiki": "WEC Energy Group"
+},
+{
+"sym": "WFC",
+"title": "Wells Fargo",
+"name": "Wells Fargo",
+"sector": "Financials",
+"qid": "Q744149",
+"wiki": "Wells Fargo"
+},
+{
+"sym": "WELL",
+"title": "Welltower",
+"name": "Welltower",
+"sector": "Real Estate",
+"qid": "Q20486917",
+"wiki": "Welltower"
+},
+{
+"sym": "WST",
+"title": "West Pharmaceutical Services",
+"name": "West Pharmaceutical Services",
+"sector": "Health Care",
+"qid": "Q30338243",
+"wiki": "West Pharmaceutical Services"
+},
+{
+"sym": "WDC",
+"title": "Western Digital",
+"name": "Western Digital",
+"sector": "Information Technology",
+"qid": "Q738770",
+"wiki": "Western Digital"
+},
+{
+"sym": "WY",
+"title": "Weyerhaeuser",
+"name": "Weyerhaeuser",
+"sector": "Real Estate",
+"qid": "Q1780382",
+"wiki": "Weyerhaeuser"
+},
+{
+"sym": "WSM",
+"title": "Williams-Sonoma, Inc.",
+"name": "Williams-Sonoma, Inc.",
+"sector": "Consumer Discretionary",
+"qid": "Q2581220",
+"wiki": "Williams-Sonoma, Inc."
+},
+{
+"sym": "WMB",
+"title": "Williams Companies",
+"name": "Williams Companies",
+"sector": "Energy",
+"qid": "Q930639",
+"wiki": "Williams Companies"
+},
+{
+"sym": "WTW",
+"title": "Willis Towers Watson",
+"name": "Willis Towers Watson",
+"sector": "Financials",
+"qid": "Q21189883",
+"wiki": "Willis Towers Watson"
+},
+{
+"sym": "WDAY",
+"title": "Workday, Inc.",
+"name": "Workday, Inc.",
+"sector": "Information Technology",
+"qid": "Q8034666",
+"wiki": "Workday, Inc."
+},
+{
+"sym": "WYNN",
+"title": "Wynn Resorts",
+"name": "Wynn Resorts",
+"sector": "Consumer Discretionary",
+"qid": "Q2274089",
+"wiki": "Wynn Resorts"
+},
+{
+"sym": "XEL",
+"title": "Xcel Energy",
+"name": "Xcel Energy",
+"sector": "Utilities",
+"qid": "Q1486956",
+"wiki": "Xcel Energy"
+},
+{
+"sym": "XYL",
+"title": "Xylem Inc.",
+"name": "Xylem Inc.",
+"sector": "Industrials",
+"qid": "Q3146975",
+"wiki": "Xylem Inc."
+},
+{
+"sym": "YUM",
+"title": "Yum! Brands",
+"name": "Yum! Brands",
+"sector": "Consumer Discretionary",
+"qid": "Q668737",
+"wiki": "Yum! Brands"
+},
+{
+"sym": "ZBRA",
+"title": "Zebra Technologies",
+"name": "Zebra Technologies",
+"sector": "Information Technology",
+"qid": "Q2443609",
+"wiki": "Zebra Technologies"
+},
+{
+"sym": "ZBH",
+"title": "Zimmer Biomet",
+"name": "Zimmer Biomet",
+"sector": "Health Care",
+"qid": "Q203552",
+"wiki": "Zimmer Biomet"
+},
+{
+"sym": "ZTS",
+"title": "Zoetis",
+"name": "Zoetis",
+"sector": "Health Care",
+"qid": "Q8073337",
+"wiki": "Zoetis"
+}
+]

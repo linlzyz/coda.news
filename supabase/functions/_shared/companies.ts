@@ -15,6 +15,8 @@ const get = async (q: string) => {
 };
 const ORG = /\b(company|corporation|business|manufacturer|firm|brand|bank|startup|conglomerate|retailer|airline|maker|carrier|developer|operator|holding|enterprise|chain|publisher|studio|record label|exchange|insurer|automaker|producer|provider|platform|club|franchise|team|league|organi[sz]ation|agency|regulator|central bank|fund|group)\b/i;
 const HARD = ["P414", "P452", "P1128", "P2139", "P169", "P1454", "P118"];
+// leagues, federations, regulators, central banks, ministries, universities...: in the news, but not companies
+export const NOT_CO = /\b(league|federation|association|confederation|central bank|regulator|regulatory|agency|ministry|department|government|university|college|union|council|committee|olympic|court|parliament|police|army|navy|tournament|championship|competition)\b/i;
 const norm = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
 // corporate words that may follow a short name ("Toyota" = "Toyota Motor Corporation"); anything else (e.g. "Kodak Japan") is a different entity
 const SUFFIX = new Set("inc incorporated corp corporation co company companies ltd limited plc llc ag sa se nv bv gmbh kk group holdings holding motor motors energy technologies technology international global platforms".split(" "));
@@ -100,19 +102,22 @@ async function wikiSummary(lang: "en" | "zh", title?: string) {
 export async function enrichCompanies(limit = 15): Promise<number> {
   const sql = db();
   // most-covered companies first
-  const rows = await sql<{ id: number; name: string }[]>`select c.id, c.name from companies c left join company_stats s on s.company_id = c.id where c.enriched_at is null
+  const rows = await sql<{ id: number; name: string; wikidata_id: string | null }[]>`select c.id, c.name, c.wikidata_id from companies c left join company_stats s on s.company_id = c.id where c.enriched_at is null
     order by exists (select 1 from events e where lower(e.image_brand) = lower(c.name)) desc, s.events desc nulls last, c.id limit ${limit}`;   // brands waiting for a logo first
   let n = 0;
   for (const c of rows) {
     try {
-      const e = await pick(c.name);
+      // known entity (e.g. imported from the S&P 500 list): load it directly instead of searching by name
+      const e = c.wikidata_id
+        ? (Object.values((await get(`action=wbgetentities&ids=${c.wikidata_id}&props=labels|aliases|descriptions|claims|sitelinks&languages=en|zh|zh-hans|zh-cn&sitefilter=enwiki|zhwiki`)).entities ?? {})[0] as Ent | undefined) ?? null
+        : await pick(c.name);
       if (!e) { await sql`update companies set enriched_at = now() where id = ${c.id}`; continue; }
       // founders (up to 3) and the current CEO: only a CEO claim with no end date, the most recent start first
       const founderIds = ((e.claims?.P112 ?? []) as Ent[]).filter((c) => c.rank !== "deprecated").map((c) => c.mainsnak?.datavalue?.value?.id).filter(Boolean).slice(0, 3) as string[];
       const ceoC = ((e.claims?.P169 ?? []) as Ent[]).filter((c) => c.rank !== "deprecated" && !c.qualifiers?.P582)
         .sort((a, b) => (b.rank === "preferred" ? 1 : 0) - (a.rank === "preferred" ? 1 : 0) || String(b.qualifiers?.P580?.[0]?.datavalue?.value?.time ?? "").localeCompare(String(a.qualifiers?.P580?.[0]?.datavalue?.value?.time ?? "")))[0];
       const ceoId = ceoC?.mainsnak?.datavalue?.value?.id as string | undefined;
-      const refs = [idOf(e, "P159"), idOf(e, "P452"), idOf(e, "P414"), idOf(e, "P17"), idOf(e, "P749"), ...founderIds, ceoId].filter(Boolean) as string[];
+      const refs = [idOf(e, "P159"), idOf(e, "P452"), idOf(e, "P414"), idOf(e, "P17"), idOf(e, "P749"), idOf(e, "P127"), ...founderIds, ceoId].filter(Boolean) as string[];
       const labels = refs.length ? (await get(`action=wbgetentities&ids=${[...new Set(refs)].join("|")}&props=labels|claims&languages=en|mul|zh|zh-hans|zh-cn`)).entities ?? {} : {};
       const en = (id?: string) => (id ? (labels[id]?.labels?.en ?? labels[id]?.labels?.mul)?.value : undefined) as string | undefined;
       const zh = (id?: string) => (id ? zhOf(labels[id]?.labels) : undefined);
@@ -141,7 +146,7 @@ export async function enrichCompanies(limit = 15): Promise<number> {
       const slogans = ((e.claims?.P1451 ?? []) as Ent[]).filter((c) => c.rank !== "deprecated" && !c.qualifiers?.P582);
       const pickS = slogans.find((c) => c.rank === "preferred") ?? slogans.find((c) => c.mainsnak?.datavalue?.value?.language === "en") ?? slogans[0];
       const sloganC = pickS?.mainsnak?.datavalue?.value;
-      const parentId = idOf(e, "P749");
+      const parentId = idOf(e, "P749") ?? idOf(e, "P127");   // parent organisation, else owner (e.g. a brand owned by a group)
       const sector = sectorOf(en(indId), e.descriptions?.en?.value, en(parentId));
       // the same entity already exists under another name (e.g. "Meta" and "Meta Platforms"): fold this one into it
       const first = (x: string) => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().match(/[a-z0-9]+/)?.[0] ?? "";
@@ -161,7 +166,7 @@ export async function enrichCompanies(limit = 15): Promise<number> {
         parent = ${en(parentId) ?? null}, parent_zh = ${zh(parentId) ?? null},
         instagram = ${handle(e, "P2003")}, x_handle = ${handle(e, "P2002")}, facebook = ${handle(e, "P2013")}, youtube = ${handle(e, "P2397")}, linkedin = ${handle(e, "P4264")},
         sector = ${sector}, country = ${(labels[countryId ?? ""]?.claims?.P297?.[0]?.mainsnak?.datavalue?.value as string | undefined) ?? null},
-        enriched_at = now() where id = ${c.id}`;
+        kind = ${NOT_CO.test(String(e.descriptions?.en?.value ?? "")) ? "org" : "company"}, enriched_at = now() where id = ${c.id}`;
       n++;
     } catch (err) { log("companies:", c.name, (err as Error).message); break; }   // network trouble: try again next run
   }

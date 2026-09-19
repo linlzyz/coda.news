@@ -74,13 +74,19 @@ export default async function Page({ params }: PageProps<"/[lang]/company/[slug]
     .sort((a, b) => Number(b.country === c.country) - Number(a.country === c.country) || b.events - a.events).slice(0, 8);
   const simName = (x: CompanyCard) => (zh && x.name_zh) || x.name;
 
+  // ownership: link the parent if we have it, and list what this company owns (brands whose parent is this company)
+  const low = (x?: string | null) => (x ?? "").toLowerCase().replace(/\b(se|sa|inc|group|holding|holdings)\b|[^a-z0-9]/g, "");
+  const parentCo = c.parent ? dir.find((x) => x.id !== c.id && low(x.name) === low(c.parent)) : undefined;
+  const owned = dir.filter((x) => x.id !== c.id && x.parent && low(x.parent) === low(c.name) && x.kind !== "org");
   const rows: [string, React.ReactNode][] = ([
-    [zh ? "国家" : "Country", c.country ? <span className="inline-flex items-center gap-2"><Flag code={c.country} size={12} />{cname(c.country)}</span> : null],
+    [zh ? "国家/地区" : "Country/region", c.country ? <span className="inline-flex items-center gap-2"><Flag code={c.country} size={12} />{cname(c.country)}</span> : null],
     [zh ? "成立" : "Founded", c.founded ? String(c.founded) : null],
     [zh ? "总部" : "Headquarters", zh ? c.hq_zh ?? c.hq : c.hq],
     [zh ? "创始人" : "Founders", zh ? c.founders_zh ?? c.founders : c.founders],
     [zh ? "首席执行官" : "CEO", zh ? c.ceo_zh ?? c.ceo : c.ceo],
-    [zh ? "母公司" : "Parent company", zh ? c.parent_zh ?? c.parent : c.parent],
+    [zh ? "母公司" : "Parent company", parentCo ? <Link href={`/company/${parentCo.slug}`} className="text-[#C2410C] hover:underline">{(zh && parentCo.name_zh) || parentCo.name}</Link> : zh ? c.parent_zh ?? c.parent : c.parent],
+    [zh ? "旗下品牌/公司" : "Owns", owned.length ? <span className="flex flex-wrap gap-x-2 gap-y-1">{owned.slice(0, 12).map((x) => <Link key={x.id} href={`/company/${x.slug}`} className="text-[#C2410C] hover:underline">{(zh && x.name_zh) || x.name}</Link>)}</span> : null],
+    [zh ? "指数" : "Index", c.indices?.includes("SP500") ? "S&P 500" : null],
     [zh ? "上市" : "Listed", ticker(c.ticker)],
     [zh ? "官网" : "Website", c.website ? <a href={c.website} target="_blank" rel="noopener noreferrer" className="text-[#C2410C] hover:underline">{host(c.website)} ↗</a> : null],
   ] as [string, React.ReactNode][]).filter(([, v]) => v);
@@ -158,7 +164,7 @@ export default async function Page({ params }: PageProps<"/[lang]/company/[slug]
         <section className="mt-5 grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
           <div>
             <div className="flex items-center gap-4">
-              <CompanyLogo name={c.name} url={c.logo_url} size={64} className="shrink-0 rounded-xl" />
+              <CompanyLogo name={c.name} url={c.logo_url} size={64} className="shrink-0 rounded-xl" priority />
               <div className="min-w-0">
                 <h1 className="text-[40px] font-semibold leading-none tracking-[-0.035em] sm:text-[56px]">{name}</h1>
                 {zh && c.name_zh && c.name_zh !== c.name && <div className="mt-1 text-[15px] text-neutral-500">{c.name}</div>}
@@ -177,7 +183,7 @@ export default async function Page({ params }: PageProps<"/[lang]/company/[slug]
           </div>
           {st.cover ? (
             <figure className="relative overflow-hidden rounded-3xl">
-              <img src={st.cover.url} alt={name} className="aspect-[16/10] w-full object-cover" />
+              <img src={st.cover.url} alt={name} className="aspect-[16/10] w-full object-cover" fetchPriority="high" />
               <figcaption className="absolute bottom-2 right-2 rounded-md bg-black/45 px-2 py-0.5 text-[10px] text-white/90"><a href={st.cover.link} target="_blank" rel="noopener noreferrer">Photo: {st.cover.credit}</a></figcaption>
             </figure>
           ) : (
@@ -258,7 +264,7 @@ export default async function Page({ params }: PageProps<"/[lang]/company/[slug]
 
       <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
         <div className="flex flex-col gap-6 sm:flex-row">
-          <CompanyLogo name={c.name} url={c.logo_url} size={160} className="shrink-0" />
+          <CompanyLogo name={c.name} url={c.logo_url} size={160} className="shrink-0" priority />
           <div className="min-w-0">
             <h1 className="text-[36px] font-semibold leading-tight tracking-[-0.03em]">{name}</h1>
             {zh && c.name_zh && c.name_zh !== c.name && <div className="text-[16px] text-neutral-500">{c.name}</div>}

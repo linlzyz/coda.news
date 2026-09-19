@@ -92,7 +92,7 @@ export type CompanyProfile = Company & {
   logo_url: string | null; slogan: string | null; parent: string | null; parent_zh: string | null; sector: string | null; country: string | null;
   instagram: string | null; x_handle: string | null; facebook: string | null; youtube: string | null; linkedin: string | null;
   founders: string | null; founders_zh: string | null; ceo: string | null; ceo_zh: string | null;
-  story?: CompanyStory | null;
+  story?: CompanyStory | null; indices?: string[]; kind?: string;
 };
 export type CompanyStory = {
   tagline: string; tagline_zh: string; origin: string[]; origin_zh: string[]; products?: string[];
@@ -102,7 +102,7 @@ export type CompanyStory = {
 };
 async function _getCompany(slug: string) {
   const { data } = await supabase.from("companies")
-    .select("id,name,slug,website,description,wikidata_id,name_zh,description_zh,about_en,about_zh,founded,hq,hq_zh,industry,industry_zh,ticker,wikipedia_en,wikipedia_zh,logo_url,slogan,parent,parent_zh,sector,country,instagram,x_handle,facebook,youtube,linkedin,founders,founders_zh,ceo,ceo_zh,story")
+    .select("id,name,slug,website,description,wikidata_id,name_zh,description_zh,about_en,about_zh,founded,hq,hq_zh,industry,industry_zh,ticker,wikipedia_en,wikipedia_zh,logo_url,slogan,parent,parent_zh,sector,country,instagram,x_handle,facebook,youtube,linkedin,founders,founders_zh,ceo,ceo_zh,story,indices,kind")
     .eq("slug", slug).maybeSingle();
   return data as CompanyProfile | null;
 }
@@ -256,11 +256,11 @@ export const archiveDays = unstable_cache(_archiveDays, ["archiveDays"], { reval
 
 // ---- companies directory ----
 export type CompanyCard = { id: number; name: string; name_zh: string | null; slug: string; sector: string | null; country: string | null;
-  logo_url: string | null; description: string | null; description_zh: string | null; industry: string | null; wikidata_id: string | null; events: number; last_at: string | null };
+  logo_url: string | null; description: string | null; description_zh: string | null; industry: string | null; wikidata_id: string | null; events: number; last_at: string | null; kind?: string; indices?: string[]; parent?: string | null; parent_zh?: string | null };
 async function _companyDirectory() {
   const rows: Omit<CompanyCard, "events" | "last_at">[] = [];
   for (let from = 0; ; from += 1000) {
-    const { data } = await supabase.from("companies").select("id,name,name_zh,slug,sector,country,logo_url,description,description_zh,industry,wikidata_id").order("id").range(from, from + 999);
+    const { data } = await supabase.from("companies").select("id,name,name_zh,slug,sector,country,logo_url,description,description_zh,industry,wikidata_id,kind,indices,parent,parent_zh").order("id").range(from, from + 999);
     rows.push(...((data ?? []) as typeof rows)); if (!data || data.length < 1000) break;
   }
   const stats = new Map<number, { events: number; last_at: string | null }>();
@@ -274,4 +274,5 @@ async function _companyDirectory() {
 export const companyDirectory = unstable_cache(_companyDirectory, ["companyDirectory"], { revalidate: 600 });
 
 /** Directory shows notable companies only: known to Wikidata, or covered in at least 3 events. */
-export const notable = (c: { wikidata_id: string | null; events: number }) => !!c.wikidata_id || c.events >= 3;
+/** Leagues, regulators, central banks and the like are in the news but are not companies: never listed. */
+export const notable = (c: { wikidata_id: string | null; events: number; kind?: string }) => c.kind !== "org" && (!!c.wikidata_id || c.events >= 3);
