@@ -66,7 +66,7 @@ export function AdminPanel() {
           <li key={r.id} className={`grid gap-4 py-4 sm:grid-cols-[120px_minmax(0,1fr)] ${r.hidden ? "opacity-50" : ""}`}>
             <div className="aspect-[4/3] w-full overflow-hidden rounded-xl bg-[#F4F5F7]">{r.image_url
               // eslint-disable-next-line @next/next/no-img-element
-              ? <img src={r.image_url} alt="" className="h-full w-full object-cover" loading="lazy" /> : <div className="flex h-full items-center justify-center text-[12px] text-neutral-400">无图</div>}</div>
+              ? <img src={r.image_url} alt="" className={`h-full w-full ${r.image_source === "logo" ? "bg-white object-contain p-3" : "object-cover"}`} loading="lazy" /> : <div className="flex h-full items-center justify-center text-[12px] text-neutral-400">无图</div>}</div>
             <div className="min-w-0">
               <a href={`/zh/event/${r.slug}`} target="_blank" rel="noopener noreferrer" className="text-[16px] font-semibold leading-snug hover:text-[#C2410C]">{r.title_zh ?? r.title}</a>
               {r.pinned_at && <span className="ml-2 rounded-full bg-[#FFF0EB] px-2 py-0.5 text-[11px] font-semibold text-[#C2410C]">置顶中</span>}
