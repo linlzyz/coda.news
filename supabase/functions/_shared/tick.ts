@@ -3,6 +3,7 @@ import { ingest } from "./ingest.ts";
 import { processBatch } from "./process.ts";
 import { regenerate } from "./regenerate.ts";
 import { briefSingles } from "./singles.ts";
+import { fixChinese } from "./fixzh.ts";
 import { maintain } from "./maintain.ts";
 import { dedupe } from "./dedupe.ts";
 import { auditEvents } from "./audit.ts";
@@ -39,6 +40,7 @@ export async function tick(budgetMs = 120_000, opts: { skipIngest?: boolean } = 
     if (left() > 30_000) await step("regenerate", () => regenerate(left() > 80_000 ? 4 : 2));
   } catch (e) { report.stopped = (e as Error).message.slice(0, 200); }
   if (left() > 25_000) await step("singles", () => briefSingles(left() > 60_000 ? 12 : 5));
+  if (left() > 22_000) await step("fixzh", () => fixChinese(20));
   if (left() > 20_000) await step("translate", () => translateMissing(30));
   if (left() > 15_000) await step("translateFacts", () => translateFacts(60));
   if (left() > 10_000) await step("images", () => assignImages(60));

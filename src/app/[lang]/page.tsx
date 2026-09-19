@@ -23,14 +23,14 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   return { alternates: alternates("/", l), ...(l === "zh" ? { title: "coda.news · 一件事，全世界怎么看", description: "科技与经济大事，以及世界各国媒体如何报道。" } : {}) };
 }
 
-export const revalidate = 60;
+export const revalidate = 300;
 
 export default async function Home({ params }: PageProps<"/[lang]">) {
   const CATS = ["economy", "technology", "sport", "entertainment", "fashion", "travel", "automotive", "gaming"] as const;
   const [events, au, cn, topics, trending, cq, fq, ...byCat] = await Promise.all([
-    listEvents({ limit: 80 }), listEvents({ region: "AU", order: "recent", limit: 40 }), listEvents({ region: "CN", order: "recent", limit: 40 }), allTopics(), trendingCompanies(10), crypto(), fx(),
+    listEvents({ limit: 50 }), listEvents({ region: "AU", order: "recent", limit: 20 }), listEvents({ region: "CN", order: "recent", limit: 20 }), allTopics(), trendingCompanies(10), crypto(), fx(),
     // each tab gets its own list, same as its section page (the main list is dominated by the biggest economy/tech stories)
-    ...CATS.map((c) => listEvents({ category: c, limit: 40 })),
+    ...CATS.map((c) => listEvents({ category: c, limit: 20 })),
   ]);
   const [iq, rq] = await Promise.all([indices("indices"), indices("rates")]);
   const l = await langFrom(params);

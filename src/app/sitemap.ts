@@ -20,8 +20,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/corrections`, changeFrequency: "daily" as const, priority: 0.3 },
     { url: `${BASE}/archive`, changeFrequency: "daily" as const, priority: 0.4 },
     ...days.map(([d]) => ({ url: `${BASE}/archive/${d}`, changeFrequency: "daily" as const, priority: 0.4 })),
-    ...events.map((e) => ({ url: `${BASE}/event/${e.slug}`, lastModified: e.last_article_at, changeFrequency: "hourly" as const, priority: 0.7, images: e.image_url ? [e.image_url.replace(/&/g, "&amp;")] : undefined })),
-    ...topics.map((t) => ({ url: `${BASE}/topic/${t.slug}`, changeFrequency: "hourly" as const, priority: 0.6 })),
+    ...events.map((e) => ({ url: `${BASE}/event/${e.slug}`, lastModified: e.last_article_at, changeFrequency: "daily" as const, priority: 0.7, images: e.image_url ? [e.image_url.replace(/&/g, "&amp;")] : undefined })),
+    ...topics.map((t) => ({ url: `${BASE}/topic/${t.slug}`, changeFrequency: "daily" as const, priority: 0.6 })),
     ...companies.map((c) => ({ url: `${BASE}/company/${c.slug}`, changeFrequency: "daily" as const, priority: 0.4 })),
   ].map((x) => ({ ...x, alternates: both(x.url.replace(BASE, "") || "/") }));
   return [...en, ...zh(en)];

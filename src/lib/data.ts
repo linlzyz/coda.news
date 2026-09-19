@@ -162,7 +162,7 @@ export const indices = unstable_cache(_indices, ["indices"], { revalidate: 600 }
 
 async function _sitemapRows() {
   const [ev, co, tp] = await Promise.all([
-    supabase.from("events").select("slug,title,title_zh,summary,category,image_url,started_at,last_article_at").not("summary", "is", null).order("last_article_at", { ascending: false }).limit(5000),
+    supabase.from("events").select("slug,title,title_zh,summary,category,image_url,started_at,last_article_at").not("summary", "is", null).neq("status", "archived").gte("source_count", 2).order("last_article_at", { ascending: false }).limit(5000),
     supabase.from("companies").select("slug").limit(3000),
     supabase.from("topics").select("slug"),
   ]);

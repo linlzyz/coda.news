@@ -13,8 +13,8 @@ interface Generated {
 
 export async function regenerate(limit = 3): Promise<number> {
   const sql = db();
-  const events = await sql<{ id: number; title: string; source_count: number; summary_version: number }[]>`
-    select id, title, source_count, summary_version from events
+  const events = await sql<{ id: number; title: string; source_count: number; summary_version: number; nc: number }[]>`
+    select id, title, source_count, summary_version, cardinality(countries) as nc from events
     where needs_regen and (source_count >= 2 or has_official) and (summary_version = 0 or summary_generated_at is null or summary_generated_at < now() - make_interval(mins => ${DEBOUNCE_MIN}))
     order by (summary_generated_at is null) desc, importance desc, last_article_at desc limit ${limit}`;
   let done = 0;
@@ -37,13 +37,13 @@ export async function regenerate(limit = 3): Promise<number> {
       facts: facts.map((f) => `${f.text}${f.n > 1 ? ` (reported by ${f.n} sources)` : ""}`),
       official: arts.filter((a) => a.type === "official").slice(0, 3),
       byCountry: [...byCountry].map(([country, items]) => ({ country, items })),
-    }), e.source_count >= 2 ? "smart" : "fast");
+    }), e.nc >= 2 ? "smart" : "fast");   // the careful model only where there is a cross-country comparison to make
     if (!g.title || !g.summary) continue;
 
     const version = e.summary_version + 1;
     const [v] = await embed([`${g.title}\n${g.summary}`]);
     await sql.begin(async (tx) => {
-      await tx`update events set title = ${g.title.slice(0, 200)}, title_zh = ${g.title_zh ?? null}, summary = ${g.summary}, summary_zh = ${g.summary_zh ?? null},
+      await tx`update events set title = ${g.title.slice(0, 200)}, title_zh = ${g.title_zh ?? null}, zh_checked_at = null, summary = ${g.summary}, summary_zh = ${g.summary_zh ?? null},
                  summary_version = ${version}, summary_generated_at = now(), image_query = coalesce(image_query, ${g.image_query?.slice(0, 60) ?? null}), image_person = coalesce(image_person, ${g.image_person?.trim().slice(0, 80) || null}), image_brand = coalesce(image_brand, ${g.image_brand?.trim().slice(0, 80) || null}), needs_regen = false, embedding = ${vec(v)}::extensions.vector
                where id = ${e.id}`;
       const valid = (g.perspectives ?? []).filter((p) => byCountry.has(p.country));

@@ -8,10 +8,9 @@ import { countryL, persp as perspL, summary, timeAgoL, title } from "@/lib/loc";
 import { fmtDate, TONE } from "@/lib/ui";
 import { Flag, Flags } from "@/components/Flag";
 import { CategoryLabel, StatusPill } from "@/components/Pills";
-import { AutoRefresh } from "@/components/AutoRefresh";
 import { Cover } from "@/components/Cover";
 import { ReportError, ShareBar } from "@/components/EventTools";
-export const revalidate = 60;
+export const revalidate = 600;
 export async function generateStaticParams() { return []; }
 export const dynamicParams = true;
 
@@ -21,6 +20,8 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/event/[slu
   if (!e) return {};
   const ti = (l === "zh" && e.title_zh) || e.title, de = (l === "zh" && e.summary_zh) || e.summary || undefined;
   return { title: ti, description: de, alternates: alternates(`/event/${e.slug}`, l),
+    // one-source briefs stay out of search until a second source confirms the story
+    ...(e.source_count < 2 || e.status === "archived" ? { robots: { index: false, follow: true } } : {}),
     openGraph: { title: ti, description: de, locale: l === "zh" ? "zh_CN" : "en_AU", type: "article", publishedTime: e.started_at, modifiedTime: e.last_article_at, section: e.category, images: e.image_url ? [e.image_url] : ["/og.png"] },
     twitter: { card: "summary_large_image", title: ti, description: de, images: e.image_url ? [e.image_url] : ["/og.png"] } };
 }
@@ -59,7 +60,6 @@ export default async function EventPage({ params }: PageProps<"/[lang]/event/[sl
 
   return (
     <div className="px-4 py-8 sm:px-6 lg:px-8">
-      <AutoRefresh />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <nav className="mb-6 text-[13px] text-neutral-500"><Link href="/" className="hover:text-[#16181D]">{t(l, "home")}</Link><span className="mx-1.5">/</span><Link href={`/${e.category}`} className="hover:text-[#16181D]">{t(l, e.category as "technology")}</Link></nav>
 
