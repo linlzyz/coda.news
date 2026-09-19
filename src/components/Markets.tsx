@@ -90,7 +90,7 @@ export function Markets({ tabs, updated, title, empty, zh = false }: { tabs: { l
           </dl>
         </details>
       )}
-      <p className="mt-2 text-right text-[11px] text-neutral-400">{cur.note} · {updated}</p>
+      <p className="mt-2 text-right text-[11px] text-neutral-400">{cur.note}{updated ? ` · ${updated}` : ""}</p>
     </section>
   );
 }

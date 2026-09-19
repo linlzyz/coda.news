@@ -3,7 +3,7 @@ import { getTopic, listEvents } from "@/lib/data";
 import { EventList } from "@/components/EventList";
 import { FollowBox } from "@/components/FollowBox";
 import { langFrom, TOPIC_ZH } from "@/lib/i18n";
-export const revalidate = 3600;
+export const revalidate = 21600;
 export async function generateStaticParams() { return []; }
 export const dynamicParams = true;
 export async function generateMetadata({ params }: PageProps<"/[lang]/topic/[slug]">) {

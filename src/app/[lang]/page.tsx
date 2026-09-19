@@ -23,14 +23,14 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   return { alternates: alternates("/", l), ...(l === "zh" ? { title: "coda.news · 一件事，全世界怎么看", description: "科技与经济大事，以及世界各国媒体如何报道。" } : {}) };
 }
 
-export const revalidate = 600;
+export const revalidate = 3600;
 
 export default async function Home({ params }: PageProps<"/[lang]">) {
   const CATS = ["economy", "technology", "sport", "entertainment", "fashion", "travel", "automotive", "gaming"] as const;
   const [events, au, cn, topics, trending, cq, fq, ...byCat] = await Promise.all([
-    listEvents({ limit: 50 }), listEvents({ region: "AU", order: "recent", limit: 20 }), listEvents({ region: "CN", order: "recent", limit: 20 }), allTopics(), trendingCompanies(10), crypto(), fx(),
+    listEvents({ limit: 36 }), listEvents({ region: "AU", order: "recent", limit: 12 }), listEvents({ region: "CN", order: "recent", limit: 12 }), allTopics(), trendingCompanies(10), crypto(), fx(),
     // each tab gets its own list, same as its section page (the main list is dominated by the biggest economy/tech stories)
-    ...CATS.map((c) => listEvents({ category: c, limit: 20 })),
+    ...CATS.map((c) => listEvents({ category: c, limit: 12 })),
   ]);
   const [iq, rq, cnq] = await Promise.all([indices("indices"), indices("rates"), indices("cn")]);
   const l = await langFrom(params);
@@ -46,14 +46,14 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   // 4 key stories with pictures up top (picked for importance and sources, not for having a photo); everything else is the uniform Latest list
   const key = pickFeatured([...events, ...byCat.flat()].filter((e, i, a) => a.findIndex((x) => x.id === e.id) === i), 4, new Set([top?.id ?? 0]));   // 4 news + 2 magazine reads
   const keyIds = new Set([top?.id ?? 0, ...key.map((e) => e.id)]);
-  const list = events.filter((e) => !keyIds.has(e.id)).slice(0, 75);
+  const list = events.filter((e) => !keyIds.has(e.id)).slice(0, 30);
   const inList = new Set(list.map((e) => e.id));
   const auOnly = au.filter((e) => !inList.has(e.id) && !keyIds.has(e.id));
   const cnOnly = cn.filter((e) => !inList.has(e.id) && !keyIds.has(e.id) && !auOnly.some((a) => a.id === e.id));
   const seen = new Set([...inList, ...auOnly.map((e) => e.id), ...cnOnly.map((e) => e.id)]);
   const regionTags = (e: { regions?: string[] }) => (e.regions?.length ?? 0) > 2 ? [] : [...(e.regions?.includes("AU") ? ["australia"] : []), ...(e.regions?.includes("CN") ? ["china"] : [])];
   const catOnly = byCat.flat().filter((e) => !keyIds.has(e.id) && !seen.has(e.id) && (seen.add(e.id), true));
-  const updated = new Date().toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit", timeZone: "Australia/Melbourne" }) + " AEST";
+  const updated = "";
 
   const siteLd = { "@context": "https://schema.org", "@graph": [
     { "@type": "WebSite", name: "coda.news", url: "https://coda.news", publisher: { "@id": "https://coda.news/#org" },

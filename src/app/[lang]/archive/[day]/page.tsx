@@ -3,7 +3,7 @@ import { eventsOnDay, getPerspectives } from "@/lib/data";
 import { EventList } from "@/components/EventList";
 import { alternates, CATEGORY_ZH, langFrom } from "@/lib/i18n";
 import Link from "@/components/LLink";
-export const revalidate = 3600;
+export const revalidate = 21600;
 export async function generateStaticParams() { return []; }
 export const dynamicParams = true;
 
