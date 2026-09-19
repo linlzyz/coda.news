@@ -30,7 +30,7 @@ const D = {
   nlTitle: ["coda.news Daily Brief", "coda.news 每日简报"], nlText: ["The day's biggest stories, and how each side of the world told them.", "每天最重要的新闻，以及世界各地如何报道。"],
   nlPlaceholder: ["Your email address", "你的邮箱"], subscribe: ["Subscribe", "订阅"], nlOk: ["You're on the list. The first brief is on its way soon.", "订阅成功，第一期简报很快送到。"],
   nlErr: ["Please check the email address and try again.", "请检查邮箱地址后重试。"],
-  footer: ["Summaries are AI-generated from the linked sources and may contain errors; always check the originals. We summarise and link; we never republish articles. Photos come from openly licensed libraries (Pexels, Unsplash, Pixabay, Wikimedia Commons), credited to their authors.", "摘要由 AI 根据所链接的来源生成，可能有误，请以原文为准。我们只做摘要和链接，从不转载原文。图片来自开放授权图库（Pexels、Unsplash、Pixabay、Wikimedia Commons），并注明作者。"],
+  footer: ["Summaries are AI-generated from the linked sources and may contain errors; always check the originals. We summarise and link; we never republish articles. Photos come from openly licensed libraries, official publicity material and brand logos, credited to their sources. If you own an image and want it credited differently or removed, email info@coda.news and we will act promptly.", "摘要由 AI 根据所链接的来源生成，可能有误，请以原文为准。我们只做摘要和链接，从不转载原文。图片来自开放授权图库、官方宣传图和品牌 logo，均注明来源。如您是图片权利人，希望修改署名或删除，请发邮件至 info@coda.news，我们会尽快处理。"],
   terms: ["Terms of Use", "使用条款"], privacy: ["Privacy Policy", "隐私政策"], cookies: ["Cookie Policy", "Cookie 政策"],
   updated: ["Updated", "更新于"], since: ["since", "始于"], agreed: ["What everyone agrees on", "各方共识"], keyFacts: ["Key facts", "要点"],
   spectrum: ["The framing spectrum", "报道倾向"], spectrumSub: ["Overall tone of each country's coverage of this event, judged from the articles listed below.", "各国媒体报道这件事的整体语气，依据下方列出的文章判断。"],
@@ -53,7 +53,7 @@ const D = {
   fashionIntro: ["Collections, brands and design, compared across countries.", "时装系列、品牌与设计，按国家对比。"],
   auIntro: ["Australian business, technology, sport and culture, and how the world reports Australia.", "澳洲的商业、科技、体育与文化，以及世界如何报道澳洲。"],
   econIntro: ["Rates, trade, markets and companies, compared across countries.", "利率、贸易、市场与公司，按国家对比。"],
-  disclaimer: ["Summaries are AI-generated from the linked sources and may contain errors; always check the originals. We summarise and link; we never republish articles. Photos come from openly licensed libraries (Pexels, Unsplash, Pixabay, Wikimedia Commons), credited to their authors.", "摘要由 AI 根据所链接的来源生成，可能有误，请以原文为准。我们只做摘要和链接，从不转载原文。图片来自开放授权图库（Pexels、Unsplash、Pixabay、Wikimedia Commons），并注明作者。"],
+  disclaimer: ["Summaries are AI-generated from the linked sources and may contain errors; always check the originals. We summarise and link; we never republish articles. Photos come from openly licensed libraries, official publicity material and brand logos, credited to their sources. If you own an image and want it credited differently or removed, email info@coda.news and we will act promptly.", "摘要由 AI 根据所链接的来源生成，可能有误，请以原文为准。我们只做摘要和链接，从不转载原文。图片来自开放授权图库、官方宣传图和品牌 logo，均注明来源。如您是图片权利人，希望修改署名或删除，请发邮件至 info@coda.news，我们会尽快处理。"],
   first: ["The first events are being assembled. Check back in a few minutes.", "首批事件正在生成，请几分钟后再来。"],
 } as const;
 

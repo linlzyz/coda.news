@@ -6,6 +6,7 @@
 import { db } from "./db.ts";
 import { env, log } from "./env.ts";
 import { cheapJSON } from "./ai.ts";
+import { UA as BOT } from "./text.ts";
 
 type Img = { url: string; credit: string; link: string; source?: string; license?: string; licenseUrl?: string };
 
@@ -239,6 +240,32 @@ ${rows.map((r, k) => `${k + 1}. ${r.title}`).join("\n")}`;
   } catch (e) { log("image queries:", (e as Error).message.slice(0, 120)); }
 }
 
+
+// Publicity images (game key art, product shots, film posters) that the story's own article uses: publishers hand these out for coverage.
+// Never news-agency photos, never site logos or default share images.
+const AGENCY = /getty|gettyimages|apimages|\bap\.org|reuters|afp\b|afpforum|shutterstock|alamy|\bepa\b|epa-images|aap\.com|paimages|imago|zumapress|sipa|abaca|bloomberg|wireimage|splash|backgrid|mega-agency/i;
+const NOT_ART = /logo|default|placeholder|fallback|favicon|sprite|avatar|brand[-_]|share[-_]?image|og[-_]?default|social[-_]?card/i;
+async function pressImage(url: string): Promise<string | null> {
+  try {
+    const r = await fetch(url, { headers: { "user-agent": BOT, accept: "text/html" }, redirect: "follow", signal: AbortSignal.timeout(8000) });
+    if (!r.ok) return null;
+    const html = (await r.text()).slice(0, 400_000);
+    const m = html.match(/<meta[^>]+(?:property|name)=["'](?:og:image|twitter:image)(?::src)?["'][^>]*>/i)?.[0];
+    let img = m?.match(/content=["']([^"']+)["']/i)?.[1]?.replace(/&amp;/g, "&").replace(/&#0?38;/g, "&");
+    if (!img) return null;
+    img = new URL(img, r.url).toString();
+    if (!/^https:/.test(img) || AGENCY.test(img) || NOT_ART.test(img)) return null;
+    // the page's own credit line near the top mentions an agency: skip
+    if (AGENCY.test(html.slice(0, 200_000).match(/(photo|image|credit)[^<]{0,80}/gi)?.join(" ") ?? "")) return null;
+    const h = await fetch(img, { method: "GET", headers: { "user-agent": BOT, range: "bytes=0-0" }, signal: AbortSignal.timeout(6000) });
+    const type = h.headers.get("content-type") ?? "";
+    const size = Number(h.headers.get("content-range")?.split("/")[1] ?? h.headers.get("content-length") ?? 0);
+    await h.body?.cancel();
+    if (!h.ok || !/image\/(jpeg|png|webp)/.test(type) || size < 40_000) return null;
+    return img;
+  } catch { return null; }
+}
+
 export async function assignImages(limit = 12): Promise<number> {
   const sql = db();
   await fillQueries();
@@ -266,6 +293,30 @@ export async function assignImages(limit = 12): Promise<number> {
     } else await sql`update events set person_checked_at = now() where id = ${p.id}`;
   }
   if (people.length) log(`images: ${swapped}/${people.length} person portraits`);
+
+  // 1b) games, cars, tech products, travel, films: the publicity image used by the story's own article
+  const press = await sql<{ id: number; url: string; source: string }[]>`
+    select e.id, a.url, s.name as source from events e
+    join lateral (select a.url, a.source_id from articles a where a.event_id = e.id order by a.published_at desc limit 1) a on true
+    join sources s on s.id = a.source_id
+    where e.press_checked_at is null and e.summary is not null and e.status <> 'archived'
+      -- games and cars: sites run the maker's press shots; films, shows and products only for launches, trailers and reveals (not people stories)
+      and (e.category in ('gaming','automotive')
+        or (e.category in ('entertainment','technology') and e.image_person is null
+            and e.title ~* '(trailer|teaser|poster|first look|key art|launch|unveil|reveal|announce|release|debut|premiere|season [0-9]|sequel|album|game|console|phone|iphone|galaxy|pixel|laptop|headset|watch)'))
+      and (e.image_url is null or e.image_source in ('pexels','unsplash','pixabay','logo'))
+    order by e.last_article_at desc limit 25`;
+  let pressN = 0;
+  for (const p of press) {
+    const img = await pressImage(p.url);
+    const dup = img ? (await sql`select 1 from events where image_url = ${img} limit 1`).length > 0 : false;
+    if (img && !dup) {
+      await sql`update events set image_url = ${img}, image_credit = ${p.source}, image_link = ${p.url}, image_source = 'press', image_license = 'Publicity image',
+                image_license_url = null, image_focus = null, image_checked_at = now(), brand_checked_at = now(), press_checked_at = now() where id = ${p.id}`;
+      pressN++;
+    } else await sql`update events set press_checked_at = now() where id = ${p.id}`;
+  }
+  if (press.length) log(`images: ${pressN}/${press.length} publicity images`);
 
   // 2) stories about a brand with a known logo (and no person photo): the brand's logo beats a generic stock photo
   const brands = await sql<{ id: number; logo: string }[]>`

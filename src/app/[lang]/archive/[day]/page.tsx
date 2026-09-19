@@ -37,6 +37,18 @@ export default async function Page({ params }: { params: Promise<{ lang: string;
         {zh ? `共 ${events.length} 个事件` : `${events.length} ${events.length === 1 ? "event" : "events"}`}
         {cats.size > 0 && " · " + [...cats.entries()].map(([c, n]) => `${zh ? CATEGORY_ZH[c] ?? c : c[0].toUpperCase() + c.slice(1)} ${n}`).join(" · ")}
       </p>
+      <nav className="mt-4 flex flex-wrap items-center gap-2 text-[13px]" aria-label={zh ? "按日期查看" : "Pick a day"}>
+        <Link href={`/archive/${shift(day, -1)}`} className="rounded-full border border-neutral-200 px-3 py-1.5 text-neutral-600 hover:border-[#EA5514] hover:text-[#C2410C]" aria-label={zh ? "前一天" : "Previous day"}>←</Link>
+        {Array.from({ length: 7 }, (_, i) => shift(today, -i)).reverse().map((d) => {
+          const dt = new Date(`${d}T12:00:00Z`);
+          const label = d === today ? (zh ? "今天" : "Today") : zh ? `${dt.getUTCMonth() + 1}月${dt.getUTCDate()}日` : dt.toLocaleDateString("en-AU", { day: "numeric", month: "short", timeZone: "UTC" });
+          return d === day
+            ? <span key={d} className="rounded-full bg-[#EA5514] px-3 py-1.5 font-semibold text-white">{label}</span>
+            : <Link key={d} href={`/archive/${d}`} className="rounded-full border border-neutral-200 px-3 py-1.5 text-neutral-700 hover:border-[#EA5514] hover:text-[#C2410C]">{label}</Link>;
+        })}
+        {next <= today && <Link href={`/archive/${next}`} className="rounded-full border border-neutral-200 px-3 py-1.5 text-neutral-600 hover:border-[#EA5514] hover:text-[#C2410C]" aria-label={zh ? "后一天" : "Next day"}>→</Link>}
+        <Link href="/archive" className="ml-1 text-neutral-500 hover:text-[#C2410C]">{zh ? "全部日期" : "All days"}</Link>
+      </nav>
       {brief.length > 0 && (
         <section className="mt-6 rounded-2xl bg-[#1F2328] p-5 text-white">
           <h2 className="text-[13px] font-semibold uppercase tracking-[0.08em] text-[#F0A57F]">{zh ? "当日简报" : "Daily brief"}</h2>
@@ -54,10 +66,6 @@ export default async function Page({ params }: { params: Promise<{ lang: string;
           <Link href="/#newsletter" className="mt-4 inline-block text-[13px] font-medium text-[#F0A57F] hover:underline">{zh ? "每天早上 7 点收到简报 →" : "Get the brief at 7am every day →"}</Link>
         </section>
       )}
-      <nav className="mt-3 flex gap-4 text-[13px]">
-        <Link href={`/archive/${shift(day, -1)}`} className="text-[#C2410C] hover:underline">← {zh ? "前一天" : "Previous day"}</Link>
-        {next <= today && <Link href={`/archive/${next}`} className="text-[#C2410C] hover:underline">{zh ? "后一天" : "Next day"} →</Link>}
-      </nav>
     </header>
   );
   return <EventList lang={l} title={nice} header={header} events={events} />;

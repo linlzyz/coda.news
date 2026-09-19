@@ -2,6 +2,7 @@ import { Brand } from "./Brand";
 import Link from "@/components/LLink";
 import { t, type Lang } from "@/lib/i18n";
 import { Icon } from "./Icons";
+import { TodayBadge } from "./TodayBadge";
 
 export function Sidebar({ l }: { l: Lang }) {
   const NAV = [["home", "/", "home"], ["economy", "/economy", "economy"], ["technology", "/technology", "technology"], ["sport", "/sport", "sport"], ["entertainment", "/entertainment", "entertainment"], ["fashion", "/fashion", "fashion"], ["travel", "/travel", "travel"], ["automotive", "/automotive", "automotive"], ["gaming", "/gaming", "gaming"], ["australia", "/australia", "australia"], ["china", "/china", "china"], ["companies", "/companies", "companies"], ["topics", "/topics", "topics"]] as const;
@@ -19,7 +20,7 @@ export function Sidebar({ l }: { l: Lang }) {
         ))}
       </nav>
       <div className="border-t border-[#E5E7EB] pt-3">
-        <Link href="/brief" className="flex items-center gap-3 rounded-xl px-3 py-2 text-[14px] font-medium text-neutral-600 hover:bg-[#F4F5F7]"><Icon name="mail" />{t(l, "newsletter")}</Link>
+        <Link href="/brief" className="flex items-center gap-3 rounded-xl px-3 py-2 text-[14px] font-medium text-neutral-600 hover:bg-[#F4F5F7]"><Icon name="mail" />{t(l, "newsletter")}<TodayBadge zh={l === "zh"} /></Link>
         <Link href="/about" className="flex items-center gap-3 rounded-xl px-3 py-2 text-[14px] font-medium text-neutral-600 hover:bg-[#F4F5F7]"><Icon name="info" />{t(l, "about")}</Link>
       </div>
       <div className="mt-auto shrink-0 overflow-hidden rounded-2xl bg-[#1F2328] p-4">
