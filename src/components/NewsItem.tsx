@@ -3,7 +3,7 @@ import type { Company, EventRow, Topic } from "@/lib/data";
 import { TOPIC_ZH, type Lang } from "@/lib/i18n";
 import { summary, timeAgoL, title } from "@/lib/loc";
 import { Cover } from "./Cover";
-import { Flags } from "./Flag";
+import { Flag, Flags } from "./Flag";
 import { CategoryLabel, StatusPill } from "./Pills";
 
 export function NewsItem({ e, companies, topics, lang }: { e: EventRow; companies: Map<number, Company>; topics: Map<number, Topic>; lang: Lang }) {
@@ -25,7 +25,7 @@ export function NewsItem({ e, companies, topics, lang }: { e: EventRow; companie
         </p>
         <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-neutral-500">
           <CategoryLabel category={e.category} lang={lang} />
-          <span>{e.lead_source}</span><span aria-hidden>·</span>
+          <span className="inline-flex items-center gap-1.5">{e.countries[0] && <Flag code={e.countries[0]} size={11} />}{e.lead_source}</span><span aria-hidden>·</span>
           <span>{timeAgoL(e.last_article_at, lang)}</span><span aria-hidden>·</span>
           <a href={e.lead_url} target="_blank" rel="noopener noreferrer" className="font-medium text-[#C2410C] hover:underline">{zh ? "查看原文" : "Read original"} ↗</a>
         </div>
