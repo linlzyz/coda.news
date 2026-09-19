@@ -12,6 +12,26 @@ export function NewsItem({ e, companies, topics, lang }: { e: EventRow; companie
     ...e.topic_ids.map((id) => topics.get(id)).filter(Boolean).slice(0, 2).map((t) => ({ label: lang === "zh" ? TOPIC_ZH[t!.slug] ?? t!.name : t!.name, href: `/topic/${t!.slug}` })),
   ];
   const topicSlug = topics.get(e.topic_ids[0])?.slug;
+  // one source only: a compact text card, our one-line summary plus a link to the original
+  if (e.source_count < 2 && e.lead_url && e.lead_source) {
+    const zh = lang === "zh";
+    const t = title(e, lang).replace(/[。.]$/, "");
+    return (
+      <article className="border-b border-[#E5E7EB] py-4">
+        <p className="text-[16px] leading-relaxed text-[#16181D]">
+          <Link href={`/event/${e.slug}`} className="hover:text-[#C2410C]">
+            {zh ? <>据 <span className="font-semibold">{e.lead_source}</span> 报道，{t}。</> : <><span className="font-semibold">{e.lead_source}</span> reports: {t}.</>}
+          </Link>
+        </p>
+        <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-neutral-500">
+          <CategoryLabel category={e.category} lang={lang} />
+          <span>{e.lead_source}</span><span aria-hidden>·</span>
+          <span>{timeAgoL(e.last_article_at, lang)}</span><span aria-hidden>·</span>
+          <a href={e.lead_url} target="_blank" rel="noopener noreferrer" className="font-medium text-[#C2410C] hover:underline">{zh ? "查看原文" : "Read original"} ↗</a>
+        </div>
+      </article>
+    );
+  }
   return (
     <article className="grid gap-5 border-b border-[#E5E7EB] py-5 sm:grid-cols-[208px_minmax(0,1fr)]">
       <Link href={`/event/${e.slug}`} className="block"><Cover e={e} iconName={topicSlug} className="aspect-[16/10] w-full rounded-2xl sm:h-[130px]" /></Link>

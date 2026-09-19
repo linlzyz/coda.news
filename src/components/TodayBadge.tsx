@@ -10,5 +10,5 @@ export function TodayBadge({ zh }: { zh: boolean }) {
     setD(zh ? `${m}月${day}日` : `${day} ${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][m - 1]}`);
   }, [zh]);
   if (!d) return null;
-  return <span className="ml-auto rounded-full bg-[#FDEEE6] px-2 py-0.5 text-[11px] font-semibold text-[#C2410C]">{d}</span>;
+  return <span className="ml-auto whitespace-nowrap rounded-full bg-[#FDEEE6] px-2 py-0.5 text-[11px] font-semibold text-[#C2410C]">{d}</span>;
 }

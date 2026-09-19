@@ -9,7 +9,7 @@ const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env
 
 export type Status = "rumor" | "breaking" | "developing" | "confirmed" | "resolved" | "archived";
 export interface EventRow {
-  id: number; slug: string; title: string; title_zh: string | null; category: string; status: Status; regions?: string[]; image_focus?: string | null;
+  id: number; slug: string; title: string; title_zh: string | null; category: string; status: Status; regions?: string[]; image_focus?: string | null; lead_url?: string | null; lead_source?: string | null;
   confidence: number; importance: number; summary: string | null; summary_zh: string | null; countries: string[]; source_count: number;
   article_count: number; has_official: boolean; image_url: string | null; image_credit: string | null; image_link: string | null; company_ids: number[]; topic_ids: number[];
   started_at: string; last_article_at: string; summary_version: number;
@@ -18,7 +18,7 @@ export interface Perspective { country: string; headline: string | null; framing
 export interface Topic { id: number; name: string; slug: string; color: string }
 export interface Company { id: number; name: string; slug: string }
 
-const EVENT_COLS = "id,slug,title,title_zh,category,status,confidence,importance,summary,summary_zh,countries,source_count,article_count,has_official,image_url,image_credit,image_link,company_ids,topic_ids,started_at,last_article_at,summary_version,regions,image_focus";
+const EVENT_COLS = "id,slug,title,title_zh,category,status,confidence,importance,summary,summary_zh,countries,source_count,article_count,has_official,image_url,image_credit,image_link,company_ids,topic_ids,started_at,last_article_at,summary_version,regions,image_focus,lead_url,lead_source";
 
 async function _listEvents(opts: { category?: string; region?: string; companyId?: number; topicId?: number; limit?: number; order?: "importance" | "recent" } = {}) {
   let q = supabase.from("events").select(EVENT_COLS).not("summary", "is", null).neq("status", "archived");
