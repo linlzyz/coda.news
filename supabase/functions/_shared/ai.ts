@@ -131,6 +131,8 @@ export async function cheapJSON<T = unknown>(prompt: string): Promise<T> {
 }
 
 /** True once every Gemini model is out of quota in this run: callers should send smaller batches (Groq free tier: ~8k tokens/min per model). */
+/** true while at least one free Gemini model of this tier still has quota today */
+export const geminiFree = async (tier: "fast" | "smart" = "smart") => { await loadExhausted(); return MODELS[tier]().some((m) => !exhausted.has(m)); };
 export const onFallback = async () => {
   await loadExhausted();
   if (!MODELS.fast().every((m) => exhausted.has(m))) return false;

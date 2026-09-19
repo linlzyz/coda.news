@@ -2,7 +2,7 @@
 // (our own words, EN + ZH) and refreshed every few months. Only facts from the Wikipedia text; nothing invented.
 import { db } from "./db.ts";
 import { log } from "./env.ts";
-import { cheapJSON, generateJSON } from "./ai.ts";
+import { cheapJSON, generateJSON, geminiFree, openai } from "./ai.ts";
 import { personPhoto } from "./images.ts";
 
 const UA = { "user-agent": "CodaNewsBot/0.1 (https://coda.news; info@coda.news)" };
@@ -13,7 +13,7 @@ async function wikiText(title: string): Promise<string> {
   const j = await (await fetch(u, { headers: UA, signal: AbortSignal.timeout(12000) })).json();
   const page = Object.values(j.query?.pages ?? {})[0] as { extract?: string } | undefined;
   // intro + history are what we need; cut before the long lists at the end
-  return (page?.extract ?? "").split(/\n== (See also|References|External links|Notes|Further reading) ==/)[0].slice(0, 14000);
+  return (page?.extract ?? "").split(/\n== (See also|References|External links|Notes|Further reading) ==/)[0].slice(0, 32000);
 }
 
 // the company's own main image on Wikidata (headquarters, flagship store...), landscape and free only
@@ -59,6 +59,9 @@ interface Story {
 
 export async function buildStories(limit = 3, slug?: string): Promise<number> {
   const sql = db();
+  // profiles are written once and kept for months, so they get a good model: free Gemini, or (only when asked for one company) gpt-5-mini. Never nano.
+  const free = await geminiFree("smart");
+  if (!free && !slug) return 0;
   const rows = await sql<{ id: number; name: string; wikidata_id: string; wikipedia_en: string; ceo: string | null; founders: string | null }[]>`
     select c.id, c.name, c.wikidata_id, c.wikipedia_en, c.ceo, c.founders from companies c
     where c.wikidata_id is not null and c.wikipedia_en is not null and ${slug ? sql`c.slug = ${slug}` : sql`(c.story_at is null or c.story_at < now() - interval '90 days')
@@ -70,7 +73,8 @@ export async function buildStories(limit = 3, slug?: string): Promise<number> {
       const title = decodeURIComponent(c.wikipedia_en.split("/wiki/")[1] ?? "").replace(/_/g, " ");
       const text = await wikiText(title);
       if (text.length < 800) { await sql`update companies set story_at = now() where id = ${c.id}`; continue; }
-      const s = await generateJSON<Story>(`Write a short company profile of ${c.name} for coda.news, using ONLY facts in the Wikipedia text below. Your own words, plain and factual, no hype, no opinions, no controversies.
+      const ask = (p: string) => free ? generateJSON<Story>(p, "smart") : openai(p, "gpt-5-mini", 16000, "low").then((t) => JSON.parse(t) as Story);
+      const s = await ask(`Write a short company profile of ${c.name} for coda.news, using ONLY facts in the Wikipedia text below. Your own words, plain and factual, no hype, no opinions, no controversies.
 Return JSON only:
 {"tagline":"one short line on what the company is known for (max 10 words)","tagline_zh":"same in Simplified Chinese",
 "origin":["2 short paragraphs. 1: how, when and where it started and who founded it. 2: how it grew into what it is today, naming its defining products or moves and its size today if the text gives it. Concrete, no vague filler."],"origin_zh":["the same 2 paragraphs in natural Simplified Chinese"],
@@ -80,7 +84,7 @@ Return JSON only:
 In the Chinese, use the usual Chinese names for well-known people, companies and places (e.g. 乔布斯, 苹果, 库比蒂诺); product names stay as they are (iPhone).
 
 Wikipedia text:
-${text}`, "smart");
+${text}`);
       if (!s?.origin?.length || !s.turning?.length) continue;
       // fill any Chinese the model left out
       if (!s.origin_zh?.length || s.turning.some((t) => !t.text_zh) || !s.tagline_zh) {
