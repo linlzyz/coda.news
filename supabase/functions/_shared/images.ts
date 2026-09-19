@@ -229,14 +229,22 @@ async function fillQueries(max = 80) {
   const rows = await sql<{ id: number; title: string }[]>`select id, title from events where summary is not null and coalesce(image_query, '') = '' and image_url is null
     and status <> 'archived' order by last_article_at desc limit ${max}`;
   if (!rows.length) return;
-  const prompt = `For each news headline, write 2 to 4 English words for a stock photo that shows what the story is about (the activity, place or object), e.g. "fitness race athletes", "steam locomotive", "tokyo stock exchange", "fashion runway". No brand or person names.
-Return JSON only, one entry for EVERY item: {"r":{"1":"...","2":"..."}}
+  const prompt = `For each news headline:
+q = 2 to 4 English words for a stock photo that shows what the story is about (the activity, place or object), e.g. "fitness race athletes", "steam locomotive", "tokyo stock exchange", "fashion runway". No brand or person names.
+Write q = "" when a generic stock photo would be wrong or tasteless: a person's illness, health, surgery, death, grief, relationships, pregnancy, crime, court case or scandal, and any story that is really about one person.
+p = the full name of the one well-known person the story is about, or "".
+Return JSON only, one entry for EVERY item: {"r":{"1":{"q":"...","p":""},"2":{"q":"","p":"Nicole Polizzi"}}}
 ${rows.map((r, k) => `${k + 1}. ${r.title}`).join("\n")}`;
   try {
-    const res = await cheapJSON<{ r?: Record<string, string> }>(prompt);
+    const res = await cheapJSON<{ r?: Record<string, { q?: string; p?: string } | string> }>(prompt);
     for (const [k, r] of rows.entries()) {
-      const q = String(res.r?.[String(k + 1)] ?? "").replace(/[^\p{L}\p{N} -]/gu, " ").trim().slice(0, 60);
-      if (q) await sql`update events set image_query = ${q}, image_checked_at = null where id = ${r.id}`;
+      const v = res.r?.[String(k + 1)];
+      if (v === undefined) continue;
+      const q = String(typeof v === "string" ? v : v.q ?? "").replace(/[^\p{L}\p{N} -]/gu, " ").trim().slice(0, 60);
+      const p = typeof v === "string" ? "" : String(v.p ?? "").trim().slice(0, 80);
+      // "-" = no stock photo for this story: a real portrait, a logo or our designed cover instead
+      await sql`update events set image_query = ${q || "-"}, image_checked_at = null,
+                image_person = coalesce(image_person, ${p || null}), person_checked_at = case when ${!!p} and image_person is null then null else person_checked_at end where id = ${r.id}`;
     }
   } catch (e) { log("image queries:", (e as Error).message.slice(0, 120)); }
 }
@@ -391,6 +399,9 @@ ${games.map((g, i) => `${i + 1}. ${g.title}`).join("\n")}`)).g ?? {};
   const events = await sql<{ id: number; image_query: string | null; slugs: string[] | null }[]>`
     select e.id, e.image_query, (select array_agg(t.slug) from topics t where t.id = any(e.topic_ids)) as slugs
     from events e where e.image_url is null and e.image_checked_at is null and e.summary is not null
+      -- people stories get a real portrait or our cover, never a stock photo; nor do stories about illness, death or crime
+      and e.image_person is null
+      and e.title !~* '(cancer|tumou?r|illness|diagnos|surgery|hysterectomy|hospital|died|dies|death|dead|funeral|passed away|grief|miscarriage|pregnan|divorce|arrest|charged|lawsuit|sued|assault|abuse|rehab|overdose|suicide)'
     order by e.importance desc, e.last_article_at desc limit ${limit}`;
   let n = 0;
   for (const e of events) {
@@ -398,7 +409,7 @@ ${games.map((g, i) => `${i + 1}. ${g.title}`).join("\n")}`)).g ?? {};
     const pool = e.slugs?.flatMap((s) => TOPIC_QUERIES[s] ?? []) ?? [];
     // only the story's own scene; a generic topic photo is worse than our designed cover
     void pool;
-    const queries = [e.image_query].filter(Boolean) as string[];
+    const queries = [e.image_query].filter((q) => q && q !== "-") as string[];
     if (!queries.length) { await sql`update events set image_checked_at = now() where id = ${e.id}`; continue; }
     const img = await find(queries, !!e.image_query);
     if (!img && exhausted.size === PROVIDERS.length) break;   // try again next run
