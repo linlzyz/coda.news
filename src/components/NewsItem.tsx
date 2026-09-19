@@ -13,13 +13,17 @@ const oneSource = (e: EventRow) => e.source_count < 2 && !!e.lead_url && !!e.lea
 export function NewsItem({ e, companies, lang }: { e: EventRow; companies?: Map<number, Company>; topics?: Map<number, Topic>; lang: Lang }) {
   const single = oneSource(e);
   const sum = summary(e, lang);
-  if (single) return <SingleItem e={e} companies={companies} lang={lang} sum={sum} />;
+  // only rows with something more to show (a picture or key points) open in place; the rest stay a plain row with a link to the original
+  const pts = (lang === "zh" ? e.points?.zh : e.points?.en)?.filter(Boolean) ?? [];
+  if (single && (e.image_url || pts.length)) return <SingleItem e={e} companies={companies} lang={lang} sum={sum} />;
   return (
     <article className="grid grid-cols-[minmax(0,1fr)_auto] gap-4 border-b border-[#E5E7EB] py-4">
       <div className="min-w-0">
         <h3 className="text-[16px] font-semibold leading-snug text-[#16181D]">
-          <Link href={`/event/${e.slug}`} className="hover:text-[#C2410C]">{title(e, lang)}</Link>
+          {single ? <a href={e.lead_url!} target="_blank" rel="noopener noreferrer" className="hover:text-[#C2410C]">{title(e, lang)}</a>
+            : <Link href={`/event/${e.slug}`} className="hover:text-[#C2410C]">{title(e, lang)}</Link>}
         </h3>
+        {sum && single && <p className="mt-1 line-clamp-2 text-[14px] leading-relaxed text-neutral-600">{sum}</p>}
         <div className="mt-2 flex items-center gap-2 text-[12px] text-neutral-500">
           <CategoryLabel category={e.category} lang={lang} />
           <span>{timeAgoL(e.last_article_at, lang)}</span>
