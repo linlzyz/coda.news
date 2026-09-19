@@ -132,7 +132,12 @@ export function pickFeatured(events: EventRow[], n: number, skip: Set<number> = 
     .filter((e) => !skip.has(e.id) && !news.includes(e) && ["travel", "fashion"].includes(e.category) && e.summary && fresh(e, 72))
     .sort((a, b) => Number(!!b.image_url) - Number(!!a.image_url) || (b.importance ?? 0) - (a.importance ?? 0))
     .slice(0, Math.max(1, Math.round(n / 2)));
-  return [...pinned, ...news, ...mags].slice(0, Math.max(n + Math.round(n / 2), pinned.length));
+  // one-source stories with an official picture (the publisher's own image or game art, not a logo) are worth a look too
+  const official = events
+    .filter((e) => !skip.has(e.id) && !news.includes(e) && !mags.includes(e) && oneSource(e) && !!e.image_url && e.image_focus !== "logo" && fresh(e, 36))
+    .sort((a, b) => (b.importance ?? 0) - (a.importance ?? 0) || Date.parse(b.last_article_at) - Date.parse(a.last_article_at))
+    .slice(0, n);
+  return [...pinned, ...news, ...mags].slice(0, Math.max(n + Math.round(n / 2), pinned.length)).concat(official);
 }
 
 export function FeaturedCards({ events, lang, heading }: { events: EventRow[]; lang: Lang; heading: string }) {
@@ -141,12 +146,15 @@ export function FeaturedCards({ events, lang, heading }: { events: EventRow[]; l
     <section>
       <h2 className="border-b border-[#E5E7EB] py-3 text-[22px] font-semibold tracking-[-0.02em]">{heading}</h2>
       <div>
-        {events.map((e) => (
+        {events.map((e) => { const Go = ({ children, className }: { children: React.ReactNode; className?: string }) => oneSource(e)
+            ? <a href={e.lead_url!} target="_blank" rel="noopener noreferrer" className={className}>{children}</a>
+            : <Link href={`/event/${e.slug}`} className={className}>{children}</Link>;
+          return (
           e.image_url ? <article key={e.id} className="grid grid-cols-[104px_minmax(0,1fr)] gap-3 border-b border-[#E5E7EB] py-4 sm:grid-cols-[240px_minmax(0,1fr)] sm:gap-5 sm:py-5">
-            <Link href={`/event/${e.slug}`} className="block"><Cover e={e} className="aspect-[4/3] w-full rounded-xl sm:aspect-auto sm:h-[150px] sm:rounded-2xl" /></Link>
+            <Go className="block"><Cover e={e} className="aspect-[4/3] w-full rounded-xl sm:aspect-auto sm:h-[150px] sm:rounded-2xl" /></Go>
             <div className="flex min-w-0 flex-col">
               <h3 className="text-[16px] font-semibold leading-snug tracking-[-0.015em] text-[#16181D] sm:text-[19px]">
-                <Link href={`/event/${e.slug}`} className="hover:text-[#C2410C]">{title(e, lang)}</Link>
+                <Go className="hover:text-[#C2410C]">{title(e, lang)}</Go>
               </h3>
               {summary(e, lang) && <p className="mt-1.5 hidden text-[14px] leading-relaxed text-neutral-600 sm:line-clamp-2">{summary(e, lang)}</p>}
               <div className="mt-auto"><Meta e={e} lang={lang} /></div>
@@ -155,13 +163,12 @@ export function FeaturedCards({ events, lang, heading }: { events: EventRow[]; l
           // no suitable picture: a text card, same weight, orange rule instead of a photo
           <article key={e.id} className="border-b border-[#E5E7EB] py-4 sm:py-5">
             <div className="border-l-4 border-[#EA5514] pl-4 sm:pl-5">
-              <h3 className="text-[16px] font-semibold leading-snug tracking-[-0.015em] text-[#16181D] sm:text-[19px]"><Link href={`/event/${e.slug}`} className="hover:text-[#C2410C]">{title(e, lang)}</Link></h3>
+              <h3 className="text-[16px] font-semibold leading-snug tracking-[-0.015em] text-[#16181D] sm:text-[19px]"><Go className="hover:text-[#C2410C]">{title(e, lang)}</Go></h3>
               {summary(e, lang) && <p className="mt-1.5 line-clamp-3 text-[14px] leading-relaxed text-neutral-600">{summary(e, lang)}</p>}
               <Meta e={e} lang={lang} />
             </div>
           </article>
-        )
-        ))}
+        )); })}
       </div>
     </section>
   );
