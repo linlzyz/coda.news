@@ -33,7 +33,7 @@ export async function sendHealthReport(force = false): Promise<boolean> {
   const [subs] = await sql`select count(*) filter (where unsubscribed_at is null)::int active, count(*) filter (where created_at > now() - interval '24 hours')::int new,
       count(*) filter (where unsubscribed_at > now() - interval '24 hours')::int gone from subscribers`;
   const [brief] = await sql`select recipients from newsletter_issues where sent_on = ${today}`;
-  const [rv] = await sql`select count(*) filter (where review_note like '自动下架%')::int hid, count(*) filter (where review_note like '自动改分类%')::int moved,
+  const [rv] = await sql`select count(*) filter (where review_note like '自动下架%')::int hid, count(*) filter (where review_note like '自动下架：原文链接%')::int deadlinks, count(*) filter (where review_note like '自动改分类%')::int moved,
       count(*) filter (where review_note like '待确认%' and not hidden)::int ask from events where reviewed_at > now() - interval '24 hours'`;
 
   const qa = await qaSummary().catch(() => ({ n: 0, bad: 0, rate: 0, fields: [] as { field: string; n: number }[], inv: [] as { name: string; n: number; examples: string[] }[] }));
@@ -49,7 +49,7 @@ export async function sendHealthReport(force = false): Promise<boolean> {
   ${row("自动流程运行次数", `${runs[0].n}（出错 ${runs[0].bad}）`)}${row("AI 免费额度用尽的次数", quota[0].n)}
   ${row("质量抽检（出错率，目标 2% 以下）", qa.n ? `${qa.rate}%（抽 ${qa.n} 条，有错 ${qa.bad} 条${qa.fields.length ? "：" + qa.fields.map((f) => `${f.field} ${f.n}`).join(" · ") : ""}）` : "暂无")}
   ${row("固定规则检查", qa.inv.length ? qa.inv.map((h) => `${h.name} ${h.n} 条（如 ${h.examples.slice(0, 2).join("、")}）`).join("；") : "全部通过")}
-  ${row("系统自动处理", `下架 ${rv.hid} 条 · 改分类 ${rv.moved} 条`)}${row("需要你确认", rv.ask ? `${rv.ask} 条（打开 coda.news/zh/admin）` : "0 条，不用看后台")}
+  ${row("系统自动处理", `下架 ${rv.hid} 条（其中原文失效 ${rv.deadlinks} 条）· 改分类 ${rv.moved} 条`)}${row("需要你确认", rv.ask ? `${rv.ask} 条（打开 coda.news/zh/admin）` : "0 条，不用看后台")}
   ${row("订阅者", `${subs.active}（新增 ${subs.new}，退订 ${subs.gone}）`)}${row("今天的简报发送", brief ? `${brief.recipients} 封` : "未发送（事件不足或尚未到时间）")}
   </table>
   <h3 style="color:${broken.length ? "#B91C1C" : "#16181D"}">出错的新闻源（${broken.length}）</h3>
