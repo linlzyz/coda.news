@@ -21,7 +21,7 @@ export interface Company { id: number; name: string; slug: string }
 const EVENT_COLS = "id,slug,title,title_zh,category,status,confidence,importance,summary,summary_zh,countries,source_count,article_count,has_official,image_url,image_credit,image_link,company_ids,topic_ids,started_at,last_article_at,summary_version,regions,image_focus,lead_url,lead_source";
 
 async function _listEvents(opts: { category?: string; region?: string; companyId?: number; topicId?: number; limit?: number; order?: "importance" | "recent" } = {}) {
-  let q = supabase.from("events").select(EVENT_COLS).not("summary", "is", null).neq("status", "archived");
+  let q = supabase.from("events").select(EVENT_COLS).not("summary", "is", null).neq("status", "archived").eq("hidden", false);
   if (opts.category) q = q.eq("category", opts.category);
   if (opts.region) q = q.contains("regions", [opts.region]);
   if (opts.companyId) q = q.contains("company_ids", [opts.companyId]);
@@ -35,7 +35,7 @@ async function _listEvents(opts: { category?: string; region?: string; companyId
 }
 
 async function _getEvent(slug: string) {
-  const { data } = await supabase.from("events").select(EVENT_COLS).eq("slug", slug).maybeSingle();
+  const { data } = await supabase.from("events").select(EVENT_COLS).eq("slug", slug).eq("hidden", false).maybeSingle();
   return data as EventRow | null;
 }
 
@@ -143,7 +143,7 @@ async function _searchEvents(q: string) {
   const term = q.replace(/[%_,()]/g, " ").trim().slice(0, 80);
   if (!term) return [] as EventRow[];
   const { data: cos } = await supabase.from("companies").select("id").ilike("name", `%${term}%`).limit(10);
-  let query = supabase.from("events").select(EVENT_COLS).not("summary", "is", null);
+  let query = supabase.from("events").select(EVENT_COLS).not("summary", "is", null).eq("hidden", false);
   const ors = [`title.ilike.%${term}%`, `summary.ilike.%${term}%`];
   if (cos?.length) ors.push(`company_ids.ov.{${cos.map((c) => c.id).join(",")}}`);
   query = query.or(ors.join(","));
@@ -169,7 +169,7 @@ export const indices = unstable_cache(_indices, ["indices"], { revalidate: 3600 
 
 async function _sitemapRows() {
   const [ev, co, tp] = await Promise.all([
-    supabase.from("events").select("slug,title,title_zh,summary,category,image_url,started_at,last_article_at").not("summary", "is", null).neq("status", "archived").gte("source_count", 2).order("last_article_at", { ascending: false }).limit(5000),
+    supabase.from("events").select("slug,title,title_zh,summary,category,image_url,started_at,last_article_at").not("summary", "is", null).neq("status", "archived").eq("hidden", false).gte("source_count", 2).order("last_article_at", { ascending: false }).limit(5000),
     supabase.from("companies").select("slug").limit(3000),
     supabase.from("topics").select("slug"),
   ]);
@@ -245,7 +245,7 @@ async function _eventsOnDay(day: string) {
     .formatToParts(new Date(`${day}T12:00:00Z`)).find((p) => p.type === "timeZoneName")?.value.replace("GMT", "") || "+10";
   const [h, m = "00"] = off.replace(/^([+-])(\d+)/, "$1$2").split(":");
   const from = new Date(`${day}T00:00:00${h[0]}${h.slice(1).padStart(2, "0")}:${m}`), to = new Date(from.getTime() + 86400_000);
-  const { data } = await supabase.from("events").select(EVENT_COLS).not("summary", "is", null).neq("status", "archived")
+  const { data } = await supabase.from("events").select(EVENT_COLS).not("summary", "is", null).neq("status", "archived").eq("hidden", false)
     .gte("started_at", from.toISOString()).lt("started_at", to.toISOString()).order("importance", { ascending: false }).limit(500);
   return (data ?? []) as EventRow[];
 }
@@ -253,7 +253,7 @@ async function _archiveDays(days = 90) {
   const since = new Date(Date.now() - days * 86400_000).toISOString();
   const counts = new Map<string, number>();
   for (let from = 0; ; from += 1000) {
-    const { data } = await supabase.from("events").select("started_at").not("summary", "is", null).neq("status", "archived").gte("started_at", since).range(from, from + 999);
+    const { data } = await supabase.from("events").select("started_at").not("summary", "is", null).neq("status", "archived").eq("hidden", false).gte("started_at", since).range(from, from + 999);
     for (const r of data ?? []) { const d = new Date(r.started_at).toLocaleDateString("en-CA", { timeZone: "Australia/Melbourne" }); counts.set(d, (counts.get(d) ?? 0) + 1); }
     if (!data || data.length < 1000) break;
   }

@@ -59,7 +59,7 @@ export async function tick(budgetMs = 120_000, opts: { skipIngest?: boolean } = 
     const rows = await db()<{ slug: string }[]>`select slug from events where updated_at > ${new Date(t0).toISOString()} and summary is not null order by importance desc limit 100`;
     if (!rows.length) return 0;
     // an archived (removed) story must also disappear from the lists straight away
-    const [gone] = await db()<{ n: number }[]>`select count(*)::int as n from events where updated_at > ${new Date(t0).toISOString()} and status = 'archived'`;
+    const [gone] = await db()<{ n: number }[]>`select count(*)::int as n from events where updated_at > ${new Date(t0).toISOString()} and hidden`;
     const r = await fetch("https://coda.news/api/revalidate", { method: "POST", headers: { "content-type": "application/json", "x-revalidate-secret": secret }, body: JSON.stringify({ events: rows.map((x) => x.slug), sections: gone.n > 0 }), signal: AbortSignal.timeout(10000) });
     return r.ok ? rows.length : `http ${r.status}`;
   });
