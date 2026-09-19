@@ -44,7 +44,7 @@ async function _perspectiveRows(eventIds: number[]) {
   const { data } = await supabase.from("perspectives").select("event_id,country,headline,framing,emphasis,downplayed,tone,article_count,headline_zh,framing_zh,emphasis_zh,downplayed_zh").in("event_id", eventIds);
   return (data ?? []) as (Perspective & { event_id: number })[];
 }
-const perspectiveRows = unstable_cache(_perspectiveRows, ["perspectiveRows"], { revalidate: 1800 });
+const perspectiveRows = unstable_cache(_perspectiveRows, ["perspectiveRows"], { revalidate: 1800, tags: ["ev"] });
 export async function getPerspectives(eventIds: number[]) {
   const m = new Map<number, Perspective[]>();
   for (const p of await perspectiveRows(eventIds)) m.set(p.event_id, [...(m.get(p.event_id) ?? []), p]);
@@ -181,11 +181,11 @@ async function _sitemapRows() {
 export const sitemapRows = unstable_cache(_sitemapRows, ["sitemapRows"], { revalidate: 3600 });
 
 // Cached reads: shared across requests for 60s, so switching language or pages does not wait for the database.
-export const listEvents = unstable_cache(_listEvents, ["listEvents"], { revalidate: 300 });
-export const getEvent = unstable_cache(_getEvent, ["getEvent"], { revalidate: 1800 });
-export const getLatestSummary = unstable_cache(_getLatestSummary, ["getLatestSummary"], { revalidate: 1800 });
-export const getFacts = unstable_cache(_getFacts, ["getFacts"], { revalidate: 1800 });
-export const getArticles = unstable_cache(_getArticles, ["getArticles"], { revalidate: 1800 });
+export const listEvents = unstable_cache(_listEvents, ["listEvents"], { revalidate: 300, tags: ["list"] });
+export const getEvent = unstable_cache(_getEvent, ["getEvent"], { revalidate: 1800, tags: ["ev"] });
+export const getLatestSummary = unstable_cache(_getLatestSummary, ["getLatestSummary"], { revalidate: 1800, tags: ["ev"] });
+export const getFacts = unstable_cache(_getFacts, ["getFacts"], { revalidate: 1800, tags: ["ev"] });
+export const getArticles = unstable_cache(_getArticles, ["getArticles"], { revalidate: 1800, tags: ["ev"] });
 export const latestUpdates = unstable_cache(_latestUpdates, ["latestUpdates"], { revalidate: 600 });
 export const allTopics = unstable_cache(_allTopics, ["allTopics"], { revalidate: 3600 });
 export const companiesByIds = unstable_cache(_companiesByIds, ["companiesByIds"], { revalidate: 3600 });
@@ -236,7 +236,7 @@ async function _eventCorrections(eventId: number) {
   return (data ?? []) as Correction[];
 }
 export const listCorrections = unstable_cache(_listCorrections, ["listCorrections"], { revalidate: 1800 });
-export const eventCorrections = unstable_cache(_eventCorrections, ["eventCorrections"], { revalidate: 3600 });
+export const eventCorrections = unstable_cache(_eventCorrections, ["eventCorrections"], { revalidate: 3600, tags: ["ev"] });
 
 // ---- archive by day (Melbourne time) ----
 async function _eventsOnDay(day: string) {

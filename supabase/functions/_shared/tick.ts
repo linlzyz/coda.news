@@ -17,7 +17,8 @@ import { sendWelcomes } from "./newsletter.ts";
 import { sendFollowConfirmations } from "./follows.ts";
 import { pingIndexNow } from "./indexnow.ts";
 import { RateLimited } from "./ai.ts";
-import { log } from "./env.ts";
+import { env, log } from "./env.ts";
+import { db } from "./db.ts";
 
 export async function tick(budgetMs = 120_000, opts: { skipIngest?: boolean } = {}) {
   const t0 = Date.now(); const left = () => budgetMs - (Date.now() - t0);
@@ -52,6 +53,14 @@ export async function tick(budgetMs = 120_000, opts: { skipIngest?: boolean } = 
   await step("followConfirm", sendFollowConfirmations);
   await step("indexnow", pingIndexNow);
   await step("maintain", maintain);
+  // tell the website which story pages changed in this run, so only those are rebuilt
+  await step("revalidate", async () => {
+    const secret = env("REVALIDATE_SECRET"); if (!secret) return 0;
+    const rows = await db()<{ slug: string }[]>`select slug from events where updated_at > ${new Date(t0).toISOString()} and summary is not null and status <> 'archived' order by importance desc limit 100`;
+    if (!rows.length) return 0;
+    const r = await fetch("https://coda.news/api/revalidate", { method: "POST", headers: { "content-type": "application/json", "x-revalidate-secret": secret }, body: JSON.stringify({ events: rows.map((x) => x.slug) }), signal: AbortSignal.timeout(10000) });
+    return r.ok ? rows.length : `http ${r.status}`;
+  });
   report.ms = Date.now() - t0;
   return report;
 }
