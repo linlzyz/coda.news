@@ -47,4 +47,4 @@ html.dark .text-\[\#334155\] { color: #CBD5E1; } html.dark .text-\[\#4338CA\] { 
 /* designed placeholder covers: same design, night colours */
 html.dark .cover-ph { filter: invert(.9) hue-rotate(180deg); }
 html.dark img[src="/logo.svg"] { filter: invert(1) hue-rotate(180deg); }
-html.dark .bg-\[\#FAFAFB\] { background-color: #171A1F; }
+html.dark .bg-\[\#FFF6F0\] { background-color: #231A15; } html.dark .border-\[\#FBD9C6\] { border-color: #4A2E1F; }

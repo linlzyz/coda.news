@@ -41,8 +41,8 @@ function SingleItem({ e, companies, lang, sum }: { e: EventRow; companies?: Map<
   const cos = e.company_ids.map((id) => companies?.get(id)).filter(Boolean) as Company[];
   const when = new Date(e.last_article_at).toLocaleDateString(zh ? "zh-CN" : "en-AU", { month: zh ? "numeric" : "short", day: "numeric", timeZone: "Australia/Melbourne" });
   return (
-    <details className="group border-b border-[#E5E7EB]">
-      <summary className="grid cursor-pointer list-none grid-cols-[minmax(0,1fr)_auto] gap-4 py-4 [&::-webkit-details-marker]:hidden">
+    <details open className="group border-b border-[#E5E7EB]">
+      <summary className="grid cursor-pointer list-none grid-cols-[minmax(0,1fr)_auto] gap-4 pt-4 pb-4 group-open:pb-2.5 [&::-webkit-details-marker]:hidden">
         <div className="min-w-0">
           <h3 className="text-[16px] font-semibold leading-snug text-[#16181D] group-hover:text-[#C2410C]">{title(e, lang)}</h3>
           {sum && <p className={`mt-1 line-clamp-2 text-[14px] leading-relaxed text-neutral-600${pts.length ? " group-open:hidden" : " group-open:line-clamp-none"}`}>{sum}</p>}
@@ -65,8 +65,8 @@ function SingleItem({ e, companies, lang, sum }: { e: EventRow; companies?: Map<
         )}
         {pts.length > 0 && (
           // our own AI summary, boxed and labelled so it is never mistaken for the outlet's text
-          <div className="rounded-xl border border-[#E5E7EB] bg-[#FAFAFB] px-4 py-3">
-            <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-neutral-500">{zh ? "coda.news AI 摘要" : "coda.news AI summary"}</div>
+          <div className="rounded-xl border border-[#FBD9C6] bg-[#FFF6F0] px-4 py-3">
+            <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#C2410C]">{zh ? "coda.news AI 摘要" : "coda.news AI summary"}</div>
             <ul className="space-y-1.5 text-[14px] leading-relaxed text-neutral-800">
               {pts.map((p, k) => <li key={k} className="flex gap-2"><span className="mt-[9px] h-1 w-1 shrink-0 rounded-full bg-neutral-400" />{p}</li>)}
             </ul>
