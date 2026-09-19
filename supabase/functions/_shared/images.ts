@@ -322,6 +322,7 @@ export async function assignImages(limit = 12): Promise<number> {
   // 1) stories about one well-known person: swap a stock photo (or nothing) for a real, free portrait of them
   const people = await sql<{ id: number; image_person: string; title: string; image_focus: string | null }[]>`
     select id, image_person, title, image_focus from events where image_person is not null and person_checked_at is null and summary is not null
+      and source_count >= 2   -- one-source stories get only an official image (publisher, logo, game art) or none
       and (image_url is null or image_source in ('pexels','unsplash','pixabay','openverse','commons','logo'))
     order by importance desc, last_article_at desc limit ${limit * 3}`;
   let swapped = 0;
@@ -429,6 +430,8 @@ ${games.map((g, i) => `${i + 1}. ${g.title}`).join("\n")}`)).g ?? {};
       -- people stories get a real portrait or our cover, never a stock photo; nor do stories about illness, death or crime
       and e.image_person is null
       -- fashion: a stock model reads as the brand's own collection, so fashion gets the brand's logo, a press image or our cover instead
+      -- one-source stories: only the publisher's own image, a logo or a real portrait; never a stock photo (retried once a second source arrives)
+      and e.source_count >= 2
       and e.category <> 'fashion' and coalesce(e.image_query, '') !~* '(runway|catwalk|fashion|outfit|streetwear|celebrit|portrait|red carpet)'
       and e.title !~* '(cancer|tumou?r|illness|diagnos|surgery|hysterectomy|hospital|died|dies|death|dead|funeral|passed away|grief|miscarriage|pregnan|divorce|arrest|charged|lawsuit|sued|assault|abuse|rehab|overdose|suicide)'
     order by e.importance desc, e.last_article_at desc limit ${limit}`;

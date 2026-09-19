@@ -77,7 +77,7 @@ export default async function EventPage({ params }: PageProps<"/[lang]/event/[sl
             </div>
           </header>
 
-          <Cover e={e} credit priority className="aspect-[21/9] w-full rounded-3xl" />
+          {e.image_url && <Cover e={e} credit priority className="aspect-[21/9] w-full rounded-3xl" />}
 
           {(analysis || agreed.length > 0) && (
             <section className="rounded-2xl bg-[#FFF1EA] p-6">
