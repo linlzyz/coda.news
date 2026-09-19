@@ -40,7 +40,7 @@ const relevant = (q: string, text: string, all = false) => {
   return words.length > 0 && (all ? words.every(hit) : words.some(hit));
 };
 // open archives (Commons, Openverse) hold documentary photos of protests, wars and people; they must match every word, and never show these
-const SENSITIVE = /\b(protest|rally in support|demonstrat|riot|war|soldier|military|funeral|victim|refugee|police|arrest|blood|weapon|gun|flag of|ukrain|russia|israel|gaza|palestin|politic|election|campaign|march for|strike)/i;
+const SENSITIVE = /\b(protest|rally in support|demonstrat|riot\b|war\b|soldier|military|funeral|victim|refugee|police|arrest|blood|weapon|gun\b|guns\b|flag of|ukrain|russia|israel|gaza|palestin|politic|election|campaign|march for|strike\b)/i;
 
 async function unused(candidates: Img[]): Promise<Img | null> {
   if (!candidates.length) return null;
