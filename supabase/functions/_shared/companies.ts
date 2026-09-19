@@ -147,6 +147,8 @@ export async function enrichCompanies(limit = 15): Promise<number> {
       const first = (x: string) => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().match(/[a-z0-9]+/)?.[0] ?? "";
       const [twin] = await sql<{ id: number; name: string }[]>`select id, name from companies where wikidata_id = ${e.id} and id <> ${c.id} limit 1`;
       if (twin && first(twin.name) === first(c.name)) { await sql`select merge_companies(${twin.id}, ${c.id})`; log("companies: merged", c.name, "into", twin.name); n++; continue; }
+      // a different company already owns this entity (e.g. Douyin matched ByteDance's entry): leave this one unenriched, never a second copy
+      if (twin) { await sql`update companies set enriched_at = now() where id = ${c.id}`; log("companies: skipped", c.name, "(entity belongs to", twin.name + ")"); n++; continue; }
       await sql`update companies set wikidata_id = ${e.id}, name_zh = ${zhOf(e.labels) ?? null},
         description = coalesce(description, ${e.descriptions?.en?.value ?? null}), description_zh = ${zhOf(e.descriptions) ?? null},
         about_en = ${aboutEn}, about_zh = ${aboutZh}, website = coalesce(website, ${site}), founded = ${founded ? Number(founded) : null},
