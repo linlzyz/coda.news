@@ -18,7 +18,7 @@ const HARD = ["P414", "P452", "P1128", "P2139", "P169", "P1454", "P118"];
 // leagues, federations, regulators, central banks, ministries, universities...: in the news, but not companies
 // Hong Kong, Macau and Taiwan companies: Wikidata often gives "China" as the country; the headquarters tells us the region
 const regionOf = (iso: string | null, hq: string) => /hong kong|香港/i.test(hq) ? "HK" : /macau|macao|澳门|澳門/i.test(hq) ? "MO" : /taiwan|taipei|hsinchu|kaohsiung|taichung|台湾|台灣|台北|新竹/i.test(hq) ? "TW" : iso;
-export const NOT_CO = /\b(sports? league|league|football association|federation|confederation|governing body|central bank|regulator|regulatory|government agency|space agency|ministry|government department|government|public university|university|college|trade union|labor union|labour union|council|committee|olympic|court|parliament|police|armed forces|army|navy|tournament|championship|competition|football club|association football club|basketball team|baseball team|ice hockey team|american football team|sports team|sports club|cycling team|racing team|esports team|team (competing|playing|based)|college athletic|athletic program|charity|non-?profit|united nations agency)\b/i;
+export const NOT_CO = /\b(navy|air force|armed forces|military|militia|church|diocese|exarchate|religious|monastery|law enforcement|department of justice|attorney general|state department|government department|public agency|political party|municipality|city council|state of |sports? league|league|football association|federation|confederation|governing body|central bank|regulator|regulatory|government agency|space agency|ministry|government department|government|public university|university|college|trade union|labor union|labour union|council|committee|olympic|court|parliament|police|armed forces|army|navy|tournament|championship|competition|football club|association football club|basketball team|baseball team|ice hockey team|american football team|sports team|sports club|cycling team|racing team|esports team|team (competing|playing|based)|college athletic|athletic program|charity|non-?profit|united nations agency)\b/i;
 const norm = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
 // corporate words that may follow a short name ("Toyota" = "Toyota Motor Corporation"); anything else (e.g. "Kodak Japan") is a different entity
 const SUFFIX = new Set("inc incorporated corp corporation co company companies ltd limited plc llc ag sa se nv bv gmbh kk group holdings holding motor motors energy technologies technology international global platforms".split(" "));
@@ -218,10 +218,12 @@ ${rows.map((r, k) => `${k + 1}. ${r.name}${r.description ? ` | ${r.description.s
     for (const [k, r] of rows.entries()) {
       const t = String(res.r?.[String(k + 1)] ?? "").toLowerCase().trim();
       if (!t) continue;   // no answer: ask again next run
-      if (KEEP.has(t)) { await sql`update companies set kind_checked_at = now() where id = ${r.id}`; continue; }
-      const kind = ["person", "product", "work", "event", "place", "org", "other"].includes(t) ? t : "other";
+      // the small model mislabels businesses as "product"/"org"/"other" (Adobe, Nasdaq); only trust the clear cases.
+      // orgs are decided from the Wikidata description at enrichment (NOT_CO)
+      if (KEEP.has(t) || !["person", "work", "event", "place"].includes(t)) { await sql`update companies set kind_checked_at = now() where id = ${r.id}`; continue; }
+      const kind = t;
       await sql`update companies set kind = ${kind}, kind_checked_at = now() where id = ${r.id}`;
-      if (kind !== "org") await sql`update events set company_ids = array_remove(company_ids, ${r.id}::bigint) where ${r.id}::bigint = any(company_ids)`;
+      await sql`update events set company_ids = array_remove(company_ids, ${r.id}::bigint) where ${r.id}::bigint = any(company_ids)`;
       out++; log("companies: not a company", r.name, "->", kind);
     }
   }

@@ -8,6 +8,7 @@ import { Flag, Flags } from "@/components/Flag";
 import { Icon } from "@/components/Icons";
 import { Markets } from "@/components/Markets";
 import { FeaturedCards, NewsItem, pickFeatured } from "@/components/NewsItem";
+import { HeroCarousel } from "@/components/HeroCarousel";
 import { Newsletter } from "@/components/Newsletter";
 import { TopicsGrid } from "@/components/TopicsGrid";
 import { Ticker } from "@/components/Ticker";
@@ -41,11 +42,13 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   // headline: the most important multi-country story that still has new reports in the last 12 hours
   const fresh = multi.filter((e) => Date.now() - Date.parse(e.last_article_at) < 12 * 3600_000);
   const top = fresh[0] ?? multi[0] ?? events[0];
-  const divided = multi.filter((e) => e.id !== top?.id)
+  // the headline slot turns through up to five multi-country stories (the ones that show what coda.news is for)
+  const tops = [top, ...[...fresh, ...multi].filter((e, k, a) => e.id !== top?.id && a.findIndex((x) => x.id === e.id) === k)].filter(Boolean).slice(0, 5) as EventRow[];
+  const divided = multi.filter((e) => !tops.some((x) => x.id === e.id))
     .sort((a, b) => new Set((persp.get(b.id) ?? []).map((p) => p.tone)).size - new Set((persp.get(a.id) ?? []).map((p) => p.tone)).size).slice(0, 4);
   // 4 key stories with pictures up top (picked for importance and sources, not for having a photo); everything else is the uniform Latest list
-  const key = pickFeatured([...pinnedList, ...events, ...byCat.flat(), ...official].filter((e, i, a) => a.findIndex((x) => x.id === e.id) === i), 4, new Set([top?.id ?? 0]));   // 4 news + 2 magazine reads
-  const keyIds = new Set([top?.id ?? 0, ...key.map((e) => e.id)]);
+  const key = pickFeatured([...pinnedList, ...events, ...byCat.flat(), ...official].filter((e, i, a) => a.findIndex((x) => x.id === e.id) === i), 4, new Set(tops.map((e) => e.id)));   // 4 news + 2 magazine reads
+  const keyIds = new Set([...tops.map((e) => e.id), ...key.map((e) => e.id)]);
   const list = events.filter((e) => !keyIds.has(e.id)).slice(0, 30);
   const regionTags = (e: { regions?: string[] }) => (e.regions?.length ?? 0) > 2 ? [] : [...(e.regions?.includes("AU") ? ["australia"] : []), ...(e.regions?.includes("CN") ? ["china"] : [])];
   const updated = "";
@@ -62,7 +65,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
       <Ticker lang={l} />
       <div className="grid gap-8 px-4 py-6 sm:px-6 lg:px-8 xl:grid-cols-[minmax(0,1fr)_340px]">
         <div className="min-w-0 space-y-7">
-          {top ? <Hero e={top} perspectives={persp.get(top.id) ?? []} l={l} /> : <p className="rounded-3xl border border-dashed border-[#E5E7EB] p-10 text-center text-neutral-500">{t(l, "first")}</p>}
+          {top ? <HeroCarousel label={t(l, "topStory")}>{tops.map((e) => <Hero key={e.id} e={e} perspectives={persp.get(e.id) ?? []} l={l} />)}</HeroCarousel> : <p className="rounded-3xl border border-dashed border-[#E5E7EB] p-10 text-center text-neutral-500">{t(l, "first")}</p>}
 
           {trending.length > 0 && (
             <div className="flex items-center gap-2 overflow-x-auto pb-1">
