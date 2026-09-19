@@ -6,6 +6,8 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: "coda.news",
     description: "One story. Every perspective. How media in each country report the same event.",
     start_url: "/?source=pwa",
+    id: "/",
+    orientation: "portrait",
     scope: "/",
     display: "standalone",
     background_color: "#ffffff",

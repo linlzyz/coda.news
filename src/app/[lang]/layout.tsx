@@ -8,6 +8,7 @@ import { langFrom, t } from "@/lib/i18n";
 import { SITE } from "@/lib/site";
 import { Brand } from "@/components/Brand";
 import "../globals.css";
+import { InstallPrompt } from "@/components/InstallPrompt";
 import { Analytics } from "@vercel/analytics/next";
 
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"], axes: ["opsz"], display: "swap" });
@@ -66,6 +67,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
           </div>
         </div>
         <Analytics />
+        <InstallPrompt zh={zh} />
       </body>
     </html>
   );
