@@ -188,7 +188,7 @@ async function _pinnedEvents() {
 /** One-source stories with the publisher's own picture (or game art) from the last 36 hours: they join the picks. */
 async function _officialPicks() {
   const { data } = await supabase.from("events").select(EVENT_COLS).eq("hidden", false).lt("source_count", 2).in("image_source", ["press", "igdb"])
-    .not("summary", "is", null).gte("last_article_at", new Date(Date.now() - 36 * 3600_000).toISOString()).order("importance", { ascending: false }).limit(20);
+    .not("summary", "is", null).gte("last_article_at", new Date(Date.now() - 36 * 3600_000).toISOString()).order("importance", { ascending: false }).limit(60);
   return (data ?? []) as EventRow[];
 }
 export const officialPicks = unstable_cache(_officialPicks, ["officialPicks"], { revalidate: 1800, tags: ["list"] });
