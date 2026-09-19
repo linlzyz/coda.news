@@ -32,7 +32,7 @@ function Spark({ s, up }: { s: number[]; up: boolean }) {
   if (s.length < 2) return <span />;
   const min = Math.min(...s), max = Math.max(...s), r = max - min || 1;
   const pts = s.map((v, i) => `${(i / (s.length - 1)) * 64},${20 - ((v - min) / r) * 18 - 1}`).join(" ");
-  return <svg width="100%" height="20" preserveAspectRatio="none" className="block" viewBox="0 0 64 20" aria-hidden="true"><polyline points={pts} fill="none" stroke={up ? "#16A34A" : "#DC2626"} strokeWidth="1.6" strokeLinejoin="round" /></svg>;
+  return <svg width="100%" height="20" preserveAspectRatio="none" className="block" viewBox="0 0 64 20" aria-hidden="true"><polyline points={pts} fill="none" stroke={up ? "#16A34A" : "#DC2626"} strokeWidth="1.6" strokeLinejoin="round" vectorEffect="non-scaling-stroke" /></svg>;
 }
 
 export function Markets({ tabs, updated, title, empty, zh = false }: { tabs: { label: string; quotes: Quote[]; note: string }[]; updated: string; title: string; empty: string; zh?: boolean }) {
