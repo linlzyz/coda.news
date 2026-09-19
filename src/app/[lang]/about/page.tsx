@@ -37,7 +37,7 @@ const EN: [string, string, string[]][] = [
   ["contact", "Contact", [`coda.news is operated by ${SITE.operator} in ${SITE.city}.${SITE.abn ? ` ABN ${SITE.abn}.` : ""} Email: ${SITE.email}. We read every message and aim to reply within two working days.`]],
 ];
 const ZH: [string, string, string[]][] = [
-  ["about", "一件事，全世界怎么看。", [
+  ["about", "一件事，每一种视角。", [
     "coda.news 追踪全球的科技、经济、体育、娱乐和时尚事件，并呈现各国媒体如何报道同一件事。",
     "我们只描述，不评判。每个国家的视角只来自这个国家自己的媒体。我们只做摘要并链接原文，从不转载文章。"]],
   ["who", "谁在运营 coda.news", [

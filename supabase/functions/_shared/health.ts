@@ -1,6 +1,7 @@
 // Daily health report for the site owner (07:00 Melbourne). Recipient: REPORT_EMAIL secret.
 import { db } from "./db.ts";
 import { env, log } from "./env.ts";
+import { qaSummary } from "./qa.ts";
 
 const esc = (s: unknown) => String(s ?? "").replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]!));
 
@@ -35,7 +36,8 @@ export async function sendHealthReport(force = false): Promise<boolean> {
   const [rv] = await sql`select count(*) filter (where review_note like '自动下架%')::int hid, count(*) filter (where review_note like '自动改分类%')::int moved,
       count(*) filter (where review_note like '待确认%' and not hidden)::int ask from events where reviewed_at > now() - interval '24 hours'`;
 
-  const ok = broken.length === 0 && runs[0].bad <= 3 && a.failed < 20 && backlog.n < 500;
+  const qa = await qaSummary().catch(() => ({ n: 0, bad: 0, rate: 0, fields: [] as { field: string; n: number }[], inv: [] as { name: string; n: number; examples: string[] }[] }));
+  const ok = broken.length === 0 && runs[0].bad <= 3 && a.failed < 20 && backlog.n < 500 && qa.inv.length === 0 && qa.rate <= 5;
   const row = (k: string, v: unknown) => `<tr><td style="padding:4px 12px 4px 0;color:#6B7280">${k}</td><td style="padding:4px 0;font-weight:600">${esc(v)}</td></tr>`;
   const html = `<div style="font-family:Helvetica,Arial,sans-serif;color:#16181D;max-width:640px">
   <h2 style="margin:0 0 4px">coda.news 每日健康报告 · ${today}</h2>
@@ -45,6 +47,8 @@ export async function sendHealthReport(force = false): Promise<boolean> {
   ${row("新事件", ev.n)}${row("多国报道的新事件", ev.multi)}${row("暂时没有配图", ev.noimg)}
   ${row("按栏目", cats.map((c) => `${c.category} ${c.n}`).join(" · ") || "无")}
   ${row("自动流程运行次数", `${runs[0].n}（出错 ${runs[0].bad}）`)}${row("AI 免费额度用尽的次数", quota[0].n)}
+  ${row("质量抽检（出错率，目标 2% 以下）", qa.n ? `${qa.rate}%（抽 ${qa.n} 条，有错 ${qa.bad} 条${qa.fields.length ? "：" + qa.fields.map((f) => `${f.field} ${f.n}`).join(" · ") : ""}）` : "暂无")}
+  ${row("固定规则检查", qa.inv.length ? qa.inv.map((h) => `${h.name} ${h.n} 条（如 ${h.examples.slice(0, 2).join("、")}）`).join("；") : "全部通过")}
   ${row("系统自动处理", `下架 ${rv.hid} 条 · 改分类 ${rv.moved} 条`)}${row("需要你确认", rv.ask ? `${rv.ask} 条（打开 coda.news/zh/admin）` : "0 条，不用看后台")}
   ${row("订阅者", `${subs.active}（新增 ${subs.new}，退订 ${subs.gone}）`)}${row("今天的简报发送", brief ? `${brief.recipients} 封` : "未发送（事件不足或尚未到时间）")}
   </table>

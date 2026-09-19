@@ -45,7 +45,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
       <section className="grid items-end gap-8 lg:grid-cols-[1.1fr_1fr]">
         <div>
           <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-neutral-500">{zh ? "新闻里的公司" : "The companies in the news"}</div>
-          <h1 className="mt-3 text-[40px] font-semibold leading-[1.05] tracking-[-0.035em] sm:text-[52px]">{zh ? "每一家公司，" : "Every company,"}<br />{zh ? "全世界怎么看。" : "every perspective."}</h1>
+          <h1 className="mt-3 text-[40px] font-semibold leading-[1.05] tracking-[-0.035em] sm:text-[52px]">{zh ? "每一家公司，" : "Every company,"}<br />{zh ? "每一种视角。" : "every perspective."}</h1>
           <p className="mt-4 max-w-[560px] text-[16px] leading-relaxed text-neutral-600">{zh ? "它们是谁、来自哪里，以及各国媒体最近怎么报道它们。" : "Who they are, where they come from, and how media in each country have been reporting on them."}</p>
         </div>
         <div>

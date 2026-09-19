@@ -21,7 +21,7 @@ import { CategoryLabel } from "@/components/Pills";
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const l = await langFrom(params);
-  return { alternates: alternates("/", l), ...(l === "zh" ? { title: "coda.news · 一件事，全世界怎么看", description: "科技与经济大事，以及世界各国媒体如何报道。" } : {}) };
+  return { alternates: alternates("/", l), ...(l === "zh" ? { title: "coda.news · 一件事，每一种视角", description: "科技与经济大事，以及世界各国媒体如何报道。" } : {}) };
 }
 
 export const revalidate = 3600;

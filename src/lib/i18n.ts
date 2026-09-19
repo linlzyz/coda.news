@@ -13,7 +13,7 @@ export const alternates = (path: string, lang: Lang = "en") => ({
 });
 
 const D = {
-  tagline: ["One story. Every perspective.", "一件事，全世界怎么看。"],
+  tagline: ["One story. Every perspective.", "一件事，每一种视角。"],
   home: ["Home", "首页"], economy: ["Economy", "经济"], technology: ["Technology", "科技"], sport: ["Sport", "体育"], entertainment: ["Entertainment", "娱乐"], fashion: ["Fashion", "时尚"], travel: ["Travel", "旅行"], automotive: ["Automotive", "汽车"], gaming: ["Gaming", "游戏"], china: ["China", "中国"], australia: ["Australia", "澳洲"], companies: ["Companies", "公司"], topics: ["Topics", "话题"],
   newsletter: ["Newsletter", "每日简报"], about: ["About", "关于"],
   promoTitle: ["See every side of the story.", "看见一件事的每一面。"],

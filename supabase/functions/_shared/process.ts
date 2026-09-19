@@ -131,9 +131,10 @@ async function upsertCompanies(names: string[]): Promise<number[]> {
   const sql = db(); const ids: number[] = [];
   for (const raw of names.slice(0, 5)) {
     const name = raw.trim(); if (!name || name.length > 80) continue;
-    const found = await sql<{ id: number }[]>`
-      select id from companies where lower(name) = lower(${name}) or exists (select 1 from unnest(aliases) a where lower(a) = lower(${name})) limit 1`;
-    if (found[0]) { ids.push(found[0].id); continue; }
+    const found = await sql<{ id: number; kind: string }[]>`
+      select id, kind from companies where lower(name) = lower(${name}) or exists (select 1 from unnest(aliases) a where lower(a) = lower(${name})) limit 1`;
+    // names already known to be people, places, works or events are never tagged as companies again
+    if (found[0]) { if (["company", "org"].includes(found[0].kind)) ids.push(found[0].id); continue; }
     const slug = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || `company`;
     const [c] = await sql<{ id: number }[]>`
       insert into companies (name, slug) values (${name}, ${slug})

@@ -28,7 +28,7 @@ export function shell(body: string, unsub: string, zh: boolean) {
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#F4F5F7;padding:24px 12px"><tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff">
 <tr><td style="padding:28px 32px 8px"><a href="${SITE}" style="text-decoration:none;color:#16181D;font-size:26px;font-weight:700;letter-spacing:-0.5px">coda<span style="color:#EA5514">.</span>news</a>
-<div style="font-size:13px;color:#6B7280;margin-top:4px">${zh ? "一件事，全世界怎么看。" : "One story. Every perspective."}</div></td></tr>
+<div style="font-size:13px;color:#6B7280;margin-top:4px">${zh ? "一件事，每一种视角。" : "One story. Every perspective."}</div></td></tr>
 ${body}
 <tr><td style="padding:24px 32px 32px;border-top:1px solid #E5E7EB;font-size:12px;line-height:1.6;color:#6B7280">
 ${zh ? "摘要由 AI 根据所链接的来源生成，请以原文为准。" : "Summaries are AI-generated from the linked sources. Always check the originals."}<br>
