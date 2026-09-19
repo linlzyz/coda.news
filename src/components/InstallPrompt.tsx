@@ -63,7 +63,7 @@ export function InstallPrompt({ zh }: { zh: boolean }) {
 }
 
 function MenuIcon() {
-  return <svg className="mx-0.5 inline-block align-[-3px]" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>;
+  return <svg className="mx-0.5 inline-block align-[-3px]" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h9" /></svg>;
 }
 
 function ShareIcon() {
