@@ -23,15 +23,19 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/company/[s
   if (!c) return {};
   const zh = p.lang === "zh";
   const name = zh && c.name_zh ? `${c.name_zh}（${c.name}）` : c.name;
+  const st = c.story;
+  // search snippet: what the company is, where it came from, and that we track its news across countries
   const description = zh
-    ? `${name}最新新闻，以及各国媒体如何报道。${c.description_zh ?? ""}`
-    : `Latest ${c.name} news and how media in different countries report it.${c.description ? ` ${c.name}: ${c.description}.` : ""}`;
-  // thin pages (unknown to Wikidata, little coverage) stay reachable from stories but out of search engines
+    ? `${name}：${st?.tagline_zh ?? c.description_zh ?? ""}。${c.founded ? `${c.founded} 年成立，` : ""}${c.hq_zh ?? c.hq ? `总部位于${c.hq_zh ?? c.hq}。` : ""}公司简介、发展历程、关键人物，以及各国媒体的最新报道。`
+    : `${c.name}: ${st?.tagline ?? c.description ?? "company profile"}.${c.founded ? ` Founded ${c.founded}` : ""}${c.hq ? `, headquartered in ${c.hq}` : ""}. History, key people and the latest news as reported in each country.`;
+  // thin pages (no profile, no coverage, or not a company at all) stay reachable but out of search engines
   const [dir] = await Promise.all([companyDirectory()]);
   const me = dir.find((x) => x.id === Number(c.id));
-  const robots = me && !notable(me) ? { index: false, follow: true } : undefined;
-  return { title: zh ? `${name}新闻` : `${c.name} news`, description, robots, alternates: alternates(`/company/${c.slug}`, zh ? "zh" : "en"),
-    openGraph: c.logo_url ? { images: [c.logo_url] } : undefined };
+  const thin = !me || !notable(me) || (!st && !c.about_en && me.events === 0);
+  const robots = thin ? { index: false, follow: true } : undefined;
+  const title = zh ? (st ? `${name}：简介、历史与最新新闻` : `${name}新闻`) : (st ? `${c.name}: profile, history and latest news` : `${c.name} news`);
+  return { title, description: description.replace(/\s+/g, " ").slice(0, 300), robots, alternates: alternates(`/company/${c.slug}`, zh ? "zh" : "en"),
+    openGraph: st?.cover ? { images: [st.cover.url] } : c.logo_url ? { images: [c.logo_url] } : undefined };
 }
 
 const EXCH: Record<string, string> = {
@@ -95,6 +99,11 @@ export default async function Page({ params }: PageProps<"/[lang]/company/[slug]
   const ld = { "@context": "https://schema.org", "@type": "Organization", name: c.name, ...(c.name_zh ? { alternateName: c.name_zh } : {}),
     ...(c.website ? { url: c.website } : {}), ...(c.logo_url ? { logo: c.logo_url } : {}), ...(c.description ? { description: c.description } : {}),
     ...(c.founded ? { foundingDate: String(c.founded) } : {}),
+    ...(c.founders ? { founder: c.founders.split(/,\s*/).map((n) => ({ "@type": "Person", name: n })) } : {}),
+    ...(c.hq ? { location: { "@type": "Place", name: c.hq } } : {}),
+    ...(c.ticker ? { tickerSymbol: c.ticker } : {}),
+    ...(parentCo ? { parentOrganization: { "@type": "Organization", name: parentCo.name, url: `https://coda.news/company/${parentCo.slug}` } } : c.parent ? { parentOrganization: { "@type": "Organization", name: c.parent } } : {}),
+    ...(owned.length ? { subOrganization: owned.slice(0, 20).map((x) => ({ "@type": "Organization", name: x.name, url: `https://coda.news/company/${x.slug}` })) } : {}),
     sameAs: [c.wikipedia_en, c.wikipedia_zh, c.wikidata_id && `https://www.wikidata.org/wiki/${c.wikidata_id}`, ...socials.map(([k, , u]) => u((c as unknown as Social)[k]!))].filter(Boolean) };
 
   const newsList = (n: number) => events.slice(0, n).map((e) => (

@@ -6,7 +6,8 @@ export const revalidate = 600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [{ events, topics }, days, dir] = await Promise.all([sitemapRows(), archiveDays(90), companyDirectory()]);
-  const companies = dir.filter(notable);
+  // only company pages with something to read: a profile (description from Wikidata) or our coverage
+  const companies = dir.filter((c) => notable(c) && (c.events > 0 || !!c.description));
   const both = (path: string) => ({ languages: { en: `${BASE}${path}`, "zh-CN": `${BASE}/zh${path === "/" ? "" : path}` } });
   const zh = (entries: MetadataRoute.Sitemap) => entries.map((x) => ({ ...x, url: x.url.replace(BASE, `${BASE}/zh`).replace(/\/zh\/$/, "/zh") }));
   const en: MetadataRoute.Sitemap = [
