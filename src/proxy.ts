@@ -8,8 +8,15 @@ export function proxy(req: NextRequest) {
   if (pathname === "/en" || pathname.startsWith("/en/")) {
     return NextResponse.redirect(new URL(`${pathname.slice(3) || "/"}${search}`, req.url), 308);
   }
-  if (req.method === "GET" && req.cookies.get("lang")?.value === "zh" && !req.headers.get("next-router-prefetch")) {
-    return NextResponse.redirect(new URL(`/zh${pathname === "/" ? "" : pathname}${search}`, req.url), 307);
+  const chosen = req.cookies.get("lang")?.value;
+  // first visit with no choice made yet: a browser whose first language is Chinese gets the Chinese site.
+  // Once the reader picks a language (the EN/中文 switch sets the cookie) that choice always wins. Search bots send no Chinese, so they see English.
+  const firstLang = (req.headers.get("accept-language") ?? "").split(",")[0].trim().toLowerCase();
+  const wantsZh = chosen === "zh" || (!chosen && firstLang.startsWith("zh"));
+  if (req.method === "GET" && wantsZh && !req.headers.get("next-router-prefetch")) {
+    const res = NextResponse.redirect(new URL(`/zh${pathname === "/" ? "" : pathname}${search}`, req.url), 307);
+    if (!chosen) res.cookies.set("lang", "zh", { path: "/", maxAge: 31536000, sameSite: "lax" });
+    return res;
   }
   const url = req.nextUrl.clone();
   url.pathname = `/en${pathname === "/" ? "" : pathname}`;
