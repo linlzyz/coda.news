@@ -13,7 +13,7 @@ export function TopBar({ l }: { l: Lang }) {
         <div className="ml-auto flex items-center gap-2">
           <Link href="/search" className="flex h-10 w-10 items-center justify-center rounded-xl text-neutral-600 sm:hidden" aria-label="Search"><Icon name="search" /></Link>
           <LangSwitch lang={l} />
-          <Link href="/#newsletter" className="hidden rounded-xl bg-[#1F2328] px-4 py-2.5 text-[13px] font-semibold text-white hover:bg-[#2B3038] sm:inline-block">{t(l, "dailyBrief")}</Link>
+          <Link href="/brief" className="hidden rounded-xl bg-[#1F2328] px-4 py-2.5 text-[13px] font-semibold text-white hover:bg-[#2B3038] sm:inline-block">{t(l, "dailyBrief")}</Link>
         </div>
       </div>
       <nav className="flex gap-1 overflow-x-auto px-3 pb-2 lg:hidden">
