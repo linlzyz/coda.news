@@ -1,4 +1,3 @@
-import { Brand } from "./Brand";
 import Link from "@/components/LLink";
 import { t, type Lang } from "@/lib/i18n";
 import { Icon } from "./Icons";
@@ -27,12 +26,6 @@ export function Sidebar({ l }: { l: Lang }) {
         <div className="text-[16px] font-semibold leading-snug tracking-[-0.015em] text-white">{t(l, "promoTitle")}</div>
         <p className="mt-1.5 text-[12px] leading-relaxed text-neutral-300 [@media(max-height:820px)]:hidden">{t(l, "promoText")}</p>
         <Link href="/#newsletter" className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-[#EA5514] px-3.5 py-2 text-[13px] font-semibold text-white hover:bg-[#D24A0F]">{t(l, "joinFree")} <Icon name="arrow" size={14} /></Link>
-      </div>
-      <div className="flex shrink-0 flex-wrap gap-x-3 gap-y-1 px-3 text-[11px] text-neutral-400">
-        <Link href="/legal/terms" className="hover:text-neutral-700">{t(l, "terms")}</Link>
-        <Link href="/legal/privacy" className="hover:text-neutral-700">{t(l, "privacy")}</Link>
-        <Link href="/legal/cookies" className="hover:text-neutral-700">{t(l, "cookies")}</Link>
-        <span className="w-full">© {new Date().getFullYear()} <Brand /></span>
       </div>
     </aside>
   );
