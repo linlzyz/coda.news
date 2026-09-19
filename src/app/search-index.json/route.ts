@@ -1,7 +1,7 @@
 // Lightweight index for instant search suggestions (companies, topics, recent events).
 import { allTopics, companyDirectory, listEvents } from "@/lib/data";
 import { TOPIC_ZH } from "@/lib/i18n";
-export const revalidate = 600;
+export const revalidate = 3600;
 
 export async function GET() {
   const [cos, topics, events] = await Promise.all([companyDirectory(), allTopics(), listEvents({ order: "recent", limit: 300 })]);

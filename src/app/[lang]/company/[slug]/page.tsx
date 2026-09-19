@@ -13,7 +13,7 @@ import { Avatar } from "@/components/Avatar";
 import { CompanyLogo } from "@/components/companies/Logo";
 import { Tabs } from "@/components/companies/Tabs";
 import { sectorLabel } from "@/components/companies/sectors";
-export const revalidate = 300;
+export const revalidate = 86400;
 export async function generateStaticParams() { return []; }
 export const dynamicParams = true;
 

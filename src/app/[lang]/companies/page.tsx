@@ -7,7 +7,7 @@ import { SearchBox } from "@/components/SearchBox";
 import { CompanyLogo } from "@/components/companies/Logo";
 import { Directory } from "@/components/companies/Directory";
 import { SECTORS, SectorIcon, sectorLabel } from "@/components/companies/sectors";
-export const revalidate = 600;
+export const revalidate = 3600;
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const l = await langFrom(params);

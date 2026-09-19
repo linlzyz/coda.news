@@ -10,7 +10,7 @@ import { Flag, Flags } from "@/components/Flag";
 import { CategoryLabel, StatusPill } from "@/components/Pills";
 import { Cover } from "@/components/Cover";
 import { ReportError, ShareBar } from "@/components/EventTools";
-export const revalidate = 600;
+export const revalidate = 3600;
 export async function generateStaticParams() { return []; }
 export const dynamicParams = true;
 

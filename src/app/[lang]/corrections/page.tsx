@@ -1,7 +1,7 @@
 import { correctionStats, listCorrections } from "@/lib/data";
 import { alternates, langFrom } from "@/lib/i18n";
 import Link from "@/components/LLink";
-export const revalidate = 300;
+export const revalidate = 1800;
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const l = await langFrom(params);

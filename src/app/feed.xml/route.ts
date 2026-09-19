@@ -1,7 +1,7 @@
 // RSS feed of the latest events.
 import { sitemapRows } from "@/lib/data";
 
-export const revalidate = 300;
+export const revalidate = 1800;
 const esc = (s: string) => s.replace(/[<>&'"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", "'": "&apos;", '"': "&quot;" }[c]!));
 
 export async function GET() {

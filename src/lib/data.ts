@@ -44,7 +44,7 @@ async function _perspectiveRows(eventIds: number[]) {
   const { data } = await supabase.from("perspectives").select("event_id,country,headline,framing,emphasis,downplayed,tone,article_count,headline_zh,framing_zh,emphasis_zh,downplayed_zh").in("event_id", eventIds);
   return (data ?? []) as (Perspective & { event_id: number })[];
 }
-const perspectiveRows = unstable_cache(_perspectiveRows, ["perspectiveRows"], { revalidate: 60 });
+const perspectiveRows = unstable_cache(_perspectiveRows, ["perspectiveRows"], { revalidate: 1800 });
 export async function getPerspectives(eventIds: number[]) {
   const m = new Map<number, Perspective[]>();
   for (const p of await perspectiveRows(eventIds)) m.set(p.event_id, [...(m.get(p.event_id) ?? []), p]);
@@ -165,7 +165,7 @@ async function _indices(grp = "indices") {
   const { data } = await supabase.from("market_series").select("name,value,change,series,digits,as_of").eq("grp", grp).order("sort");
   return (data ?? []) as { name: string; value: number; change: number; series: number[]; digits: number; as_of: string }[];
 }
-export const indices = unstable_cache(_indices, ["indices"], { revalidate: 600 });
+export const indices = unstable_cache(_indices, ["indices"], { revalidate: 3600 });
 
 async function _sitemapRows() {
   const [ev, co, tp] = await Promise.all([
@@ -178,22 +178,22 @@ async function _sitemapRows() {
     companies: (co.data ?? []) as { slug: string }[], topics: (tp.data ?? []) as { slug: string }[],
   };
 }
-export const sitemapRows = unstable_cache(_sitemapRows, ["sitemapRows"], { revalidate: 600 });
+export const sitemapRows = unstable_cache(_sitemapRows, ["sitemapRows"], { revalidate: 3600 });
 
 // Cached reads: shared across requests for 60s, so switching language or pages does not wait for the database.
-export const listEvents = unstable_cache(_listEvents, ["listEvents"], { revalidate: 60 });
-export const getEvent = unstable_cache(_getEvent, ["getEvent"], { revalidate: 60 });
-export const getLatestSummary = unstable_cache(_getLatestSummary, ["getLatestSummary"], { revalidate: 60 });
-export const getFacts = unstable_cache(_getFacts, ["getFacts"], { revalidate: 60 });
-export const getArticles = unstable_cache(_getArticles, ["getArticles"], { revalidate: 60 });
-export const latestUpdates = unstable_cache(_latestUpdates, ["latestUpdates"], { revalidate: 60 });
-export const allTopics = unstable_cache(_allTopics, ["allTopics"], { revalidate: 300 });
-export const companiesByIds = unstable_cache(_companiesByIds, ["companiesByIds"], { revalidate: 60 });
-export const getCompany = unstable_cache(_getCompany, ["getCompany"], { revalidate: 300 });
-export const getTopic = unstable_cache(_getTopic, ["getTopic"], { revalidate: 300 });
-export const stats = unstable_cache(_stats, ["stats"], { revalidate: 300 });
-export const trendingCompanies = unstable_cache(_trendingCompanies, ["trendingCompanies"], { revalidate: 300 });
-export const searchEvents = unstable_cache(_searchEvents, ["searchEvents"], { revalidate: 60 });
+export const listEvents = unstable_cache(_listEvents, ["listEvents"], { revalidate: 300 });
+export const getEvent = unstable_cache(_getEvent, ["getEvent"], { revalidate: 1800 });
+export const getLatestSummary = unstable_cache(_getLatestSummary, ["getLatestSummary"], { revalidate: 1800 });
+export const getFacts = unstable_cache(_getFacts, ["getFacts"], { revalidate: 1800 });
+export const getArticles = unstable_cache(_getArticles, ["getArticles"], { revalidate: 1800 });
+export const latestUpdates = unstable_cache(_latestUpdates, ["latestUpdates"], { revalidate: 600 });
+export const allTopics = unstable_cache(_allTopics, ["allTopics"], { revalidate: 3600 });
+export const companiesByIds = unstable_cache(_companiesByIds, ["companiesByIds"], { revalidate: 3600 });
+export const getCompany = unstable_cache(_getCompany, ["getCompany"], { revalidate: 86400 });
+export const getTopic = unstable_cache(_getTopic, ["getTopic"], { revalidate: 86400 });
+export const stats = unstable_cache(_stats, ["stats"], { revalidate: 3600 });
+export const trendingCompanies = unstable_cache(_trendingCompanies, ["trendingCompanies"], { revalidate: 3600 });
+export const searchEvents = unstable_cache(_searchEvents, ["searchEvents"], { revalidate: 900 });
 
 export async function reportError(eventId: number, kind: string, note: string, lang: string) {
   await supabase.from("feedback").insert({ event_id: eventId, kind: kind.slice(0, 20), note: note.slice(0, 1500) || null, lang });
@@ -235,8 +235,8 @@ async function _eventCorrections(eventId: number) {
   const { data } = await supabase.from("corrections").select("id,event_slug,event_title,kind,detail_en,detail_zh,created_at").eq("event_id", eventId).neq("kind", "verified").order("created_at", { ascending: false }).limit(20);
   return (data ?? []) as Correction[];
 }
-export const listCorrections = unstable_cache(_listCorrections, ["listCorrections"], { revalidate: 300 });
-export const eventCorrections = unstable_cache(_eventCorrections, ["eventCorrections"], { revalidate: 120 });
+export const listCorrections = unstable_cache(_listCorrections, ["listCorrections"], { revalidate: 1800 });
+export const eventCorrections = unstable_cache(_eventCorrections, ["eventCorrections"], { revalidate: 3600 });
 
 // ---- archive by day (Melbourne time) ----
 async function _eventsOnDay(day: string) {
@@ -259,8 +259,8 @@ async function _archiveDays(days = 90) {
   }
   return [...counts.entries()].sort((a, b) => b[0].localeCompare(a[0]));
 }
-export const eventsOnDay = unstable_cache(_eventsOnDay, ["eventsOnDay"], { revalidate: 600 });
-export const archiveDays = unstable_cache(_archiveDays, ["archiveDays"], { revalidate: 1800 });
+export const eventsOnDay = unstable_cache(_eventsOnDay, ["eventsOnDay"], { revalidate: 3600 });
+export const archiveDays = unstable_cache(_archiveDays, ["archiveDays"], { revalidate: 3600 });
 
 // ---- companies directory ----
 export type CompanyCard = { id: number; name: string; name_zh: string | null; slug: string; sector: string | null; country: string | null;
@@ -279,7 +279,7 @@ async function _companyDirectory() {
   }
   return rows.map((r) => ({ ...r, id: Number(r.id), ...(stats.get(Number(r.id)) ?? { events: 0, last_at: null }) })) as CompanyCard[];
 }
-export const companyDirectory = unstable_cache(_companyDirectory, ["companyDirectory"], { revalidate: 600 });
+export const companyDirectory = unstable_cache(_companyDirectory, ["companyDirectory"], { revalidate: 3600 });
 
 /** Directory shows notable companies only: known to Wikidata, or covered in at least 3 events. */
 /** Leagues, regulators, central banks and the like are in the news but are not companies: never listed. */

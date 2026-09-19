@@ -1,7 +1,7 @@
 import { getPerspectives, listEvents } from "@/lib/data";
 import { langFrom } from "@/lib/i18n";
 import { CopyText } from "@/components/CopyText";
-export const revalidate = 600;
+export const revalidate = 3600;
 export const metadata = { title: "Social posts", robots: { index: false, follow: false } };
 
 // Internal page: today's best stories as ready-to-post 4:5 carousels (cover + country comparison) with captions.

@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { archiveDays, companyDirectory, notable, sitemapRows } from "@/lib/data";
 
 const BASE = "https://coda.news";
-export const revalidate = 600;
+export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [{ events, topics }, days, dir] = await Promise.all([sitemapRows(), archiveDays(90), companyDirectory()]);

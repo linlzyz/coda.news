@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   return { alternates: alternates("/", l), ...(l === "zh" ? { title: "coda.news · 一件事，全世界怎么看", description: "科技与经济大事，以及世界各国媒体如何报道。" } : {}) };
 }
 
-export const revalidate = 300;
+export const revalidate = 600;
 
 export default async function Home({ params }: PageProps<"/[lang]">) {
   const CATS = ["economy", "technology", "sport", "entertainment", "fashion", "travel", "automotive", "gaming"] as const;

@@ -3,7 +3,7 @@ import "server-only";
 export interface Quote { name: string; value: number; change: number; series: number[]; digits: number }
 
 async function j(url: string) {
-  const r = await fetch(url, { next: { revalidate: 300 }, signal: AbortSignal.timeout(8000) });
+  const r = await fetch(url, { next: { revalidate: 900 }, signal: AbortSignal.timeout(8000) });
   if (!r.ok) throw new Error(String(r.status));
   return r.json();
 }
