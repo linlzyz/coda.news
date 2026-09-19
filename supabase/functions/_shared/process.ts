@@ -51,8 +51,12 @@ export async function processBatch(): Promise<{ claimed: number; relevant: numbe
     const byI = new Map(items.map((x) => [Number(x.i), x]));
 
     const relevant = rows.map((r, k) => ({ r, x: byI.get(k) })).filter((o) => o.x?.relevant && o.x.event);
-    const irrelevant = rows.filter((_, k) => !byI.get(k)?.relevant || !byI.get(k)?.event).map((r) => r.id);
+    // only an explicit "relevant": false drops an article; one the model left out of its answer goes back in the queue
+    // (it used to be dropped, which silently lost about three quarters of the news, e.g. the iPhone 18 launch coverage)
+    const irrelevant = rows.filter((_, k) => { const x = byI.get(k); return x && (x.relevant === false || (x.relevant && !x.event)); }).map((r) => r.id);
+    const missing = rows.filter((_, k) => !byI.has(k)).map((r) => r.id);
     if (irrelevant.length) await sql`update articles set status = 'skipped', full_text = null where id in ${sql(irrelevant)}`;
+    if (missing.length) await sql`update articles set status = case when attempts >= 3 then 'failed' else 'pending' end, error = 'left out of AI answer' where id in ${sql(missing)}`;
 
     const vectors = await embed(relevant.map(({ x }) => `${x!.event}\n${x!.headline_en}`));
     let newEvents = 0, matched = 0;
