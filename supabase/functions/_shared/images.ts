@@ -295,10 +295,10 @@ export async function assignImages(limit = 12): Promise<number> {
   if (people.length) log(`images: ${swapped}/${people.length} person portraits`);
 
   // 1b) games, cars, tech products, travel, films: the publicity image used by the story's own article
-  const press = await sql<{ id: number; url: string; source: string }[]>`
-    select e.id, a.url, s.name as source from events e
-    join lateral (select a.url, a.source_id from articles a where a.event_id = e.id order by a.published_at desc limit 1) a on true
-    join sources s on s.id = a.source_id
+  const press = await sql<{ id: number; arts: { url: string; source: string }[] }[]>`
+    select e.id, (select json_agg(x) from (select a.url, s.name as source from articles a join sources s on s.id = a.source_id
+                   where a.event_id = e.id order by s.type = 'official' desc, a.published_at desc limit 4) x) as arts
+    from events e
     where e.press_checked_at is null and e.summary is not null and e.status <> 'archived'
       -- games and cars: sites run the maker's press shots; films, shows and products only for launches, trailers and reveals (not people stories)
       and (e.category in ('gaming','automotive')
@@ -308,10 +308,14 @@ export async function assignImages(limit = 12): Promise<number> {
     order by e.last_article_at desc limit 25`;
   let pressN = 0;
   for (const p of press) {
-    const img = await pressImage(p.url);
-    const dup = img ? (await sql`select 1 from events where image_url = ${img} limit 1`).length > 0 : false;
-    if (img && !dup) {
-      await sql`update events set image_url = ${img}, image_credit = ${p.source}, image_link = ${p.url}, image_source = 'press', image_license = 'Publicity image',
+    // every article in the story, official ones first: one site blocking us should not leave the story without its image
+    let img: string | null = null, from: { url: string; source: string } | null = null;
+    for (const a of p.arts ?? []) {
+      const x = await pressImage(a.url);
+      if (x && !(await sql`select 1 from events where image_url = ${x} limit 1`).length) { img = x; from = a; break; }
+    }
+    if (img && from) {
+      await sql`update events set image_url = ${img}, image_credit = ${from.source}, image_link = ${from.url}, image_source = 'press', image_license = 'Publicity image',
                 image_license_url = null, image_focus = null, image_checked_at = now(), brand_checked_at = now(), press_checked_at = now() where id = ${p.id}`;
       pressN++;
     } else await sql`update events set press_checked_at = now() where id = ${p.id}`;
