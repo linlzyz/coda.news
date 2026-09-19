@@ -176,7 +176,7 @@ async function personPhoto(name: string, eventId: number): Promise<Img | null> {
   const ids: string[] = (s.search ?? []).map((x: { id: string }) => x.id);
   if (!ids.length) return null;
   const j = await (await fetch(`${w}action=wbgetentities&ids=${ids.join("|")}&props=labels|aliases|claims&languages=en|mul`, { headers: UA, signal: AbortSignal.timeout(10000) })).json();
-  const norm = (x: string) => x.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  const norm = (x: string) => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
   // deno-lint-ignore no-explicit-any
   const person = ids.map((id) => j.entities?.[id]).find((e: any) => e &&
     (e.claims?.P31 ?? []).some((c: any) => c.mainsnak?.datavalue?.value?.id === "Q5") && e.claims?.P18 &&
@@ -184,8 +184,7 @@ async function personPhoto(name: string, eventId: number): Promise<Img | null> {
   if (!person) return null;
   // only the portrait Wikidata editors chose for this person (P18); other Commons files are too often group shots or CD covers
   const files = new Set<string>();
-  const p18 = person.claims?.P18?.[0]?.mainsnak?.datavalue?.value as string | undefined;
-  if (p18) files.add("File:" + p18);
+  for (const c of person.claims?.P18 ?? []) { const f = c?.mainsnak?.datavalue?.value; if (typeof f === "string" && c.rank !== "deprecated") files.add("File:" + f); }
   if (!files.size) return null;
   const ii = await (await fetch(`https://commons.wikimedia.org/w/api.php?format=json&action=query&titles=${encodeURIComponent([...files].slice(0, 30).join("|"))}&prop=imageinfo&iiprop=url|size|mime|extmetadata&iiurlwidth=1600`, { headers: UA, signal: AbortSignal.timeout(12000) })).json();
   // deno-lint-ignore no-explicit-any
@@ -199,8 +198,7 @@ async function personPhoto(name: string, eventId: number): Promise<Img | null> {
     const lic = String(m.LicenseShortName?.value ?? "");
     const artist = String(m.Artist?.value ?? "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().slice(0, 60) || "Unknown";
     const url = info.thumburl ?? info.url;
-    const used = await sql`select 1 from events where image_url = ${url} and id <> ${eventId} limit 1`;
-    if (used.length) continue;   // never reuse a photo
+    void sql; void eventId;   // the same person's portrait may appear on several of their stories
     return { url, credit: `${artist} / Wikimedia Commons (${lic})`, link: info.descriptionurl, source: "commons", license: lic, licenseUrl: String(m.LicenseUrl?.value ?? "") || undefined };
   }
   return null;

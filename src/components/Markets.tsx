@@ -25,14 +25,14 @@ function flagsOf(name: string): string[] {
 }
 function Flg({ c }: { c: string }) {
   const F = FLAGS[c]; if (!F) return null;
-  return <F style={{ width: 15, height: 10, borderRadius: 2, boxShadow: "0 0 0 1px rgba(22,24,29,.12)" }} aria-hidden="true" className="inline-block shrink-0" />;
+  return <F style={{ width: 12, height: 8, borderRadius: 1.5, boxShadow: "0 0 0 1px rgba(22,24,29,.12)" }} aria-hidden="true" className="inline-block shrink-0" />;
 }
 
 function Spark({ s, up }: { s: number[]; up: boolean }) {
-  if (s.length < 2) return <span className="w-[64px]" />;
+  if (s.length < 2) return <span className="w-[44px]" />;
   const min = Math.min(...s), max = Math.max(...s), r = max - min || 1;
   const pts = s.map((v, i) => `${(i / (s.length - 1)) * 64},${20 - ((v - min) / r) * 18 - 1}`).join(" ");
-  return <svg width="64" height="20" viewBox="0 0 64 20" aria-hidden="true"><polyline points={pts} fill="none" stroke={up ? "#16A34A" : "#DC2626"} strokeWidth="1.6" strokeLinejoin="round" /></svg>;
+  return <svg width="44" height="20" preserveAspectRatio="none" viewBox="0 0 64 20" aria-hidden="true"><polyline points={pts} fill="none" stroke={up ? "#16A34A" : "#DC2626"} strokeWidth="1.6" strokeLinejoin="round" /></svg>;
 }
 
 export function Markets({ tabs, updated, title, empty, zh = false }: { tabs: { label: string; quotes: Quote[]; note: string }[]; updated: string; title: string; empty: string; zh?: boolean }) {
@@ -50,14 +50,14 @@ export function Markets({ tabs, updated, title, empty, zh = false }: { tabs: { l
       <div className="mt-2">
         {cur.quotes.length === 0 && <p className="py-4 text-[13px] text-neutral-500">{empty}</p>}
         {cur.quotes.map((q) => (
-          <div key={q.name} className="grid grid-cols-[112px_56px_minmax(0,1fr)_62px] items-center gap-2 py-2 text-[13px]">
-            <span className="flex min-w-0 items-center gap-1.5 font-semibold" title={INFO[q.name] ? (zh ? INFO[q.name].zh : INFO[q.name].en) : undefined}>
-              {flagsOf(q.name).length > 0 && <span className="flex shrink-0 -space-x-1">{flagsOf(q.name).map((c) => <Flg key={c} c={c} />)}</span>}
-              <span className="truncate">{q.name}</span>
+          <div key={q.name} className="grid grid-cols-[minmax(0,1fr)_44px_auto_54px] items-center gap-2 py-2 text-[13px]">
+            <span className="flex min-w-0 items-center gap-1 font-semibold" title={INFO[q.name] ? (zh ? INFO[q.name].zh : INFO[q.name].en) : undefined}>
+              {flagsOf(q.name).length > 0 && <span className="flex shrink-0 -space-x-0.5">{flagsOf(q.name).map((c) => <Flg key={c} c={c} />)}</span>}
+              <span className="truncate text-[12px]">{q.name}</span>
             </span>
             <Spark s={q.series} up={q.change >= 0} />
-            <span className="text-right tabular-nums">{q.value.toLocaleString("en-US", { minimumFractionDigits: q.digits, maximumFractionDigits: q.digits })}</span>
-            <span className={`text-right text-[12px] font-semibold tabular-nums ${q.change >= 0 ? "text-green-600" : "text-red-600"}`}>{q.change >= 0 ? "▲" : "▼"} {Math.abs(q.change).toFixed(2)}%</span>
+            <span className="whitespace-nowrap text-right tabular-nums">{q.value.toLocaleString("en-US", { minimumFractionDigits: q.digits, maximumFractionDigits: q.digits })}</span>
+            <span className={`whitespace-nowrap text-right text-[11px] font-semibold tabular-nums ${q.change >= 0 ? "text-green-600" : "text-red-600"}`}>{q.change >= 0 ? "▲" : "▼"} {Math.abs(q.change).toFixed(2)}%</span>
           </div>
         ))}
       </div>
