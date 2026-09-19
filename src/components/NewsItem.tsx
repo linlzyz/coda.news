@@ -59,15 +59,21 @@ function Meta({ e, lang }: { e: EventRow; lang: Lang }) {
   );
 }
 
-/** The few stories worth a picture: several sources, important, with a proper image. */
+/** Picks: the most important stories covered by several sources (a photo helps but is not required),
+ *  plus a couple of magazine reads (travel, fashion, design) so the picks are not all hard news. */
 export function pickFeatured(events: EventRow[], n: number, skip: Set<number> = new Set()): EventRow[] {
-  return events
-    .filter((e) => !skip.has(e.id) && e.source_count >= 2 && e.image_url && Date.now() - Date.parse(e.last_article_at) < 48 * 3600_000)
+  const fresh = (e: EventRow, h: number) => Date.now() - Date.parse(e.last_article_at) < h * 3600_000;
+  const news = events
+    .filter((e) => !skip.has(e.id) && e.source_count >= 2 && fresh(e, 48))
     .sort((a, b) => (b.importance ?? 0) - (a.importance ?? 0) || b.countries.length - a.countries.length || b.source_count - a.source_count)
-    // the top few by importance, then real photos ahead of logos so the row is not four logos
     .slice(0, n * 3)
-    .sort((a, b) => Number(a.image_focus === "logo") - Number(b.image_focus === "logo"))
+    .sort((a, b) => Number(!!b.image_url && b.image_focus !== "logo") - Number(!!a.image_url && a.image_focus !== "logo"))
     .slice(0, n);
+  const mags = events
+    .filter((e) => !skip.has(e.id) && !news.includes(e) && ["travel", "fashion"].includes(e.category) && e.summary && fresh(e, 72))
+    .sort((a, b) => Number(!!b.image_url) - Number(!!a.image_url) || (b.importance ?? 0) - (a.importance ?? 0))
+    .slice(0, Math.max(1, Math.round(n / 2)));
+  return [...news, ...mags];
 }
 
 export function FeaturedCards({ events, lang, heading }: { events: EventRow[]; lang: Lang; heading: string }) {
@@ -77,7 +83,7 @@ export function FeaturedCards({ events, lang, heading }: { events: EventRow[]; l
       <h2 className="border-b border-[#E5E7EB] py-3 text-[22px] font-semibold tracking-[-0.02em]">{heading}</h2>
       <div>
         {events.map((e) => (
-          <article key={e.id} className="grid grid-cols-[104px_minmax(0,1fr)] gap-3 border-b border-[#E5E7EB] py-4 sm:grid-cols-[240px_minmax(0,1fr)] sm:gap-5 sm:py-5">
+          e.image_url ? <article key={e.id} className="grid grid-cols-[104px_minmax(0,1fr)] gap-3 border-b border-[#E5E7EB] py-4 sm:grid-cols-[240px_minmax(0,1fr)] sm:gap-5 sm:py-5">
             <Link href={`/event/${e.slug}`} className="block"><Cover e={e} className="aspect-[4/3] w-full rounded-xl sm:aspect-auto sm:h-[150px] sm:rounded-2xl" /></Link>
             <div className="flex min-w-0 flex-col">
               <h3 className="text-[16px] font-semibold leading-snug tracking-[-0.015em] text-[#16181D] sm:text-[19px]">
@@ -86,7 +92,16 @@ export function FeaturedCards({ events, lang, heading }: { events: EventRow[]; l
               {summary(e, lang) && <p className="mt-1.5 hidden text-[14px] leading-relaxed text-neutral-600 sm:line-clamp-2">{summary(e, lang)}</p>}
               <div className="mt-auto"><Meta e={e} lang={lang} /></div>
             </div>
+          </article> : (
+          // no suitable picture: a text card, same weight, orange rule instead of a photo
+          <article key={e.id} className="border-b border-[#E5E7EB] py-4 sm:py-5">
+            <div className="border-l-4 border-[#EA5514] pl-4 sm:pl-5">
+              <h3 className="text-[16px] font-semibold leading-snug tracking-[-0.015em] text-[#16181D] sm:text-[19px]"><Link href={`/event/${e.slug}`} className="hover:text-[#C2410C]">{title(e, lang)}</Link></h3>
+              {summary(e, lang) && <p className="mt-1.5 line-clamp-3 text-[14px] leading-relaxed text-neutral-600">{summary(e, lang)}</p>}
+              <Meta e={e} lang={lang} />
+            </div>
           </article>
+        )
         ))}
       </div>
     </section>

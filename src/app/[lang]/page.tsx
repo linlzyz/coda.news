@@ -44,7 +44,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   const divided = multi.filter((e) => e.id !== top?.id)
     .sort((a, b) => new Set((persp.get(b.id) ?? []).map((p) => p.tone)).size - new Set((persp.get(a.id) ?? []).map((p) => p.tone)).size).slice(0, 4);
   // 4 key stories with pictures up top (picked for importance and sources, not for having a photo); everything else is the uniform Latest list
-  const key = pickFeatured([...events, ...byCat.flat()].filter((e, i, a) => a.findIndex((x) => x.id === e.id) === i), 4, new Set([top?.id ?? 0]));
+  const key = pickFeatured([...events, ...byCat.flat()].filter((e, i, a) => a.findIndex((x) => x.id === e.id) === i), 4, new Set([top?.id ?? 0]));   // 4 news + 2 magazine reads
   const keyIds = new Set([top?.id ?? 0, ...key.map((e) => e.id)]);
   const list = events.filter((e) => !keyIds.has(e.id)).slice(0, 75);
   const inList = new Set(list.map((e) => e.id));
