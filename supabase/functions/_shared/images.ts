@@ -39,8 +39,10 @@ const relevant = (q: string, text: string, all = false) => {
   const t = ` ${text.toLowerCase()} `;
   const hit = (w: string) => t.includes(w.replace(/s$/, ""));
   // stock libraries: at least two of the query's words (or all, if it has fewer), so "trading cards" never finds a card magician
+  if (GRIM.test(t)) return false;   // never a sad or morbid picture, whatever the query matched
   return words.length > 0 && (all ? words.every(hit) : words.filter(hit).length >= Math.min(2, words.length));
 };
+const GRIM = /\b(grave|graves|gravestone|tombstone|tomb|cemetery|graveyard|burial|funeral|coffin|memorial|mourning|skull|skeleton|death|dead|war|soldier|ruin|ruins|abandoned|derelict|decay|rubble|disaster|flood|fire|smoke|protest|riot|police|prison|hospital|sick|blood|injury|crash|accident|trash|garbage|pollution)s?\b/i;
 // open archives (Commons, Openverse) hold documentary photos of protests, wars and people; they must match every word, and never show these
 const SENSITIVE = /\b(protest|rally in support|demonstrat|riot\b|war\b|soldier|military|funeral|victim|refugee|police|arrest|blood|weapon|gun\b|guns\b|flag of|ukrain|russia|israel|gaza|palestin|politic|election|campaign|march for|strike\b)/i;
 
@@ -228,7 +230,7 @@ async function fillQueries(max = 80) {
     and status <> 'archived' order by last_article_at desc limit ${max}`;
   if (!rows.length) return;
   const prompt = `For each news headline:
-q = 2 to 4 English words for a stock photo that shows what the story is about (the activity, place or object), e.g. "fitness race athletes", "steam locomotive", "tokyo stock exchange", "fashion runway". No brand or person names.
+q = 2 to 4 English words for a stock photo that shows what the story is about (the activity, place or object), e.g. "fitness race athletes", "steam locomotive", "tokyo stock exchange", "fashion runway". No brand or person names. For travel stories use an inviting scenic view of the place, e.g. "dubrovnik old town coast", "kyoto temple garden", "luxury hotel pool".
 Write q = "" when a generic stock photo would be wrong or tasteless: a person's illness, health, surgery, death, grief, relationships, pregnancy, crime, court case or scandal, and any story that is really about one person.
 p = the full name of the one well-known person the story is about, or "".
 b = the one brand, franchise or company the story is mainly about (e.g. "Pokémon", "Dior", "Toyota"), or "".
