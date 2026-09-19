@@ -39,7 +39,7 @@ export async function tick(budgetMs = 120_000, opts: { skipIngest?: boolean } = 
   } catch (e) { report.stopped = (e as Error).message.slice(0, 200); }
   if (left() > 20_000) await step("translate", () => translateMissing(30));
   if (left() > 15_000) await step("translateFacts", () => translateFacts(60));
-  if (left() > 10_000) await step("images", () => assignImages(12));
+  if (left() > 10_000) await step("images", () => assignImages(60));
   if (left() > 8_000) await step("companies", () => enrichCompanies(25));
   await step("markets", () => refreshIndices());
   await step("welcome", sendWelcomes);

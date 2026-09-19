@@ -5,6 +5,7 @@
 // Stock photos are searched with scene words only (never company, product or person names), and a photo is never reused.
 import { db } from "./db.ts";
 import { env, log } from "./env.ts";
+import { cheapJSON } from "./ai.ts";
 
 type Img = { url: string; credit: string; link: string; source?: string; license?: string; licenseUrl?: string };
 
@@ -213,8 +214,27 @@ async function find(queries: string[], placeFirst = false): Promise<Img | null> 
   return null;
 }
 
+// Stories without a scene description get one from the cheap model (title only), so the stock search has something specific to look for.
+async function fillQueries(max = 80) {
+  const sql = db();
+  const rows = await sql<{ id: number; title: string }[]>`select id, title from events where summary is not null and coalesce(image_query, '') = '' and image_url is null
+    and status <> 'archived' order by last_article_at desc limit ${max}`;
+  if (!rows.length) return;
+  const prompt = `For each news headline, write 2 to 4 English words for a stock photo that shows what the story is about (the activity, place or object), e.g. "fitness race athletes", "steam locomotive", "tokyo stock exchange", "fashion runway". No brand or person names.
+Return JSON only, one entry for EVERY item: {"r":{"1":"...","2":"..."}}
+${rows.map((r, k) => `${k + 1}. ${r.title}`).join("\n")}`;
+  try {
+    const res = await cheapJSON<{ r?: Record<string, string> }>(prompt);
+    for (const [k, r] of rows.entries()) {
+      const q = String(res.r?.[String(k + 1)] ?? "").replace(/[^\p{L}\p{N} -]/gu, " ").trim().slice(0, 60);
+      if (q) await sql`update events set image_query = ${q}, image_checked_at = null where id = ${r.id}`;
+    }
+  } catch (e) { log("image queries:", (e as Error).message.slice(0, 120)); }
+}
+
 export async function assignImages(limit = 12): Promise<number> {
   const sql = db();
+  await fillQueries();
   // 1) stories about one well-known person: swap a stock photo (or nothing) for a real, free portrait of them
   const people = await sql<{ id: number; image_person: string; title: string; image_focus: string | null }[]>`
     select id, image_person, title, image_focus from events where image_person is not null and person_checked_at is null and summary is not null
