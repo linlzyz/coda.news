@@ -267,7 +267,7 @@ async function pressImage(url: string): Promise<string | null> {
     if (!/^https:/.test(img) || AGENCY.test(img) || NOT_ART.test(img)) return null;
     // the page's own credit line near the top mentions an agency: skip
     if (AGENCY.test(html.slice(0, 200_000).match(/(photo|image|credit)[^<]{0,80}/gi)?.join(" ") ?? "")) return null;
-    const h = await fetch(img, { method: "GET", headers: { "user-agent": BOT, range: "bytes=0-0" }, signal: AbortSignal.timeout(6000) });
+    const h = await fetch(img, { method: "GET", headers: { "user-agent": "Mozilla/5.0", referer: "https://coda.news/", range: "bytes=0-0" }, signal: AbortSignal.timeout(6000) });
     const type = h.headers.get("content-type") ?? "";
     const size = Number(h.headers.get("content-range")?.split("/")[1] ?? h.headers.get("content-length") ?? 0);
     await h.body?.cancel();

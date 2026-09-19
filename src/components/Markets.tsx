@@ -50,7 +50,7 @@ export function Markets({ tabs, updated, title, empty, zh = false }: { tabs: { l
       <div className="mt-2">
         {cur.quotes.length === 0 && <p className="py-4 text-[13px] text-neutral-500">{empty}</p>}
         {cur.quotes.map((q) => (
-          <div key={q.name} className="grid grid-cols-[minmax(0,1fr)_44px_auto_54px] items-center gap-2 py-2 text-[13px]">
+          <div key={q.name} className="grid grid-cols-[minmax(0,1fr)_44px_84px_58px] items-center gap-2 py-2 text-[13px]">
             <span className="flex min-w-0 items-center gap-1 font-semibold" title={INFO[q.name] ? (zh ? INFO[q.name].zh : INFO[q.name].en) : undefined}>
               {flagsOf(q.name).length > 0 && <span className="flex shrink-0 -space-x-0.5">{flagsOf(q.name).map((c) => <Flg key={c} c={c} />)}</span>}
               <span className="truncate text-[12px]">{q.name}</span>
