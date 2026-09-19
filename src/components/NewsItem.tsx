@@ -45,7 +45,7 @@ function SingleItem({ e, companies, lang, sum }: { e: EventRow; companies?: Map<
       <summary className="grid cursor-pointer list-none grid-cols-[minmax(0,1fr)_auto] gap-4 py-4 [&::-webkit-details-marker]:hidden">
         <div className="min-w-0">
           <h3 className="text-[16px] font-semibold leading-snug text-[#16181D] group-hover:text-[#C2410C]">{title(e, lang)}</h3>
-          {sum && <p className="mt-1 line-clamp-2 text-[14px] leading-relaxed text-neutral-600 group-open:line-clamp-none">{sum}</p>}
+          {sum && <p className={`mt-1 line-clamp-2 text-[14px] leading-relaxed text-neutral-600${pts.length ? " group-open:hidden" : " group-open:line-clamp-none"}`}>{sum}</p>}
           <div className="mt-2 flex items-center gap-2 text-[12px] text-neutral-500">
             <CategoryLabel category={e.category} lang={lang} />
             <span>{timeAgoL(e.last_article_at, lang)}</span>
@@ -64,9 +64,13 @@ function SingleItem({ e, companies, lang, sum }: { e: EventRow; companies?: Map<
           </div>
         )}
         {pts.length > 0 && (
-          <ul className="space-y-1.5 text-[14px] leading-relaxed text-neutral-800">
-            {pts.map((p, k) => <li key={k} className="flex gap-2"><span className="mt-[9px] h-1 w-1 shrink-0 rounded-full bg-neutral-400" />{p}</li>)}
-          </ul>
+          // our own AI summary, boxed and labelled so it is never mistaken for the outlet's text
+          <div className="rounded-xl border border-[#E5E7EB] bg-[#FAFAFB] px-4 py-3">
+            <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-neutral-500">{zh ? "coda.news AI 摘要" : "coda.news AI summary"}</div>
+            <ul className="space-y-1.5 text-[14px] leading-relaxed text-neutral-800">
+              {pts.map((p, k) => <li key={k} className="flex gap-2"><span className="mt-[9px] h-1 w-1 shrink-0 rounded-full bg-neutral-400" />{p}</li>)}
+            </ul>
+          </div>
         )}
         {cos.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-1.5 text-[12px]">
