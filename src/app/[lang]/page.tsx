@@ -1,7 +1,7 @@
 import { dayLabel } from "@/lib/loc";
 import { orgLd } from "@/lib/site";
 import Link from "@/components/LLink";
-import { allTopics, pinnedEvents, companyMap, indices, getPerspectives, listEvents, trendingCompanies, type EventRow, type Perspective } from "@/lib/data";
+import { allTopics, pinnedEvents, officialPicks, companyMap, indices, getPerspectives, listEvents, trendingCompanies, type EventRow, type Perspective } from "@/lib/data";
 import { crypto, fx } from "@/lib/markets";
 import { Cover } from "@/components/Cover";
 import { Flag, Flags } from "@/components/Flag";
@@ -27,8 +27,8 @@ export const revalidate = 3600;
 
 export default async function Home({ params }: PageProps<"/[lang]">) {
   const CATS = ["economy", "technology", "sport", "entertainment", "fashion", "travel", "automotive", "gaming"] as const;
-  const [events, pinnedList, topics, trending, cq, fq, ...byCat] = await Promise.all([
-    listEvents({ limit: 36 }), pinnedEvents(), allTopics(), trendingCompanies(10), crypto(), fx(),
+  const [events, pinnedList, official, topics, trending, cq, fq, ...byCat] = await Promise.all([
+    listEvents({ limit: 36 }), pinnedEvents(), officialPicks(), allTopics(), trendingCompanies(10), crypto(), fx(),
     // each tab gets its own list, same as its section page (the main list is dominated by the biggest economy/tech stories)
     ...CATS.map((c) => listEvents({ category: c, limit: 6 })),   // only for the picks (magazine reads)
   ]);
@@ -44,7 +44,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   const divided = multi.filter((e) => e.id !== top?.id)
     .sort((a, b) => new Set((persp.get(b.id) ?? []).map((p) => p.tone)).size - new Set((persp.get(a.id) ?? []).map((p) => p.tone)).size).slice(0, 4);
   // 4 key stories with pictures up top (picked for importance and sources, not for having a photo); everything else is the uniform Latest list
-  const key = pickFeatured([...pinnedList, ...events, ...byCat.flat()].filter((e, i, a) => a.findIndex((x) => x.id === e.id) === i), 4, new Set([top?.id ?? 0]));   // 4 news + 2 magazine reads
+  const key = pickFeatured([...pinnedList, ...events, ...byCat.flat(), ...official].filter((e, i, a) => a.findIndex((x) => x.id === e.id) === i), 4, new Set([top?.id ?? 0]));   // 4 news + 2 magazine reads
   const keyIds = new Set([top?.id ?? 0, ...key.map((e) => e.id)]);
   const list = events.filter((e) => !keyIds.has(e.id)).slice(0, 30);
   const regionTags = (e: { regions?: string[] }) => (e.regions?.length ?? 0) > 2 ? [] : [...(e.regions?.includes("AU") ? ["australia"] : []), ...(e.regions?.includes("CN") ? ["china"] : [])];

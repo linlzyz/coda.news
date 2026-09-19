@@ -185,6 +185,13 @@ async function _pinnedEvents() {
   const { data } = await supabase.from("events").select(EVENT_COLS).eq("hidden", false).not("pinned_at", "is", null).gte("pinned_at", new Date(Date.now() - 72 * 3600_000).toISOString()).order("pinned_at", { ascending: false }).limit(6);
   return (data ?? []) as EventRow[];
 }
+/** One-source stories with the publisher's own picture (or game art) from the last 36 hours: they join the picks. */
+async function _officialPicks() {
+  const { data } = await supabase.from("events").select(EVENT_COLS).eq("hidden", false).lt("source_count", 2).in("image_source", ["press", "igdb"])
+    .not("summary", "is", null).gte("last_article_at", new Date(Date.now() - 36 * 3600_000).toISOString()).order("importance", { ascending: false }).limit(20);
+  return (data ?? []) as EventRow[];
+}
+export const officialPicks = unstable_cache(_officialPicks, ["officialPicks"], { revalidate: 1800, tags: ["list"] });
 export const pinnedEvents = unstable_cache(_pinnedEvents, ["pinnedEvents"], { revalidate: 3600, tags: ["list"] });
 export const listEvents = unstable_cache(_listEvents, ["listEvents2"], { revalidate: 300, tags: ["list"] });
 export const getEvent = unstable_cache(_getEvent, ["getEvent"], { revalidate: 1800, tags: ["ev"] });
