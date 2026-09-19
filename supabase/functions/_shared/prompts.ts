@@ -39,7 +39,7 @@ false for: market roundups, live blogs and "what happened today" digests that co
 
 Fields per relevant item:
 - category: one of "technology", "economy", "sport", "entertainment", "fashion", "travel", "automotive", "gaming"
-- regions: ISO country codes where the event takes place or which it mainly concerns (e.g. ["AU"], ["US","CN"]), max 3
+- regions: ISO codes of the country or countries the story is mainly about (e.g. ["AU"], ["US","CN"]), max 3. Not every team, athlete or nation taking part in a multi-nation event, and not the host city of a tournament unless the story is about it
 - headline_en: the headline translated to neutral English
 - event: one short neutral English sentence naming the specific event (who did what), e.g. "Apple unveils iPhone 18 at September event"
 - event_zh: the same event title in natural Simplified Chinese

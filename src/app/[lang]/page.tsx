@@ -49,7 +49,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   const auOnly = au.filter((e) => !inList.has(e.id));
   const cnOnly = cn.filter((e) => !inList.has(e.id) && !auOnly.some((a) => a.id === e.id));
   const seen = new Set([...inList, ...auOnly.map((e) => e.id), ...cnOnly.map((e) => e.id)]);
-  const regionTags = (e: { regions?: string[] }) => [...(e.regions?.includes("AU") ? ["australia"] : []), ...(e.regions?.includes("CN") ? ["china"] : [])];
+  const regionTags = (e: { regions?: string[] }) => (e.regions?.length ?? 0) > 2 ? [] : [...(e.regions?.includes("AU") ? ["australia"] : []), ...(e.regions?.includes("CN") ? ["china"] : [])];
   const catOnly = byCat.flat().filter((e) => e.id !== top?.id && !seen.has(e.id) && (seen.add(e.id), true));
   const updated = new Date().toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit", timeZone: "Australia/Melbourne" }) + " AEST";
 

@@ -27,9 +27,11 @@ async function _listEvents(opts: { category?: string; region?: string; companyId
   if (opts.companyId) q = q.contains("company_ids", [opts.companyId]);
   if (opts.topicId) q = q.contains("topic_ids", [opts.topicId]);
   q = opts.order === "recent" ? q.order("last_article_at", { ascending: false }) : q.order("importance", { ascending: false }).order("last_article_at", { ascending: false });
-  const { data, error } = await q.limit(opts.limit ?? 30);
+  const { data, error } = await q.limit((opts.limit ?? 30) + (opts.region ? 40 : 0));
   if (error) throw error;
-  return (data ?? []) as EventRow[];
+  // a region tab only shows stories mainly about that country, not multi-nation ones (e.g. an Asian Games match)
+  const rows = (data ?? []) as EventRow[];
+  return opts.region ? rows.filter((e) => (e.regions?.length ?? 0) <= 2).slice(0, opts.limit ?? 30) : rows;
 }
 
 async function _getEvent(slug: string) {
