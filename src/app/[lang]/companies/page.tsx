@@ -1,3 +1,4 @@
+import { regionName } from "@/lib/ui";
 import Link from "@/components/LLink";
 import { companyDirectory, notable, type CompanyCard } from "@/lib/data";
 import { alternates, langFrom } from "@/lib/i18n";
@@ -16,8 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 export default async function Page({ params }: { params: Promise<{ lang: string }> }) {
   const l = await langFrom(params); const zh = l === "zh";
   const all = (await companyDirectory()).filter(notable);
-  const region = new Intl.DisplayNames([zh ? "zh-CN" : "en"], { type: "region" });
-  const cname = (c: string) => { try { return region.of(c) ?? c; } catch { return c; } };
+  const cname = (c: string) => regionName(c, zh);
   const nameOf = (c: CompanyCard) => (zh && c.name_zh) || c.name;
   const week = Date.now() - 7 * 86400_000;
   const trending = [...all].filter((c) => c.last_at && Date.parse(c.last_at) > week && c.logo_url).sort((a, b) => b.events - a.events).slice(0, 10);

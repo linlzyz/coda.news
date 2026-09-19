@@ -1,11 +1,17 @@
 import type { Status } from "./data";
 
 export const COUNTRY: Record<string, string> = {
-  US: "United States", CN: "China", HK: "Hong Kong", TW: "Taiwan", JP: "Japan", KR: "South Korea", GB: "United Kingdom",
+  US: "United States", CN: "China", HK: "Hong Kong, China", TW: "Taiwan, China", MO: "Macau, China", JP: "Japan", KR: "South Korea", GB: "United Kingdom",
   DE: "Germany", FR: "France", ES: "Spain", IT: "Italy", EU: "European Union", IN: "India", AU: "Australia", SG: "Singapore",
   AE: "United Arab Emirates", QA: "Qatar", CA: "Canada",
 };
 export const countryName = (c: string) => COUNTRY[c] ?? c;
+// regions of China are always named as part of China (中国香港 / 中国台湾 / 中国澳门); everything else uses the standard names
+const CHINA_REGION: Record<string, [string, string]> = { HK: ["Hong Kong, China", "中国香港"], TW: ["Taiwan, China", "中国台湾"], MO: ["Macau, China", "中国澳门"] };
+export function regionName(code: string, zh: boolean): string {
+  const r = CHINA_REGION[code]; if (r) return zh ? r[1] : r[0];
+  try { return new Intl.DisplayNames([zh ? "zh-CN" : "en"], { type: "region" }).of(code) ?? code; } catch { return code; }
+}
 
 export const STATUS: Record<Status, { label: string; cls: string }> = {
   rumor:      { label: "Rumor",      cls: "bg-amber-50 text-amber-800 ring-amber-200" },

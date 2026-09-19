@@ -75,6 +75,6 @@ export const TOPIC_ZH: Record<string, string> = {
 export const CATEGORY_ZH: Record<string, string> = { technology: "科技", economy: "经济", sport: "体育", entertainment: "娱乐", fashion: "时尚", travel: "旅行", automotive: "汽车", gaming: "游戏" };
 export const STATUS_ZH: Record<string, string> = { rumor: "传闻", breaking: "突发", developing: "进展中", confirmed: "已证实", resolved: "已结束", archived: "已归档" };
 export const COUNTRY_ZH: Record<string, string> = {
-  US: "美国", CN: "中国", HK: "中国香港", TW: "中国台湾", JP: "日本", KR: "韩国", GB: "英国", DE: "德国", FR: "法国", ES: "西班牙", IT: "意大利",
+  US: "美国", CN: "中国", HK: "中国香港", TW: "中国台湾", MO: "中国澳门", JP: "日本", KR: "韩国", GB: "英国", DE: "德国", FR: "法国", ES: "西班牙", IT: "意大利",
   EU: "欧盟", IN: "印度", AU: "澳大利亚", SG: "新加坡", AE: "阿联酋", QA: "卡塔尔", CA: "加拿大",
 };

@@ -2,6 +2,8 @@ import * as FlagSet from "country-flag-icons/react/3x2";
 import { countryName } from "@/lib/ui";
 
 export function Flag({ code, size = 16 }: { code: string; size?: number }) {
+  // Taiwan is shown as part of China
+  if (code === "TW") code = "CN";
   const F = (FlagSet as Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>>)[code];
   const style = { width: size * 1.5, height: size, borderRadius: 3, boxShadow: "0 0 0 1px rgba(22,24,29,.12)" };
   if (!F) return <span className="inline-block bg-[#E5E7EB]" style={style} aria-label={countryName(code)} />;

@@ -1,3 +1,4 @@
+import { regionName } from "@/lib/ui";
 import { notFound, permanentRedirect } from "next/navigation";
 import Link from "@/components/LLink";
 import { allTopics, companyDirectory, companyRedirect, companyMap, getCompany, listEvents, notable, type CompanyCard } from "@/lib/data";
@@ -59,8 +60,7 @@ export default async function Page({ params }: PageProps<"/[lang]/company/[slug]
   const [events, dir, topics] = await Promise.all([listEvents({ companyId: c.id, order: "recent", limit: 60 }), companyDirectory(), allTopics()]);
   const companies = await companyMap(events);
   const tm = new Map(topics.map((x) => [x.id, x]));
-  const region = new Intl.DisplayNames([zh ? "zh-CN" : "en"], { type: "region" });
-  const cname = (x: string) => { try { return region.of(x) ?? x; } catch { return x; } };
+  const cname = (x: string) => regionName(x, zh);
 
   const name = zh && c.name_zh ? c.name_zh : c.name;
   const desc = (zh ? c.description_zh : c.description) ?? null;
