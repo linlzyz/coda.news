@@ -21,7 +21,8 @@ const EN: [string, string, string[]][] = [
     "Accuracy: facts must come from the linked sources. Unconfirmed reports are marked as such. Mistakes are corrected openly (see Corrections).",
     "Respect for publishers: we use only public feeds, show short excerpts, link to the original and never bypass paywalls. Photos come only from libraries with open licences, with credit."]],
   ["sources", "Where the news comes from", [
-    "Public news feeds from newsrooms in {COUNTRIES} countries and regions, plus official releases. We summarise and link to the originals; we never republish articles or bypass paywalls."]],
+    "Public news feeds from newsrooms in {COUNTRIES} countries and regions, plus official releases. We summarise and link to the originals; we never republish articles or bypass paywalls.",
+    "Flags and country counts show which of these countries covered a story. Media elsewhere may have reported it too; we only count what our sources show."]],
   ["merge", "How articles become one event", [
     "Articles are grouped only when they report the same specific story: the same announcement, decision, deal or result. Roundups that cover several unrelated stories are left out.",
     "Events are re-checked automatically as they grow, and anything that belongs to a different story is removed and logged on the corrections page. Readers can report mistakes on every event page."]],
@@ -48,7 +49,8 @@ const ZH: [string, string, string[]][] = [
     "准确：事实必须来自所链接的来源。未经证实的消息会标明。错误会公开更正（见\"更正\"）。",
     "尊重原作者：只使用公开的新闻源，只显示简短摘录，链接原文，从不绕过付费墙。图片只来自开放许可的图库，并注明作者。"]],
   ["sources", "新闻来自哪里", [
-    "来自 {COUNTRIES} 个国家和地区新闻机构的公开新闻源，以及官方发布。我们只做摘要并链接原文，从不转载文章，也不绕过付费墙。"]],
+    "来自 {COUNTRIES} 个国家和地区新闻机构的公开新闻源，以及官方发布。我们只做摘要并链接原文，从不转载文章，也不绕过付费墙。",
+    "国旗和国家数量表示我们收录的国家里有哪些报道了这件事。其他地方的媒体可能也报道了，我们只统计收录范围内的来源。"]],
   ["merge", "文章如何归并成一个事件", [
     "只有报道同一件具体的事（同一个公告、决定、交易或比赛结果）的文章才会归为一个事件。一篇讲好几件事的综述类文章不会被归入任何事件。",
     "事件在增长过程中会被自动复查，属于别的新闻的内容会被移除，并记录在更正记录页。每个事件页都可以报告错误。"]],

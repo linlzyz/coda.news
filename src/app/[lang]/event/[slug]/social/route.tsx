@@ -78,7 +78,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ lang: st
       </div>
       <div style={{ display: "flex", marginTop: 22, fontFamily: "Serif", fontWeight: 700, fontSize: zh ? 46 : 48, lineHeight: 1.18, color: INK }}>{title}</div>
       <div style={{ display: "flex", flexDirection: "column", marginTop: 40, flexGrow: 1 }}>
-        {rows.length === 0 && <div style={{ display: "flex", fontSize: 30, color: "#6B7280" }}>{zh ? "目前只有一个国家报道。" : "Reported by one country so far."}</div>}
+        {rows.length === 0 && <div style={{ display: "flex", fontSize: 30, color: "#6B7280" }}>{zh ? "目前我们的来源里只有一个国家报道。" : "One country in our sources so far."}</div>}
         {rows.map((r) => (
           <div key={r.c} style={{ display: "flex", flexDirection: "column", borderTop: "1px solid #E5E7EB", padding: "22px 0" }}>
             <div style={{ display: "flex", alignItems: "center" }}>

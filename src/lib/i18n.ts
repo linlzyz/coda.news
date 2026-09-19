@@ -35,7 +35,7 @@ const D = {
   updated: ["Updated", "更新于"], since: ["since", "始于"], agreed: ["What everyone agrees on", "各方共识"], keyFacts: ["Key facts", "要点"],
   spectrum: ["The framing spectrum", "报道倾向"], spectrumSub: ["Overall tone of each country's coverage of this event, judged from the articles listed below.", "各国媒体报道这件事的整体语气，依据下方列出的文章判断。"],
   positive: ["Supportive", "支持性"], neutral: ["Descriptive", "描述性"], cautious: ["Cautious", "审慎性"],
-  howEach: ["How each country tells it", "各国怎么说"], oneCountry: ["So far one country has covered this event. Perspectives appear when media in a second country report it.", "目前只有一个国家报道了这件事。第二个国家的媒体报道后，这里会出现各国视角对比。"],
+  howEach: ["How each country tells it", "各国怎么说"], oneCountry: ["So far our sources show coverage from one country. Perspectives appear once we find reports from a second country.", "在我们收录的来源里，目前只有一个国家报道了这件事。找到第二个国家的报道后，这里会出现各国视角对比。"],
   typicalHeadline: ["Typical headline, translated", "代表性标题（译）"], emphasises: ["Emphasises", "侧重"], mentionsLess: ["Mentions less", "较少提及"],
   analysis: ["coda.news analysis", "coda.news 分析"], whyDiffers: ["Why the coverage differs", "为什么报道不同"], aiNote: ["AI-generated from the sources below. Always check the originals.", "由 AI 根据下方来源生成，请以原文为准。"],
   sourcesH: ["Sources", "来源"], timeline: ["Timeline", "时间线"], moreOn: ["More on", "更多："], confidence: ["Source strength", "来源强度"], howJudge: ["How we judge", "判断方法"], limited: ["Limited coverage: 1 article", "报道有限：仅 1 篇"], outlets: ["independent outlets", "家独立媒体"],
