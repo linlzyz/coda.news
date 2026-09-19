@@ -205,9 +205,10 @@ async function personPhoto(name: string, eventId: number): Promise<Img | null> {
 }
 
 class Limit extends Error {}
-const PROVIDERS: [string, (q: string) => Promise<Img | null>][] = [["unsplash", unsplash], ["pexels", pexels], ["pixabay", pixabay], ["commons", commons], ["openverse", openverse]];
+const PROVIDERS: [string, (q: string) => Promise<Img | null>][] = [["unsplash", unsplash], ["pexels", pexels], ["pixabay", pixabay]];
+// open archives (Commons, Openverse) kept out of scene search: their documentary photos matched too many wrong stories
 // For the story's own place-aware query, real photos of that place (Commons) come first; generic scenes prefer stock libraries.
-const PLACE_FIRST: [string, (q: string) => Promise<Img | null>][] = [["commons", commons], ["openverse", openverse], ["unsplash", unsplash], ["pexels", pexels], ["pixabay", pixabay]];
+const PLACE_FIRST = PROVIDERS; void commons; void openverse;
 
 async function find(queries: string[], placeFirst = false): Promise<Img | null> {
   for (const [k, q] of queries.entries()) {
