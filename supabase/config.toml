@@ -2,3 +2,6 @@ project_id = "itbrtkoaztutvvewvjga"
 
 [functions.tick]
 verify_jwt = false
+
+[functions.admin]
+verify_jwt = false

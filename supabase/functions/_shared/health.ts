@@ -62,3 +62,40 @@ export async function sendHealthReport(force = false): Promise<boolean> {
   log("health report sent");
   return true;
 }
+
+/** Urgent alerts, checked every run and sent at most once per 6 hours each: the site stopping or money limits being hit. */
+export async function checkAlerts(): Promise<string[]> {
+  const to = env("REPORT_EMAIL"), key = env("RESEND_API_KEY");
+  if (!to || !key) return [];
+  const sql = db();
+  const issues: [string, string][] = [];
+  const [done] = await sql`select count(*)::int n from articles where status = 'done' and fetched_at > now() - interval '3 hours'`;
+  if (done.n === 0) issues.push(["stalled", "过去 3 小时没有任何新闻被处理，后台可能停了。"]);
+  const [fetched] = await sql`select count(*)::int n from articles where fetched_at > now() - interval '2 hours'`;
+  if (fetched.n === 0) issues.push(["noingest", "过去 2 小时没有抓到任何新文章，抓取可能停了。"]);
+  const [spent] = await sql`select coalesce(sum(usd), 0)::float usd from ai_usage where day = current_date`;
+  const cap = Number(env("OPENAI_DAILY_USD", "0.30"));
+  if (spent.usd >= cap * 0.9) issues.push(["aicap", `今天 OpenAI 已花 $${spent.usd.toFixed(2)}，接近每日上限 $${cap.toFixed(2)}。之后会改用免费模型，处理会变慢。`]);
+  const [broken] = await sql`select count(*)::int n from sources where active and fail_count >= 6`;
+  if (broken.n >= 5) issues.push(["sources", `${broken.n} 个新闻源连续抓取失败，可能是网络或某个服务出了问题。`]);
+  const [backlog] = await sql`select count(*)::int n from articles a join sources s on s.id = a.source_id where a.status = 'pending' and s.active`;
+  if (backlog.n > 3000) issues.push(["backlog", `排队等待处理的文章有 ${backlog.n} 篇，处理速度跟不上。`]);
+
+  const fresh: [string, string][] = [];
+  for (const [kind, text] of issues) {
+    const [last] = await sql`select sent_at from alerts where kind = ${kind}`;
+    if (last && Date.now() - new Date(last.sent_at).getTime() < 6 * 3600_000) continue;
+    fresh.push([kind, text]);
+  }
+  if (!fresh.length) return [];
+  const html = `<div style="font-family:Helvetica,Arial,sans-serif;color:#16181D;max-width:600px">
+  <h2 style="color:#B91C1C;margin:0 0 12px">coda.news 需要留意</h2><ul>${fresh.map(([, t]) => `<li style="margin-bottom:8px">${esc(t)}</li>`).join("")}</ul>
+  <p style="color:#6B7280;font-size:13px">同一个问题 6 小时内只提醒一次。问题解决后不会再发。</p></div>`;
+  const r = await fetch("https://api.resend.com/emails", {
+    method: "POST", headers: { Authorization: `Bearer ${key}`, "content-type": "application/json" },
+    body: JSON.stringify({ from: "coda.news Alerts <health@coda.news>", to: [to], subject: `⚠️ coda.news：${fresh[0][1].slice(0, 40)}`, html }),
+  });
+  if (!r.ok) { log("alert", r.status); return []; }
+  for (const [kind] of fresh) await sql`insert into alerts (kind, sent_at) values (${kind}, now()) on conflict (kind) do update set sent_at = now()`;
+  return fresh.map((f) => f[0]);
+}

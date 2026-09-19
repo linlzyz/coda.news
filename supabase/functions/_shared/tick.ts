@@ -6,6 +6,7 @@ import { briefSingles } from "./singles.ts";
 import { fixChinese } from "./fixzh.ts";
 import { buildStories } from "./story.ts";
 import { maintain } from "./maintain.ts";
+import { checkAlerts } from "./health.ts";
 import { dedupe } from "./dedupe.ts";
 import { auditEvents } from "./audit.ts";
 import { assignImages } from "./images.ts";
@@ -53,6 +54,7 @@ export async function tick(budgetMs = 120_000, opts: { skipIngest?: boolean } = 
   await step("followConfirm", sendFollowConfirmations);
   await step("indexnow", pingIndexNow);
   await step("maintain", maintain);
+  await step("alerts", checkAlerts);
   // tell the website which story pages changed in this run, so only those are rebuilt
   await step("revalidate", async () => {
     const secret = env("REVALIDATE_SECRET"); if (!secret) return 0;

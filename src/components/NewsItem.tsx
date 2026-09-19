@@ -63,6 +63,10 @@ function Meta({ e, lang }: { e: EventRow; lang: Lang }) {
  *  plus a couple of magazine reads (travel, fashion, design) so the picks are not all hard news. */
 export function pickFeatured(events: EventRow[], n: number, skip: Set<number> = new Set()): EventRow[] {
   const fresh = (e: EventRow, h: number) => Date.now() - Date.parse(e.last_article_at) < h * 3600_000;
+  // pinned by the editor: always first, as long as the pin is under 3 days old
+  const pinned = events.filter((e) => !skip.has(e.id) && e.pinned_at && Date.now() - Date.parse(e.pinned_at) < 72 * 3600_000)
+    .sort((a, b) => Date.parse(b.pinned_at!) - Date.parse(a.pinned_at!));
+  pinned.forEach((e) => skip.add(e.id));
   const news = events
     .filter((e) => !skip.has(e.id) && e.source_count >= 2 && fresh(e, 48))
     .sort((a, b) => (b.importance ?? 0) - (a.importance ?? 0) || b.countries.length - a.countries.length || b.source_count - a.source_count)
@@ -73,7 +77,7 @@ export function pickFeatured(events: EventRow[], n: number, skip: Set<number> = 
     .filter((e) => !skip.has(e.id) && !news.includes(e) && ["travel", "fashion"].includes(e.category) && e.summary && fresh(e, 72))
     .sort((a, b) => Number(!!b.image_url) - Number(!!a.image_url) || (b.importance ?? 0) - (a.importance ?? 0))
     .slice(0, Math.max(1, Math.round(n / 2)));
-  return [...news, ...mags];
+  return [...pinned, ...news, ...mags].slice(0, Math.max(n + Math.round(n / 2), pinned.length));
 }
 
 export function FeaturedCards({ events, lang, heading }: { events: EventRow[]; lang: Lang; heading: string }) {

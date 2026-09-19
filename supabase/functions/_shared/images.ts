@@ -445,6 +445,10 @@ ${games.map((g, i) => `${i + 1}. ${g.title}`).join("\n")}`)).g ?? {};
               where id = ${e.id}`;
     if (img) n++;
   }
+  // a picture the editor rejected never comes back: drop it again and leave the designed cover
+  await sql`update events set image_url = null, image_credit = null, image_link = null, image_source = null, image_license = null, image_focus = null,
+            image_checked_at = now(), brand_checked_at = now(), press_checked_at = now(), person_checked_at = now(), game_checked_at = now()
+            where image_url is not null and image_url = any(image_blocked)`;
   if (events.length) log(`images: ${n}/${events.length}`);
   return n;
 }
