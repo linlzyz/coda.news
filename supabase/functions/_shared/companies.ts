@@ -16,6 +16,8 @@ const get = async (q: string) => {
 const ORG = /\b(company|corporation|business|manufacturer|firm|brand|bank|startup|conglomerate|retailer|airline|maker|carrier|developer|operator|holding|enterprise|chain|publisher|studio|record label|exchange|insurer|automaker|producer|provider|platform|club|franchise|team|league|organi[sz]ation|agency|regulator|central bank|fund|group)\b/i;
 const HARD = ["P414", "P452", "P1128", "P2139", "P169", "P1454", "P118"];
 // leagues, federations, regulators, central banks, ministries, universities...: in the news, but not companies
+// Hong Kong, Macau and Taiwan companies: Wikidata often gives "China" as the country; the headquarters tells us the region
+const regionOf = (iso: string | null, hq: string) => /hong kong|香港/i.test(hq) ? "HK" : /macau|macao|澳门|澳門/i.test(hq) ? "MO" : /taiwan|taipei|hsinchu|kaohsiung|taichung|台湾|台灣|台北|新竹/i.test(hq) ? "TW" : iso;
 export const NOT_CO = /\b(sports? league|league|football association|federation|confederation|governing body|central bank|regulator|regulatory|government agency|space agency|ministry|government department|government|public university|university|college|trade union|labor union|labour union|council|committee|olympic|court|parliament|police|armed forces|army|navy|tournament|championship|competition|football club|association football club|basketball team|baseball team|ice hockey team|american football team|sports team|sports club|cycling team|racing team|esports team|team (competing|playing|based)|college athletic|athletic program|charity|non-?profit|united nations agency)\b/i;
 const norm = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
 // corporate words that may follow a short name ("Toyota" = "Toyota Motor Corporation"); anything else (e.g. "Kodak Japan") is a different entity
@@ -167,7 +169,7 @@ export async function enrichCompanies(limit = 15): Promise<number> {
         logo_url = ${logo}, slogan = ${sloganC?.text ? String(sloganC.text).slice(0, 160) : null},
         parent = ${en(parentId) ?? null}, parent_zh = ${zh(parentId) ?? null},
         instagram = ${handle(e, "P2003")}, x_handle = ${handle(e, "P2002")}, facebook = ${handle(e, "P2013")}, youtube = ${handle(e, "P2397")}, linkedin = ${handle(e, "P4264")},
-        sector = ${sector}, country = ${(labels[countryId ?? ""]?.claims?.P297?.[0]?.mainsnak?.datavalue?.value as string | undefined) ?? null},
+        sector = ${sector}, country = ${regionOf((labels[countryId ?? ""]?.claims?.P297?.[0]?.mainsnak?.datavalue?.value as string | undefined) ?? null, `${hq ?? ""} ${hqZh ?? ""}`)},
         kind = ${NOT_CO.test(String(e.descriptions?.en?.value ?? "")) ? "org" : "company"}, enriched_at = now() where id = ${c.id}`;
       n++;
     } catch (err) { log("companies:", c.name, (err as Error).message); break; }   // network trouble: try again next run
