@@ -18,7 +18,7 @@ const D = {
   newsletter: ["Newsletter", "每日简报"], about: ["About", "关于"],
   promoTitle: ["See every side of the story.", "看见一件事的每一面。"],
   promoText: ["The day's news, compared across countries and languages.", "每天的新闻，按国家和语言对比呈现。"],
-  joinFree: ["Join for free", "免费订阅"], search: ["Search events, companies, topics…", "搜索事件、公司、话题…"],
+  joinFree: ["Get the 7am brief by email", "每天 7 点收简报"], search: ["Search events, companies, topics…", "搜索事件、公司、话题…"],
   dailyBrief: ["Get the daily brief", "订阅每日简报"], briefNav: ["Daily brief", "每日简报"], live: ["Live", "实时"], topStory: ["Top story", "头条"],
   compare: ["Compare the coverage", "对比各国报道"], sources: ["sources", "个来源"], source: ["source", "个来源"],
   countries: ["countries", "个国家"], country: ["country", "个国家"], trending: ["Trending", "热门"], latest: ["Latest news", "最新"],
