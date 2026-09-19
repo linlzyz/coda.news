@@ -4,7 +4,8 @@ import { COUNTRY_ZH } from "./i18n";
 import { COUNTRY } from "./ui";
 
 export const title = (e: EventRow, l: Lang) => (l === "zh" && e.title_zh) || e.title;
-export const summary = (e: EventRow, l: Lang) => (l === "zh" && e.summary_zh) || e.summary;
+// the English page never shows a Chinese summary (some one-source briefs were first written in Chinese)
+export const summary = (e: EventRow, l: Lang) => l === "zh" ? e.summary_zh || e.summary : e.summary && !/[\u4e00-\u9fff]{4}/.test(e.summary) ? e.summary : null;
 export const countryL = (c: string, l: Lang) => (l === "zh" ? COUNTRY_ZH[c] : COUNTRY[c]) ?? c;
 export const persp = (p: Perspective, l: Lang) => l === "zh"
   ? { headline: p.headline_zh || p.headline, framing: p.framing_zh || p.framing, emphasis: p.emphasis_zh || p.emphasis, downplayed: p.downplayed_zh || p.downplayed }

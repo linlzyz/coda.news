@@ -35,7 +35,7 @@ For each item decide "relevant": true only if it reports a specific, concrete de
 - automotive: carmakers, car and EV launches, car sales, autonomous driving, car industry deals and recalls (use this instead of technology/economy for car stories)
 - gaming: video games, game studios and publishers, consoles, esports (use this instead of entertainment/technology for game stories)
 - travel: airlines and airports (routes, fares, strikes, safety), tourism numbers, visa and border rules for travellers, hotels and cruises, destinations opening or closing, travel industry news
-false for: market roundups, live blogs and "what happened today" digests that cover several unrelated stories, opinion columns, how-to guides, product reviews, shopping deals, horoscopes, quizzes, podcasts, recipes, politics, military, crime and criminal allegations, accidents, weather, anonymous blind items, paparazzi speculation about bodies, health or sexuality.
+false for: market roundups, live blogs and "what happened today" digests that cover several unrelated stories, opinion columns, how-to guides, product reviews, shopping deals, horoscopes, quizzes, podcasts, recipes, politics, military, crime and criminal allegations, accidents, weather, anonymous blind items, paparazzi speculation about bodies, health or sexuality, and local or regional stories: a city, district, county or province promoting itself, local tourism or culture campaigns, folk festivals, local government projects and notices, regional agriculture or livelihood programmes. Keep only news a reader in another country would care about.
 
 Fields per relevant item:
 - category: one of "technology", "economy", "sport", "entertainment", "fashion", "travel", "automotive", "gaming"

@@ -105,7 +105,7 @@ export async function enrichCompanies(limit = 15): Promise<number> {
   const sql = db();
   // most-covered companies first
   const rows = await sql<{ id: number; name: string; wikidata_id: string | null }[]>`select c.id, c.name, c.wikidata_id from companies c left join company_stats s on s.company_id = c.id where c.enriched_at is null
-    order by exists (select 1 from events e where lower(e.image_brand) = lower(c.name)) desc, s.events desc nulls last, c.id limit ${limit}`;   // brands waiting for a logo first
+    order by exists (select 1 from events e where lower(e.image_brand) = lower(c.name)) desc, cardinality(c.indices) > 0 desc, s.events desc nulls last, c.id limit ${limit}`;   // brands waiting for a logo first
   let n = 0;
   for (const c of rows) {
     try {
