@@ -26,11 +26,11 @@ Deno.serve(async (req) => {
     const q = String(b.q ?? "").trim();
     const f = String(b.filter ?? "recent");
     const rows = await sql`
-      select id, slug, title, title_zh, summary_zh, category, image_url, image_source, image_focus, source_count, countries, hidden, pinned_at, last_article_at, lead_url, lead_source
+      select id, slug, title, title_zh, summary_zh, category, review_note, reviewed_at, image_url, image_source, image_focus, source_count, countries, hidden, pinned_at, last_article_at, lead_url, lead_source
       from events where summary is not null
-        and ${f === "hidden" ? sql`hidden` : f === "pinned" ? sql`pinned_at is not null and not hidden` : f === "noimage" ? sql`not hidden and image_url is null and source_count >= 2` : sql`not hidden`}
+        and ${f === "flagged" ? sql`not hidden and review_note like '待确认%'` : f === "auto" ? sql`review_note like '自动%' and reviewed_at > now() - interval '2 days'` : f === "hidden" ? sql`hidden` : f === "pinned" ? sql`pinned_at is not null and not hidden` : f === "noimage" ? sql`not hidden and image_url is null and source_count >= 2` : sql`not hidden`}
         and ${q ? sql`(title ilike ${"%" + q + "%"} or title_zh ilike ${"%" + q + "%"})` : sql`true`}
-      order by ${f === "pinned" ? sql`pinned_at desc` : sql`last_article_at desc`} limit 80`;
+      order by ${f === "pinned" ? sql`pinned_at desc` : f === "auto" ? sql`reviewed_at desc` : sql`last_article_at desc`} limit 80`;
     return json({ rows });
   }
 
@@ -39,8 +39,9 @@ Deno.serve(async (req) => {
   if (!e) return json({ error: "not found" }, 404);
 
   switch (b.action) {
-    case "hide": await sql`update events set hidden = true, pinned_at = null, updated_at = now() where id = ${id}`; break;
-    case "unhide": await sql`update events set hidden = false, updated_at = now() where id = ${id}`; break;
+    case "hide": await sql`update events set hidden = true, pinned_at = null, review_note = '手动下架', updated_at = now() where id = ${id}`; break;
+    case "unhide": await sql`update events set hidden = false, review_note = '已确认没问题', updated_at = now() where id = ${id}`; break;
+    case "ok": await sql`update events set review_note = '已确认没问题' where id = ${id}`; break;
     case "pin": await sql`update events set pinned_at = now(), updated_at = now() where id = ${id}`; break;
     case "unpin": await sql`update events set pinned_at = null, updated_at = now() where id = ${id}`; break;
     case "noimage":
@@ -54,6 +55,6 @@ Deno.serve(async (req) => {
       await sql`update events set category = ${b.value}, updated_at = now() where id = ${id}`; break;
     default: return json({ error: "unknown action" }, 400);
   }
-  await refresh([e.slug], ["hide", "unhide", "pin", "unpin", "category"].includes(b.action));
+  await refresh([e.slug], ["hide", "unhide", "pin", "unpin", "category", "ok"].includes(b.action));
   return json({ ok: true });
 });

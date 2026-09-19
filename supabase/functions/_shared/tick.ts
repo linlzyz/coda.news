@@ -7,6 +7,7 @@ import { fixChinese } from "./fixzh.ts";
 import { buildStories } from "./story.ts";
 import { maintain } from "./maintain.ts";
 import { checkAlerts } from "./health.ts";
+import { reviewEvents } from "./review.ts";
 import { dedupe } from "./dedupe.ts";
 import { auditEvents } from "./audit.ts";
 import { assignImages } from "./images.ts";
@@ -43,6 +44,7 @@ export async function tick(budgetMs = 120_000, opts: { skipIngest?: boolean } = 
     if (left() > 30_000) await step("regenerate", () => regenerate(left() > 80_000 ? 4 : 2));
   } catch (e) { report.stopped = (e as Error).message.slice(0, 200); }
   if (left() > 25_000) await step("singles", () => briefSingles(left() > 60_000 ? 12 : 5));
+  if (left() > 24_000) await step("review", () => reviewEvents(40));
   if (left() > 22_000) await step("fixzh", () => fixChinese(20));
   if (left() > 20_000) await step("translate", () => translateMissing(30));
   if (left() > 15_000) await step("translateFacts", () => translateFacts(60));
@@ -61,7 +63,7 @@ export async function tick(budgetMs = 120_000, opts: { skipIngest?: boolean } = 
     const rows = await db()<{ slug: string }[]>`select slug from events where updated_at > ${new Date(t0).toISOString()} and summary is not null order by importance desc limit 100`;
     if (!rows.length) return 0;
     // an archived (removed) story must also disappear from the lists straight away
-    const [gone] = await db()<{ n: number }[]>`select count(*)::int as n from events where updated_at > ${new Date(t0).toISOString()} and hidden`;
+    const [gone] = await db()<{ n: number }[]>`select count(*)::int as n from events where updated_at > ${new Date(t0).toISOString()} and (hidden or review_note like '自动改分类%')`;
     const r = await fetch("https://coda.news/api/revalidate", { method: "POST", headers: { "content-type": "application/json", "x-revalidate-secret": secret }, body: JSON.stringify({ events: rows.map((x) => x.slug), sections: gone.n > 0 }), signal: AbortSignal.timeout(10000) });
     return r.ok ? rows.length : `http ${r.status}`;
   });

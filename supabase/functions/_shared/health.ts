@@ -32,6 +32,8 @@ export async function sendHealthReport(force = false): Promise<boolean> {
   const [subs] = await sql`select count(*) filter (where unsubscribed_at is null)::int active, count(*) filter (where created_at > now() - interval '24 hours')::int new,
       count(*) filter (where unsubscribed_at > now() - interval '24 hours')::int gone from subscribers`;
   const [brief] = await sql`select recipients from newsletter_issues where sent_on = ${today}`;
+  const [rv] = await sql`select count(*) filter (where review_note like '自动下架%')::int hid, count(*) filter (where review_note like '自动改分类%')::int moved,
+      count(*) filter (where review_note like '待确认%' and not hidden)::int ask from events where reviewed_at > now() - interval '24 hours'`;
 
   const ok = broken.length === 0 && runs[0].bad <= 3 && a.failed < 20 && backlog.n < 500;
   const row = (k: string, v: unknown) => `<tr><td style="padding:4px 12px 4px 0;color:#6B7280">${k}</td><td style="padding:4px 0;font-weight:600">${esc(v)}</td></tr>`;
@@ -43,6 +45,7 @@ export async function sendHealthReport(force = false): Promise<boolean> {
   ${row("新事件", ev.n)}${row("多国报道的新事件", ev.multi)}${row("暂时没有配图", ev.noimg)}
   ${row("按栏目", cats.map((c) => `${c.category} ${c.n}`).join(" · ") || "无")}
   ${row("自动流程运行次数", `${runs[0].n}（出错 ${runs[0].bad}）`)}${row("AI 免费额度用尽的次数", quota[0].n)}
+  ${row("系统自动处理", `下架 ${rv.hid} 条 · 改分类 ${rv.moved} 条`)}${row("需要你确认", rv.ask ? `${rv.ask} 条（打开 coda.news/zh/admin）` : "0 条，不用看后台")}
   ${row("订阅者", `${subs.active}（新增 ${subs.new}，退订 ${subs.gone}）`)}${row("今天的简报发送", brief ? `${brief.recipients} 封` : "未发送（事件不足或尚未到时间）")}
   </table>
   <h3 style="color:${broken.length ? "#B91C1C" : "#16181D"}">出错的新闻源（${broken.length}）</h3>

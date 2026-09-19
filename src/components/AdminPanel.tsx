@@ -4,15 +4,15 @@ import { useCallback, useEffect, useState } from "react";
 // The site owner's control room: take a story down, pin it to Picks, reject its picture, redo its Chinese, move it to another section.
 const API = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/admin`;
 const CATS: [string, string][] = [["technology", "科技"], ["economy", "经济"], ["sport", "体育"], ["entertainment", "娱乐"], ["fashion", "时尚"], ["travel", "旅行"], ["automotive", "汽车"], ["gaming", "游戏"]];
-const FILTERS: [string, string][] = [["recent", "最新"], ["pinned", "已置顶"], ["noimage", "多来源但没图"], ["hidden", "已下架"]];
-type Row = { id: string; slug: string; title: string; title_zh: string | null; summary_zh: string | null; category: string; image_url: string | null; image_source: string | null;
+const FILTERS: [string, string][] = [["flagged", "待确认"], ["auto", "系统自动处理的"], ["recent", "最新"], ["pinned", "已置顶"], ["noimage", "多来源但没图"], ["hidden", "已下架"]];
+type Row = { id: string; review_note: string | null; slug: string; title: string; title_zh: string | null; summary_zh: string | null; category: string; image_url: string | null; image_source: string | null;
   source_count: number; countries: string[]; hidden: boolean; pinned_at: string | null; last_article_at: string; lead_url: string | null; lead_source: string | null };
 
 export function AdminPanel() {
   const [key, setKey] = useState("");
   const [ok, setOk] = useState(false);
   const [rows, setRows] = useState<Row[]>([]);
-  const [filter, setFilter] = useState("recent");
+  const [filter, setFilter] = useState("flagged");
   const [q, setQ] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [msg, setMsg] = useState("");
@@ -70,9 +70,11 @@ export function AdminPanel() {
             <div className="min-w-0">
               <a href={`/zh/event/${r.slug}`} target="_blank" rel="noopener noreferrer" className="text-[16px] font-semibold leading-snug hover:text-[#C2410C]">{r.title_zh ?? r.title}</a>
               {r.pinned_at && <span className="ml-2 rounded-full bg-[#FFF0EB] px-2 py-0.5 text-[11px] font-semibold text-[#C2410C]">置顶中</span>}
+              {r.review_note && <p className={`mt-1 text-[13px] font-medium ${r.review_note.startsWith("待确认") ? "text-amber-700" : "text-[#0F766E]"}`}>{r.review_note}</p>}
               <p className="mt-1 line-clamp-2 text-[13px] text-neutral-600">{r.summary_zh}</p>
               <p className="mt-1 text-[12px] text-neutral-400">{r.source_count} 个来源 · {r.countries.join(" ")} · {new Date(r.last_article_at).toLocaleString("zh-CN", { timeZone: "Australia/Melbourne" })}{r.image_source ? ` · 图：${r.image_source}` : ""}</p>
               <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+                {r.review_note?.startsWith("待确认") && !r.hidden && <button className={`${btn} border-green-200 text-green-700`} disabled={!!busy} onClick={() => act(r.id, "ok", undefined, "已确认")}>没问题</button>}
                 {r.hidden
                   ? <button className={btn} disabled={!!busy} onClick={() => act(r.id, "unhide", undefined, "已恢复")}>恢复上线</button>
                   : <button className={`${btn} border-red-200 text-red-700`} disabled={!!busy} onClick={() => act(r.id, "hide", undefined, "已下架")}>下架</button>}
@@ -89,7 +91,7 @@ export function AdminPanel() {
           </li>
         ))}
       </ul>
-      {!rows.length && <p className="py-10 text-center text-neutral-500">没有内容</p>}
+      {!rows.length && <p className="py-10 text-center text-neutral-500">{filter === "flagged" ? "没有需要你确认的，系统都处理好了。" : "没有内容"}</p>}
     </div>
   );
 }
