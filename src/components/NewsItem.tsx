@@ -15,7 +15,7 @@ export function NewsItem({ e, companies, lang }: { e: EventRow; companies?: Map<
   const sum = summary(e, lang);
   // only rows with something more to show (a picture or key points) open in place; the rest stay a plain row with a link to the original
   const pts = (lang === "zh" ? e.points?.zh : e.points?.en)?.filter(Boolean) ?? [];
-  if (single && (e.image_url || pts.length)) return <SingleItem e={e} companies={companies} lang={lang} sum={sum} />;
+  if (single && ((e.image_url && e.image_focus !== "logo") || pts.length)) return <SingleItem e={e} companies={companies} lang={lang} sum={sum} />;
   return (
     <article className="grid grid-cols-[minmax(0,1fr)_auto] gap-4 border-b border-[#E5E7EB] py-4">
       <div className="min-w-0">
@@ -23,7 +23,7 @@ export function NewsItem({ e, companies, lang }: { e: EventRow; companies?: Map<
           {single ? <a href={e.lead_url!} target="_blank" rel="noopener noreferrer" className="hover:text-[#C2410C]">{title(e, lang)}</a>
             : <Link href={`/event/${e.slug}`} className="hover:text-[#C2410C]">{title(e, lang)}</Link>}
         </h3>
-        {sum && single && <p className="mt-1 line-clamp-2 text-[14px] leading-relaxed text-neutral-600">{sum}</p>}
+        {sum && <p className="mt-1 line-clamp-2 text-[14px] leading-relaxed text-neutral-600">{sum}</p>}
         <div className="mt-2 flex items-center gap-2 text-[12px] text-neutral-500">
           <CategoryLabel category={e.category} lang={lang} />
           <span>{timeAgoL(e.last_article_at, lang)}</span>
@@ -39,7 +39,7 @@ function SingleItem({ e, companies, lang, sum }: { e: EventRow; companies?: Map<
   const zh = lang === "zh";
   const pts = (zh ? e.points?.zh : e.points?.en)?.filter(Boolean) ?? [];
   const cos = e.company_ids.map((id) => companies?.get(id)).filter(Boolean) as Company[];
-  const when = new Date(e.last_article_at).toLocaleDateString(zh ? "zh-CN" : "en-AU", { month: zh ? "numeric" : "short", day: "numeric", timeZone: "Australia/Melbourne" });
+  const logo = e.image_focus === "logo";
   return (
     <details open className="group border-b border-[#E5E7EB]">
       <summary className="grid cursor-pointer list-none grid-cols-[minmax(0,1fr)_auto] gap-4 pt-4 pb-4 group-open:pb-2.5 [&::-webkit-details-marker]:hidden">
@@ -54,15 +54,19 @@ function SingleItem({ e, companies, lang, sum }: { e: EventRow; companies?: Map<
         <div className="flex w-[108px] shrink-0 flex-col items-end gap-1.5 pt-1 text-right text-[12px] text-neutral-500">
           <span className="flex h-3 items-center">{e.countries[0] && <Flag code={e.countries[0]} size={11} />}</span>
           <span className="max-w-full truncate">{e.lead_source}</span>
+          <a href={e.lead_url!} target="_blank" rel="noopener noreferrer" className="font-medium text-[#C2410C] hover:underline">{zh ? "阅读原文" : "Read original"} ↗</a>
           <span aria-hidden className="mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full border border-[#E5E7EB] text-[11px] text-neutral-600 transition group-open:rotate-180">⌄</span>
         </div>
       </summary>
       <div className="pb-5 sm:pr-[124px]">
-        {e.image_url && (
+        {e.image_url && !logo && (
           <div className="mb-4 overflow-hidden rounded-xl">
             <Cover e={e} credit className="aspect-[16/9] w-full" />
           </div>
         )}
+        <div className={logo ? "flex items-start gap-4" : ""}>
+        {logo && <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-[#E5E7EB] sm:h-20 sm:w-20"><Cover e={e} className="h-full w-full" /></div>}
+        <div className="min-w-0 flex-1">
         {pts.length > 0 && (
           // our own AI summary, boxed and labelled so it is never mistaken for the outlet's text
           <div className="rounded-xl border border-[#FBD9C6] bg-[#FFF6F0] px-4 py-3">
@@ -77,9 +81,7 @@ function SingleItem({ e, companies, lang, sum }: { e: EventRow; companies?: Map<
             {cos.map((c) => <Link key={c.id} href={`/company/${c.slug}`} className="rounded-full bg-[#FFF1EA] px-2.5 py-0.5 font-medium text-[#C2410C] hover:bg-[#FFE3D4]">{c.name}</Link>)}
           </div>
         )}
-        <div className="mt-3 flex flex-wrap items-center gap-x-2 text-[12px] text-neutral-500">
-          <span>{zh ? `据 ${e.lead_source}` : `Reported by ${e.lead_source}`}</span><span>·</span><span>{when}</span><span>·</span>
-          <a href={e.lead_url!} target="_blank" rel="noopener noreferrer" className="font-medium text-[#C2410C] hover:underline">{zh ? "阅读原文" : "Read the original"} ↗</a>
+        </div>
         </div>
       </div>
     </details>
@@ -96,7 +98,7 @@ function Source({ e, lang }: { e: EventRow; lang: Lang }) {
       {single ? (
         <>
           <span className="max-w-full truncate">{e.lead_source}</span>
-          <a href={e.lead_url!} target="_blank" rel="noopener noreferrer" className="font-medium text-[#C2410C] hover:underline">{zh ? "查看原文" : "Original"} ↗</a>
+          <a href={e.lead_url!} target="_blank" rel="noopener noreferrer" className="font-medium text-[#C2410C] hover:underline">{zh ? "阅读原文" : "Read original"} ↗</a>
         </>
       ) : (
         <Link href={`/event/${e.slug}`} className="font-medium text-[#C2410C] hover:underline">{e.source_count} {zh ? "个来源" : "sources"} →</Link>
@@ -135,8 +137,7 @@ export function pickFeatured(events: EventRow[], n: number, skip: Set<number> = 
   // one-source stories with an official picture (the publisher's own image or game art, not a logo) are worth a look too
   const official = events
     .filter((e) => !skip.has(e.id) && !news.includes(e) && !mags.includes(e) && oneSource(e) && !!e.image_url && e.image_focus !== "logo" && fresh(e, 36))
-    .sort((a, b) => (b.importance ?? 0) - (a.importance ?? 0) || Date.parse(b.last_article_at) - Date.parse(a.last_article_at))
-    .slice(0, n);
+    .sort((a, b) => (b.importance ?? 0) - (a.importance ?? 0) || Date.parse(b.last_article_at) - Date.parse(a.last_article_at));
   return [...pinned, ...news, ...mags].slice(0, Math.max(n + Math.round(n / 2), pinned.length)).concat(official);
 }
 
