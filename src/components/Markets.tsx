@@ -2,6 +2,7 @@
 import { useState } from "react";
 import type { Quote } from "@/lib/markets";
 import { AU, US, CN, EU, JP, GB, KR, HK, SG, IN, CA } from "country-flag-icons/react/3x2";
+const CRYPTO = new Set(["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE"]);
 
 const FLAGS: Record<string, typeof AU> = { AU, US, CN, EU, JP, GB, KR, HK, SG, IN, CA };
 const CUR: Record<string, string> = { AUD: "AU", USD: "US", CNY: "CN", EUR: "EU", JPY: "JP", GBP: "GB", KRW: "KR", HKD: "HK", SGD: "SG", INR: "IN", CAD: "CA" };
@@ -15,10 +16,28 @@ const INFO: Record<string, { c?: string; en: string; zh: string }> = {
   "VIX": { c: "US", en: "The \"fear index\": expected US market swings over the next 30 days. Higher means more nervous.", zh: "恐慌指数，反映市场对未来 30 天美股波动的预期，越高越紧张。" },
   "US 10Y %": { c: "US", en: "Yield on 10-year US government bonds; drives mortgage and borrowing costs worldwide.", zh: "美国 10 年期国债收益率，影响全球房贷和借贷成本。" },
   "US 2Y %": { c: "US", en: "Yield on 2-year US government bonds; follows expectations for Fed rates.", zh: "美国 2 年期国债收益率，跟随市场对美联储利率的预期。" },
+  "SHANGHAI": { c: "CN", en: "Shanghai Composite: every stock on the Shanghai exchange (A and B shares).", zh: "上证指数：上海证券交易所全部股票，A 股大盘的主要指标。" },
+  "SHENZHEN": { c: "CN", en: "Shenzhen Component: 500 leading stocks on the Shenzhen exchange, heavy in tech and manufacturing.", zh: "深证成指：深圳证券交易所 500 只代表性股票，科技和制造业占比高。" },
+  "CSI 300": { c: "CN", en: "The 300 largest A-shares in Shanghai and Shenzhen; the main benchmark for China's stock market.", zh: "沪深 300：沪深两市最大的 300 只 A 股，衡量中国股市的核心指标。" },
+  "SSE B-SHARE": { c: "CN", en: "Shanghai B shares: mainland companies traded in US dollars, open to foreign investors.", zh: "上证 B 股指数：在上海以美元交易的 B 股，外国投资者可以买。" },
+  "SZSE B-SHARE": { c: "CN", en: "Shenzhen B shares: mainland companies traded in Hong Kong dollars.", zh: "深证 B 股指数：在深圳以港元交易的 B 股。" },
+  "HANG SENG": { c: "HK", en: "The largest companies listed in Hong Kong, including many mainland giants.", zh: "恒生指数：香港上市的大公司，包括很多内地龙头企业。" },
+  "HS TECH": { c: "HK", en: "The 30 largest tech companies listed in Hong Kong: Tencent, Alibaba, Meituan, Xiaomi and others.", zh: "恒生科技指数：香港上市的 30 家大型科技公司，如腾讯、阿里、美团、小米。" },
   "WTI OIL": { en: "US crude oil price, US dollars per barrel.", zh: "美国 WTI 原油价格，美元/桶。" },
   "BRENT OIL": { en: "International benchmark crude oil price, US dollars per barrel.", zh: "布伦特原油，国际油价基准，美元/桶。" },
   "NAT GAS": { c: "US", en: "US natural gas price (Henry Hub), US dollars per million BTU.", zh: "美国天然气价格（Henry Hub），美元/百万英热单位。" },
 };
+// the unit under each name, so a reader knows what the number means
+function unitOf(name: string, zh: boolean): string {
+  const fx = name.match(/^([A-Z]{3})\/([A-Z]{3})$/);
+  if (fx) return zh ? `1 ${fx[1]} 兑 ${fx[2]}` : `${fx[2]} per 1 ${fx[1]}`;
+  if (CRYPTO.has(name)) return zh ? "美元" : "USD";
+  if (/%$/.test(name)) return zh ? "收益率 %" : "yield %";
+  if (/OIL/.test(name)) return zh ? "美元/桶" : "USD per barrel";
+  if (name === "NAT GAS") return zh ? "美元/百万英热" : "USD per MMBtu";
+  if (name === "VIX") return zh ? "指数" : "index";
+  return zh ? "点" : "points";
+}
 function flagsOf(name: string): string[] {
   if (/^[A-Z]{3}\/[A-Z]{3}$/.test(name)) return name.split("/").map((c) => CUR[c]).filter(Boolean);
   return INFO[name]?.c ? [INFO[name].c!] : [];
@@ -53,7 +72,7 @@ export function Markets({ tabs, updated, title, empty, zh = false }: { tabs: { l
           <div key={q.name} className="grid grid-cols-[108px_minmax(0,1fr)_80px_58px] items-center gap-2 py-2 text-[13px]">
             <span className="flex min-w-0 items-center gap-1 font-semibold" title={INFO[q.name] ? (zh ? INFO[q.name].zh : INFO[q.name].en) : undefined}>
               {flagsOf(q.name).length > 0 && <span className="flex shrink-0 -space-x-0.5">{flagsOf(q.name).map((c) => <Flg key={c} c={c} />)}</span>}
-              <span className="truncate text-[12px]">{q.name}</span>
+              <span className="min-w-0"><span className="block truncate text-[12px]">{q.name}</span><span className="block truncate text-[10px] font-normal text-neutral-400">{unitOf(q.name, zh)}</span></span>
             </span>
             <Spark s={q.series} up={q.change >= 0} />
             <span className="whitespace-nowrap text-right tabular-nums">{q.value.toLocaleString("en-US", { minimumFractionDigits: q.digits, maximumFractionDigits: q.digits })}</span>
