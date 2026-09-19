@@ -34,7 +34,11 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
   const l = await langFrom(params);
   const zh = l === "zh";
   return (
-    <html lang={l === "zh" ? "zh-CN" : "en"} className={`${inter.variable} antialiased`}>
+    <html lang={l === "zh" ? "zh-CN" : "en"} className={`${inter.variable} antialiased`} suppressHydrationWarning>
+      <head>
+        {/* set the theme before first paint: saved choice, else the device setting */}
+        <script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem("theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("dark")}catch(e){}` }} />
+      </head>
       <body className="font-sans">
         <div className="flex min-h-screen">
           <Sidebar l={l} />

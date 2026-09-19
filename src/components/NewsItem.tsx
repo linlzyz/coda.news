@@ -60,6 +60,9 @@ export function pickFeatured(events: EventRow[], n: number, skip: Set<number> = 
   return events
     .filter((e) => !skip.has(e.id) && e.source_count >= 2 && e.image_url && Date.now() - Date.parse(e.last_article_at) < 48 * 3600_000)
     .sort((a, b) => (b.importance ?? 0) - (a.importance ?? 0) || b.countries.length - a.countries.length || b.source_count - a.source_count)
+    // the top few by importance, then real photos ahead of logos so the row is not four logos
+    .slice(0, n * 3)
+    .sort((a, b) => Number(a.image_focus === "logo") - Number(b.image_focus === "logo"))
     .slice(0, n);
 }
 

@@ -9,7 +9,7 @@ const PALETTE = [["#F4F5F7", "#1F2328"], ["#FFF1EA", "#C2410C"], ["#EEF0F3", "#4
 export function Cover({ e, className = "", credit = false, iconName, priority = false }: { e: EventRow; className?: string; credit?: boolean; iconName?: string; priority?: boolean }) {
   const [bg, fg] = PALETTE[e.id % PALETTE.length];
   const placeholder = (
-    <div className={`relative flex h-full w-full items-center justify-center overflow-hidden`} style={{ background: bg, color: fg }}>
+    <div className="cover-ph relative flex h-full w-full items-center justify-center overflow-hidden" style={{ background: bg, color: fg }}>
       <div className="absolute inset-0 opacity-[0.12]" style={{ backgroundImage: `radial-gradient(${fg} 1px, transparent 1px)`, backgroundSize: "14px 14px" }} />
       <Icon name={iconName ?? TOPIC_ICON[e.topic_ids[0]] ?? (e.category === "economy" ? "economy" : "technology")} size={40} className="relative" />
     </div>
@@ -20,7 +20,7 @@ export function Cover({ e, className = "", credit = false, iconName, priority = 
         <div className="absolute inset-0 z-10 hidden group-data-[broken]:block">{placeholder}</div>
         {e.image_focus === "logo" ? (
           // brand logo: centred on a clean card, never cropped
-          <div className="flex h-full w-full items-center justify-center bg-white p-[12%]">
+          <div className="flex h-full w-full items-center justify-center bg-[#FFFFFF] p-[12%]">
             <SafeImg src={e.image_url} alt={e.title} className="max-h-full max-w-full object-contain" loading={priority ? "eager" : "lazy"} decoding="async" />
           </div>
         ) : e.image_focus === "top" ? (

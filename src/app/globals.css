@@ -17,3 +17,33 @@ p { text-wrap: pretty; }
 .ticker:hover .ticker-track { animation-play-state: paused; }
 @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) { .ticker-track { animation: none; } }
+
+/* ---------- Dark mode ----------
+   The site is written with light-theme utility colours; in dark mode the common ones are remapped here.
+   Logos keep a white card (bg-[#FFFFFF]) so dark logos stay readable. */
+html.dark { color-scheme: dark; }
+html.dark body { background: #0F1115; color: #E8EAED; }
+html.dark .bg-white, html.dark .bg-white\/80, html.dark .bg-white\/90 { background-color: #171A1F; }
+html.dark .bg-\[\#F4F5F7\], html.dark .bg-neutral-100, html.dark .bg-\[\#F8F9FA\], html.dark .bg-\[\#E5E7EB\] { background-color: #1F2329; }
+html.dark .hover\:bg-\[\#F4F5F7\]:hover, html.dark .hover\:bg-neutral-50:hover, html.dark .hover\:bg-\[\#ECEEF1\]:hover { background-color: #262B32; }
+html.dark .bg-\[\#1F2328\], html.dark .bg-\[\#16181D\] { background-color: #22262D; box-shadow: inset 0 0 0 1px #2E343C; }
+html.dark .bg-\[\#FFF0EB\], html.dark .bg-\[\#FFF1EA\], html.dark .bg-\[\#FDEEE6\], html.dark .hover\:bg-\[\#FFE3D4\]:hover { background-color: rgba(234, 85, 20, .16); }
+html.dark .border-\[\#E5E7EB\], html.dark .border-neutral-200, html.dark .border-\[\#F0F1F3\], html.dark .border-\[\#D1D5DB\], html.dark .divide-\[\#E5E7EB\] > * + *, html.dark .divide-\[\#F0F1F3\] > * + * { border-color: #2A2F36; }
+html.dark .border-\[\#16181D\], html.dark .hover\:border-\[\#16181D\]:hover { border-color: #C9CDD2; }
+html.dark .border-\[\#F5D0BE\] { border-color: rgba(234, 85, 20, .35); }
+html.dark .text-\[\#16181D\], html.dark .hover\:text-\[\#16181D\]:hover, html.dark .text-neutral-800 { color: #E8EAED; }
+html.dark .text-neutral-700 { color: #C9CDD2; }
+html.dark .text-neutral-600 { color: #B0B5BB; }
+html.dark .text-neutral-500 { color: #9AA0A6; }
+html.dark .text-neutral-400 { color: #7A8087; }
+html.dark .text-\[\#C2410C\], html.dark .hover\:text-\[\#C2410C\]:hover, html.dark .group:hover .group-hover\:text-\[\#C2410C\] { color: #F28C5B; }
+html.dark .ring-neutral-200 { --tw-ring-color: #2A2F36; }
+html.dark input, html.dark textarea, html.dark select { background-color: #1F2329; color: #E8EAED; }
+/* category and status pills */
+html.dark .bg-\[\#F3F0FF\], html.dark .bg-\[\#ECFDF5\], html.dark .bg-\[\#EFF6FF\], html.dark .bg-\[\#FDF2F8\], html.dark .bg-\[\#FEF3C7\], html.dark .bg-\[\#E0F2FE\], html.dark .bg-\[\#F1F5F9\], html.dark .bg-\[\#EEF2FF\] { background-color: rgba(255, 255, 255, .07); }
+html.dark .text-\[\#6D28D9\] { color: #B69CFF; } html.dark .text-\[\#0F766E\] { color: #5EEAD4; } html.dark .text-\[\#1D4ED8\] { color: #93B4FF; }
+html.dark .text-\[\#BE185D\] { color: #F9A8D4; } html.dark .text-\[\#92400E\] { color: #FCD34D; } html.dark .text-\[\#0369A1\] { color: #7DD3FC; }
+html.dark .text-\[\#334155\] { color: #CBD5E1; } html.dark .text-\[\#4338CA\] { color: #A5B4FC; } html.dark .text-\[\#9A3412\] { color: #FDBA74; }
+/* designed placeholder covers: same design, night colours */
+html.dark .cover-ph { filter: invert(.9) hue-rotate(180deg); }
+html.dark img[src="/logo.svg"] { filter: invert(1) hue-rotate(180deg); }
