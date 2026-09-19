@@ -12,7 +12,7 @@ export function Feed({ items, tabs, title, more, disclaimer }: {
   return (
     <section>
       <div className="flex items-center gap-5 border-b border-[#E5E7EB]">
-        <h2 className="whitespace-nowrap py-3 text-[22px] font-semibold tracking-[-0.02em]">{title}</h2>
+        <h2 className="shrink-0 whitespace-nowrap py-3 text-[22px] font-semibold tracking-[-0.02em]">{title}</h2>
         <nav className="flex gap-1 overflow-x-auto text-[13px]" role="tablist">
           {tabs.map(([label, v]) => (
             <button key={label} role="tab" aria-selected={v === tab} onClick={() => { setTab(v); setN(15); }}
