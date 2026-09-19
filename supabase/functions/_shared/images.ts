@@ -38,7 +38,8 @@ const relevant = (q: string, text: string, all = false) => {
   const words = q.toLowerCase().split(/[^a-z]+/).filter((w) => w.length > 2 && !STOP.has(w));
   const t = ` ${text.toLowerCase()} `;
   const hit = (w: string) => t.includes(w.replace(/s$/, ""));
-  return words.length > 0 && (all ? words.every(hit) : words.some(hit));
+  // stock libraries: at least two of the query's words (or all, if it has fewer), so "trading cards" never finds a card magician
+  return words.length > 0 && (all ? words.every(hit) : words.filter(hit).length >= Math.min(2, words.length));
 };
 // open archives (Commons, Openverse) hold documentary photos of protests, wars and people; they must match every word, and never show these
 const SENSITIVE = /\b(protest|rally in support|demonstrat|riot\b|war\b|soldier|military|funeral|victim|refugee|police|arrest|blood|weapon|gun\b|guns\b|flag of|ukrain|russia|israel|gaza|palestin|politic|election|campaign|march for|strike\b)/i;
@@ -351,7 +352,7 @@ ${games.map((g, i) => `${i + 1}. ${g.title}`).join("\n")}`)).g ?? {};
     where e.press_checked_at is null and e.summary is not null and e.status <> 'archived'
       -- games and cars: sites run the maker's press shots; films, shows and products only for launches, trailers and reveals (not people stories)
       and (e.category in ('gaming','automotive')
-        or (e.category in ('entertainment','technology') and e.image_person is null
+        or (e.category in ('entertainment','technology','economy','fashion','travel') and e.image_person is null
             and e.title ~* '(trailer|teaser|poster|first look|key art|launch|unveil|reveal|announce|release|debut|premiere|season [0-9]|sequel|album|game|console|phone|iphone|galaxy|pixel|laptop|headset|watch)'))
       and (e.image_url is null or e.image_source in ('pexels','unsplash','pixabay','logo'))
     order by e.last_article_at desc limit 25`;
