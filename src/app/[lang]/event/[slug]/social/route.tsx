@@ -37,7 +37,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ lang: st
   const nS = Math.max(e.source_count, ps.reduce((a, p) => a + (p.article_count ?? 0), 0));
   const meta = zh ? `${nC} 个国家 · ${nS} 个来源` : `${nC} ${nC === 1 ? "country" : "countries"} · ${nS} ${nS === 1 ? "source" : "sources"}`;
   const kicker = zh ? "各国怎么说" : "HOW THE WORLD REPORTS IT";
-  const photoOk = !!e.image_url && !!e.image_credit && (/\/ (Pexels|Unsplash|Pixabay)$/.test(e.image_credit) || /\((CC BY \d|CC0|Public domain|PDM)/i.test(e.image_credit));
+  const photoOk = !!e.image_url && !!e.image_credit && (/\/ (Pexels|Unsplash|Pixabay)$/.test(e.image_credit) || /\((CC BY[^)]*|CC0[^)]*|Public domain|PDM)\)/i.test(e.image_credit));
   const rows = ps.map((p) => ({ c: cName(p.country), f: ((zh && p.framing_zh) || p.framing || "").slice(0, zh ? 30 : 70), t: TONE[p.tone] ?? TONE.neutral }));
   const link = `https://coda.news${zh ? "/zh" : ""}/event/${slug}`;
   const qr = slide === 2 ? await QRCode.toDataURL(link, { margin: 0, width: 220, color: { dark: INK, light: "#ffffff" } }) : "";
