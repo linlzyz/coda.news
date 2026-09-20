@@ -34,7 +34,9 @@ export function Cover({ e, className = "", credit = false, iconName, priority = 
         )}
         {credit && e.image_credit && e.image_focus !== "logo" && (
           <figcaption className="group-data-[broken]:hidden absolute bottom-2 right-2 rounded-md bg-black/45 px-2 py-0.5 text-[10px] text-white/90">
-            {e.image_link ? <a href={e.image_link} target="_blank" rel="noopener noreferrer">Photo: {e.image_credit}</a> : <>Photo: {e.image_credit}</>}
+            {/* name the person pictured, so a portrait credited to e.g. the UK Prime Minister's Flickr is not read as a photo of the PM */}
+            {(() => { const who = e.image_person ? `${e.image_person} · ` : ""; const c = `${who}Photo: ${e.image_credit!.replace(/^UK Prime Minister\b/, "UK Prime Minister's Office")}`;
+              return e.image_link ? <a href={e.image_link} target="_blank" rel="noopener noreferrer">{c}</a> : <>{c}</>; })()}
           </figcaption>
         )}
       </figure>

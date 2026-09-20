@@ -12,13 +12,13 @@ export interface EventRow {
   id: number; slug: string; title: string; title_zh: string | null; category: string; status: Status; regions?: string[]; image_focus?: string | null; lead_url?: string | null; lead_source?: string | null; pinned_at?: string | null;
   confidence: number; importance: number; summary: string | null; summary_zh: string | null; countries: string[]; source_count: number;
   article_count: number; has_official: boolean; image_url: string | null; image_credit: string | null; image_link: string | null; company_ids: number[]; topic_ids: number[];
-  started_at: string; last_article_at: string; summary_version: number; points?: { en?: string[]; zh?: string[] } | null;
+  started_at: string; last_article_at: string; summary_version: number; points?: { en?: string[]; zh?: string[] } | null; image_person?: string | null;
 }
 export interface Perspective { country: string; headline: string | null; framing: string | null; emphasis: string | null; downplayed: string | null; tone: "positive" | "neutral" | "negative"; article_count: number; headline_zh: string | null; framing_zh: string | null; emphasis_zh: string | null; downplayed_zh: string | null }
 export interface Topic { id: number; name: string; slug: string; color: string }
 export interface Company { id: number; name: string; slug: string }
 
-const EVENT_COLS = "id,slug,title,title_zh,category,status,confidence,importance,summary,summary_zh,countries,source_count,article_count,has_official,image_url,image_credit,image_link,company_ids,topic_ids,started_at,last_article_at,summary_version,regions,image_focus,lead_url,lead_source,pinned_at,points";
+const EVENT_COLS = "id,slug,title,title_zh,category,status,confidence,importance,summary,summary_zh,countries,source_count,article_count,has_official,image_url,image_credit,image_link,company_ids,topic_ids,started_at,last_article_at,summary_version,regions,image_focus,lead_url,lead_source,pinned_at,points,image_person";
 
 async function _listEvents(opts: { category?: string; region?: string; companyId?: number; topicId?: number; limit?: number; order?: "importance" | "recent"; sinceHours?: number } = {}) {
   let q = supabase.from("events").select(EVENT_COLS).not("summary", "is", null).neq("status", "archived").eq("hidden", false);
