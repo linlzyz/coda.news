@@ -29,8 +29,10 @@ export async function proposeInstagram(force = false): Promise<number> {
   if (!force && melb({ hour: "numeric", hour12: false }) !== "20") return 0;
   if (!force && (await sql`select 1 from ig_posts where created_at > now() - interval '20 hours'`).length) return 0;
   const recent = (await sql<{ category: string }[]>`select e.category from ig_posts p join events e on e.id = p.event_id order by p.id desc limit 2`).map((r) => r.category);
-  const [e] = await sql<{ id: number; slug: string; title: string; category: string; n: number; image_credit: string | null }[]>`
-    select e.id, e.slug, e.title, e.category, (select count(*)::int from perspectives p where p.event_id = e.id) n, e.image_credit
+  const [e] = await sql<{ id: number; slug: string; title: string; summary: string; category: string; n: number; image_credit: string | null; differ: string | null }[]>`
+    select e.id, e.slug, e.title, e.summary, e.category, (select count(*)::int from perspectives p where p.event_id = e.id) n, e.image_credit,
+      coalesce((select u.content->'differ'->>0 from event_updates u where u.event_id = e.id and u.type = 'summary_updated' order by u.version desc limit 1),
+               (select p.emphasis from perspectives p where p.event_id = e.id and p.emphasis is not null order by p.article_count desc limit 1)) differ
     from events e
     where not e.hidden and e.summary is not null and e.started_at > now() - interval '36 hours'
       and (select count(*) from perspectives p where p.event_id = e.id) >= 3
@@ -38,8 +40,10 @@ export async function proposeInstagram(force = false): Promise<number> {
     order by (e.category = any(${recent})) , e.importance * power(0.5, extract(epoch from now() - e.started_at) / 86400) desc
     limit 1`;
   if (!e) { log("instagram: no suitable story tonight"); return 0; }
-  const credit = e.image_credit && /(Pexels|Unsplash|Pixabay|CC BY|CC0|Public domain)/i.test(e.image_credit) ? `\nPhoto: ${e.image_credit}` : "";
-  const caption = `${e.title}\n\nOne story, ${e.n} countries: what every report shares and where the coverage differs. Swipe →\n\nFull comparison: link in bio (coda.news)${credit}\n\n${TAGS[e.category] ?? ""} #news #worldnews #globalnews #codanews`;
+  const credit = e.image_credit && /(Pexels|Unsplash|Pixabay|CC BY|CC0|Public domain)/i.test(e.image_credit) ? `\n📷 ${e.image_credit}` : "";
+  const lead = (e.summary.match(/^.*?[.!?](\s|$)/)?.[0] ?? e.summary).trim();
+  // a real caption: what happened, where the coverage differs, then the call to swipe
+  const caption = `${e.title}\n\n${lead}\n\n${e.differ ? `Where it differs: ${e.differ}\n\n` : ""}${e.n} countries, side by side. Swipe →\nFull comparison: link in bio${credit}\n\n${TAGS[e.category] ?? ""} #news #worldnews #codanews`;
   const [p] = await sql<{ id: number; approve_token: string }[]>`insert into ig_posts (event_id, caption) values (${e.id}, ${caption}) returning id, approve_token`;
   const base = `${env("SUPABASE_URL")}/functions/v1/admin`;
   const ok = `${base}?ig=approve&t=${p.approve_token}`, no = `${base}?ig=skip&t=${p.approve_token}`;
