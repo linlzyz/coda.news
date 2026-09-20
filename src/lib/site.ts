@@ -9,6 +9,7 @@ export const SITE = {
   email: "info@coda.news",
   hello: "hello@coda.news",           // readers: questions, feedback
   business: "business@coda.news",     // pilots, data and partnership enquiries
+  instagram: "https://www.instagram.com/thecodanews/",
 };
 export const operatorLine = (zh = false) =>
   zh ? `由 ${SITE.operator} 运营 · ${SITE.cityZh}${SITE.abn ? ` · ABN ${SITE.abn}` : ""}`
@@ -20,4 +21,5 @@ export const orgLd = {
   publishingPrinciples: `${SITE.url}/about#standards`, correctionsPolicy: `${SITE.url}/about#corrections`,
   ethicsPolicy: `${SITE.url}/about#standards`, ownershipFundingInfo: `${SITE.url}/about#who`,
   contactPoint: { "@type": "ContactPoint", contactType: "editorial", email: SITE.email },
+  sameAs: [SITE.instagram],
 };

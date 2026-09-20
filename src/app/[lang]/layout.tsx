@@ -61,7 +61,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
               </div>
               <div className="mt-8 flex flex-col gap-1 border-t border-[#E5E7EB] pt-4 text-[12px] text-neutral-500 md:flex-row md:justify-between">
                 <span>© {new Date().getFullYear()} <Brand /></span>
-                <a href={`mailto:${SITE.email}`} className="hover:text-neutral-800">{SITE.email}</a>
+                <span className="flex gap-4"><a href={SITE.instagram} target="_blank" rel="noopener noreferrer me" className="hover:text-neutral-800">Instagram @thecodanews</a><a href={`mailto:${SITE.email}`} className="hover:text-neutral-800">{SITE.email}</a></span>
               </div>
             </footer>
           </div>
