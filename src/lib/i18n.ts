@@ -32,7 +32,7 @@ const D = {
   nlErr: ["Please check the email address and try again.", "请检查邮箱地址后重试。"],
   footer: ["Summaries are AI-generated from the linked sources and may contain errors; always check the originals. We summarise and link; we never republish articles. Photos come from openly licensed libraries, official publicity material and brand logos, credited to their sources. If you own an image and want it credited differently or removed, email info@coda.news and we will act promptly.", "摘要由 AI 根据所链接的来源生成，可能有误，请以原文为准。我们只做摘要和链接，从不转载原文。图片来自开放授权图库、官方宣传图和品牌 logo，均注明来源。如您是图片权利人，希望修改署名或删除，请发邮件至 info@coda.news，我们会尽快处理。"],
   terms: ["Terms of Use", "使用条款"], privacy: ["Privacy Policy", "隐私政策"], cookies: ["Cookie Policy", "Cookie 政策"],
-  updated: ["Updated", "更新于"], since: ["since", "始于"], agreed: ["What everyone agrees on", "各方共识"], keyFacts: ["Key facts", "要点"],
+  updated: ["Updated", "更新于"], since: ["since", "始于"], agreed: ["What everyone agrees on", "各方共识"], keyFacts: ["Key facts", "要点"], common: ["What all reports share", "共同事实"], differs: ["Where the coverage differs", "各国侧重"],
   spectrum: ["The framing spectrum", "报道倾向"], spectrumSub: ["Overall tone of each country's coverage of this event, judged from the articles listed below.", "各国媒体报道这件事的整体语气，依据下方列出的文章判断。"],
   positive: ["Supportive", "支持性"], neutral: ["Descriptive", "描述性"], cautious: ["Cautious", "审慎性"],
   howEach: ["How each country tells it", "各国怎么说"], oneCountry: ["So far our sources show coverage from one country. Perspectives appear once we find reports from a second country.", "在我们收录的来源里，目前只有一个国家报道了这件事。找到第二个国家的报道后，这里会出现各国视角对比。"],

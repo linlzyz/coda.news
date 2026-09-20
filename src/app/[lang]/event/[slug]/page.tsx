@@ -44,6 +44,9 @@ export default async function EventPage({ params }: PageProps<"/[lang]/event/[sl
   const byCountry = new Map<string, typeof articles>();
   for (const a of articles) byCountry.set(a.sources.country, [...(byCountry.get(a.sources.country) ?? []), a]);
   const agreed = (l === "zh" && latest?.agreed_zh?.length ? latest.agreed_zh : latest?.agreed) ?? [];
+  // where the coverage differs: the model's own points when it wrote them, else each country's emphasis from its card
+  const differ = (l === "zh" && latest?.differ_zh?.length ? latest.differ_zh : latest?.differ) ?? [];
+  const emphases = differ.length ? [] : perspectives.filter((p) => perspL(p, l).emphasis).slice(0, 4).map((p) => ({ c: p.country, t: perspL(p, l).emphasis as string }));
   // only takes written with the newer, less formulaic prompt (older ones just listed the countries again)
   const freshTake = latest?.created_at && Date.parse(latest.created_at) > Date.parse("2026-09-19T05:00:00Z");
   const analysis = freshTake ? (l === "zh" && latest?.analysis_zh) || latest?.analysis : null;
@@ -83,14 +86,27 @@ export default async function EventPage({ params }: PageProps<"/[lang]/event/[sl
             <section className="rounded-2xl bg-[#FFF1EA] p-6">
               <div className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#C2410C]">{t(l, "analysis")}</div>
               {analysis && <p className="mt-3 text-[17px] leading-relaxed text-neutral-800">{analysis}</p>}
-              {agreed.length > 0 && (
-                <>
-                  <h2 className={`${analysis ? "mt-5 border-t border-[#F5D0BE] pt-4" : "mt-3"} text-[14px] font-semibold text-[#16181D]`}>{t(l, "keyFacts")}</h2>
-                  <ol className="mt-3 grid gap-2.5 sm:grid-cols-2">
-                    {agreed.map((f, i) => <li key={i} className="flex gap-3 text-[15px] leading-relaxed text-neutral-800"><span className="font-semibold text-[#C2410C]">{String(i + 1).padStart(2, "0")}</span><span>{f}</span></li>)}
-                  </ol>
-                </>
-              )}
+              {/* the two things a reader wants from a comparison: what every report shares, and where they put the weight differently */}
+              <div className={`${analysis ? "mt-5 border-t border-[#F5D0BE] pt-4" : "mt-3"} grid gap-6 ${perspectives.length >= 2 && (differ.length || emphases.length) ? "md:grid-cols-2" : ""}`}>
+                {agreed.length > 0 && (
+                  <div>
+                    <h2 className="text-[14px] font-semibold text-[#16181D]">{perspectives.length >= 2 ? t(l, "common") : t(l, "keyFacts")}</h2>
+                    <ol className="mt-3 space-y-2.5">
+                      {agreed.map((f, i) => <li key={i} className="flex gap-3 text-[15px] leading-relaxed text-neutral-800"><span className="font-semibold text-[#C2410C]">{String(i + 1).padStart(2, "0")}</span><span>{f}</span></li>)}
+                    </ol>
+                  </div>
+                )}
+                {perspectives.length >= 2 && (differ.length > 0 || emphases.length > 0) && (
+                  <div>
+                    <h2 className="text-[14px] font-semibold text-[#16181D]">{t(l, "differs")}</h2>
+                    <ul className="mt-3 space-y-2.5">
+                      {differ.length > 0
+                        ? differ.map((d, i) => <li key={i} className="flex gap-3 text-[15px] leading-relaxed text-neutral-800"><span className="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#C2410C]" /><span>{d}</span></li>)
+                        : emphases.map((d) => <li key={d.c} className="flex gap-3 text-[15px] leading-relaxed text-neutral-800"><span className="mt-1.5 shrink-0"><Flag code={d.c} size={11} /></span><span><b className="font-semibold">{countryL(d.c, l)}</b>{l === "zh" ? "：" : ": "}{d.t}</span></li>)}
+                    </ul>
+                  </div>
+                )}
+              </div>
               <p className="mt-4 text-[12px] text-neutral-600">{t(l, "aiNote")}</p>
             </section>
           )}

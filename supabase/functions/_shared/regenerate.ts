@@ -7,7 +7,7 @@ import { generatePrompt } from "./prompts.ts";
 const DEBOUNCE_MIN = 10;
 
 interface Generated {
-  title: string; title_zh?: string; image_query?: string; image_person?: string; image_brand?: string; summary: string; summary_zh?: string; agreed?: string[]; agreed_zh?: string[]; analysis?: string; analysis_zh?: string;
+  title: string; title_zh?: string; image_query?: string; image_person?: string; image_brand?: string; summary: string; summary_zh?: string; agreed?: string[]; agreed_zh?: string[]; differ?: string[]; differ_zh?: string[]; analysis?: string; analysis_zh?: string;
   perspectives?: { country: string; headline?: string; framing?: string; emphasis?: string; downplayed?: string; tone?: string; headline_zh?: string; framing_zh?: string; emphasis_zh?: string; downplayed_zh?: string }[];
 }
 
@@ -58,7 +58,7 @@ export async function regenerate(limit = 3): Promise<number> {
                    headline_zh = excluded.headline_zh, framing_zh = excluded.framing_zh, emphasis_zh = excluded.emphasis_zh, downplayed_zh = excluded.downplayed_zh`;
       }
       await tx`insert into event_updates (event_id, type, content, version)
-               values (${e.id}, 'summary_updated', ${tx.json({ title: g.title, summary: g.summary, agreed: g.agreed ?? [], agreed_zh: g.agreed_zh ?? [], analysis: g.analysis ?? "", analysis_zh: g.analysis_zh ?? "", perspectives: valid })}, ${version})`;
+               values (${e.id}, 'summary_updated', ${tx.json({ title: g.title, summary: g.summary, agreed: g.agreed ?? [], agreed_zh: g.agreed_zh ?? [], differ: g.differ ?? [], differ_zh: g.differ_zh ?? [], analysis: g.analysis ?? "", analysis_zh: g.analysis_zh ?? "", perspectives: valid })}, ${version})`;
     });
     done++;
   }

@@ -100,6 +100,8 @@ Return JSON only:
  "summary_zh": "same summary in Simplified Chinese",
  "agreed": ["2 to 4 short facts that all or nearly all sources report"],
  "agreed_zh": ["the same facts in Simplified Chinese"],
+ "differ": ["0 to 3 short points on where coverage in different countries puts a different emphasis, each naming the countries, e.g. 'US outlets focus on the policy outlook; Japanese outlets on the yen'. Only differences visible in the articles below. Never say who is right, never invent a conflict. Empty list if the coverage is essentially the same everywhere."],
+ "differ_zh": ["the same points in Simplified Chinese"],
  "perspectives": [ { "country": "US", "headline": "typical headline from this country's media, in English",
      "framing": "2 to 3 word label for the angle, e.g. Market opportunity",
      "emphasis": "one sentence: what this country's coverage puts first",
