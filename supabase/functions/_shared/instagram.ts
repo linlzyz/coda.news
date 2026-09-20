@@ -196,11 +196,13 @@ export async function publishInstagram(postId: number): Promise<string> {
     if (p.format === "reel") {
       try {
         const a = await api();
-        // render the video once so Instagram's fetch hits the CDN copy
+        // the site renders the video (15-20 s); Instagram gets a static copy from our storage, since it gives up on slow URLs
         const r = await fetch(reelUrl(p.id), { signal: AbortSignal.timeout(110_000) });
         if (!r.ok || !(r.headers.get("content-type") ?? "").startsWith("video/")) throw new Error(`reel render ${r.status}`);
-        await r.arrayBuffer();
-        const box = await a.post(`${a.user}/media`, { media_type: "REELS", video_url: reelUrl(p.id), cover_url: slides(p)[0], caption: p.caption, share_to_feed: "true" });
+        const base = env("SUPABASE_URL"), secret = env("SUPABASE_SERVICE_ROLE_KEY"), file = `ig/reel-${p.id}.mp4`;
+        const up = await fetch(`${base}/storage/v1/object/images/${file}`, { method: "POST", headers: { apikey: secret, Authorization: `Bearer ${secret}`, "content-type": "video/mp4", "x-upsert": "true" }, body: await r.arrayBuffer() });
+        if (!up.ok) throw new Error(`reel upload ${up.status}`);
+        const box = await a.post(`${a.user}/media`, { media_type: "REELS", video_url: `${base}/storage/v1/object/public/images/${file}`, cover_url: slides(p)[0], caption: p.caption, share_to_feed: "true" });
         await sql`update ig_posts set status = 'processing', container_id = ${box}, error = null where id = ${p.id}`;
         return "processing";
       } catch (e) {

@@ -7,3 +7,5 @@ create or replace function public.ig_slide(p bigint) returns jsonb language sql 
   from ig_posts x join events e on e.id = x.event_id where x.id = p
 $$;
 grant execute on function public.ig_slide(bigint) to anon, authenticated;
+-- Reel videos are stored next to the images (Instagram fetches them from here)
+update storage.buckets set allowed_mime_types = array['image/jpeg','image/png','image/webp','video/mp4'], file_size_limit = 20971520 where id = 'images';
