@@ -2,10 +2,12 @@
 //   ?s=1  cover: photo card (section tag, photo on top, heavy sans headline + dek, flags) or black/white/orange type cover
 //   ?s=2  "How the world reports it": one line per country with its framing and tone
 //   ?s=3  "The takeaway": what all reports share, and where the coverage differs
+//   ?s=t1 / t2  travel post: full-bleed scenic cover, then "what to look for" (&img= photo, &cr= credit from the Instagram job)
 import { ImageResponse } from "next/og";
 import { withPngMeta } from "@/lib/png-meta";
 import QRCode from "qrcode";
-import { getEvent, getLatestSummary, getPerspectives } from "@/lib/data";
+import { getEvent, getLatestSummary, getPerspectives, igSlide } from "@/lib/data";
+
 import { COUNTRY_ZH } from "@/lib/i18n";
 import { COUNTRY } from "@/lib/ui";
 import { LOGO_DATA_URI, LOGO_WHITE_DATA_URI } from "@/lib/logo-data";
@@ -27,6 +29,10 @@ export async function GET(req: Request, { params }: { params: Promise<{ lang: st
   const zh = lang === "zh";
   const sp = new URL(req.url).searchParams.get("s");
   const slide = sp === "3" ? 3 : sp === "2" ? 2 : 1;
+  const tslide = sp === "t1" ? 1 : sp === "t2" ? 2 : 0;
+  // travel slides: photo and magazine copy live on the Instagram post (&p=id), written when the post was planned
+  const pid = Number(new URL(req.url).searchParams.get("p"));
+  const tp = tslide && pid ? await igSlide(pid) : null;
   const e = await getEvent(slug);
   if (!e) return new Response("Not found", { status: 404 });
   const ps = ((await getPerspectives([e.id])).get(e.id) ?? []).sort((a, b) => b.article_count - a.article_count).slice(0, 5);
@@ -58,7 +64,13 @@ export async function GET(req: Request, { params }: { params: Promise<{ lang: st
   const inSources = zh ? `在我们的来源里 · ${nC > 1 ? `${nC} 个国家` : `${nS} 家媒体`}` : `In our sources · ${nC > 1 ? `${nC} countries` : `${nS} ${nS === 1 ? "outlet" : "outlets"}`}`;
 
   const h3a = zh ? "所有报道都提到" : "WHAT ALL REPORTS SHARE", h3b = zh ? "各国侧重不同" : "WHERE THE COVERAGE DIFFERS", h3k = zh ? "要点" : "THE TAKEAWAY";
-  const all = [title, cat, meta, bio, dek, inSources, e.image_credit ?? "", "coda.news", ...Object.values(SEC).flatMap((v) => [v[0], v[1]]), kicker, cta, scan, credit, h3a, h3b, h3k, "0123456789·→、•", ...shared, ...diffRows, ...rows.flatMap((r) => [r.c, r.f, r.t[zh ? 1 : 0]])].join("");
+  const tPhoto = tp?.img ?? (photoOk ? e.image_url : null), tCredit = tp?.credit ?? (photoOk ? e.image_credit ?? "" : "");
+  const tc = tp?.copy;
+  const tTitle = (zh ? tc?.title_zh : tc?.title) || title, tDek = (zh ? tc?.dek_zh : tc?.dek) || dek;
+  const tItems = ((zh && tc?.items_zh?.length ? tc.items_zh : tc?.items) ?? []).slice(0, 5);
+  const tPoints = tItems.length ? [] : ((zh && e.points?.zh?.length ? e.points.zh : e.points?.en) ?? []).slice(0, 5).map((x) => cut(x, zh ? 40 : 110));
+  const tLabels = zh ? { k: "旅行灵感", look: "值得看的", swipe: "左滑 →", via: "内容来源", more: "更多旅行：主页链接 →" } : { k: "WHERE TO GO NEXT", look: "WHAT TO LOOK FOR", swipe: "Swipe →", via: "As featured by", more: "More travel: link in bio →" };
+  const all = [title, cat, meta, bio, tCredit, tTitle, tDek, ...tItems.flatMap((i) => [i.h, i.d]), ...tPoints, ...Object.values(tLabels), e.lead_source ?? "", dek, inSources, e.image_credit ?? "", "coda.news", ...Object.values(SEC).flatMap((v) => [v[0], v[1]]), kicker, cta, scan, credit, h3a, h3b, h3k, "0123456789·→、•", ...shared, ...diffRows, ...rows.flatMap((r) => [r.c, r.f, r.t[zh ? 1 : 0]])].join("");
   const serif = zh ? "Noto+Serif+SC" : "Playfair+Display", sans = zh ? "Noto+Sans+SC" : "Inter";
   const [serifB, sansR, sansB, sansK] = await Promise.all([gfont(serif, 700, all), gfont(sans, 400, all), gfont(sans, 700, all), gfont(sans, 900, all)]);
   const fonts = [{ name: "Serif", data: serifB, weight: 700 as const }, { name: "Sans", data: sansR, weight: 400 as const }, { name: "Sans", data: sansB, weight: 700 as const }, { name: "Sans", data: sansK, weight: 900 as const }];
@@ -171,7 +183,59 @@ export async function GET(req: Request, { params }: { params: Promise<{ lang: st
     </div>
   );
 
-  const img = new ImageResponse(slide === 1 ? cover : slide === 2 ? list : takeaway, { width: W, height: H, fonts, headers: { "cache-control": "public, max-age=0, s-maxage=3600" } });
+  const tHead = (color: string) => (
+    <div style={{ display: "flex", alignItems: "center" }}>
+      <img src={color === "#fff" ? LOGO_WHITE_DATA_URI : LOGO_DATA_URI} width={236} height={37} alt="" />
+      <div style={{ marginLeft: "auto", display: "flex", fontSize: 22, fontWeight: 700, color, letterSpacing: zh ? 2 : 5 }}>{cat}</div>
+    </div>
+  );
+  const travel1 = (
+    <div style={{ width: W, height: H, display: "flex", flexDirection: "column", background: INK, fontFamily: "Sans", position: "relative" }}>
+      {tPhoto && <img src={tPhoto} width={W} height={H} style={{ position: "absolute", top: 0, left: 0, width: W, height: H, objectFit: "cover" }} alt="" />}
+      <div style={{ position: "absolute", top: 0, left: 0, width: W, height: H, display: "flex", backgroundImage: "linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 22%, rgba(0,0,0,0) 45%, rgba(0,0,0,0.78) 100%)" }} />
+      <div style={{ display: "flex", flexDirection: "column", flexGrow: 1, padding: "64px 84px 60px", position: "relative" }}>
+        {tHead("#fff")}
+        <div style={{ display: "flex", flexDirection: "column", marginTop: "auto" }}>
+          <div style={{ display: "flex", fontSize: 26, fontWeight: 700, color: "#FDBA8C", letterSpacing: zh ? 3 : 4 }}>{tLabels.k}</div>
+          <div style={{ display: "flex", marginTop: 18, fontWeight: 900, fontSize: Math.round(tsize(tTitle.length) * 1.12), lineHeight: zh ? 1.2 : 1.0, color: "#fff", letterSpacing: zh ? 0 : -2 }}>{tTitle}</div>
+          {tDek && <div style={{ display: "flex", marginTop: 24, fontSize: 34, lineHeight: 1.4, color: "rgba(255,255,255,0.92)" }}>{tDek}</div>}
+        </div>
+        <div style={{ display: "flex", alignItems: "center", marginTop: 44, fontSize: 24, color: "rgba(255,255,255,0.85)" }}>
+          <div style={{ display: "flex", fontWeight: 700, color: "#fff", fontSize: 26 }}>{tLabels.swipe}</div>
+          {tCredit && <div style={{ display: "flex", marginLeft: "auto", fontSize: 18 }}>{`Photo: ${tCredit}`}</div>}
+        </div>
+      </div>
+    </div>
+  );
+  const travel2 = (
+    <div style={{ width: W, height: H, display: "flex", flexDirection: "column", background: "#fff", fontFamily: "Sans", padding: "64px 84px 60px" }}>
+      {tHead(INK)}
+      <div style={{ display: "flex", marginTop: 80, fontSize: 26, fontWeight: 700, color: ORANGE, letterSpacing: zh ? 3 : 4 }}>{tLabels.look}</div>
+      <div style={{ display: "flex", marginTop: 18, fontWeight: 900, fontSize: zh ? 56 : 62, lineHeight: 1.05, color: INK, letterSpacing: zh ? 0 : -1 }}>{tTitle}</div>
+      <div style={{ display: "flex", flexDirection: "column", marginTop: 44 }}>
+        {tItems.length ? tItems.map((t, i) => (
+          <div key={i} style={{ display: "flex", borderTop: "1px solid #E5E7EB", padding: "24px 0" }}>
+            <div style={{ display: "flex", width: 60, fontSize: 38, fontWeight: 900, color: ORANGE }}>{i + 1}</div>
+            <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+              <div style={{ display: "flex", fontSize: 36, fontWeight: 700, color: INK }}>{t.h}</div>
+              <div style={{ display: "flex", marginTop: 6, fontSize: 27, lineHeight: 1.35, color: "#6B7280" }}>{t.d}</div>
+            </div>
+          </div>
+        )) : tPoints.length ? tPoints.map((t, i) => (
+          <div key={i} style={{ display: "flex", borderTop: "1px solid #E5E7EB", padding: "26px 0" }}>
+            <div style={{ display: "flex", width: 56, fontSize: 36, fontWeight: 900, color: ORANGE }}>{i + 1}</div>
+            <div style={{ display: "flex", flex: 1, fontSize: zh ? 32 : 31, lineHeight: 1.38, color: "#1F2937" }}>{t}</div>
+          </div>
+        )) : <div style={{ display: "flex", fontSize: 32, lineHeight: 1.45, color: "#1F2937" }}>{(zh && e.summary_zh) || e.summary}</div>}
+      </div>
+      <div style={{ marginTop: "auto", display: "flex", alignItems: "center", borderTop: `4px solid ${INK}`, paddingTop: 24, fontSize: 24, color: "#6B7280" }}>
+        {e.lead_source && <div style={{ display: "flex" }}>{`${tLabels.via} ${e.lead_source}`}</div>}
+        <div style={{ display: "flex", marginLeft: "auto", fontWeight: 700, color: INK, fontSize: 28 }}>{tLabels.more}</div>
+      </div>
+    </div>
+  );
+
+  const img = new ImageResponse(tslide === 1 ? travel1 : tslide === 2 ? travel2 : slide === 1 ? cover : slide === 2 ? list : takeaway, { width: W, height: H, fonts, headers: { "cache-control": "public, max-age=0, s-maxage=3600" } });
   // Instagram's publishing API only takes JPEG
   if (new URL(req.url).searchParams.get("fmt") === "jpg") {
     const sharp = (await import("sharp")).default;

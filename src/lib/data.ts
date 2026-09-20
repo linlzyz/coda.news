@@ -307,3 +307,9 @@ export async function requestPilot(f: { name: string; company: string; email: st
   const { data, error } = await supabase.rpc("request_pilot", { n: f.name, c: f.company, e: f.email, b: f.brands, x: f.note, l: f.lang });
   return !error && !!data;
 }
+
+/** Photo and magazine copy of one planned Instagram travel post (for the slide renderer). */
+export async function igSlide(p: number) {
+  const { data } = await supabase.rpc("ig_slide", { p });
+  return data as { img: string | null; credit: string | null; copy: { title: string; dek: string; items: { h: string; d: string }[]; title_zh?: string; dek_zh?: string; items_zh?: { h: string; d: string }[] } | null } | null;
+}

@@ -459,3 +459,15 @@ ${games.map((g, i) => `${i + 1}. ${g.title}`).join("\n")}`)).g ?? {};
   if (events.length) log(`images: ${n}/${events.length}`);
   return n;
 }
+
+/** Portrait scenic photo for an Instagram travel post (never stored on the event, so the site's image rules are untouched). */
+export async function travelPhoto(q: string): Promise<{ url: string; credit: string } | null> {
+  const key = env("PEXELS_API_KEY"); if (!key || !q || q === "-") return null;
+  const r = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(q)}&orientation=portrait&per_page=15`, { headers: { Authorization: key }, signal: AbortSignal.timeout(10000) });
+  if (!r.ok) return null;
+  // deno-lint-ignore no-explicit-any
+  const ps = ((await r.json()).photos ?? []).filter((p: any) => relevant(q, `${p.alt ?? ""} ${p.url ?? ""}`));
+  const p = ps[0];
+  if (!p) return null;
+  return { url: `${String(p.src.original).split("?")[0]}?auto=compress&cs=tinysrgb&fit=crop&w=1080&h=1350`, credit: `${p.photographer} / Pexels` };
+}
