@@ -1,4 +1,5 @@
 import Link from "@/components/LLink";
+import { sourceEn } from "../../supabase/functions/_shared/source-names";
 import type { Company, EventRow, Topic } from "@/lib/data";
 import { hotness } from "@/lib/data";
 import { type Lang } from "@/lib/i18n";
@@ -89,7 +90,7 @@ function Source({ e, lang }: { e: EventRow; lang: Lang }) {
       <span className="flex h-3 items-center">{single ? (e.countries[0] && <Flag code={e.countries[0]} size={11} />) : e.countries.length > 0 && <Flags codes={e.countries} max={4} size={11} />}</span>
       {single ? (
         <>
-          <span className="max-w-full truncate">{e.lead_source}</span>
+          <span className="max-w-full truncate">{zh ? e.lead_source : sourceEn(e.lead_source)}</span>
           <a href={e.lead_url!} target="_blank" rel="noopener noreferrer" className="font-medium text-[#C2410C] hover:underline">{zh ? "阅读原文" : "Read original"} ↗</a>
         </>
       ) : (
@@ -179,7 +180,7 @@ export function MagazineGrid({ events, lang }: { events: EventRow[]; lang: Lang 
             <Link href={href} className="block"><Cover e={e} className="aspect-[4/3] w-full rounded-2xl" /></Link>
             <div className="mt-3 flex items-center gap-2 text-[12px] text-neutral-500">
               {e.countries[0] && <Flag code={e.countries[0]} size={10} />}
-              <span className="truncate">{single ? e.lead_source : zh ? `${e.source_count} 个来源` : `${e.source_count} sources`}</span>
+              <span className="truncate">{single ? (zh ? e.lead_source : sourceEn(e.lead_source)) : zh ? `${e.source_count} 个来源` : `${e.source_count} sources`}</span>
               <span aria-hidden>·</span><span className="shrink-0">{timeAgoL(e.last_article_at, lang)}</span>
             </div>
             <h3 className="mt-1.5 text-[19px] font-semibold leading-snug tracking-[-0.015em] text-[#16181D]"><Link href={href} className="hover:text-[#C2410C]">{title(e, lang)}</Link></h3>

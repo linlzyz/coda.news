@@ -19,6 +19,7 @@ export async function invariants(): Promise<Hit[]> {
     ["时尚新闻用了图库照片", sql`select title as x from events where not hidden and category = 'fashion' and image_source in ('pexels','unsplash','pixabay','openverse') limit 5`],
     ["单一来源新闻用了图库或人物照", sql`select title as x from events where not hidden and source_count < 2 and image_source in ('pexels','unsplash','pixabay','openverse','commons') limit 5`],
     ["中文里混进了其他文字（印地文、阿拉伯文、泰文）", sql`select title_zh as x from events where not hidden and (title_zh ~ '[\u0900-\u097F\u0600-\u06FF\u0E00-\u0E7F]' or summary_zh ~ '[\u0900-\u097F\u0600-\u06FF\u0E00-\u0E7F]') limit 5`],
+    ["英文里混进了中日韩文字", sql`select title as x from events where not hidden and status <> 'archived' and en_checked_at is not null and (title ~ '[\u3040-\u30FF\u3400-\u9FFF\uAC00-\uD7AF]' or summary ~ '[\u3040-\u30FF\u3400-\u9FFF\uAC00-\uD7AF]' or coalesce(points->>'en', '') ~ '[\u3040-\u30FF\u3400-\u9FFF\uAC00-\uD7AF]') limit 5`],
     ["已知错误回归：马斯克是特斯拉母公司", sql`select name as x from companies where name = 'Tesla' and parent ilike '%musk%'`],
     ["已知错误回归：荣耀创始人是华为", sql`select name as x from companies where name = 'Honor' and founders ilike '%huawei%'`],
     ["已知错误回归：真实公司被当成非公司", sql`select name as x from companies where name in ('Adobe','Nasdaq','OpenAI','The New York Times','China Mobile','YouTube','Tesla','Apple') and kind <> 'company'`],
@@ -40,6 +41,7 @@ List only real, concrete errors a careful editor would fix:
 - title: our headline says something the original does not, or gets a name, number or date wrong
 - summary: a claim not supported by the original; an outlet's opinion presented as fact; the summary only repeats the headline
 - chinese: the Chinese text mistranslates a name, number or meaning
+- english: the English text leaves names in Chinese, Japanese or Korean characters, or reads as a clumsy word-for-word translation
 - category: clearly the wrong section (economy, technology, sport, entertainment, fashion, travel, automotive, gaming)
 - banned: the story is really about crime, police, court cases, accidents, politics, a person's health, or purely local/city news
 - companies: a tagged "company" is not a company or brand, or is the wrong one

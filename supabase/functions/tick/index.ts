@@ -1,6 +1,7 @@
 // Supabase Edge Function, called by pg_cron.
 //   POST /functions/v1/tick?step=ingest   every 5 min: fetch RSS
 //   POST /functions/v1/tick?step=process  every 5 min: AI processing + narratives + maintenance
+import { fixEnglish } from "../_shared/fixen.ts";
 import { tick } from "../_shared/tick.ts";
 import { ingest } from "../_shared/ingest.ts";
 import { sendDailyBrief } from "../_shared/newsletter.ts";
@@ -21,7 +22,7 @@ Deno.serve(async (req) => {
   if (!secret || req.headers.get("x-cron-secret") !== secret) return new Response("forbidden", { status: 403 });
   const step = new URL(req.url).searchParams.get("step") ?? "process";
   try {
-    const report = step === "ingest" ? await ingest() : step === "brief" ? { brief: await sendDailyBrief(), follows: await sendFollowAlerts(), health: await sendHealthReport() } : step === "companies" ? { companies: await enrichCompanies(20) } : step === "kinds" ? { kinds: await classifyCompanies(120) } : step === "igpropose" ? { proposed: await proposeInstagram(true) } : step === "links" ? { dead: await checkLinks(60) } : step === "qa" ? { qa: await qaSummary(), sampled: await auditSample(8) } : step === "health" ? { health: await sendHealthReport(true) } : step === "review" ? { review: await reviewEvents(40) } : step === "markets" ? { markets: await refreshIndices(true) } : step === "singles" ? { singles: await briefSingles(15) } : step === "story" ? { story: await buildStories(1, new URL(req.url).searchParams.get("slug") ?? undefined) } : await tick(135_000, { skipIngest: true });
+    const report = step === "ingest" ? await ingest() : step === "brief" ? { brief: await sendDailyBrief(), follows: await sendFollowAlerts(), health: await sendHealthReport() } : step === "companies" ? { companies: await enrichCompanies(20) } : step === "kinds" ? { kinds: await classifyCompanies(120) } : step === "fixen" ? { fixen: await fixEnglish(8) } : step === "igpropose" ? { proposed: await proposeInstagram(true) } : step === "links" ? { dead: await checkLinks(60) } : step === "qa" ? { qa: await qaSummary(), sampled: await auditSample(8) } : step === "health" ? { health: await sendHealthReport(true) } : step === "review" ? { review: await reviewEvents(40) } : step === "markets" ? { markets: await refreshIndices(true) } : step === "singles" ? { singles: await briefSingles(15) } : step === "story" ? { story: await buildStories(1, new URL(req.url).searchParams.get("slug") ?? undefined) } : await tick(135_000, { skipIngest: true });
     return Response.json(report);
   } catch (e) {
     return Response.json({ error: (e as Error).message }, { status: 500 });

@@ -15,6 +15,7 @@ export const PREDICATES = [
 
 export const EDITORIAL_RULES = `
 Editorial rules (always follow):
+- In every English field, names are in English: pinyin or the usual romanisation for people (何小鹏 → He Xiaopeng), English names for companies and outlets (小鹏 → XPeng, 虎嗅 → Huxiu). Never leave Chinese, Japanese or Korean characters in English text.
 - Coda covers technology, economy/business, sport, entertainment (film, music, TV, games, arts, celebrities), fashion/design, travel, automotive and gaming. No politics, military or crime.
 - Celebrity news is reported as what outlets report, attributed to them ("according to People"), never as our own claim. Unconfirmed claims are marked as rumours. Never speculate about health, sexuality or private matters that the person has not made public, and never report on minors' private lives.
 - Describe, never judge. Neutral wording. Never use loaded words such as propaganda, regime, biased, spin, lies.

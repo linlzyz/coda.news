@@ -4,6 +4,7 @@ import { processBatch } from "./process.ts";
 import { regenerate } from "./regenerate.ts";
 import { briefSingles } from "./singles.ts";
 import { fixChinese } from "./fixzh.ts";
+import { fixEnglish } from "./fixen.ts";
 import { buildStories } from "./story.ts";
 import { maintain } from "./maintain.ts";
 import { checkAlerts } from "./health.ts";
@@ -50,6 +51,7 @@ export async function tick(budgetMs = 120_000, opts: { skipIngest?: boolean } = 
   if (left() > 25_000) await step("singles", () => briefSingles(left() > 60_000 ? 12 : 5));
   if (left() > 24_000) await step("review", () => reviewEvents(40));
   if (left() > 22_000) await step("fixzh", () => fixChinese(20));
+  if (left() > 20_000) await step("fixen", () => fixEnglish(8));
   if (left() > 20_000) await step("translate", () => translateMissing(30));
   if (left() > 15_000) await step("translateFacts", () => translateFacts(60));
   if (left() > 10_000) await step("images", () => assignImages(60));

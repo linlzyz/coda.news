@@ -6,6 +6,7 @@
 import { db } from "./db.ts";
 import { env, log } from "./env.ts";
 import { travelPhoto } from "./images.ts";
+import { sourceEn } from "./source-names.ts";
 import { cheapJSON } from "./ai.ts";
 import { fetchText } from "./text.ts";
 
@@ -106,7 +107,7 @@ export async function proposeInstagram(force = false): Promise<number> {
   const format = !t && lastNews?.format === "carousel" ? "reel" : "carousel";
   let caption: string;
   if (t) {
-    caption = `${t.copy.title}\n\n${t.copy.dek}\n\nSwipe for what to look for →\nMore travel reads: link in bio\n📷 ${t.credit}${e.lead_source ? `\nVia ${e.lead_source}` : ""}\n\n#travel #travelinspiration #wanderlust #weekendescape #codanews`;
+    caption = `${t.copy.title}\n\n${t.copy.dek}\n\nSwipe for what to look for →\nMore travel reads: link in bio\n📷 ${t.credit}${e.lead_source ? `\nVia ${sourceEn(e.lead_source)}` : ""}\n\n#travel #travelinspiration #wanderlust #weekendescape #codanews`;
   } else {
     const credit = licensed(e.image_credit) ? `\n📷 ${e.image_credit}` : "";
     // a real caption: what happened, where the coverage differs, then the call to swipe

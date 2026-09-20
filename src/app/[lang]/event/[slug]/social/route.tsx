@@ -13,6 +13,7 @@ import { COUNTRY_ZH } from "@/lib/i18n";
 import { COUNTRY } from "@/lib/ui";
 import { LOGO_DATA_URI, LOGO_WHITE_DATA_URI } from "@/lib/logo-data";
 import { brandParts, gfont } from "@/lib/og-font";
+import { sourceEn } from "../../../../../../supabase/functions/_shared/source-names";
 
 export const revalidate = 3600;
 const W = 1080, H = 1350, ORANGE = "#EA5514", INK = "#16181D", PAPER = "#F4F3F0";
@@ -72,7 +73,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ lang: st
   const tItems = ((zh && tc?.items_zh?.length ? tc.items_zh : tc?.items) ?? []).slice(0, 5);
   const tPoints = tItems.length ? [] : ((zh && e.points?.zh?.length ? e.points.zh : e.points?.en) ?? []).slice(0, 5).map((x) => cut(x, zh ? 40 : 110));
   const tLabels = zh ? { k: "旅行灵感", look: "值得看的", swipe: "左滑 →", via: "内容来源", more: "更多旅行：主页链接 →" } : { k: "WHERE TO GO NEXT", look: "WHAT TO LOOK FOR", swipe: "Swipe →", via: "As featured by", more: "More travel: link in bio →" };
-  const all = [title, cat, meta, bio, "NEW POST今日新帖旅行灵感，去主页看New travel read on our pageHow the world reports it, on our page各国怎么报道，去主页看完整对比：主页链接Full comparison: link in bio", tCredit, tTitle, tDek, ...tItems.flatMap((i) => [i.h, i.d]), ...tPoints, ...Object.values(tLabels), e.lead_source ?? "", dek, inSources, e.image_credit ?? "", "coda.news", ...Object.values(SEC).flatMap((v) => [v[0], v[1]]), kicker, cta, scan, credit, h3a, h3b, h3k, "0123456789·→、•", ...shared, ...diffRows, ...rows.flatMap((r) => [r.c, r.f, r.t[zh ? 1 : 0]])].join("");
+  const all = [title, cat, meta, bio, "NEW POST今日新帖旅行灵感，去主页看New travel read on our pageHow the world reports it, on our page各国怎么报道，去主页看完整对比：主页链接Full comparison: link in bio", tCredit, tTitle, tDek, ...tItems.flatMap((i) => [i.h, i.d]), ...tPoints, ...Object.values(tLabels), e.lead_source ?? "", sourceEn(e.lead_source), dek, inSources, e.image_credit ?? "", "coda.news", ...Object.values(SEC).flatMap((v) => [v[0], v[1]]), kicker, cta, scan, credit, h3a, h3b, h3k, "0123456789·→、•", ...shared, ...diffRows, ...rows.flatMap((r) => [r.c, r.f, r.t[zh ? 1 : 0]])].join("");
   const serif = zh ? "Noto+Serif+SC" : "Playfair+Display", sans = zh ? "Noto+Sans+SC" : "Inter";
   const [serifB, sansR, sansB, sansK] = await Promise.all([gfont(serif, 700, all), gfont(sans, 400, all), gfont(sans, 700, all), gfont(sans, 900, all)]);
   const fonts = [{ name: "Serif", data: serifB, weight: 700 as const }, { name: "Sans", data: sansR, weight: 400 as const }, { name: "Sans", data: sansB, weight: 700 as const }, { name: "Sans", data: sansK, weight: 900 as const }];
@@ -231,7 +232,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ lang: st
         )) : <div style={{ display: "flex", fontSize: 32, lineHeight: 1.45, color: "#1F2937" }}>{(zh && e.summary_zh) || e.summary}</div>}
       </div>
       <div style={{ marginTop: "auto", display: "flex", alignItems: "center", borderTop: `4px solid ${INK}`, paddingTop: 24, fontSize: 24, color: "#6B7280" }}>
-        {e.lead_source && <div style={{ display: "flex" }}>{`${tLabels.via} ${e.lead_source}`}</div>}
+        {e.lead_source && <div style={{ display: "flex" }}>{`${tLabels.via} ${zh ? e.lead_source : sourceEn(e.lead_source)}`}</div>}
         <div style={{ display: "flex", marginLeft: "auto", fontWeight: 700, color: INK, fontSize: 28 }}>{tLabels.more}</div>
       </div>
     </div>
