@@ -1,10 +1,11 @@
 // Editorial 4:5 images for Instagram / Threads / X carousels (1080×1350).
 //   ?s=1  cover: full-bleed licensed photo (or graphite typographic cover), serif headline, logo
 //   ?s=2  "How the world reports it": one line per country with its framing and tone
+//   ?s=3  "The takeaway": what all reports share, and where the coverage differs
 import { ImageResponse } from "next/og";
 import { withPngMeta } from "@/lib/png-meta";
 import QRCode from "qrcode";
-import { getEvent, getPerspectives } from "@/lib/data";
+import { getEvent, getLatestSummary, getPerspectives } from "@/lib/data";
 import { COUNTRY_ZH } from "@/lib/i18n";
 import { COUNTRY } from "@/lib/ui";
 import { LOGO_DATA_URI, LOGO_WHITE_DATA_URI } from "@/lib/logo-data";
@@ -18,11 +19,16 @@ const TONE: Record<string, [string, string, string]> = { positive: ["Supportive"
 export async function GET(req: Request, { params }: { params: Promise<{ lang: string; slug: string }> }) {
   const { lang, slug } = await params;
   const zh = lang === "zh";
-  const slide = new URL(req.url).searchParams.get("s") === "2" ? 2 : 1;
+  const sp = new URL(req.url).searchParams.get("s");
+  const slide = sp === "3" ? 3 : sp === "2" ? 2 : 1;
   const e = await getEvent(slug);
   if (!e) return new Response("Not found", { status: 404 });
   const ps = ((await getPerspectives([e.id])).get(e.id) ?? []).sort((a, b) => b.article_count - a.article_count).slice(0, 5);
   const title = (zh && e.title_zh) || e.title;
+  const latest = slide === 3 ? await getLatestSummary(e.id) : undefined;
+  const shared = ((zh && latest?.agreed_zh?.length ? latest.agreed_zh : latest?.agreed) ?? []).slice(0, 3).map((x) => x.slice(0, zh ? 60 : 130));
+  const differ = ((zh && latest?.differ_zh?.length ? latest.differ_zh : latest?.differ) ?? []).slice(0, 3).map((x) => x.slice(0, zh ? 60 : 140));
+  const diffRows = differ.length ? differ : ps.filter((p) => p.emphasis).slice(0, 3).map((p) => `${(zh ? COUNTRY_ZH[p.country] : COUNTRY[p.country]) ?? p.country}${zh ? "：" : ": "}${((zh && p.emphasis_zh) || p.emphasis || "").slice(0, zh ? 50 : 120)}`);
   const cName = (c: string) => (zh ? COUNTRY_ZH[c] : COUNTRY[c]) ?? c;
   const cat = zh ? ({ technology: "科技", economy: "经济", sport: "体育", entertainment: "娱乐", fashion: "时尚", travel: "旅行", automotive: "汽车", gaming: "游戏" } as Record<string, string>)[e.category] ?? "" : e.category.toUpperCase();
   const meta = zh ? `${e.countries.length} 个国家 · ${e.source_count} 个来源` : `${e.countries.length} ${e.countries.length === 1 ? "country" : "countries"} · ${e.source_count} ${e.source_count === 1 ? "source" : "sources"}`;
@@ -35,7 +41,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ lang: st
   const scan = zh ? "扫码阅读" : "Scan to read";
   const credit = photoOk ? `Photo: ${e.image_credit}` : "";
 
-  const all = [title, cat, meta, kicker, cta, scan, credit, "0123456789·→、", ...rows.flatMap((r) => [r.c, r.f, r.t[zh ? 1 : 0]])].join("");
+  const h3a = zh ? "所有报道都提到" : "WHAT ALL REPORTS SHARE", h3b = zh ? "各国侧重不同" : "WHERE THE COVERAGE DIFFERS", h3k = zh ? "要点" : "THE TAKEAWAY";
+  const all = [title, cat, meta, kicker, cta, scan, credit, h3a, h3b, h3k, "0123456789·→、•", ...shared, ...diffRows, ...rows.flatMap((r) => [r.c, r.f, r.t[zh ? 1 : 0]])].join("");
   const serif = zh ? "Noto+Serif+SC" : "Playfair+Display", sans = zh ? "Noto+Sans+SC" : "Inter";
   const [serifB, sansR, sansB] = await Promise.all([gfont(serif, 700, all), gfont(sans, 400, all), gfont(sans, 700, all)]);
   const fonts = [{ name: "Serif", data: serifB, weight: 700 as const }, { name: "Sans", data: sansR, weight: 400 as const }, { name: "Sans", data: sansB, weight: 700 as const }];
@@ -102,7 +109,37 @@ export async function GET(req: Request, { params }: { params: Promise<{ lang: st
     </div>
   );
 
-  const img = new ImageResponse(slide === 1 ? cover : list, { width: W, height: H, fonts, headers: { "cache-control": "public, max-age=0, s-maxage=3600" } });
+  const bullet = (t: string, i: number, color: string) => (
+    <div key={i} style={{ display: "flex", marginTop: 18, fontSize: zh ? 30 : 29, lineHeight: 1.36, color: "#1F2937" }}>
+      <div style={{ display: "flex", width: 12, height: 12, borderRadius: 999, background: color, marginTop: 16, marginRight: 20, flexShrink: 0 }} />
+      <div style={{ display: "flex", flex: 1 }}>{t}</div>
+    </div>
+  );
+  const takeaway = (
+    <div style={{ width: W, height: H, display: "flex", flexDirection: "column", background: "#FFF6F0", fontFamily: "Sans", padding: "64px 72px 60px" }}>
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <img src={LOGO_DATA_URI} width={236} height={37} alt="" />
+        <div style={{ marginLeft: "auto", display: "flex", fontSize: 22, fontWeight: 700, color: INK, letterSpacing: zh ? 2 : 5 }}>{h3k}</div>
+      </div>
+      <div style={{ display: "flex", marginTop: 56, fontFamily: "Serif", fontWeight: 700, fontSize: zh ? 44 : 44, lineHeight: 1.18, color: INK }}>{title}</div>
+      <div style={{ display: "flex", flexDirection: "column", marginTop: 44 }}>
+        <div style={{ display: "flex", fontSize: 22, fontWeight: 700, color: ORANGE, letterSpacing: zh ? 3 : 4 }}>{h3a}</div>
+        {shared.length ? shared.map((t, i) => bullet(t, i, INK)) : bullet(title, 0, INK)}
+      </div>
+      {diffRows.length > 0 && (
+        <div style={{ display: "flex", flexDirection: "column", marginTop: 44, paddingTop: 36, borderTop: "1px solid #F5D0BE" }}>
+          <div style={{ display: "flex", fontSize: 22, fontWeight: 700, color: ORANGE, letterSpacing: zh ? 3 : 4 }}>{h3b}</div>
+          {diffRows.map((t, i) => bullet(t, i, ORANGE))}
+        </div>
+      )}
+      <div style={{ marginTop: "auto", display: "flex", alignItems: "center", borderTop: `4px solid ${INK}`, paddingTop: 24, fontSize: 24, color: "#6B7280" }}>
+        <div style={{ display: "flex" }}>{meta}</div>
+        <div style={{ display: "flex", marginLeft: "auto", fontWeight: 700, color: INK, fontSize: 28 }}><B text={cta} /></div>
+      </div>
+    </div>
+  );
+
+  const img = new ImageResponse(slide === 1 ? cover : slide === 2 ? list : takeaway, { width: W, height: H, fonts, headers: { "cache-control": "public, max-age=0, s-maxage=3600" } });
   const pageUrl = `https://coda.news${zh ? "/zh" : ""}/event/${slug}`;
   return withPngMeta(img, {
     Title: title, Source: pageUrl, Author: "coda.news", Copyright: `© ${new Date().getFullYear()} coda.news. ${pageUrl}`,

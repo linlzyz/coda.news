@@ -1,4 +1,4 @@
-import { getPerspectives, listEvents } from "@/lib/data";
+import { getPerspectives, hotness, listEvents } from "@/lib/data";
 import { langFrom } from "@/lib/i18n";
 import { CopyText } from "@/components/CopyText";
 export const revalidate = 3600;
@@ -7,14 +7,15 @@ export const metadata = { title: "Social posts", robots: { index: false, follow:
 // Internal page: today's best stories as ready-to-post 4:5 carousels (cover + country comparison) with captions.
 export default async function Page({ params }: { params: Promise<{ lang: string }> }) {
   const l = await langFrom(params); const zh = l === "zh"; const p = zh ? "/zh" : "";
-  const events = (await listEvents({ limit: 60 })).filter((e) => Date.now() - Date.parse(e.last_article_at) < 36 * 3600_000);
+  // stories that broke in the last 36 hours with at least 3 countries, freshest-important first, one per section
+  const events = (await listEvents({ limit: 80, sinceHours: 36 })).sort((a, b) => hotness(b) - hotness(a));
   const persp = await getPerspectives(events.map((e) => e.id));
-  const picks = events.filter((e) => (persp.get(e.id)?.length ?? 0) >= 3).slice(0, 6);
+  const picks = events.filter((e) => (persp.get(e.id)?.length ?? 0) >= 3).filter((e, i, a) => a.findIndex((x) => x.category === e.category) === i).slice(0, 6);
   const tag = (c: string) => zh ? ({ technology: "#科技", economy: "#经济", sport: "#体育", entertainment: "#娱乐", fashion: "#时尚", travel: "#旅行", automotive: "#汽车", gaming: "#游戏" } as Record<string, string>)[c] ?? "" : `#${c}`;
   return (
     <div className="mx-auto max-w-[1100px] px-4 py-10 sm:px-6">
       <h1 className="text-[32px] font-semibold tracking-[-0.02em]">{zh ? "社交媒体素材" : "Social posts"}</h1>
-      <p className="mt-2 text-[14px] text-neutral-600">{zh ? "过去 36 小时里至少 3 个国家报道的事件。每条两张 4:5 图（封面 + 各国对比），附文案。" : "Stories from the last 36 hours covered by at least 3 countries. Two 4:5 slides each (cover + country comparison), with a caption."}</p>
+      <p className="mt-2 text-[14px] text-neutral-600">{zh ? "过去 36 小时里至少 3 个国家报道的事件，每个栏目一条。每条三张 4:5 图（封面、各国对比、要点），附文案。Instagram 用英文版：coda.news/social" : "Stories that broke in the last 36 hours, covered by at least 3 countries, one per section. Three 4:5 slides each (cover, how each country reported it, the takeaway), with a caption."}</p>
       <div className="mt-8 space-y-10">
         {picks.map((e) => {
           const title = (zh && e.title_zh) || e.title;
@@ -22,10 +23,10 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
           const url = `https://coda.news${p}/event/${e.slug}`;
           const caption = zh
             ? `${title}\n\n${cs} 个国家的媒体怎么报道这件事？各国侧重点不一样。\n\n完整对比：${url}\n\n${tag(e.category)} #国际新闻 #codanews`
-            : `${title}\n\nHow media in ${cs} countries reported it, side by side.\n\nFull comparison: ${url}\n\n${tag(e.category)} #news #worldnews #codanews`;
+            : `${title}\n\nOne story, ${cs} countries: what every report shares and where the coverage differs. Swipe →\n\nFull comparison: link in bio (coda.news)${e.image_credit ? `\nPhoto: ${e.image_credit}` : ""}\n\n${tag(e.category)} #news #worldnews #globalnews #codanews`;
           return (
-            <section key={e.id} className="grid gap-4 border-t border-[#E5E7EB] pt-6 md:grid-cols-[1fr_1fr_1.1fr]">
-              {[1, 2].map((s) => (
+            <section key={e.id} className="grid gap-4 border-t border-[#E5E7EB] pt-6 md:grid-cols-[1fr_1fr_1fr_1.1fr]">
+              {[1, 2, 3].map((s) => (
                 <a key={s} href={`${p}/event/${e.slug}/social?s=${s}`} download={`coda.news-${e.slug}${zh ? "-zh" : ""}-${s}.png`} className="block">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={`${p}/event/${e.slug}/social?s=${s}`} alt="" loading="lazy" className="aspect-[4/5] w-full rounded-xl border border-[#E5E7EB] object-cover" />
