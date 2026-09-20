@@ -31,7 +31,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ lang: st
   const diffRows = differ.length ? differ : ps.filter((p) => p.emphasis).slice(0, 3).map((p) => `${(zh ? COUNTRY_ZH[p.country] : COUNTRY[p.country]) ?? p.country}${zh ? "：" : ": "}${((zh && p.emphasis_zh) || p.emphasis || "").slice(0, zh ? 50 : 120)}`);
   const cName = (c: string) => (zh ? COUNTRY_ZH[c] : COUNTRY[c]) ?? c;
   const cat = zh ? ({ technology: "科技", economy: "经济", sport: "体育", entertainment: "娱乐", fashion: "时尚", travel: "旅行", automotive: "汽车", gaming: "游戏" } as Record<string, string>)[e.category] ?? "" : e.category.toUpperCase();
-  const meta = zh ? `${e.countries.length} 个国家 · ${e.source_count} 个来源` : `${e.countries.length} ${e.countries.length === 1 ? "country" : "countries"} · ${e.source_count} ${e.source_count === 1 ? "source" : "sources"}`;
+  // count countries from the country cards too: e.countries can lag behind when later reports add a country
+  const nC = Math.max(e.countries.length, ps.length);
+  const meta = zh ? `${nC} 个国家 · ${e.source_count} 个来源` : `${nC} ${nC === 1 ? "country" : "countries"} · ${e.source_count} ${e.source_count === 1 ? "source" : "sources"}`;
   const kicker = zh ? "各国怎么说" : "HOW THE WORLD REPORTS IT";
   const photoOk = !!e.image_url && !!e.image_credit && (/\/ (Pexels|Unsplash|Pixabay)$/.test(e.image_credit) || /\((CC BY \d|CC0|Public domain|PDM)/i.test(e.image_credit));
   const rows = ps.map((p) => ({ c: cName(p.country), f: ((zh && p.framing_zh) || p.framing || "").slice(0, zh ? 30 : 70), t: TONE[p.tone] ?? TONE.neutral }));
