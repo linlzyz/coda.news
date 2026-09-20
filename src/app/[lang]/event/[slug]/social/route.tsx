@@ -25,15 +25,17 @@ export async function GET(req: Request, { params }: { params: Promise<{ lang: st
   if (!e) return new Response("Not found", { status: 404 });
   const ps = ((await getPerspectives([e.id])).get(e.id) ?? []).sort((a, b) => b.article_count - a.article_count).slice(0, 5);
   const title = (zh && e.title_zh) || e.title;
+  const cut = (t: string, n: number) => { if (t.length <= n) return t; const c = t.slice(0, n); const i = Math.max(c.lastIndexOf(zh ? "，" : ", "), c.lastIndexOf(" ")); return (i > n * 0.6 ? c.slice(0, i) : c).replace(/[,，;；]$/, "") + "…"; };
   const latest = slide === 3 ? await getLatestSummary(e.id) : undefined;
-  const shared = ((zh && latest?.agreed_zh?.length ? latest.agreed_zh : latest?.agreed) ?? []).slice(0, 3).map((x) => x.slice(0, zh ? 60 : 130));
-  const differ = ((zh && latest?.differ_zh?.length ? latest.differ_zh : latest?.differ) ?? []).slice(0, 3).map((x) => x.slice(0, zh ? 60 : 140));
-  const diffRows = differ.length ? differ : ps.filter((p) => p.emphasis).slice(0, 3).map((p) => `${(zh ? COUNTRY_ZH[p.country] : COUNTRY[p.country]) ?? p.country}${zh ? "：" : ": "}${((zh && p.emphasis_zh) || p.emphasis || "").slice(0, zh ? 50 : 120)}`);
+  const shared = ((zh && latest?.agreed_zh?.length ? latest.agreed_zh : latest?.agreed) ?? []).slice(0, 3).map((x) => cut(x, zh ? 60 : 150));
+  const differ = ((zh && latest?.differ_zh?.length ? latest.differ_zh : latest?.differ) ?? []).slice(0, 3).map((x) => cut(x, zh ? 60 : 160));
+  const diffRows = differ.length ? differ : ps.filter((p) => p.emphasis).slice(0, 3).map((p) => `${(zh ? COUNTRY_ZH[p.country] : COUNTRY[p.country]) ?? p.country}${zh ? "：" : ": "}${cut((zh && p.emphasis_zh) || p.emphasis || "", zh ? 50 : 140)}`);
   const cName = (c: string) => (zh ? COUNTRY_ZH[c] : COUNTRY[c]) ?? c;
   const cat = zh ? ({ technology: "科技", economy: "经济", sport: "体育", entertainment: "娱乐", fashion: "时尚", travel: "旅行", automotive: "汽车", gaming: "游戏" } as Record<string, string>)[e.category] ?? "" : e.category.toUpperCase();
   // count countries from the country cards too: e.countries can lag behind when later reports add a country
   const nC = Math.max(e.countries.length, ps.length);
-  const meta = zh ? `${nC} 个国家 · ${e.source_count} 个来源` : `${nC} ${nC === 1 ? "country" : "countries"} · ${e.source_count} ${e.source_count === 1 ? "source" : "sources"}`;
+  const nS = Math.max(e.source_count, ps.reduce((a, p) => a + (p.article_count ?? 0), 0));
+  const meta = zh ? `${nC} 个国家 · ${nS} 个来源` : `${nC} ${nC === 1 ? "country" : "countries"} · ${nS} ${nS === 1 ? "source" : "sources"}`;
   const kicker = zh ? "各国怎么说" : "HOW THE WORLD REPORTS IT";
   const photoOk = !!e.image_url && !!e.image_credit && (/\/ (Pexels|Unsplash|Pixabay)$/.test(e.image_credit) || /\((CC BY \d|CC0|Public domain|PDM)/i.test(e.image_credit));
   const rows = ps.map((p) => ({ c: cName(p.country), f: ((zh && p.framing_zh) || p.framing || "").slice(0, zh ? 30 : 70), t: TONE[p.tone] ?? TONE.neutral }));
