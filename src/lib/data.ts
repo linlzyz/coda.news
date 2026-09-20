@@ -302,3 +302,8 @@ export const notable = (c: { wikidata_id: string | null; events: number; kind?: 
  *  A big story keeps collecting follow-up reports for days; without the decay the same two stories would lead all week. */
 export const hotness = (e: { importance: number | null; started_at: string }) =>
   (e.importance ?? 0) * Math.pow(0.5, Math.max(0, Date.now() - Date.parse(e.started_at)) / (24 * 3600_000));
+
+export async function requestPilot(f: { name: string; company: string; email: string; brands: string; note: string; lang: string }) {
+  const { data, error } = await supabase.rpc("request_pilot", { n: f.name, c: f.company, e: f.email, b: f.brands, x: f.note, l: f.lang });
+  return !error && !!data;
+}

@@ -4,6 +4,7 @@ import { alternates, langFrom } from "@/lib/i18n";
 import { countryL, persp as perspL, title } from "@/lib/loc";
 import { Flag } from "@/components/Flag";
 import { SITE } from "@/lib/site";
+import { PilotForm } from "@/components/PilotForm";
 export const revalidate = 21600;
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
@@ -59,7 +60,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
       <h1 className="mt-3 max-w-[720px] text-[36px] font-semibold leading-[1.1] tracking-[-0.03em] text-[#16181D] sm:text-[48px]">{T.h1}</h1>
       <p className="mt-4 max-w-[680px] text-[17px] leading-relaxed text-neutral-600">{T.lede}</p>
       <div className="mt-6 flex flex-wrap items-center gap-4">
-        <a href={mail} className="inline-flex items-center gap-2 rounded-xl bg-[#EA5514] px-5 py-3 text-[14px] font-semibold text-white hover:bg-[#D24A0F]">{T.cta} →</a>
+        <a href="#pilot" className="inline-flex items-center gap-2 rounded-xl bg-[#EA5514] px-5 py-3 text-[14px] font-semibold text-white hover:bg-[#D24A0F]">{T.cta} →</a>
         <span className="text-[13px] text-neutral-500">{T.pilotText}</span>
       </div>
 
@@ -112,9 +113,9 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
 
       <div className="mt-14 grid gap-10 md:grid-cols-2">
         <section><h2 className="text-[20px] font-semibold tracking-[-0.02em]">{T.principle}</h2><p className="mt-3 text-[15px] leading-relaxed text-neutral-700">{T.principleText}</p></section>
-        <section className="rounded-2xl bg-[#FFF6F0] p-6"><h2 className="text-[20px] font-semibold tracking-[-0.02em]">{T.pilot}</h2><p className="mt-3 text-[15px] leading-relaxed text-neutral-700">{T.pilotText}</p>
-          <a href={mail} className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#EA5514] px-5 py-3 text-[14px] font-semibold text-white hover:bg-[#D24A0F]">{T.cta} →</a>
-          <p className="mt-3 text-[13px] text-neutral-500">{T.note}</p></section>
+        <section id="pilot" className="scroll-mt-20 rounded-2xl bg-[#FFF6F0] p-6"><h2 className="text-[20px] font-semibold tracking-[-0.02em]">{T.pilot}</h2><p className="mt-3 text-[15px] leading-relaxed text-neutral-700">{T.pilotText}</p>
+          <PilotForm zh={zh} />
+          <p className="mt-3 text-[13px] text-neutral-500"><a href={mail} className="underline underline-offset-2">{T.note}</a></p></section>
       </div>
     </div>
   );
