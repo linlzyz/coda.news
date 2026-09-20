@@ -1,5 +1,5 @@
 // Editorial 4:5 images for Instagram / Threads / X carousels (1080×1350).
-//   ?s=1  cover: full-bleed licensed photo (or graphite typographic cover), serif headline, logo
+//   ?s=1  cover: photo card (section tag, photo on top, heavy sans headline + dek, flags) or black/white/orange type cover
 //   ?s=2  "How the world reports it": one line per country with its framing and tone
 //   ?s=3  "The takeaway": what all reports share, and where the coverage differs
 import { ImageResponse } from "next/og";
@@ -12,7 +12,13 @@ import { LOGO_DATA_URI, LOGO_WHITE_DATA_URI } from "@/lib/logo-data";
 import { brandParts, gfont } from "@/lib/og-font";
 
 export const revalidate = 3600;
-const W = 1080, H = 1350, ORANGE = "#EA5514", INK = "#16181D";
+const W = 1080, H = 1350, ORANGE = "#EA5514", INK = "#16181D", PAPER = "#F4F3F0";
+// section tag colors for covers
+const SEC: Record<string, [string, string, string]> = {
+  fashion: ["BUSINESS OF STYLE", "时尚", "#16181D"], sport: ["SPORTS", "体育", "#1F7A4D"], entertainment: ["SCREEN", "娱乐", "#6B3FD4"],
+  technology: ["TECH", "科技", "#1D5FD1"], economy: ["BUSINESS", "经济", "#EA5514"], travel: ["TRAVEL", "旅行", "#0E7490"],
+  automotive: ["AUTO", "汽车", "#B42318"], gaming: ["GAMES", "游戏", "#7A2E9E"],
+};
 const B = ({ text }: { text: string }) => <>{brandParts(text).map((p, i) => <span key={i} style={p.dot ? { color: ORANGE } : {}}>{p.t}</span>)}</>;
 const TONE: Record<string, [string, string, string]> = { positive: ["Supportive", "支持性", "#047857"], neutral: ["Descriptive", "描述性", "#4B5563"], negative: ["Cautious", "审慎性", "#BE123C"] };
 
@@ -42,56 +48,60 @@ export async function GET(req: Request, { params }: { params: Promise<{ lang: st
   const link = `https://coda.news${zh ? "/zh" : ""}/event/${slug}`;
   const qr = slide === 2 ? await QRCode.toDataURL(link, { margin: 0, width: 220, color: { dark: INK, light: "#ffffff" } }) : "";
   const cta = zh ? "在 coda.news 查看完整对比" : "Full comparison at coda.news";
+  const bio = zh ? "完整对比：主页链接 →" : "Full comparison: link in bio →";
   const scan = zh ? "扫码阅读" : "Scan to read";
   const credit = photoOk ? `Photo: ${e.image_credit}` : "";
+  const SECTION = Object.fromEntries(Object.entries(SEC).map(([k, v]) => [k, [zh ? v[1] : v[0], v[2]] as [string, string]]));
+  const firstSentence = (t: string) => (t.match(zh ? /^.+?[。！？]/ : /^.+?[.!?](?=\s|$)/)?.[0] ?? t);
+  const dek = cut(firstSentence((zh && e.summary_zh) || e.summary || ""), zh ? 48 : 135);
+  const flagsSrc = slide === 1 ? (ps.length ? ps.map((p) => p.country) : e.countries).slice(0, 5).map((c) => `https://flagcdn.com/48x36/${c.toLowerCase()}.png`) : [];
+  const inSources = zh ? `在我们的来源里 · ${nC > 1 ? `${nC} 个国家` : `${nS} 家媒体`}` : `In our sources · ${nC > 1 ? `${nC} countries` : `${nS} ${nS === 1 ? "outlet" : "outlets"}`}`;
 
   const h3a = zh ? "所有报道都提到" : "WHAT ALL REPORTS SHARE", h3b = zh ? "各国侧重不同" : "WHERE THE COVERAGE DIFFERS", h3k = zh ? "要点" : "THE TAKEAWAY";
-  const all = [title, cat, meta, kicker, cta, scan, credit, h3a, h3b, h3k, "0123456789·→、•", ...shared, ...diffRows, ...rows.flatMap((r) => [r.c, r.f, r.t[zh ? 1 : 0]])].join("");
+  const all = [title, cat, meta, bio, dek, inSources, e.image_credit ?? "", "coda.news", ...Object.values(SEC).flatMap((v) => [v[0], v[1]]), kicker, cta, scan, credit, h3a, h3b, h3k, "0123456789·→、•", ...shared, ...diffRows, ...rows.flatMap((r) => [r.c, r.f, r.t[zh ? 1 : 0]])].join("");
   const serif = zh ? "Noto+Serif+SC" : "Playfair+Display", sans = zh ? "Noto+Sans+SC" : "Inter";
-  const [serifB, sansR, sansB] = await Promise.all([gfont(serif, 700, all), gfont(sans, 400, all), gfont(sans, 700, all)]);
-  const fonts = [{ name: "Serif", data: serifB, weight: 700 as const }, { name: "Sans", data: sansR, weight: 400 as const }, { name: "Sans", data: sansB, weight: 700 as const }];
-  const size = (n: number) => (zh ? (n > 30 ? 64 : n > 18 ? 76 : 88) : (n > 90 ? 62 : n > 60 ? 72 : n > 36 ? 84 : 96));
+  const [serifB, sansR, sansB, sansK] = await Promise.all([gfont(serif, 700, all), gfont(sans, 400, all), gfont(sans, 700, all), gfont(sans, 900, all)]);
+  const fonts = [{ name: "Serif", data: serifB, weight: 700 as const }, { name: "Sans", data: sansR, weight: 400 as const }, { name: "Sans", data: sansB, weight: 700 as const }, { name: "Sans", data: sansK, weight: 900 as const }];
 
-  // covers rotate between four looks so the grid never feels like one template: black, white, orange, and a photo when we have a usable one
+  // covers rotate between four looks so the grid never feels like one template: a photo card when we have a usable
+  // photo (colored section tag, photo on top, heavy sans headline on warm paper), otherwise black, white or orange type
   const look = photoOk ? "photo" : (["ink", "white", "orange"] as const)[e.id % 3];
-  const BG = { ink: INK, white: "#FFFFFF", orange: ORANGE, photo: "#FFFFFF" }[look];
+  const BG = { ink: INK, white: "#FFFFFF", orange: ORANGE, photo: PAPER }[look];
   const FG = look === "ink" || look === "orange" ? "#FFFFFF" : INK;
-  const ACC = look === "orange" ? INK : ORANGE;
   const SUB = look === "ink" ? "rgba(255,255,255,0.7)" : look === "orange" ? "rgba(255,255,255,0.85)" : "#4B5563";
   const TINT = "#F6F5F2";
-  const cover = (
-    <div style={{ width: W, height: H, display: "flex", flexDirection: "column", background: BG, fontFamily: "Sans", position: "relative" }}>
-      {look === "photo" && (
-        <div style={{ display: "flex", width: W, height: 760, position: "relative" }}>
-          <img src={e.image_url!} width={W} height={760} style={{ width: W, height: 760, objectFit: "cover", objectPosition: e.image_focus === "top" ? "center 20%" : "center" }} alt="" />
-          <div style={{ position: "absolute", top: 0, left: 0, width: W, height: 200, display: "flex", backgroundImage: "linear-gradient(180deg, rgba(0,0,0,0.45), rgba(0,0,0,0))" }} />
-          <div style={{ position: "absolute", top: 60, left: 72, right: 72, display: "flex", alignItems: "center" }}>
-            <img src={LOGO_WHITE_DATA_URI} width={236} height={37} alt="" />
-            <div style={{ marginLeft: "auto", display: "flex", fontSize: 22, fontWeight: 700, color: "#fff", letterSpacing: zh ? 2 : 5 }}>{cat}</div>
-          </div>
-          {credit && <div style={{ position: "absolute", right: 24, bottom: 16, display: "flex", fontSize: 15, color: "#fff", background: "rgba(0,0,0,0.4)", padding: "3px 12px", borderRadius: 999 }}>{credit}</div>}
-        </div>
-      )}
-      <div style={{ display: "flex", flexDirection: "column", flexGrow: 1, padding: look === "photo" ? "44px 72px 60px" : "64px 72px 60px" }}>
-        {look !== "photo" && (
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <img src={FG === "#FFFFFF" ? LOGO_WHITE_DATA_URI : LOGO_DATA_URI} width={236} height={37} alt="" />
-            <div style={{ marginLeft: "auto", display: "flex", fontSize: 22, fontWeight: 700, color: FG, letterSpacing: zh ? 2 : 5 }}>{cat}</div>
-          </div>
-        )}
-        <div style={{ display: "flex", flexDirection: "column", marginTop: look === "photo" ? 0 : "auto", marginBottom: look === "photo" ? 0 : "auto" }}>
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <div style={{ width: 44, height: 4, background: ACC, marginRight: 18, display: "flex" }} />
-            <div style={{ display: "flex", fontSize: 24, fontWeight: 700, color: ACC, letterSpacing: zh ? 3 : 5 }}>{kicker}</div>
-          </div>
-          <div style={{ display: "flex", marginTop: 22, fontFamily: "Serif", fontWeight: 700, fontSize: look === "photo" ? Math.round(size(title.length) * 0.72) : Math.round(size(title.length) * 1.05), lineHeight: zh ? 1.22 : 1.08, color: FG, letterSpacing: zh ? 1 : -1 }}>{title}</div>
-          {look !== "photo" && rows.length > 0 && <div style={{ display: "flex", marginTop: 34, fontSize: 28, color: SUB }}>{rows.map((r) => r.c).join(zh ? "、" : " · ")}</div>}
-        </div>
-        <div style={{ marginTop: "auto", display: "flex", paddingTop: 22, borderTop: `2px solid ${look === "photo" ? "#E5E7EB" : SUB}`, alignItems: "center", fontSize: 24, color: SUB }}>
-          <div style={{ display: "flex" }}>{meta}</div>
-          <div style={{ display: "flex", marginLeft: "auto", fontWeight: 700, color: FG }}>{zh ? "左滑查看各国报道 →" : "Swipe for every country's view →"}</div>
-        </div>
+  const tag = SECTION[e.category] ?? [cat, INK];
+  const tsize = (n: number) => (zh ? (n > 30 ? 60 : n > 18 ? 72 : 84) : (n > 75 ? 60 : n > 50 ? 70 : n > 32 ? 82 : 96));
+  const foot = (color: string, sub: string) => (
+    <div style={{ marginTop: "auto", display: "flex", alignItems: "center", fontSize: 26, color: sub }}>
+      {flagsSrc.map((f, i) => <img key={i} src={f} width={40} height={30} style={{ marginRight: 10, borderRadius: 3, objectFit: "cover" }} alt="" />)}
+      <div style={{ display: "flex", marginLeft: flagsSrc.length ? 10 : 0 }}>{inSources}</div>
+      <div style={{ marginLeft: "auto", display: "flex", fontSize: 38, fontWeight: 700, color, flexShrink: 0 }}>{look === "orange" ? "coda.news" : <B text="coda.news" />}</div>
+    </div>
+  );
+  const cover = look === "photo" ? (
+    <div style={{ width: W, height: H, display: "flex", flexDirection: "column", background: PAPER, fontFamily: "Sans" }}>
+      <div style={{ display: "flex", width: W, height: 720, position: "relative", borderBottom: `9px solid ${tag[1]}` }}>
+        <img src={e.image_url!} width={W} height={720} style={{ width: W, height: 720, objectFit: "cover", objectPosition: e.image_focus === "top" ? "center 20%" : "center" }} alt="" />
+        <div style={{ position: "absolute", top: 72, left: 84, display: "flex", background: tag[1], color: "#fff", fontSize: 28, fontWeight: 900, letterSpacing: zh ? 3 : 3, padding: "12px 22px", borderRadius: 4 }}>{tag[0]}</div>
+        {credit && <div style={{ position: "absolute", right: 30, bottom: 22, display: "flex", fontSize: 17, color: "rgba(255,255,255,0.92)", textShadow: "0 1px 3px rgba(0,0,0,0.6)" }}>{e.image_credit!.replace(/&amp;/g, "&")}</div>}
       </div>
+      <div style={{ display: "flex", flexDirection: "column", flexGrow: 1, padding: "56px 84px 60px" }}>
+        <div style={{ display: "flex", fontWeight: 900, fontSize: tsize(title.length), lineHeight: zh ? 1.2 : 1.0, color: INK, letterSpacing: zh ? 0 : -2 }}>{title}</div>
+        {dek && <div style={{ display: "flex", marginTop: 22, fontSize: 32, lineHeight: 1.4, color: "#3F434A" }}>{dek}</div>}
+        {foot(INK, "#6B7280")}
+      </div>
+    </div>
+  ) : (
+    <div style={{ width: W, height: H, display: "flex", flexDirection: "column", background: BG, fontFamily: "Sans", padding: "72px 84px 64px" }}>
+      <div style={{ display: "flex" }}>
+        <div style={{ display: "flex", background: look === "white" ? tag[1] : FG, color: look === "white" ? "#fff" : BG, fontSize: 28, fontWeight: 900, letterSpacing: 3, padding: "12px 22px", borderRadius: 4 }}>{tag[0]}</div>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", marginTop: "auto", marginBottom: "auto" }}>
+        <div style={{ display: "flex", fontWeight: 900, fontSize: Math.round(tsize(title.length) * 1.12), lineHeight: zh ? 1.2 : 1.0, color: FG, letterSpacing: zh ? 0 : -2 }}>{title}</div>
+        {dek && <div style={{ display: "flex", marginTop: 32, fontSize: 34, lineHeight: 1.4, color: SUB }}>{dek}</div>}
+      </div>
+      {foot(FG, SUB)}
     </div>
   );
 
@@ -156,7 +166,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ lang: st
       )}
       <div style={{ marginTop: "auto", display: "flex", alignItems: "center", borderTop: `4px solid ${INK}`, paddingTop: 24, fontSize: 24, color: "#6B7280" }}>
         <div style={{ display: "flex" }}>{meta}</div>
-        <div style={{ display: "flex", marginLeft: "auto", fontWeight: 700, color: INK, fontSize: 28 }}><B text={cta} /></div>
+        <div style={{ display: "flex", marginLeft: "auto", fontWeight: 700, color: INK, fontSize: 28 }}>{bio}</div>
       </div>
     </div>
   );
