@@ -31,7 +31,7 @@ export async function invariants(): Promise<Hit[]> {
   // crime and police stories that slipped past the screen
   const crime = (await sql<{ title: string; summary: string | null }[]>`select title, null::text as summary from events where not hidden and status <> 'archived' and last_article_at > now() - interval '2 days'`)
     .filter((e) => CRIME.test(e.title))   // titles only: drama plots and film synopses mention police too.map((e) => e.title);
-  if (crime.length) out.push({ name: "犯罪新闻漏过过滤", n: crime.length, examples: crime.slice(0, 5) });
+  if (crime.length) out.push({ name: "犯罪新闻漏过过滤", n: crime.length, examples: crime.slice(0, 5).map((c) => c.title) });
   return out;
 }
 

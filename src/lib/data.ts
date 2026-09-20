@@ -311,5 +311,5 @@ export async function requestPilot(f: { name: string; company: string; email: st
 /** Photo and magazine copy of one planned Instagram travel post (for the slide renderer). */
 export async function igSlide(p: number) {
   const { data } = await supabase.rpc("ig_slide", { p });
-  return data as { img: string | null; credit: string | null; copy: { title: string; dek: string; items: { h: string; d: string }[]; title_zh?: string; dek_zh?: string; items_zh?: { h: string; d: string }[] } | null } | null;
+  return data as { slug?: string; kind?: string; format?: string; img: string | null; credit: string | null; copy: { title: string; dek: string; items: { h: string; d: string }[]; title_zh?: string; dek_zh?: string; items_zh?: { h: string; d: string }[] } | null } | null;
 }

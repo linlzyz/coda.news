@@ -9,7 +9,7 @@ import { SITE } from "@/lib/site";
 import { Brand } from "@/components/Brand";
 import "../globals.css";
 import { InstallPrompt } from "@/components/InstallPrompt";
-import { Analytics } from "@vercel/analytics/next";
+import { SiteAnalytics } from "@/components/SiteAnalytics";
 
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"], axes: ["opsz"], display: "swap" });
 
@@ -66,7 +66,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
             </footer>
           </div>
         </div>
-        <Analytics />
+        <SiteAnalytics />
         <InstallPrompt zh={zh} />
       </body>
     </html>

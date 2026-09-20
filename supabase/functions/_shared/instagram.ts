@@ -1,6 +1,8 @@
 // Instagram (@thecodanews): one post every evening, guaranteed. Usually a news story as a 3-slide carousel; every third
 // day a travel read instead (scenic photo + "what to look for"). If nothing meets the usual bar, the bar drops step by
-// step so a day is never skipped. The long-lived token is kept in app_settings and refreshed weekly.
+// step so a day is never skipped. News days alternate between a carousel and a Reel (the same slides as a 9:16 video,
+// rendered by the site at /api/ig/reel/<id>; Instagram processes it in the background and a later tick publishes it).
+// Every post is followed by a Story pointing to it. The long-lived token is kept in app_settings and refreshed weekly.
 import { db } from "./db.ts";
 import { env, log } from "./env.ts";
 import { travelPhoto } from "./images.ts";
@@ -23,7 +25,9 @@ async function refreshToken() {
   else log("instagram: token refresh failed", JSON.stringify(j).slice(0, 160));
 }
 
-type Post = { id: number; slug: string; kind: string };
+type Post = { id: number; slug: string; kind: string; format?: string };
+const reelUrl = (id: number) => `https://coda.news/api/ig/reel/${id}.mp4`;
+const storyUrl = (p: Post) => `https://coda.news/event/${p.slug}/social?s=story&p=${p.id}&fmt=jpg`;
 const slides = (p: Post) => p.kind === "travel"
   ? ["t1", "t2"].map((s) => `https://coda.news/event/${p.slug}/social?s=${s}&p=${p.id}&fmt=jpg`)
   : [1, 2, 3].map((s) => `https://coda.news/event/${p.slug}/social?s=${s}&fmt=jpg`);
@@ -97,23 +101,27 @@ export async function proposeInstagram(force = false): Promise<number> {
   const e = t?.e ?? (await pickNews(recent, 3, 36)) ?? (await pickNews(recent, 2, 48)) ?? (await pickNews([], 1, 72));
   if (!e) { log("instagram: nothing to post tonight"); return 0; }
   const lead = (e.summary.match(/^.*?[.!?](\s|$)/)?.[0] ?? e.summary).trim();
+  // news days alternate carousel / Reel
+  const [lastNews] = await sql<{ format: string }[]>`select format from ig_posts where kind = 'news' and status = 'posted' order by id desc limit 1`;
+  const format = !t && lastNews?.format === "carousel" ? "reel" : "carousel";
   let caption: string;
   if (t) {
     caption = `${t.copy.title}\n\n${t.copy.dek}\n\nSwipe for what to look for →\nMore travel reads: link in bio\n📷 ${t.credit}${e.lead_source ? `\nVia ${e.lead_source}` : ""}\n\n#travel #travelinspiration #wanderlust #weekendescape #codanews`;
   } else {
     const credit = licensed(e.image_credit) ? `\n📷 ${e.image_credit}` : "";
     // a real caption: what happened, where the coverage differs, then the call to swipe
-    const where = e.n > 1 ? `${e.n} countries, side by side. Swipe →\nFull comparison: link in bio` : `Swipe →\nFull story: link in bio`;
+    const swipe = format === "reel" ? "" : " Swipe →";
+    const where = e.n > 1 ? `${e.n} countries, side by side.${swipe}\nFull comparison: link in bio` : `${swipe.trim() ? "Swipe →\n" : ""}Full story: link in bio`;
     caption = `${e.title}\n\n${lead}\n\n${e.differ && e.n > 1 ? `Where it differs: ${e.differ}\n\n` : ""}${where}${credit}\n\n${TAGS[e.category] ?? ""} #news #worldnews #codanews`;
   }
-  const [p] = await sql<{ id: number; approve_token: string }[]>`insert into ig_posts (event_id, caption, kind, img_url, img_credit, copy) values (${e.id}, ${caption}, ${t ? "travel" : "news"}, ${t?.img ?? null}, ${t?.credit ?? null}, ${t ? sql.json(t.copy) : null}) returning id, approve_token`;
-  const post: Post = { id: p.id, slug: e.slug, kind: t ? "travel" : "news" };
+  const [p] = await sql<{ id: number; approve_token: string }[]>`insert into ig_posts (event_id, caption, kind, format, img_url, img_credit, copy) values (${e.id}, ${caption}, ${t ? "travel" : "news"}, ${format}, ${t?.img ?? null}, ${t?.credit ?? null}, ${t ? sql.json(t.copy) : null}) returning id, approve_token`;
+  const post: Post = { id: p.id, slug: e.slug, kind: t ? "travel" : "news", format };
   const base = `${env("SUPABASE_URL")}/functions/v1/admin`;
   const ok = `${base}?ig=approve&t=${p.approve_token}`, no = `${base}?ig=skip&t=${p.approve_token}`;
   const to = env("REPORT_EMAIL"), key = env("RESEND_API_KEY");
   if (to && key) await fetch("https://api.resend.com/emails", { method: "POST", headers: { Authorization: `Bearer ${key}`, "content-type": "application/json" },
     body: JSON.stringify({ from: "coda.news <hello@coda.news>", to: [to], subject: `Instagram 今晚待发：${t ? t.copy.title : e.title}`, html: `<div style="font-family:Helvetica,Arial,sans-serif;max-width:680px">
-      <h2 style="margin:0 0 8px">今晚的 Instagram 帖子</h2><p style="color:#6B7280;margin:0 0 16px">已设为自动发布：这条会在几分钟内发到 @thecodanews。有问题请到 Instagram 删除，并告诉我原因。</p>
+      <h2 style="margin:0 0 8px">今晚的 Instagram ${format === "reel" ? "Reel" : "帖子"}</h2><p style="color:#6B7280;margin:0 0 16px">已设为自动发布：这条会在几分钟内发到 @thecodanews。有问题请到 Instagram 删除，并告诉我原因。</p>
       <div>${slides(post).map((u) => `<img src="${u}" width="200" style="margin:0 6px 6px 0;border:1px solid #E5E7EB">`).join("")}</div>
       <pre style="white-space:pre-wrap;font-family:inherit;background:#F4F5F7;padding:12px;border-radius:8px">${esc(caption)}</pre>
       <p><a href="${ok}" style="display:inline-block;background:#EA5514;color:#fff;padding:12px 22px;border-radius:10px;text-decoration:none;font-weight:700">发布</a>
@@ -134,30 +142,105 @@ async function waitReady(id: string, token: string) {
   throw new Error("container not ready in time");
 }
 
-/** Publish an approved post as a carousel. */
-export async function publishInstagram(postId: number): Promise<string> {
-  const sql = db();
-  const [p] = await sql<(Post & { caption: string })[]>`select p.id, e.slug, p.caption, p.kind from ig_posts p join events e on e.id = p.event_id where p.id = ${postId}`;
+async function api() {
   const token = await setting("ig_token"), user = await setting("ig_user_id");
-  if (!p || !token || !user) throw new Error("post or token missing");
+  if (!token || !user) throw new Error("token missing");
   const post = async (path: string, body: Record<string, string>) => {
     const j = await (await fetch(`${G}/${path}`, { method: "POST", body: new URLSearchParams({ ...body, access_token: token }) })).json();
     if (!j.id) throw new Error(`${path}: ${JSON.stringify(j.error ?? j).slice(0, 200)}`);
     return j.id as string;
   };
+  const status = async (id: string) => (await (await fetch(`${G}/${id}?fields=status_code&access_token=${token}`)).json()).status_code as string | undefined;
+  const permalink = async (id: string) => (await (await fetch(`${G}/${id}?fields=permalink&access_token=${token}`)).json()).permalink ?? null;
+  return { token, user, post, status, permalink };
+}
+
+async function loadPost(postId: number) {
+  const [p] = await db()<(Post & { caption: string; container_id: string | null; created_at: Date })[]>`select p.id, e.slug, p.caption, p.kind, p.format, p.container_id, p.created_at from ig_posts p join events e on e.id = p.event_id where p.id = ${postId}`;
+  if (!p) throw new Error("post missing");
+  return p;
+}
+
+/** A Story pointing to the post that just went out. Never fails the post itself. */
+async function postStory(p: Post) {
   try {
-    // warm the image cache first (each slide renders in a few seconds), then create the items together
-    await Promise.all(slides(p).map((u) => fetch(u).then((r) => r.arrayBuffer()).catch(() => null)));
-    const kids = await Promise.all(slides(p).map((u) => post(`${user}/media`, { image_url: u, is_carousel_item: "true" })));
-    await Promise.all(kids.map((k) => waitReady(k, token)));
-    const box = await post(`${user}/media`, { media_type: "CAROUSEL", children: kids.join(","), caption: p.caption });
-    await waitReady(box, token);
-    const media = await post(`${user}/media_publish`, { creation_id: box });
-    const link = (await (await fetch(`${G}/${media}?fields=permalink&access_token=${token}`)).json()).permalink ?? null;
-    await sql`update ig_posts set status = 'posted', media_id = ${media}, permalink = ${link}, posted_at = now(), error = null where id = ${postId}`;
-    return link ?? "posted";
+    const a = await api();
+    await fetch(storyUrl(p)).then((r) => r.arrayBuffer()).catch(() => null);
+    const box = await a.post(`${a.user}/media`, { media_type: "STORIES", image_url: storyUrl(p) });
+    await waitReady(box, a.token);
+    const id = await a.post(`${a.user}/media_publish`, { creation_id: box });
+    await db()`update ig_posts set story_id = ${id} where id = ${p.id}`;
+  } catch (e) { log("instagram story", (e as Error).message); }
+}
+
+async function publishCarousel(p: Post & { caption: string }): Promise<string> {
+  const sql = db(), a = await api();
+  // warm the image cache first (each slide renders in a few seconds), then create the items together
+  await Promise.all(slides(p).map((u) => fetch(u).then((r) => r.arrayBuffer()).catch(() => null)));
+  const kids = await Promise.all(slides(p).map((u) => a.post(`${a.user}/media`, { image_url: u, is_carousel_item: "true" })));
+  await Promise.all(kids.map((k) => waitReady(k, a.token)));
+  const box = await a.post(`${a.user}/media`, { media_type: "CAROUSEL", children: kids.join(","), caption: p.caption });
+  await waitReady(box, a.token);
+  const media = await a.post(`${a.user}/media_publish`, { creation_id: box });
+  const link = await a.permalink(media);
+  await sql`update ig_posts set status = 'posted', format = 'carousel', media_id = ${media}, permalink = ${link}, posted_at = now(), error = null where id = ${p.id}`;
+  await postStory(p);
+  return link ?? "posted";
+}
+
+/** Publish an approved post: a carousel right away, or start a Reel (finished by finishReels on a later tick). */
+export async function publishInstagram(postId: number): Promise<string> {
+  const sql = db();
+  const p = await loadPost(postId);
+  try {
+    if (p.format === "reel") {
+      try {
+        const a = await api();
+        // render the video once so Instagram's fetch hits the CDN copy
+        const r = await fetch(reelUrl(p.id), { signal: AbortSignal.timeout(110_000) });
+        if (!r.ok || !(r.headers.get("content-type") ?? "").startsWith("video/")) throw new Error(`reel render ${r.status}`);
+        await r.arrayBuffer();
+        const box = await a.post(`${a.user}/media`, { media_type: "REELS", video_url: reelUrl(p.id), cover_url: slides(p)[0], caption: p.caption, share_to_feed: "true" });
+        await sql`update ig_posts set status = 'processing', container_id = ${box}, error = null where id = ${p.id}`;
+        return "processing";
+      } catch (e) {
+        // a Reel that cannot start still goes out today, as a carousel
+        log("instagram reel → carousel", (e as Error).message);
+        return await publishCarousel({ ...p, caption: p.caption.replace("side by side.\n", "side by side. Swipe →\n") });
+      }
+    }
+    return await publishCarousel(p);
   } catch (e) {
     await sql`update ig_posts set status = 'failed', error = ${(e as Error).message} where id = ${postId}`;
     throw e;
   }
+}
+
+/** Every tick: publish Reels whose video Instagram has finished processing; fall back to a carousel if it errors or stalls. */
+export async function finishReels(): Promise<number> {
+  const sql = db();
+  const rows = await sql<{ id: number }[]>`select id from ig_posts where status = 'processing' and container_id is not null`;
+  let n = 0;
+  for (const { id } of rows) {
+    const p = await loadPost(id);
+    try {
+      const a = await api();
+      const st = await a.status(p.container_id!);
+      const stale = Date.now() - new Date(p.created_at).getTime() > 45 * 60_000;
+      if (st === "FINISHED") {
+        const media = await a.post(`${a.user}/media_publish`, { creation_id: p.container_id! });
+        await sql`update ig_posts set status = 'posted', media_id = ${media}, permalink = ${await a.permalink(media)}, posted_at = now(), error = null where id = ${id}`;
+        await postStory(p);
+        n++;
+      } else if (st === "ERROR" || st === "EXPIRED" || stale) {
+        log(`instagram reel ${id}: ${st ?? "no status"}${stale ? " (stalled)" : ""} → carousel`);
+        await publishCarousel({ ...p, caption: p.caption.replace("side by side.\n", "side by side. Swipe →\n") });
+        n++;
+      }
+    } catch (e) {
+      await sql`update ig_posts set status = 'failed', error = ${(e as Error).message} where id = ${id}`;
+      log("instagram finish", (e as Error).message);
+    }
+  }
+  return n;
 }

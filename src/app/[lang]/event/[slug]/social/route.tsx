@@ -2,6 +2,7 @@
 //   ?s=1  cover: photo card (section tag, photo on top, heavy sans headline + dek, flags) or black/white/orange type cover
 //   ?s=2  "How the world reports it": one line per country with its framing and tone
 //   ?s=3  "The takeaway": what all reports share, and where the coverage differs
+//   ?s=story  9:16 Story announcing the day's post (&p= post id)
 //   ?s=t1 / t2  travel post: full-bleed scenic cover, then "what to look for" (&img= photo, &cr= credit from the Instagram job)
 import { ImageResponse } from "next/og";
 import { withPngMeta } from "@/lib/png-meta";
@@ -32,7 +33,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ lang: st
   const tslide = sp === "t1" ? 1 : sp === "t2" ? 2 : 0;
   // travel slides: photo and magazine copy live on the Instagram post (&p=id), written when the post was planned
   const pid = Number(new URL(req.url).searchParams.get("p"));
-  const tp = tslide && pid ? await igSlide(pid) : null;
+  const isStory = sp === "story";
+  const tp = (tslide || isStory) && pid ? await igSlide(pid) : null;
   const e = await getEvent(slug);
   if (!e) return new Response("Not found", { status: 404 });
   const ps = ((await getPerspectives([e.id])).get(e.id) ?? []).sort((a, b) => b.article_count - a.article_count).slice(0, 5);
@@ -70,7 +72,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ lang: st
   const tItems = ((zh && tc?.items_zh?.length ? tc.items_zh : tc?.items) ?? []).slice(0, 5);
   const tPoints = tItems.length ? [] : ((zh && e.points?.zh?.length ? e.points.zh : e.points?.en) ?? []).slice(0, 5).map((x) => cut(x, zh ? 40 : 110));
   const tLabels = zh ? { k: "旅行灵感", look: "值得看的", swipe: "左滑 →", via: "内容来源", more: "更多旅行：主页链接 →" } : { k: "WHERE TO GO NEXT", look: "WHAT TO LOOK FOR", swipe: "Swipe →", via: "As featured by", more: "More travel: link in bio →" };
-  const all = [title, cat, meta, bio, tCredit, tTitle, tDek, ...tItems.flatMap((i) => [i.h, i.d]), ...tPoints, ...Object.values(tLabels), e.lead_source ?? "", dek, inSources, e.image_credit ?? "", "coda.news", ...Object.values(SEC).flatMap((v) => [v[0], v[1]]), kicker, cta, scan, credit, h3a, h3b, h3k, "0123456789·→、•", ...shared, ...diffRows, ...rows.flatMap((r) => [r.c, r.f, r.t[zh ? 1 : 0]])].join("");
+  const all = [title, cat, meta, bio, "NEW POST今日新帖旅行灵感，去主页看New travel read on our pageHow the world reports it, on our page各国怎么报道，去主页看完整对比：主页链接Full comparison: link in bio", tCredit, tTitle, tDek, ...tItems.flatMap((i) => [i.h, i.d]), ...tPoints, ...Object.values(tLabels), e.lead_source ?? "", dek, inSources, e.image_credit ?? "", "coda.news", ...Object.values(SEC).flatMap((v) => [v[0], v[1]]), kicker, cta, scan, credit, h3a, h3b, h3k, "0123456789·→、•", ...shared, ...diffRows, ...rows.flatMap((r) => [r.c, r.f, r.t[zh ? 1 : 0]])].join("");
   const serif = zh ? "Noto+Serif+SC" : "Playfair+Display", sans = zh ? "Noto+Sans+SC" : "Inter";
   const [serifB, sansR, sansB, sansK] = await Promise.all([gfont(serif, 700, all), gfont(sans, 400, all), gfont(sans, 700, all), gfont(sans, 900, all)]);
   const fonts = [{ name: "Serif", data: serifB, weight: 700 as const }, { name: "Sans", data: sansR, weight: 400 as const }, { name: "Sans", data: sansB, weight: 700 as const }, { name: "Sans", data: sansK, weight: 900 as const }];
@@ -235,7 +237,23 @@ export async function GET(req: Request, { params }: { params: Promise<{ lang: st
     </div>
   );
 
-  const img = new ImageResponse(tslide === 1 ? travel1 : tslide === 2 ? travel2 : slide === 1 ? cover : slide === 2 ? list : takeaway, { width: W, height: H, fonts, headers: { "cache-control": "public, max-age=0, s-maxage=3600" } });
+  const SH = 1920;
+  const coverSrc = `${new URL(req.url).origin}${zh ? "/zh" : ""}/event/${slug}/social?${tp?.kind === "travel" ? `s=t1&p=${pid}` : "s=1"}&fmt=jpg`;
+  const story = (
+    <div style={{ width: W, height: SH, display: "flex", flexDirection: "column", alignItems: "center", background: INK, fontFamily: "Sans", padding: "120px 72px 150px" }}>
+      <div style={{ display: "flex", width: "100%", alignItems: "center" }}>
+        <img src={LOGO_WHITE_DATA_URI} width={236} height={37} alt="" />
+        <div style={{ marginLeft: "auto", display: "flex", fontSize: 24, fontWeight: 700, color: ORANGE, letterSpacing: zh ? 3 : 5 }}>{zh ? "今日新帖" : "NEW POST"}</div>
+      </div>
+      <div style={{ display: "flex", flexGrow: 1 }} />
+      <img src={coverSrc} width={936} height={1170} style={{ borderRadius: 24 }} alt="" />
+      <div style={{ display: "flex", marginTop: 64, fontSize: 38, fontWeight: 700, color: "#fff" }}>{tp?.kind === "travel" ? (zh ? "旅行灵感，去主页看" : "New travel read on our page") : (zh ? "各国怎么报道，去主页看" : "How the world reports it, on our page")}</div>
+      <div style={{ display: "flex", marginTop: 14, fontSize: 28, color: "rgba(255,255,255,0.7)" }}>{zh ? "完整对比：主页链接" : "Full comparison: link in bio"}</div>
+      <div style={{ display: "flex", flexGrow: 1 }} />
+    </div>
+  );
+
+  const img = new ImageResponse(isStory ? story : tslide === 1 ? travel1 : tslide === 2 ? travel2 : slide === 1 ? cover : slide === 2 ? list : takeaway, { width: W, height: isStory ? SH : H, fonts, headers: { "cache-control": "public, max-age=0, s-maxage=3600" } });
   // Instagram's publishing API only takes JPEG
   if (new URL(req.url).searchParams.get("fmt") === "jpg") {
     const sharp = (await import("sharp")).default;
