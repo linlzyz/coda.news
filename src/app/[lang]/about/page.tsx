@@ -14,7 +14,8 @@ const EN: [string, string, string[]][] = [
     "We describe, we don't judge. Each country's perspective comes only from that country's own media. We summarise and link to the originals; we never republish articles."]],
   ["who", "Who runs coda.news", [
     `coda.news is an independent project by ${SITE.operator}, a company in ${SITE.city}.${SITE.abn ? ` ABN ${SITE.abn}.` : ""}`,
-    "It is self-funded. We are not affiliated with any government, political party, company or news organisation, and nobody pays to appear, or not appear, on the site. There is no advertising at present; if that changes, ads will be clearly labelled and kept apart from news."]],
+    "It is self-funded. We are not affiliated with any government, political party, company or news organisation, and nobody pays to appear, or not appear, on the site. There is no advertising at present; if that changes, ads will be clearly labelled and kept apart from news.",
+    "In future we may offer memberships, data services for professionals, or accept clearly labelled institutional support. No source of revenue will ever let anyone pay to change what we cover or how: no paid placement, no sponsored stories, no paid removal."]],
   ["standards", "Editorial standards", [
     "Balance: every country with coverage gets its own card, written only from its own media. We show where countries agree and where they differ, without taking sides.",
     "Transparency: every event lists all of its sources with links. AI-generated text is labelled, and the method behind every score is explained on this page.",
@@ -42,7 +43,8 @@ const ZH: [string, string, string[]][] = [
     "我们只描述，不评判。每个国家的视角只来自这个国家自己的媒体。我们只做摘要并链接原文，从不转载文章。"]],
   ["who", "谁在运营 coda.news", [
     `coda.news 是 ${SITE.operator} 的独立项目，${SITE.operator} 是一家位于${SITE.cityZh}的公司。${SITE.abn ? `ABN ${SITE.abn}。` : ""}`,
-    "项目自筹资金运营，与任何政府、政党、公司或新闻机构都没有关联，也没有人付费让内容出现或不出现在网站上。目前没有广告；以后如有广告，会明确标注，并与新闻内容分开。"]],
+    "项目自筹资金运营，与任何政府、政党、公司或新闻机构都没有关联，也没有人付费让内容出现或不出现在网站上。目前没有广告；以后如有广告，会明确标注，并与新闻内容分开。",
+    "我们以后可能会推出会员服务、为专业用户提供数据服务，或接受公开标注的机构支持。无论哪种收入，都不能让任何人付费影响我们报道什么、怎么呈现：没有付费置顶，没有软文，没有付费下架。"]],
   ["standards", "编辑原则", [
     "平衡：每个有报道的国家都有自己的卡片，只根据该国媒体撰写。我们呈现各国一致和分歧的地方，不站队。",
     "透明：每个事件都列出全部来源并附链接。AI 生成的内容有标注，每个分数的计算方法都在本页说明。",
