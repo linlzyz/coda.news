@@ -26,7 +26,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
   const tones = { positive: 0, neutral: 0, negative: 0 } as Record<string, number>;
   for (const ps of persp.values()) for (const p of ps) tones[p.tone] = (tones[p.tone] ?? 0) + 1;
   const tTotal = Object.values(tones).reduce((a, b) => a + b, 0) || 1;
-  const mail = `mailto:${SITE.email}?subject=${encodeURIComponent(zh ? "coda.news 报道监测试点" : "coda.news monitoring pilot")}`;
+  const mail = `mailto:${SITE.business}?subject=${encodeURIComponent(zh ? "coda.news 报道监测试点" : "coda.news monitoring pilot")}`;
 
   const T = zh ? {
     kicker: "商务合作", h1: "各国媒体怎么报道你的品牌？",
@@ -37,7 +37,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
     stories: "相关报道事件", cs: "覆盖国家", tone: "各国报道语气", byCountry: "按国家的报道量", compared: "多国报道的事件",
     toneL: { positive: "支持性", neutral: "描述性", negative: "审慎性" },
     principle: "独立性原则", principleText: "报告服务和网站新闻完全分开。客户付费购买的是报告，不会影响 coda.news 网站上报道什么、怎么呈现：没有付费置顶，没有软文，没有付费下架。我们只描述各国媒体怎么报道，不评判，也不替任何一方发声。",
-    pilot: "试点合作", pilotText: "目前开放少量试点名额：免费试用 4 周，每周一份报告，之后再决定是否继续。", cta: "申请试点", note: `或发邮件到 ${SITE.email}，写上你的品牌和想关注的竞争对手。`,
+    pilot: "试点合作", pilotText: "目前开放少量试点名额：免费试用 4 周，每周一份报告，之后再决定是否继续。", cta: "申请试点", note: `或发邮件到 ${SITE.business}，写上你的品牌和想关注的竞争对手。`,
     how: "报告基于公开新闻源，由 AI 归并和摘要，并经过抽检核对。所有内容附原文链接，便于核实。",
   } : {
     kicker: "For business", h1: "How do outlets in each country cover your brand?",
@@ -48,7 +48,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
     stories: "Events covered", cs: "Countries", tone: "Tone of coverage", byCountry: "Coverage by country", compared: "Events covered in several countries",
     toneL: { positive: "Supportive", neutral: "Descriptive", negative: "Cautious" },
     principle: "Independence", principleText: "The report service is kept apart from the news on coda.news. Clients pay for the report; nobody can pay to change what the site covers or how: no paid placement, no sponsored stories, no paid removal. We describe how outlets in each country report a story. We do not judge it or speak for anyone.",
-    pilot: "Pilot", pilotText: "A few pilot places are open: four weeks free, one report a week, then decide whether to continue.", cta: "Apply for a pilot", note: `Or email ${SITE.email} with your brand and the competitors you want to follow.`,
+    pilot: "Pilot", pilotText: "A few pilot places are open: four weeks free, one report a week, then decide whether to continue.", cta: "Apply for a pilot", note: `Or email ${SITE.business} with your brand and the competitors you want to follow.`,
     how: "Reports are built from public news sources, grouped and summarised by AI and checked by sampling. Every item links to the original so it can be verified.",
   };
   const toneColor: Record<string, string> = { positive: "#047857", neutral: "#6B7280", negative: "#BE123C" };
