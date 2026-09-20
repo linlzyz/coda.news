@@ -26,11 +26,14 @@ Deno.serve(async (req) => {
     const sql = db();
     const [p] = await sql<{ id: number; status: string; permalink: string | null }[]>`select id, status, permalink from ig_posts where approve_token = ${t}::uuid and created_at > now() - interval '3 days'`;
     if (!p) return page("链接已过期或无效。");
+    if (p.status === "approved") return page("正在发布中，请稍等一两分钟。");
     if (p.status === "posted") return page(`已经发布过了。${p.permalink ? `<a href="${p.permalink}">查看帖子</a>` : ""}`);
     if (u.searchParams.get("ig") === "skip") { await sql`update ig_posts set status = 'skipped' where id = ${p.id} and status <> 'posted'`; return page("好的，今晚跳过。"); }
     await sql`update ig_posts set status = 'approved' where id = ${p.id}`;
-    try { const link = await publishInstagram(p.id); return page(`已发布到 @thecodanews。${link.startsWith("http") ? `<a href="${link}">查看帖子</a>` : ""}`); }
-    catch (e) { return page(`发布失败：${String((e as Error).message).replace(/[<>&]/g, "")}<br>可以稍后再点一次这个链接重试。`); }
+    // publishing takes a minute or two: run it in the background and answer at once
+    // deno-lint-ignore no-explicit-any
+    (globalThis as any).EdgeRuntime?.waitUntil(publishInstagram(p.id).catch(() => {}));
+    return page("正在发布到 @thecodanews，一两分钟后就能在 Instagram 看到。再点一次这个链接可以查看状态。");
   }
   const b = await req.json().catch(() => ({}));
   const key = env("ADMIN_KEY");

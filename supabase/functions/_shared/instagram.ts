@@ -79,9 +79,10 @@ export async function publishInstagram(postId: number): Promise<string> {
     return j.id as string;
   };
   try {
-    const kids: string[] = [];
-    for (const u of slides(p.slug)) kids.push(await post(`${user}/media`, { image_url: u, is_carousel_item: "true" }));
-    for (const k of kids) await waitReady(k, token);
+    // warm the image cache first (each slide renders in a few seconds), then create the three items together
+    await Promise.all(slides(p.slug).map((u) => fetch(u).then((r) => r.arrayBuffer()).catch(() => null)));
+    const kids = await Promise.all(slides(p.slug).map((u) => post(`${user}/media`, { image_url: u, is_carousel_item: "true" })));
+    await Promise.all(kids.map((k) => waitReady(k, token)));
     const box = await post(`${user}/media`, { media_type: "CAROUSEL", children: kids.join(","), caption: p.caption });
     await waitReady(box, token);
     const media = await post(`${user}/media_publish`, { creation_id: box });
