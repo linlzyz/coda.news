@@ -142,6 +142,12 @@ export async function GET(req: Request, { params }: { params: Promise<{ lang: st
   );
 
   const img = new ImageResponse(slide === 1 ? cover : slide === 2 ? list : takeaway, { width: W, height: H, fonts, headers: { "cache-control": "public, max-age=0, s-maxage=3600" } });
+  // Instagram's publishing API only takes JPEG
+  if (new URL(req.url).searchParams.get("fmt") === "jpg") {
+    const sharp = (await import("sharp")).default;
+    const jpg = await sharp(Buffer.from(await img.arrayBuffer())).flatten({ background: "#ffffff" }).jpeg({ quality: 90 }).toBuffer();
+    return new Response(new Uint8Array(jpg), { headers: { "content-type": "image/jpeg", "cache-control": "public, max-age=0, s-maxage=3600" } });
+  }
   const pageUrl = `https://coda.news${zh ? "/zh" : ""}/event/${slug}`;
   return withPngMeta(img, {
     Title: title, Source: pageUrl, Author: "coda.news", Copyright: `© ${new Date().getFullYear()} coda.news. ${pageUrl}`,

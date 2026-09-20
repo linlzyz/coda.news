@@ -14,13 +14,14 @@ import { env } from "../_shared/env.ts";
 import { classifyCompanies, enrichCompanies } from "../_shared/companies.ts";
 import { auditSample, qaSummary } from "../_shared/qa.ts";
 import { checkLinks } from "../_shared/links.ts";
+import { proposeInstagram } from "../_shared/instagram.ts";
 
 Deno.serve(async (req) => {
   const secret = env("CRON_SECRET");
   if (!secret || req.headers.get("x-cron-secret") !== secret) return new Response("forbidden", { status: 403 });
   const step = new URL(req.url).searchParams.get("step") ?? "process";
   try {
-    const report = step === "ingest" ? await ingest() : step === "brief" ? { brief: await sendDailyBrief(), follows: await sendFollowAlerts(), health: await sendHealthReport() } : step === "companies" ? { companies: await enrichCompanies(20) } : step === "kinds" ? { kinds: await classifyCompanies(120) } : step === "links" ? { dead: await checkLinks(60) } : step === "qa" ? { qa: await qaSummary(), sampled: await auditSample(8) } : step === "health" ? { health: await sendHealthReport(true) } : step === "review" ? { review: await reviewEvents(40) } : step === "markets" ? { markets: await refreshIndices(true) } : step === "singles" ? { singles: await briefSingles(15) } : step === "story" ? { story: await buildStories(1, new URL(req.url).searchParams.get("slug") ?? undefined) } : await tick(135_000, { skipIngest: true });
+    const report = step === "ingest" ? await ingest() : step === "brief" ? { brief: await sendDailyBrief(), follows: await sendFollowAlerts(), health: await sendHealthReport() } : step === "companies" ? { companies: await enrichCompanies(20) } : step === "kinds" ? { kinds: await classifyCompanies(120) } : step === "igpropose" ? { proposed: await proposeInstagram(true) } : step === "links" ? { dead: await checkLinks(60) } : step === "qa" ? { qa: await qaSummary(), sampled: await auditSample(8) } : step === "health" ? { health: await sendHealthReport(true) } : step === "review" ? { review: await reviewEvents(40) } : step === "markets" ? { markets: await refreshIndices(true) } : step === "singles" ? { singles: await briefSingles(15) } : step === "story" ? { story: await buildStories(1, new URL(req.url).searchParams.get("slug") ?? undefined) } : await tick(135_000, { skipIngest: true });
     return Response.json(report);
   } catch (e) {
     return Response.json({ error: (e as Error).message }, { status: 500 });

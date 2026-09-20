@@ -15,6 +15,7 @@ import { classifyCompanies, enrichCompanies } from "./companies.ts";
 import { auditSample } from "./qa.ts";
 import { checkLinks } from "./links.ts";
 import { notifyPilots } from "./pilots.ts";
+import { proposeInstagram } from "./instagram.ts";
 import { screenArticles } from "./screen.ts";
 import { translateFacts, translateMissing } from "./translate.ts";
 import { refreshIndices } from "./markets.ts";
@@ -63,6 +64,7 @@ export async function tick(budgetMs = 120_000, opts: { skipIngest?: boolean } = 
   if (left() > 20_000) await step("qa", () => auditSample(3));
   if (left() > 20_000) await step("links", () => checkLinks(25));
   await step("pilots", notifyPilots);
+  await step("instagram", () => proposeInstagram());
   await step("alerts", checkAlerts);
   // tell the website which story pages changed in this run, so only those are rebuilt
   await step("revalidate", async () => {

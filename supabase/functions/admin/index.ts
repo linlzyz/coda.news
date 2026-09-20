@@ -3,6 +3,7 @@
 //   POST { key, action: "hide"|"unhide"|"pin"|"unpin"|"noimage"|"retranslate"|"category", id, value? }
 import { db } from "../_shared/db.ts";
 import { env } from "../_shared/env.ts";
+import { publishInstagram } from "../_shared/instagram.ts";
 
 const CORS = { "access-control-allow-origin": "*", "access-control-allow-headers": "content-type", "access-control-allow-methods": "POST, OPTIONS" };
 const CATS = ["technology", "economy", "sport", "entertainment", "fashion", "travel", "automotive", "gaming"];
@@ -16,6 +17,21 @@ async function refresh(slugs: string[], lists: boolean) {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
+  // links from the nightly Instagram email: /admin?ig=approve|skip&t=<one-time token>
+  const u = new URL(req.url);
+  if (req.method === "GET" && u.searchParams.get("ig")) {
+    const page = (msg: string) => new Response(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width"><body style="font-family:Helvetica,Arial,sans-serif;padding:40px;max-width:560px;margin:auto"><h2>coda.news · Instagram</h2><p>${msg}</p></body>`, { headers: { "content-type": "text/html; charset=utf-8" } });
+    const t = u.searchParams.get("t") ?? "";
+    if (!/^[0-9a-f-]{36}$/.test(t)) return page("链接无效。");
+    const sql = db();
+    const [p] = await sql<{ id: number; status: string; permalink: string | null }[]>`select id, status, permalink from ig_posts where approve_token = ${t}::uuid and created_at > now() - interval '3 days'`;
+    if (!p) return page("链接已过期或无效。");
+    if (p.status === "posted") return page(`已经发布过了。${p.permalink ? `<a href="${p.permalink}">查看帖子</a>` : ""}`);
+    if (u.searchParams.get("ig") === "skip") { await sql`update ig_posts set status = 'skipped' where id = ${p.id} and status <> 'posted'`; return page("好的，今晚跳过。"); }
+    await sql`update ig_posts set status = 'approved' where id = ${p.id}`;
+    try { const link = await publishInstagram(p.id); return page(`已发布到 @thecodanews。${link.startsWith("http") ? `<a href="${link}">查看帖子</a>` : ""}`); }
+    catch (e) { return page(`发布失败：${String((e as Error).message).replace(/[<>&]/g, "")}<br>可以稍后再点一次这个链接重试。`); }
+  }
   const b = await req.json().catch(() => ({}));
   const key = env("ADMIN_KEY");
   if (!key || b.key !== key) return json({ error: "wrong key" }, 403);
