@@ -118,13 +118,11 @@ export function pickFeatured(events: EventRow[], n: number, skip: Set<number> = 
   pinned.forEach((e) => skip.add(e.id));
   const broke = (e: EventRow, h: number) => Date.now() - Date.parse(e.started_at) < h * 3600_000;
   const news = events
-    .filter((e) => !skip.has(e.id) && e.source_count >= 2 && broke(e, 48))
+    .filter((e) => !skip.has(e.id) && e.source_count >= 2 && broke(e, 48) && !!e.image_url && e.image_focus !== "logo")   // no picture, no Picks slot
     .sort((a, b) => hotness(b) - hotness(a) || b.countries.length - a.countries.length || b.source_count - a.source_count)
-    .slice(0, n * 3)
-    .sort((a, b) => Number(!!b.image_url && b.image_focus !== "logo") - Number(!!a.image_url && a.image_focus !== "logo"))
     .slice(0, n);
   const mags = events
-    .filter((e) => !skip.has(e.id) && !news.includes(e) && ["travel", "fashion"].includes(e.category) && e.summary && fresh(e, 72))
+    .filter((e) => !skip.has(e.id) && !news.includes(e) && ["travel", "fashion"].includes(e.category) && e.summary && fresh(e, 72) && !!e.image_url && e.image_focus !== "logo")
     .sort((a, b) => Number(!!b.image_url) - Number(!!a.image_url) || (b.importance ?? 0) - (a.importance ?? 0))
     .slice(0, Math.max(1, Math.round(n / 2)));
   // one-source stories with an official picture (the publisher's own image or game art, not a logo) are worth a look too
