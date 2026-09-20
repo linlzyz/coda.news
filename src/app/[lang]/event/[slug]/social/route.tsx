@@ -8,7 +8,7 @@ import QRCode from "qrcode";
 import { getEvent, getLatestSummary, getPerspectives } from "@/lib/data";
 import { COUNTRY_ZH } from "@/lib/i18n";
 import { COUNTRY } from "@/lib/ui";
-import { LOGO_DATA_URI, LOGO_WHITE_DATA_URI } from "@/lib/logo-data";
+import { LOGO_DATA_URI } from "@/lib/logo-data";
 import { brandParts, gfont } from "@/lib/og-font";
 
 export const revalidate = 3600;
@@ -50,28 +50,34 @@ export async function GET(req: Request, { params }: { params: Promise<{ lang: st
   const fonts = [{ name: "Serif", data: serifB, weight: 700 as const }, { name: "Sans", data: sansR, weight: 400 as const }, { name: "Sans", data: sansB, weight: 700 as const }];
   const size = (n: number) => (zh ? (n > 30 ? 64 : n > 18 ? 76 : 88) : (n > 90 ? 62 : n > 60 ? 72 : n > 36 ? 84 : 96));
 
+  // light, per-section palette: a pale ground and one accent, never a dark slab
+  const PAL: Record<string, [string, string]> = { technology: ["#EAF1FF", "#2C55F0"], economy: ["#E7F5EE", "#0F7A4A"], sport: ["#ECF6E7", "#2F7A2A"], entertainment: ["#F3EDFF", "#6D3FC0"],
+    fashion: ["#FBEEF2", "#B03A5B"], travel: ["#E6F5F6", "#0E7C86"], automotive: ["#F0F1EE", "#3F4750"], gaming: ["#EEEFFF", "#4B45C6"] };
+  const [TINT, ACC] = PAL[e.category] ?? ["#FFF3EC", ORANGE];
   const cover = (
-    <div style={{ width: W, height: H, display: "flex", position: "relative", background: INK, fontFamily: "Sans" }}>
-      {photoOk && <img src={e.image_url!} width={W} height={H} style={{ position: "absolute", top: 0, left: 0, width: W, height: H, objectFit: "cover", objectPosition: e.image_focus === "top" ? "center 18%" : "center" }} alt="" />}
-      {photoOk && <div style={{ position: "absolute", top: 0, left: 0, width: W, height: H, display: "flex",
-        backgroundImage: "linear-gradient(180deg, rgba(10,11,13,0.55) 0%, rgba(10,11,13,0) 20%, rgba(10,11,13,0.15) 45%, rgba(10,11,13,0.88) 70%, rgba(10,11,13,0.97) 100%)" }} />}
-      <div style={{ position: "absolute", top: 64, left: 72, right: 72, display: "flex", alignItems: "center" }}>
-        <img src={LOGO_WHITE_DATA_URI} width={236} height={37} alt="" />
-        <div style={{ marginLeft: "auto", display: "flex", fontSize: 22, fontWeight: 700, color: "#fff", letterSpacing: zh ? 2 : 5 }}>{cat}</div>
+    <div style={{ width: W, height: H, display: "flex", flexDirection: "column", background: TINT, fontFamily: "Sans", padding: "64px 72px 60px" }}>
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <img src={LOGO_DATA_URI} width={236} height={37} alt="" />
+        <div style={{ marginLeft: "auto", display: "flex", fontSize: 22, fontWeight: 700, color: ACC, letterSpacing: zh ? 2 : 5 }}>{cat}</div>
       </div>
-      <div style={{ position: "absolute", left: 72, right: 72, bottom: 168, ...(photoOk ? {} : { top: 150 }), display: "flex", flexDirection: "column", justifyContent: photoOk ? "flex-end" : "center" }}>
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <div style={{ width: 44, height: 4, background: ORANGE, marginRight: 18, display: "flex" }} />
-          <div style={{ display: "flex", fontSize: 24, fontWeight: 700, color: ORANGE, letterSpacing: zh ? 3 : 5 }}>{kicker}</div>
+      {photoOk && (
+        <div style={{ display: "flex", marginTop: 48, width: W - 144, height: 560, borderRadius: 28, overflow: "hidden", position: "relative" }}>
+          <img src={e.image_url!} width={W - 144} height={560} style={{ width: W - 144, height: 560, objectFit: "cover", objectPosition: e.image_focus === "top" ? "center 22%" : "center" }} alt="" />
+          {credit && <div style={{ position: "absolute", right: 16, bottom: 12, display: "flex", fontSize: 14, color: "#fff", background: "rgba(0,0,0,0.35)", padding: "3px 10px", borderRadius: 999 }}>{credit}</div>}
         </div>
-        <div style={{ display: "flex", marginTop: 26, fontFamily: "Serif", fontWeight: 700, fontSize: photoOk ? size(title.length) : Math.round(size(title.length) * 1.12), lineHeight: zh ? 1.22 : 1.06, color: "#fff", letterSpacing: zh ? 1 : -1 }}>{title}</div>
-        {!photoOk && rows.length > 0 && <div style={{ display: "flex", marginTop: 34, fontSize: 28, color: "rgba(255,255,255,0.7)" }}>{rows.map((r) => r.c).join(zh ? "、" : " · ")}</div>}
+      )}
+      <div style={{ display: "flex", flexDirection: "column", marginTop: photoOk ? 44 : "auto", marginBottom: photoOk ? 0 : "auto" }}>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <div style={{ width: 44, height: 4, background: ACC, marginRight: 18, display: "flex" }} />
+          <div style={{ display: "flex", fontSize: 24, fontWeight: 700, color: ACC, letterSpacing: zh ? 3 : 5 }}>{kicker}</div>
+        </div>
+        <div style={{ display: "flex", marginTop: 22, fontFamily: "Serif", fontWeight: 700, fontSize: photoOk ? Math.round(size(title.length) * 0.78) : Math.round(size(title.length) * 1.05), lineHeight: zh ? 1.22 : 1.08, color: INK, letterSpacing: zh ? 1 : -1 }}>{title}</div>
+        {!photoOk && rows.length > 0 && <div style={{ display: "flex", marginTop: 34, fontSize: 28, color: "#4B5563" }}>{rows.map((r) => r.c).join(zh ? "、" : " · ")}</div>}
       </div>
-      <div style={{ position: "absolute", left: 72, right: 72, bottom: 84, display: "flex", paddingTop: 26, borderTop: "1px solid rgba(255,255,255,0.35)", alignItems: "center", fontSize: 24, color: "rgba(255,255,255,0.85)" }}>
+      <div style={{ marginTop: "auto", display: "flex", paddingTop: 24, borderTop: `2px solid ${ACC}`, alignItems: "center", fontSize: 24, color: "#4B5563" }}>
         <div style={{ display: "flex" }}>{meta}</div>
-        <div style={{ display: "flex", marginLeft: "auto", fontWeight: 700, color: "#fff" }}><B text="coda.news" /></div>
+        <div style={{ display: "flex", marginLeft: "auto", fontWeight: 700, color: INK }}>{zh ? "左滑查看各国报道 →" : "Swipe for every country's view →"}</div>
       </div>
-      {credit && <div style={{ position: "absolute", right: 72, bottom: 36, display: "flex", fontSize: 15, color: "rgba(255,255,255,0.6)" }}>{credit}</div>}
     </div>
   );
 
@@ -82,8 +88,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ lang: st
         <div style={{ marginLeft: "auto", display: "flex", fontSize: 22, fontWeight: 700, color: INK, letterSpacing: zh ? 2 : 5 }}>{cat}</div>
       </div>
       <div style={{ display: "flex", alignItems: "center", marginTop: 72 }}>
-        <div style={{ width: 44, height: 4, background: ORANGE, marginRight: 18, display: "flex" }} />
-        <div style={{ display: "flex", fontSize: 24, fontWeight: 700, color: ORANGE, letterSpacing: zh ? 3 : 5 }}>{kicker}</div>
+        <div style={{ width: 44, height: 4, background: ACC, marginRight: 18, display: "flex" }} />
+        <div style={{ display: "flex", fontSize: 24, fontWeight: 700, color: ACC, letterSpacing: zh ? 3 : 5 }}>{kicker}</div>
       </div>
       <div style={{ display: "flex", marginTop: 22, fontFamily: "Serif", fontWeight: 700, fontSize: zh ? 46 : 48, lineHeight: 1.18, color: INK }}>{title}</div>
       <div style={{ display: "flex", flexDirection: "column", marginTop: 40, flexGrow: 1 }}>
@@ -118,20 +124,20 @@ export async function GET(req: Request, { params }: { params: Promise<{ lang: st
     </div>
   );
   const takeaway = (
-    <div style={{ width: W, height: H, display: "flex", flexDirection: "column", background: "#FFF6F0", fontFamily: "Sans", padding: "64px 72px 60px" }}>
+    <div style={{ width: W, height: H, display: "flex", flexDirection: "column", background: TINT, fontFamily: "Sans", padding: "64px 72px 60px" }}>
       <div style={{ display: "flex", alignItems: "center" }}>
         <img src={LOGO_DATA_URI} width={236} height={37} alt="" />
         <div style={{ marginLeft: "auto", display: "flex", fontSize: 22, fontWeight: 700, color: INK, letterSpacing: zh ? 2 : 5 }}>{h3k}</div>
       </div>
       <div style={{ display: "flex", marginTop: 56, fontFamily: "Serif", fontWeight: 700, fontSize: zh ? 44 : 44, lineHeight: 1.18, color: INK }}>{title}</div>
       <div style={{ display: "flex", flexDirection: "column", marginTop: 44 }}>
-        <div style={{ display: "flex", fontSize: 22, fontWeight: 700, color: ORANGE, letterSpacing: zh ? 3 : 4 }}>{h3a}</div>
+        <div style={{ display: "flex", fontSize: 22, fontWeight: 700, color: ACC, letterSpacing: zh ? 3 : 4 }}>{h3a}</div>
         {shared.length ? shared.map((t, i) => bullet(t, i, INK)) : bullet(title, 0, INK)}
       </div>
       {diffRows.length > 0 && (
-        <div style={{ display: "flex", flexDirection: "column", marginTop: 44, paddingTop: 36, borderTop: "1px solid #F5D0BE" }}>
-          <div style={{ display: "flex", fontSize: 22, fontWeight: 700, color: ORANGE, letterSpacing: zh ? 3 : 4 }}>{h3b}</div>
-          {diffRows.map((t, i) => bullet(t, i, ORANGE))}
+        <div style={{ display: "flex", flexDirection: "column", marginTop: 44, paddingTop: 36, borderTop: `1px solid ${ACC}33` }}>
+          <div style={{ display: "flex", fontSize: 22, fontWeight: 700, color: ACC, letterSpacing: zh ? 3 : 4 }}>{h3b}</div>
+          {diffRows.map((t, i) => bullet(t, i, ACC))}
         </div>
       )}
       <div style={{ marginTop: "auto", display: "flex", alignItems: "center", borderTop: `4px solid ${INK}`, paddingTop: 24, fontSize: 24, color: "#6B7280" }}>
