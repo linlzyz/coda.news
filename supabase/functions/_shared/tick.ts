@@ -57,6 +57,15 @@ export async function tick(budgetMs = 120_000, opts: { skipIngest?: boolean } = 
   if (left() > 10_000) await step("images", () => assignImages(60));
   if (left() > 8_000) await step("companies", () => enrichCompanies(25));
   if (left() > 8_000) await step("company kinds", () => classifyCompanies(40));
+  // self-healing rules: people never stay tagged as companies, one-source stories never keep a stock photo or portrait
+  if (left() > 6_000) await step("tidy", async () => {
+    const sql = db();
+    const a = await sql`update events e set company_ids = (select coalesce(array_agg(c), '{}') from unnest(e.company_ids) c where c not in (select id from companies where kind = 'person'))
+      where exists (select 1 from companies c where c.kind = 'person' and c.id = any(e.company_ids))`;
+    const b = await sql`update events set image_url = null, image_credit = null, image_link = null, image_source = null, image_license = null, image_license_url = null, image_focus = null, image_query = '-', image_checked_at = now(), person_checked_at = now()
+      where not hidden and source_count < 2 and image_source in ('pexels','unsplash','pixabay','openverse','commons')`;
+    return a.count + b.count;
+  });
   if (left() > 20_000) await step("stories", () => buildStories(1));
   await step("markets", () => refreshIndices());
   await step("welcome", sendWelcomes);
