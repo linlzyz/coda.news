@@ -123,7 +123,7 @@ export function pickFeatured(events: EventRow[], n: number, skip: Set<number> = 
     .sort((a, b) => hotness(b) - hotness(a) || b.countries.length - a.countries.length || b.source_count - a.source_count)
     .slice(0, n);
   const mags = events
-    .filter((e) => !skip.has(e.id) && !news.includes(e) && ["travel", "fashion"].includes(e.category) && e.summary && fresh(e, 72) && !!e.image_url && e.image_focus !== "logo")
+    .filter((e) => !skip.has(e.id) && !news.includes(e) && e.category === "fashion" && e.summary && fresh(e, 72) && !!e.image_url && e.image_focus !== "logo")
     .sort((a, b) => Number(!!b.image_url) - Number(!!a.image_url) || (b.importance ?? 0) - (a.importance ?? 0))
     .slice(0, Math.max(1, Math.round(n / 2)));
   // one-source stories with an official picture (the publisher's own image or game art, not a logo) are worth a look too

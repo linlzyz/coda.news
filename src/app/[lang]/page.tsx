@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 export const revalidate = 3600;
 
 export default async function Home({ params }: PageProps<"/[lang]">) {
-  const CATS = ["economy", "technology", "sport", "entertainment", "fashion", "travel", "automotive", "gaming"] as const;
+  const CATS = ["economy", "technology", "sport", "entertainment", "fashion", "automotive", "gaming"] as const;
   const [events, pinnedList, official, topics, trending, cq, fq, ...byCat] = await Promise.all([
     listEvents({ limit: 60, sinceHours: 72 }), pinnedEvents(), officialPicks(), allTopics(), trendingCompanies(10), crypto(), fx(),
     // each tab gets its own list, same as its section page (the main list is dominated by the biggest economy/tech stories)
@@ -88,7 +88,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
           <FeaturedCards events={key} lang={l} heading={t(l, "keyStories")} />
 
           <Feed title={t(l, "latest")} more={t(l, "loadMore")} disclaimer={t(l, "disclaimer")}
-            tabs={(["all", "australia", "china", "economy", "technology", "sport", "entertainment", "fashion", "travel", "automotive", "gaming"] as const).map((k) => [t(l, k), k === "all" ? undefined : k])}
+            tabs={(["all", "australia", "china", "economy", "technology", "sport", "entertainment", "fashion", "automotive", "gaming"] as const).map((k) => [t(l, k), k === "all" ? undefined : k])}
             links
             items={list.map((e) => ({ tags: [e.category, ...regionTags(e)], node: <NewsItem e={e} companies={companies} topics={topicMap} lang={l} />, day: dayLabel(e.last_article_at, l), at: Date.parse(e.last_article_at) }))} />
         </div>

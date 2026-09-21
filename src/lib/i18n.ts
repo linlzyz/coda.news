@@ -14,7 +14,7 @@ export const alternates = (path: string, lang: Lang = "en") => ({
 
 const D = {
   tagline: ["One story. Every perspective.", "一件事，每一种视角。"],
-  home: ["Home", "首页"], economy: ["Economy", "经济"], technology: ["Technology", "科技"], sport: ["Sport", "体育"], entertainment: ["Entertainment", "娱乐"], fashion: ["Fashion", "时尚"], travel: ["Travel", "旅行"], automotive: ["Automotive", "汽车"], gaming: ["Gaming", "游戏"], china: ["China", "中国"], australia: ["Australia", "澳洲"], companies: ["Companies", "公司"], topics: ["Topics", "话题"],
+  home: ["Home", "首页"], economy: ["Economy", "经济"], technology: ["Technology", "科技"], sport: ["Sport", "体育"], entertainment: ["Entertainment", "娱乐"], fashion: ["Fashion", "时尚"], travel: ["Travel reads", "旅行灵感"], automotive: ["Automotive", "汽车"], gaming: ["Gaming", "游戏"], china: ["China", "中国"], australia: ["Australia", "澳洲"], companies: ["Companies", "公司"], topics: ["Topics", "话题"],
   newsletter: ["Newsletter", "每日简报"], about: ["About", "关于"],
   promoTitle: ["See every side of the story.", "看见一件事的每一面。"],
   promoText: ["The day's news, compared across countries and languages.", "每天的新闻，按国家和语言对比呈现。"],
@@ -49,7 +49,7 @@ const D = {
   automotiveIntro: ["Carmakers, EVs, launches and sales, compared across countries.", "车企、电动车、新车与销量，按国家对比。"],
   gamingIntro: ["Games, studios, consoles and esports, compared across countries.", "游戏、厂商、主机与电竞，按国家对比。"],
   cnIntro: ["Stories that happen in or mainly concern China, and how the world reports them.", "发生在中国或主要与中国有关的新闻，以及世界各地如何报道。"],
-  travelIntro: ["New hotels, places worth the trip, and what is changing for travellers.", "新开的酒店、值得去的地方，以及出行的新变化。"],
+  travelIntro: ["Places worth the trip, picked from travel magazines we like. Not news: slow reads.", "从我们喜欢的旅行杂志里挑出的、值得专程去的地方。不是新闻，慢慢看。"],
   fashionIntro: ["Collections, brands and design, compared across countries.", "时装系列、品牌与设计，按国家对比。"],
   auIntro: ["Australian business, technology, sport and culture, and how the world reports Australia.", "澳洲的商业、科技、体育与文化，以及世界如何报道澳洲。"],
   econIntro: ["Rates, trade, markets and companies, compared across countries.", "利率、贸易、市场与公司，按国家对比。"],

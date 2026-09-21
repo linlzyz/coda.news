@@ -22,7 +22,8 @@ const EVENT_COLS = "id,slug,title,title_zh,category,status,confidence,importance
 
 async function _listEvents(opts: { category?: string; region?: string; companyId?: number; topicId?: number; limit?: number; order?: "importance" | "recent"; sinceHours?: number } = {}) {
   let q = supabase.from("events").select(EVENT_COLS).not("summary", "is", null).neq("status", "archived").eq("hidden", false);
-  if (opts.category) q = q.eq("category", opts.category);
+  // travel is no longer a news section (21 Sept): its stories only feed the Instagram travel posts
+  q = opts.category ? q.eq("category", opts.category) : q.neq("category", "travel");
   if (opts.region) q = q.contains("regions", [opts.region]);
   if (opts.companyId) q = q.contains("company_ids", [opts.companyId]);
   if (opts.topicId) q = q.contains("topic_ids", [opts.topicId]);
@@ -144,7 +145,7 @@ async function _searchEvents(q: string) {
   const term = q.replace(/[%_,()]/g, " ").trim().slice(0, 80);
   if (!term) return [] as EventRow[];
   const { data: cos } = await supabase.from("companies").select("id").ilike("name", `%${term}%`).in("kind", ["company", "org"]).limit(10);
-  let query = supabase.from("events").select(EVENT_COLS).not("summary", "is", null).eq("hidden", false);
+  let query = supabase.from("events").select(EVENT_COLS).not("summary", "is", null).eq("hidden", false).neq("category", "travel");
   const ors = [`title.ilike.%${term}%`, `summary.ilike.%${term}%`];
   if (cos?.length) ors.push(`company_ids.ov.{${cos.map((c) => c.id).join(",")}}`);
   query = query.or(ors.join(","));
@@ -192,12 +193,12 @@ export function oneUsePerImage<T extends { image_url: string | null }>(rows: T[]
 }
 
 async function _pinnedEvents() {
-  const { data } = await supabase.from("events").select(EVENT_COLS).eq("hidden", false).not("pinned_at", "is", null).gte("pinned_at", new Date(Date.now() - 72 * 3600_000).toISOString()).order("pinned_at", { ascending: false }).limit(6);
+  const { data } = await supabase.from("events").select(EVENT_COLS).eq("hidden", false).neq("category", "travel").not("pinned_at", "is", null).gte("pinned_at", new Date(Date.now() - 72 * 3600_000).toISOString()).order("pinned_at", { ascending: false }).limit(6);
   return (data ?? []) as EventRow[];
 }
 /** One-source stories with the publisher's own picture (or game art) from the last 36 hours: they join the picks. */
 async function _officialPicks() {
-  const { data } = await supabase.from("events").select(EVENT_COLS).eq("hidden", false).lt("source_count", 2).in("image_source", ["press", "igdb"])
+  const { data } = await supabase.from("events").select(EVENT_COLS).eq("hidden", false).neq("category", "travel").lt("source_count", 2).in("image_source", ["press", "igdb"])
     .not("summary", "is", null).gte("last_article_at", new Date(Date.now() - 36 * 3600_000).toISOString()).order("importance", { ascending: false }).limit(60);
   return (data ?? []) as EventRow[];
 }

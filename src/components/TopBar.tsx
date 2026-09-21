@@ -19,7 +19,7 @@ export function TopBar({ l }: { l: Lang }) {
         </div>
       </div>
       <nav className="flex gap-1 overflow-x-auto px-3 pb-2 lg:hidden">
-        {([["home", "/"], ["economy", "/economy"], ["technology", "/technology"], ["sport", "/sport"], ["entertainment", "/entertainment"], ["fashion", "/fashion"], ["travel", "/travel"], ["automotive", "/automotive"], ["gaming", "/gaming"], ["australia", "/australia"], ["china", "/china"], ["companies", "/companies"], ["topics", "/topics"]] as const).map(([k, h]) => (
+        {([["home", "/"], ["economy", "/economy"], ["technology", "/technology"], ["sport", "/sport"], ["entertainment", "/entertainment"], ["fashion", "/fashion"], ["automotive", "/automotive"], ["gaming", "/gaming"], ["australia", "/australia"], ["china", "/china"], ["companies", "/companies"], ["topics", "/topics"]] as const).map(([k, h]) => (
           <Link key={h} href={h} className="whitespace-nowrap rounded-lg px-3 py-1.5 text-[13px] font-medium text-neutral-600">{t(l, k)}</Link>
         ))}
       </nav>

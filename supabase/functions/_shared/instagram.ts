@@ -38,7 +38,7 @@ type Ev = { id: number; slug: string; title: string; summary: string; category: 
 // Instagram is the brand's face: never post bad-luck news (death, illness, disaster, violence). Checked on title + summary.
 const GRIM = "\\m(die[sd]?|dying|death|dead|deaths|killed|kills?|fatal|funeral|obituar\\w*|passe[sd] away|mourn\\w*|suicide|overdose|rehab\\w*|cancer|illness|hospitali[sz]ed|coma|crash\\w*|accident\\w*|collapse[sd]?|disaster|earthquake|tsunami|flood\\w*|wildfire|hurricane|typhoon|cyclone|explosion|blast|missile|strike[sd]? on|attack\\w*|shooting|stabb\\w*|bomb\\w*|terror\\w*|hostage|massacre|victims?|injur\\w*|tragic|tragedy)\\M";
 
-async function pickNews(recent: string[], minN: number, hours: number): Promise<Ev | undefined> {
+async function pickNews(recent: string[], minN: number, hours: number, onlyId: number | null = null): Promise<Ev | undefined> {
   const [e] = await db()<Ev[]>`
     select e.id, e.slug, e.title, e.summary, e.category, (select count(*)::int from perspectives p where p.event_id = e.id) n, e.image_url, e.image_credit, e.image_query, e.lead_source,
       coalesce((select u.content->'differ'->>0 from event_updates u where u.event_id = e.id and u.type = 'summary_updated' order by u.version desc limit 1),
@@ -48,7 +48,9 @@ async function pickNews(recent: string[], minN: number, hours: number): Promise<
       and (e.title || ' ' || e.summary) !~* ${GRIM}
       and (select count(*) from perspectives p where p.event_id = e.id) >= ${minN}
       and not exists (select 1 from ig_posts x where x.event_id = e.id)
-    order by (e.category = any(${recent})), e.importance * power(0.5, extract(epoch from now() - e.started_at) / 86400) desc
+      and (${onlyId}::bigint is null or e.id = ${onlyId})
+    -- the day's big story: most countries first, then importance (a 3-country niche item must not beat a 5-country derby)
+    order by (e.category = any(${recent})), (select count(*) from perspectives p where p.event_id = e.id) desc, e.importance * power(0.5, extract(epoch from now() - e.started_at) / 86400) desc
     limit 1`;
   return e;
 }
@@ -77,6 +79,8 @@ async function pickTravel(): Promise<{ e: Ev; img: string; credit: string; copy:
     select e.id, e.slug, e.title, e.summary, e.category, 0 n, e.image_url, e.image_credit, e.image_query, e.lead_source, null differ
     from events e
     where not e.hidden and e.summary is not null and e.category = 'travel' and e.started_at > now() - interval '7 days'
+      -- a different country from the last travel post (magazines run themed weeks, e.g. a whole week of Japan)
+      and not (coalesce(e.regions, '{}') && coalesce((select e2.regions from ig_posts p2 join events e2 on e2.id = p2.event_id where p2.kind = 'travel' and p2.status = 'posted' order by p2.id desc limit 1), '{}'))
       and (e.title || ' ' || e.summary) !~* ${GRIM}
       and not exists (select 1 from ig_posts x where x.event_id = e.id)
       and (e.image_query is not null and e.image_query <> '-' or e.image_credit is not null)
@@ -92,7 +96,7 @@ async function pickTravel(): Promise<{ e: Ev; img: string; credit: string; copy:
 }
 
 /** 20:00 Melbourne: pick tonight's story and email the owner. */
-export async function proposeInstagram(force = false): Promise<number> {
+export async function proposeInstagram(force = false, eventId: number | null = null): Promise<number> {
   const sql = db();
   await refreshToken().catch((e) => log("instagram refresh", (e as Error).message));
   if (!(await setting("ig_token"))) return 0;
@@ -102,9 +106,9 @@ export async function proposeInstagram(force = false): Promise<number> {
   const recent = (await sql<{ category: string }[]>`select e.category from ig_posts p join events e on e.id = p.event_id order by p.id desc limit 2`).map((r) => r.category);
   // every third day a travel read, when there is a fresh one with a good photo
   const travelDue = !(await sql`select 1 from ig_posts where kind = 'travel' and created_at > now() - interval '60 hours'`).length;
-  const t = travelDue ? await pickTravel() : undefined;
+  const t = travelDue && !eventId ? await pickTravel() : undefined;
   // otherwise news; lower the bar step by step so the day is never skipped
-  const e = t?.e ?? (await pickNews(recent, 3, 36)) ?? (await pickNews(recent, 2, 48)) ?? (await pickNews([], 1, 72));
+  const e = t?.e ?? (eventId ? await pickNews([], 1, 72, eventId) : undefined) ?? (await pickNews(recent, 3, 36)) ?? (await pickNews(recent, 2, 48)) ?? (await pickNews([], 1, 72));
   if (!e) { log("instagram: nothing to post tonight"); return 0; }
   const lead = (e.summary.match(/^.*?[.!?](\s|$)/)?.[0] ?? e.summary).trim();
   // news days alternate carousel / Reel
