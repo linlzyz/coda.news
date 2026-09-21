@@ -44,6 +44,8 @@ const SPORT_RESULT = "(\\d+\\s*[-–:]\\s*\\d+|\\m(beat|beats|beaten|defeat|defe
 // ...except the champions of the very biggest competitions (Lyn: "世界杯冠军、欧冠冠军也可以发")
 const BIG_TITLE = "(world cup|champions league|euro 20\\d\\d|european championship|copa am[eé]rica|africa cup of nations|asian cup|super bowl|nba finals|nba champion|world series|stanley cup|wimbledon|roland[- ]garros|french open|australian open|us open tennis|tour de france|f1 world (champion|title)|formula 1 world (champion|title)|ballon d'or|rugby world cup|cricket world cup)";
 const CROWNED = "\\m(win|wins|won|champions?|crowned|lift|lifts|lifted|title|trophy|clinch\\w*|claims?|claimed)\\M";
+// and results that make history (Lyn: "载入史册的"): first ever, historic, all-time, world record
+const HISTORIC = "\\m(historic|history|history-making|first[- ]ever|for the first time|all-time|world record|unprecedented|record-breaking|record[- ]extending|record \\d+(st|nd|rd|th))\\M";
 const NOT_FINAL = "\\m(qualif\\w*|qualifier|group|groups|round of|last 16|quarter-?finals?|semi-?finals?|matchday|league phase|draw for|playoff|play-off)\\M";
 
 async function pickNews(recent: string[], minN: number, hours: number, onlyId: number | null = null): Promise<Ev | undefined> {
@@ -54,7 +56,7 @@ async function pickNews(recent: string[], minN: number, hours: number, onlyId: n
     from events e
     where not e.hidden and e.summary is not null and e.category <> 'travel' and e.started_at > now() - make_interval(hours => ${hours})
       -- sport only for big non-result news (transfers, sponsorships, records, Games openings) in 3+ countries: scores are stale by 20:00 (Lyn, 21 Sept)
-      and (e.category <> 'sport' or ((select count(*) from perspectives p where p.event_id = e.id) >= 3 and (e.title !~* ${SPORT_RESULT} or (e.title ~* ${BIG_TITLE} and e.title ~* ${CROWNED} and e.title !~* ${NOT_FINAL}))))
+      and (e.category <> 'sport' or ((select count(*) from perspectives p where p.event_id = e.id) >= 3 and (e.title !~* ${SPORT_RESULT} or e.title ~* ${HISTORIC} or (e.title ~* ${BIG_TITLE} and e.title ~* ${CROWNED} and e.title !~* ${NOT_FINAL}))))
       and (e.title || ' ' || e.summary) !~* ${GRIM}
       and (select count(*) from perspectives p where p.event_id = e.id) >= ${minN}
       and not exists (select 1 from ig_posts x where x.event_id = e.id)
