@@ -73,6 +73,23 @@ ${candidates.map((c) => `- id ${c.id}: ${c.title}`).join("\n")}
 Which candidate is the same event as the new article? Return JSON only: {"match": <id or null>}`;
 }
 
+export function mergePrompt(a: { titles: string[] }, b: { titles: string[] }, hints: string[]) {
+  return `Coda groups news articles into events. Two events were created separately; decide whether they are the SAME story and should be one page.
+Same story = the same announcement, launch, show, decision, deal, data release, match or incident, told from different angles
+(e.g. "Brand X shows its Spring collection at Fashion Week" and "Designer Y makes his debut for Brand X at Fashion Week" are the same show;
+"Company Z reports Q3 results" and "Company Z shares jump after earnings" are the same story).
+Different stories = same company or topic but a different announcement, a different day's match, a different product.
+
+Event A headlines:
+${a.titles.map((t) => "- " + t).join("\n")}
+
+Event B headlines:
+${b.titles.map((t) => "- " + t).join("\n")}
+${hints.length ? "\nHints: " + hints.join("; ") : ""}
+
+Return JSON only: {"same": true|false}`;
+}
+
 export function generatePrompt(input: {
   title: string; facts: string[];
   byCountry: { country: string; items: { source: string; title: string; text: string }[] }[];

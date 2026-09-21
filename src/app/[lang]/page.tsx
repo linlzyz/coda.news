@@ -1,7 +1,7 @@
 import { dayLabel } from "@/lib/loc";
 import { orgLd } from "@/lib/site";
 import Link from "@/components/LLink";
-import { allTopics, hotness, pinnedEvents, officialPicks, companyMap, indices, getPerspectives, listEvents, trendingCompanies, type EventRow, type Perspective } from "@/lib/data";
+import { allTopics, hotness, pinnedEvents, officialPicks, companyMap, indices, getPerspectives, listEvents, oneUsePerImage, trendingCompanies, type EventRow, type Perspective } from "@/lib/data";
 import { crypto, fx } from "@/lib/markets";
 import { Cover } from "@/components/Cover";
 import { Flag, Flags } from "@/components/Flag";
@@ -57,7 +57,8 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   const divided = multi.filter((e) => !tops.some((x) => x.id === e.id))
     .sort((a, b) => new Set((persp.get(b.id) ?? []).map((p) => p.tone)).size - new Set((persp.get(a.id) ?? []).map((p) => p.tone)).size).slice(0, 4);
   // 4 key stories with pictures up top (picked for importance and sources, not for having a photo); everything else is the uniform Latest list
-  const key = pickFeatured([...pinnedList, ...events, ...byCat.flat(), ...official].filter((e, i, a) => a.findIndex((x) => x.id === e.id) === i), 4, new Set(tops.map((e) => e.id)));   // 4 news + 2 magazine reads
+  const topImages = new Set(tops.map((e) => e.image_url).filter(Boolean) as string[]);
+  const key = pickFeatured(oneUsePerImage([...pinnedList, ...events, ...byCat.flat(), ...official].filter((e, i, a) => a.findIndex((x) => x.id === e.id) === i), topImages), 4, new Set(tops.map((e) => e.id)));   // 4 news + 2 magazine reads
   const keyIds = new Set([...tops.map((e) => e.id), ...key.map((e) => e.id)]);
   const list = events.filter((e) => !keyIds.has(e.id)).sort((a, b) => Date.parse(b.last_article_at) - Date.parse(a.last_article_at)).slice(0, 30);
   const regionTags = (e: { regions?: string[] }) => (e.regions?.length ?? 0) > 2 ? [] : [...(e.regions?.includes("AU") ? ["australia"] : []), ...(e.regions?.includes("CN") ? ["china"] : [])];

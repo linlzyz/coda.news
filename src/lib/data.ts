@@ -31,7 +31,7 @@ async function _listEvents(opts: { category?: string; region?: string; companyId
   const { data, error } = await q.limit((opts.limit ?? 30) + (opts.region ? 40 : 0));
   if (error) throw error;
   // a region tab only shows stories mainly about that country, not multi-nation ones (e.g. an Asian Games match)
-  const rows = (data ?? []) as EventRow[];
+  const rows = oneUsePerImage((data ?? []) as EventRow[]);
   return opts.region ? rows.filter((e) => (e.regions?.length ?? 0) <= 2).slice(0, opts.limit ?? 30) : rows;
 }
 
@@ -182,6 +182,15 @@ async function _sitemapRows() {
 export const sitemapRows = unstable_cache(_sitemapRows, ["sitemapRows"], { revalidate: 3600 });
 
 // Cached reads: shared across requests for 60s, so switching language or pages does not wait for the database.
+/** Safety net: a picture appears once per list; later stories with the same picture fall back to no picture (usually a missed duplicate). */
+export function oneUsePerImage<T extends { image_url: string | null }>(rows: T[], seen = new Set<string>()): T[] {
+  return rows.map((e) => {
+    if (!e.image_url) return e;
+    if (seen.has(e.image_url)) return { ...e, image_url: null, image_credit: null, image_link: null };
+    seen.add(e.image_url); return e;
+  });
+}
+
 async function _pinnedEvents() {
   const { data } = await supabase.from("events").select(EVENT_COLS).eq("hidden", false).not("pinned_at", "is", null).gte("pinned_at", new Date(Date.now() - 72 * 3600_000).toISOString()).order("pinned_at", { ascending: false }).limit(6);
   return (data ?? []) as EventRow[];
