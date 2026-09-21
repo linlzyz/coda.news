@@ -21,6 +21,7 @@ export async function invariants(): Promise<Hit[]> {
     ["中文里混进了其他文字（印地文、阿拉伯文、泰文）", sql`select title_zh as x from events where not hidden and (title_zh ~ '[\u0900-\u097F\u0600-\u06FF\u0E00-\u0E7F]' or summary_zh ~ '[\u0900-\u097F\u0600-\u06FF\u0E00-\u0E7F]') limit 5`],
     ["英文里混进了中日韩文字", sql`select title as x from events where not hidden and status <> 'archived' and en_checked_at is not null and (title ~ '[\u3040-\u30FF\u3400-\u9FFF\uAC00-\uD7AF]' or summary ~ '[\u3040-\u30FF\u3400-\u9FFF\uAC00-\uD7AF]' or coalesce(points->>'en', '') ~ '[\u3040-\u30FF\u3400-\u9FFF\uAC00-\uD7AF]') limit 5`],
     ["人物照片配到了没提到这个人的新闻", sql`select title || ' ← ' || image_person as x from events where not hidden and image_focus = 'top' and image_person is not null and lower(title || ' ' || coalesce(summary, '')) not like '%' || lower(split_part(image_person, ' ', -1)) || '%' limit 5`],
+    ["体育新闻配了人物照（球员照常是别的球衣）", sql`select title as x from events where not hidden and category = 'sport' and image_focus = 'top' and image_source = 'commons' limit 5`],
     ["已知错误回归：马斯克是特斯拉母公司", sql`select name as x from companies where name = 'Tesla' and parent ilike '%musk%'`],
     ["已知错误回归：荣耀创始人是华为", sql`select name as x from companies where name = 'Honor' and founders ilike '%huawei%'`],
     ["已知错误回归：真实公司被当成非公司", sql`select name as x from companies where name in ('Adobe','Nasdaq','OpenAI','The New York Times','China Mobile','YouTube','Tesla','Apple') and kind <> 'company'`],

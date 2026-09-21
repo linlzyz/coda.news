@@ -335,6 +335,8 @@ export async function assignImages(limit = 12): Promise<number> {
   const people = await sql<{ id: number; image_person: string; title: string; summary: string | null; image_focus: string | null }[]>`
     select id, image_person, title, summary, image_focus from events where image_person is not null and person_checked_at is null and summary is not null
       and source_count >= 2   -- one-source stories get only an official image (publisher, logo, game art) or none
+      -- never in sport: player portraits are usually in another shirt (national team, old club), e.g. Cunha in Brazil yellow on a Man United story
+      and category <> 'sport'
       and (image_url is null or image_source in ('pexels','unsplash','pixabay','openverse','commons','logo'))
     order by importance desc, last_article_at desc limit ${limit * 3}`;
   let swapped = 0;
