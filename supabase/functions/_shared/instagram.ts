@@ -144,6 +144,9 @@ export async function proposeInstagram(force = false, eventId: number | null = n
   if (to && key) await fetch("https://api.resend.com/emails", { method: "POST", headers: { Authorization: `Bearer ${key}`, "content-type": "application/json" },
     body: JSON.stringify({ from: "coda.news <hello@coda.news>", to: [to], subject: `Instagram 今晚待发：${t ? t.copy.title : e.title}`, html: `<div style="font-family:Helvetica,Arial,sans-serif;max-width:680px">
       <h2 style="margin:0 0 8px">今晚的 Instagram ${format === "reel" ? "Reel" : "帖子"}</h2><p style="color:#6B7280;margin:0 0 16px">已设为自动发布：这条会在几分钟内发到 @thecodanews。有问题请到 Instagram 删除，并告诉我原因。</p>
+      <p style="margin:0 0 10px;font-weight:700">${format === "reel"
+        ? `形式：Reel（约 13 秒的竖版视频）。下面 ${slides(post).length} 张是视频里依次出现的画面，不是图片帖。 <a href="${reelUrl(p.id)}" style="color:#EA5514">播放视频预览 ▶</a>`
+        : `形式：轮播图帖子，共 ${slides(post).length} 张，左右滑动看。`}</p>
       <div>${slides(post).map((u) => `<img src="${u}" width="200" style="margin:0 6px 6px 0;border:1px solid #E5E7EB">`).join("")}</div>
       <pre style="white-space:pre-wrap;font-family:inherit;background:#F4F5F7;padding:12px;border-radius:8px">${esc(caption)}</pre>
       <p><a href="${ok}" style="display:inline-block;background:#EA5514;color:#fff;padding:12px 22px;border-radius:10px;text-decoration:none;font-weight:700">发布</a>
