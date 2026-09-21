@@ -115,7 +115,15 @@ export async function openai(prompt: string, model = "gpt-5-nano", maxOut = 1200
     body: JSON.stringify({ model, reasoning_effort: effort, response_format: { type: "json_object" }, max_completion_tokens: maxOut,
       messages: [{ role: "user", content: prompt }] }),
   });
-  if (!r.ok) throw new Error(`openai ${r.status}: ${(await r.text()).slice(0, 160)}`);
+  if (!r.ok) {
+    const t = await r.text();
+    // no credit left on the account: remember it so the alert email can say exactly what to do
+    if (/insufficient_quota|credit_balance_exhausted/.test(t)) {
+      try { await db()`insert into app_settings (key, value, updated_at) values ('openai_error', 'no_credit', now()) on conflict (key) do update set value = excluded.value, updated_at = now()`; } catch { /* ignore */ }
+      throw new RateLimited("OpenAI account has no credit left");
+    }
+    throw new Error(`openai ${r.status}: ${t.slice(0, 160)}`);
+  }
   const j = await r.json();
   await meter(model, j.usage?.prompt_tokens ?? 0, j.usage?.completion_tokens ?? 0);
   log(`ai openai ${model} ${Date.now() - t0}ms in=${j.usage?.prompt_tokens} out=${j.usage?.completion_tokens}`);
@@ -191,7 +199,14 @@ export async function embed(texts: string[]): Promise<number[][]> {
       headers: { Authorization: `Bearer ${key}`, "content-type": "application/json" },
       body: JSON.stringify({ model: "text-embedding-3-small", input: chunk, dimensions: EMBED_DIM }),
     });
-    if (!r.ok) throw new Error(`embeddings ${r.status}: ${(await r.text()).slice(0, 160)}`);
+    if (!r.ok) {
+      const t = await r.text();
+      if (/insufficient_quota|credit_balance_exhausted/.test(t)) {
+        try { await db()`insert into app_settings (key, value, updated_at) values ('openai_error', 'no_credit', now()) on conflict (key) do update set value = excluded.value, updated_at = now()`; } catch { /* ignore */ }
+        throw new Error("embeddings: OpenAI account has no credit left");
+      }
+      throw new Error(`embeddings ${r.status}: ${t.slice(0, 160)}`);
+    }
     const j = await r.json();
     await meter("text-embedding-3-small", j.usage?.prompt_tokens ?? 0, 0);
     // deno-lint-ignore no-explicit-any

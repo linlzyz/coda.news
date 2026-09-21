@@ -77,7 +77,9 @@ export async function checkAlerts(): Promise<string[]> {
   const sql = db();
   const issues: [string, string][] = [];
   const [done] = await sql`select count(*)::int n from articles where status = 'done' and fetched_at > now() - interval '3 hours'`;
-  if (done.n === 0) issues.push(["stalled", "过去 3 小时没有任何新闻被处理，后台可能停了。"]);
+  const [oa] = await sql`select 1 from app_settings where key = 'openai_error' and value = 'no_credit' and updated_at > now() - interval '3 hours'`;
+  if (oa) issues.push(["openai_credit", "OpenAI 账户余额用完了，AI 处理会变慢或停下。请到 platform.openai.com → Settings → Billing 充值（建议开自动充值）。"]);
+  if (done.n === 0) issues.push(["stalled", oa ? "过去 3 小时没有任何新闻被处理，原因是 AI 额度用完（见上一条）。" : "过去 3 小时没有任何新闻被处理，后台可能停了。"]);
   const [fetched] = await sql`select count(*)::int n from articles where fetched_at > now() - interval '2 hours'`;
   if (fetched.n === 0) issues.push(["noingest", "过去 2 小时没有抓到任何新文章，抓取可能停了。"]);
   const [spent] = await sql`select coalesce(sum(usd), 0)::float usd from ai_usage where day = current_date`;
