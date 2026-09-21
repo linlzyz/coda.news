@@ -35,6 +35,9 @@ const slides = (p: Post) => p.kind === "travel"
 const licensed = (c: string | null) => !!c && (/\/ (Pexels|Unsplash|Pixabay)$/.test(c) || /\((CC BY[^)]*|CC0[^)]*|Public domain|PDM)\)/i.test(c));
 type Ev = { id: number; slug: string; title: string; summary: string; category: string; n: number; image_url: string | null; image_credit: string | null; image_query: string | null; lead_source: string | null; differ: string | null };
 
+// Instagram is the brand's face: never post bad-luck news (death, illness, disaster, violence). Checked on title + summary.
+const GRIM = "\\m(die[sd]?|dying|death|dead|deaths|killed|kills?|fatal|funeral|obituar\\w*|passe[sd] away|mourn\\w*|suicide|overdose|rehab\\w*|cancer|illness|hospitali[sz]ed|coma|crash\\w*|accident\\w*|collapse[sd]?|disaster|earthquake|tsunami|flood\\w*|wildfire|hurricane|typhoon|cyclone|explosion|blast|missile|strike[sd]? on|attack\\w*|shooting|stabb\\w*|bomb\\w*|terror\\w*|hostage|massacre|victims?|injur\\w*|tragic|tragedy)\\M";
+
 async function pickNews(recent: string[], minN: number, hours: number): Promise<Ev | undefined> {
   const [e] = await db()<Ev[]>`
     select e.id, e.slug, e.title, e.summary, e.category, (select count(*)::int from perspectives p where p.event_id = e.id) n, e.image_url, e.image_credit, e.image_query, e.lead_source,
@@ -42,6 +45,7 @@ async function pickNews(recent: string[], minN: number, hours: number): Promise<
                (select p.emphasis from perspectives p where p.event_id = e.id and p.emphasis is not null order by p.article_count desc limit 1)) differ
     from events e
     where not e.hidden and e.summary is not null and e.category <> 'travel' and e.started_at > now() - make_interval(hours => ${hours})
+      and (e.title || ' ' || e.summary) !~* ${GRIM}
       and (select count(*) from perspectives p where p.event_id = e.id) >= ${minN}
       and not exists (select 1 from ig_posts x where x.event_id = e.id)
     order by (e.category = any(${recent})), e.importance * power(0.5, extract(epoch from now() - e.started_at) / 86400) desc
@@ -73,6 +77,7 @@ async function pickTravel(): Promise<{ e: Ev; img: string; credit: string; copy:
     select e.id, e.slug, e.title, e.summary, e.category, 0 n, e.image_url, e.image_credit, e.image_query, e.lead_source, null differ
     from events e
     where not e.hidden and e.summary is not null and e.category = 'travel' and e.started_at > now() - interval '7 days'
+      and (e.title || ' ' || e.summary) !~* ${GRIM}
       and not exists (select 1 from ig_posts x where x.event_id = e.id)
       and (e.image_query is not null and e.image_query <> '-' or e.image_credit is not null)
       -- inspiration, not industry news: skip airline, airport and fleet stories
