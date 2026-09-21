@@ -38,13 +38,18 @@ type Ev = { id: number; slug: string; title: string; summary: string; category: 
 // Instagram is the brand's face: never post bad-luck news (death, illness, disaster, violence). Checked on title + summary.
 const GRIM = "\\m(die[sd]?|dying|death|dead|deaths|killed|kills?|fatal|funeral|obituar\\w*|passe[sd] away|mourn\\w*|suicide|overdose|rehab\\w*|cancer|illness|hospitali[sz]ed|coma|crash\\w*|accident\\w*|collapse[sd]?|disaster|earthquake|tsunami|flood\\w*|wildfire|hurricane|typhoon|cyclone|explosion|blast|missile|strike[sd]? on|attack\\w*|shooting|stabb\\w*|bomb\\w*|terror\\w*|hostage|massacre|victims?|injur\\w*|tragic|tragedy)\\M";
 
+// match results and race placings, by title (scores, beat/draw/lose, wins, finals, medals, pole, tries...)
+const SPORT_RESULT = "(\\d+\\s*[-–:]\\s*\\d+|\\m(beat|beats|beaten|defeat|defeats|defeated|draw|draws|drew|lose|loses|lost|edge|edges|edged|thrash\\w*|rout\\w*|victory|victories|qualif\\w*|semi-?finals?|quarter-?finals?|finals?|sprint|pole|podium|innings|wickets?|try|tries|brace|hat-?trick|sent off|red card|win|wins|won|retains?|retained|advances?|reach|reaches|silver|bronze|medal)\\M)";
+
 async function pickNews(recent: string[], minN: number, hours: number, onlyId: number | null = null): Promise<Ev | undefined> {
   const [e] = await db()<Ev[]>`
     select e.id, e.slug, e.title, e.summary, e.category, (select count(*)::int from perspectives p where p.event_id = e.id) n, e.image_url, e.image_credit, e.image_query, e.lead_source,
       coalesce((select u.content->'differ'->>0 from event_updates u where u.event_id = e.id and u.type = 'summary_updated' order by u.version desc limit 1),
                (select p.emphasis from perspectives p where p.event_id = e.id and p.emphasis is not null order by p.article_count desc limit 1)) differ
     from events e
-    where not e.hidden and e.summary is not null and e.category not in ('travel', 'sport') and e.started_at > now() - make_interval(hours => ${hours})   -- no sport: scores are stale by the time the post goes out (Lyn, 21 Sept)
+    where not e.hidden and e.summary is not null and e.category <> 'travel' and e.started_at > now() - make_interval(hours => ${hours})
+      -- sport only for big non-result news (transfers, sponsorships, records, Games openings) in 3+ countries: scores are stale by 20:00 (Lyn, 21 Sept)
+      and (e.category <> 'sport' or ((select count(*) from perspectives p where p.event_id = e.id) >= 3 and e.title !~* ${SPORT_RESULT}))
       and (e.title || ' ' || e.summary) !~* ${GRIM}
       and (select count(*) from perspectives p where p.event_id = e.id) >= ${minN}
       and not exists (select 1 from ig_posts x where x.event_id = e.id)
