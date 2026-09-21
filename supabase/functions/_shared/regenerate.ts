@@ -1,4 +1,5 @@
 // Step 3: narratives are generated from stored facts + coverage, only when an event changed. Cached in the DB.
+import { personNamed } from "./images.ts";
 import { db, vec } from "./db.ts";
 import { log } from "./env.ts";
 import { embed, generateJSON } from "./ai.ts";
@@ -44,7 +45,7 @@ export async function regenerate(limit = 3): Promise<number> {
     const [v] = await embed([`${g.title}\n${g.summary}`]);
     await sql.begin(async (tx) => {
       await tx`update events set title = ${g.title.slice(0, 200)}, title_zh = ${g.title_zh ?? null}, zh_checked_at = null, summary = ${g.summary}, summary_zh = ${g.summary_zh ?? null},
-                 summary_version = ${version}, summary_generated_at = now(), image_query = coalesce(image_query, ${g.image_query?.slice(0, 60) ?? null}), image_person = coalesce(image_person, ${g.image_person?.trim().slice(0, 80) || null}), image_brand = coalesce(image_brand, ${g.image_brand?.trim().slice(0, 80) || null}), needs_regen = false, embedding = ${vec(v)}::extensions.vector
+                 summary_version = ${version}, summary_generated_at = now(), image_query = coalesce(image_query, ${g.image_query?.slice(0, 60) ?? null}), image_person = coalesce(image_person, ${personNamed(g.image_person, `${g.title} ${g.summary}`) ? g.image_person!.trim().slice(0, 80) : null}), image_brand = coalesce(image_brand, ${g.image_brand?.trim().slice(0, 80) || null}), needs_regen = false, embedding = ${vec(v)}::extensions.vector
                where id = ${e.id}`;
       const valid = (g.perspectives ?? []).filter((p) => byCountry.has(p.country));
       for (const p of valid) {

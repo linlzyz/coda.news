@@ -242,7 +242,8 @@ ${rows.map((r, k) => `${k + 1}. ${r.title}`).join("\n")}`;
       const v = res.r?.[String(k + 1)];
       if (v === undefined) continue;
       const q = String(typeof v === "string" ? v : v.q ?? "").replace(/[^\p{L}\p{N} -]/gu, " ").trim().slice(0, 60);
-      const p = typeof v === "string" ? "" : String(v.p ?? "").trim().slice(0, 80);
+      const p0 = typeof v === "string" ? "" : String(v.p ?? "").trim().slice(0, 80);
+      const p = personNamed(p0, r.title) ? p0 : "";
       const b = typeof v === "string" ? "" : String(v.b ?? "").trim().slice(0, 80);
       // "-" = no stock photo for this story: a real portrait, a logo or our designed cover instead
       await sql`update events set image_query = ${q || "-"}, image_checked_at = null,
@@ -316,18 +317,34 @@ async function wikiLogo(name: string): Promise<string | null> {
   } catch { return null; }
 }
 
+/** A portrait is used only for a person the story itself names: the model sometimes suggests someone who is not in it. */
+export function personNamed(person: string | null | undefined, text: string): boolean {
+  const p = (person ?? "").trim();
+  if (!p || /^(none|null|n\/a|unknown)$/i.test(p) || /[?]/.test(p)) return false;
+  const t = text.toLowerCase();
+  const parts = p.toLowerCase().split(/\s+/).filter((w) => w.length > 2);
+  // the surname (last word) must appear; for one-word names (Shakira) the whole name
+  const last = parts[parts.length - 1] ?? p.toLowerCase();
+  return t.includes(last);
+}
+
 export async function assignImages(limit = 12): Promise<number> {
   const sql = db();
   await fillQueries();
   // 1) stories about one well-known person: swap a stock photo (or nothing) for a real, free portrait of them
-  const people = await sql<{ id: number; image_person: string; title: string; image_focus: string | null }[]>`
-    select id, image_person, title, image_focus from events where image_person is not null and person_checked_at is null and summary is not null
+  const people = await sql<{ id: number; image_person: string; title: string; summary: string | null; image_focus: string | null }[]>`
+    select id, image_person, title, summary, image_focus from events where image_person is not null and person_checked_at is null and summary is not null
       and source_count >= 2   -- one-source stories get only an official image (publisher, logo, game art) or none
       and (image_url is null or image_source in ('pexels','unsplash','pixabay','openverse','commons','logo'))
     order by importance desc, last_article_at desc limit ${limit * 3}`;
   let swapped = 0;
   for (const p of people) {
     let img: Img | null = null;
+    if (!personNamed(p.image_person, `${p.title} ${p.summary ?? ""}`)) {
+      // not a person this story names: never show their portrait
+      await sql`update events set image_person = null, person_checked_at = now() where id = ${p.id}`;
+      continue;
+    }
     // products named after people (e.g. NVIDIA's "Vera Rubin" chips) must not get that person's portrait
     const esc = p.image_person.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const product = new RegExp(`${esc}\\s+(NVL|system|chip|gpu|platform|architecture|supercomputer|telescope|observatory|model|series|edition|award|prize|trophy|cup|stadium|arena)`, "i").test(p.title);

@@ -16,7 +16,7 @@ export function tidyPoints(pts: string[]): string[] {
   return pts.map((p) => { const t = p.replace(lead, ""); return t.charAt(0).toUpperCase() + t.slice(1); });
 }
 
-export const EN_RULES = `English text must be entirely in English: write people's names in their usual English form (pinyin for Chinese names, e.g. 何小鹏 → He Xiaopeng, 罗剑岚 → Luo Jianlan; Korean/Japanese in their usual romanisation), companies and outlets by their English names (小鹏 → XPeng, 智元机器人 → AgiBot, 鹿明机器人 → Luming Robotics if no better-known English name, 虎嗅 → Huxiu, 매일경제 → Maeil Business Newspaper), and never leave Chinese, Japanese or Korean characters in the English.`;
+export const EN_RULES = `English text must be entirely in English: write the names of people who appear in the article in their usual English form (pinyin for Chinese names, the usual romanisation for Korean and Japanese names), and companies and outlets by their usual English names. Never leave Chinese, Japanese or Korean characters in the English, and never add a name that is not in the article.`;
 
 export async function fixEnglish(limit = 12): Promise<number> {
   const sql = db();
