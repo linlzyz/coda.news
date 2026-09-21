@@ -44,7 +44,7 @@ async function pickNews(recent: string[], minN: number, hours: number, onlyId: n
       coalesce((select u.content->'differ'->>0 from event_updates u where u.event_id = e.id and u.type = 'summary_updated' order by u.version desc limit 1),
                (select p.emphasis from perspectives p where p.event_id = e.id and p.emphasis is not null order by p.article_count desc limit 1)) differ
     from events e
-    where not e.hidden and e.summary is not null and e.category <> 'travel' and e.started_at > now() - make_interval(hours => ${hours})
+    where not e.hidden and e.summary is not null and e.category not in ('travel', 'sport') and e.started_at > now() - make_interval(hours => ${hours})   -- no sport: scores are stale by the time the post goes out (Lyn, 21 Sept)
       and (e.title || ' ' || e.summary) !~* ${GRIM}
       and (select count(*) from perspectives p where p.event_id = e.id) >= ${minN}
       and not exists (select 1 from ig_posts x where x.event_id = e.id)
