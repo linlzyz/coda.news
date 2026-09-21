@@ -118,7 +118,7 @@ export async function openai(prompt: string, model = "gpt-5-nano", maxOut = 1200
   if (!r.ok) {
     const t = await r.text();
     // no credit left on the account: remember it so the alert email can say exactly what to do
-    if (/insufficient_quota|credit_balance_exhausted/.test(t)) {
+    if (/insufficient_quota|credit_balance_exhausted|project_spend_limit_exceeded/.test(t)) {
       try { await db()`insert into app_settings (key, value, updated_at) values ('openai_error', 'no_credit', now()) on conflict (key) do update set value = excluded.value, updated_at = now()`; } catch { /* ignore */ }
       throw new RateLimited("OpenAI account has no credit left");
     }
@@ -201,7 +201,7 @@ export async function embed(texts: string[]): Promise<number[][]> {
     });
     if (!r.ok) {
       const t = await r.text();
-      if (/insufficient_quota|credit_balance_exhausted/.test(t)) {
+      if (/insufficient_quota|credit_balance_exhausted|project_spend_limit_exceeded/.test(t)) {
         try { await db()`insert into app_settings (key, value, updated_at) values ('openai_error', 'no_credit', now()) on conflict (key) do update set value = excluded.value, updated_at = now()`; } catch { /* ignore */ }
         throw new Error("embeddings: OpenAI account has no credit left");
       }
