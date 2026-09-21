@@ -116,7 +116,11 @@ export async function processBatch(): Promise<{ claimed: number; relevant: numbe
   } catch (e) {
     // put unfinished items back; give up after 3 attempts
     const ids = rows.map((r) => r.id);
-    await sql`update articles set status = case when attempts >= 3 then 'failed' else 'pending' end, error = ${(e as Error).message.slice(0, 300)}
+    const msg = (e as Error).message;
+    // AI out of quota or credit is not the article's fault: put it back without using up an attempt, so it is done once AI is back
+    const outage = /out of quota|no credit|credit_balance|insufficient_quota|spend_limit|429/i.test(msg);
+    if (outage) await sql`update articles set status = 'pending', attempts = greatest(attempts - 1, 0), error = ${msg.slice(0, 300)} where id in ${sql(ids)} and status = 'processing'`;
+    else await sql`update articles set status = case when attempts >= 3 then 'failed' else 'pending' end, error = ${msg.slice(0, 300)}
               where id in ${sql(ids)} and status = 'processing'`;
     throw e;
   }
