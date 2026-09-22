@@ -129,7 +129,8 @@ export function pickFeatured(events: EventRow[], n: number, skip: Set<number> = 
   // one-source stories with an official picture (the publisher's own image or game art, not a logo) are worth a look too
   const official = events
     .filter((e) => !skip.has(e.id) && !news.includes(e) && !mags.includes(e) && oneSource(e) && !!e.image_url && e.image_focus !== "logo" && fresh(e, 36))
-    .sort((a, b) => (b.importance ?? 0) - (a.importance ?? 0) || Date.parse(b.last_article_at) - Date.parse(a.last_article_at));
+    .sort((a, b) => (b.importance ?? 0) - (a.importance ?? 0) || Date.parse(b.last_article_at) - Date.parse(a.last_article_at))
+    .slice(0, 3);   // capped: uncapped it grew to ~60 cards and pushed Latest ~15 screens down
   return [...pinned, ...news, ...mags].slice(0, Math.max(n + Math.round(n / 2), pinned.length)).concat(official);
 }
 
