@@ -141,6 +141,7 @@ export async function proposeInstagram(force = false, eventId: number | null = n
   const base = `${env("SUPABASE_URL")}/functions/v1/admin`;
   const ok = `${base}?ig=approve&t=${p.approve_token}`, no = `${base}?ig=skip&t=${p.approve_token}`;
   const to = env("REPORT_EMAIL"), key = env("RESEND_API_KEY");
+  const auto = (await setting("ig_auto")) === "1";   // auto-posting: no approve/skip buttons (they could not work anyway: Supabase shows function HTML as plain text)
   if (to && key) await fetch("https://api.resend.com/emails", { method: "POST", headers: { Authorization: `Bearer ${key}`, "content-type": "application/json" },
     body: JSON.stringify({ from: "coda.news <hello@coda.news>", to: [to], subject: `Instagram 今晚待发：${t ? t.copy.title : e.title}`, html: `<div style="font-family:Helvetica,Arial,sans-serif;max-width:680px">
       <h2 style="margin:0 0 8px">今晚的 Instagram ${format === "reel" ? "Reel" : "帖子"}</h2><p style="color:#6B7280;margin:0 0 16px">已设为自动发布：这条会在几分钟内发到 @thecodanews。有问题请到 Instagram 删除，并告诉我原因。</p>
@@ -149,8 +150,9 @@ export async function proposeInstagram(force = false, eventId: number | null = n
         : `形式：轮播图帖子，共 ${slides(post).length} 张，左右滑动看。`}</p>
       <div>${slides(post).map((u) => `<img src="${u}" width="200" style="margin:0 6px 6px 0;border:1px solid #E5E7EB">`).join("")}</div>
       <pre style="white-space:pre-wrap;font-family:inherit;background:#F4F5F7;padding:12px;border-radius:8px">${esc(caption)}</pre>
-      <p><a href="${ok}" style="display:inline-block;background:#EA5514;color:#fff;padding:12px 22px;border-radius:10px;text-decoration:none;font-weight:700">发布</a>
-      &nbsp; <a href="${no}" style="color:#6B7280">跳过今晚</a> &nbsp; <a href="https://coda.news/event/${e.slug}" style="color:#6B7280">查看原文页</a></p></div>` }) });
+      ${auto ? `<p style="color:#6B7280">这条会自动发出，不用点任何按钮。 <a href="https://www.instagram.com/thecodanews/" style="color:#EA5514">去 Instagram 看</a> &nbsp; <a href="https://coda.news/event/${e.slug}" style="color:#6B7280">查看原文页</a></p>`
+        : `<p><a href="${ok}" style="display:inline-block;background:#EA5514;color:#fff;padding:12px 22px;border-radius:10px;text-decoration:none;font-weight:700">发布</a>
+      &nbsp; <a href="${no}" style="color:#6B7280">跳过今晚</a> &nbsp; <a href="https://coda.news/event/${e.slug}" style="color:#6B7280">查看原文页</a></p>`}</div>` }) });
   log(`instagram: proposed ${e.slug}`);
   // owner switched to hands-off posting (app_settings ig_auto = 1): publish straight away; the email above is then just a notice
   if ((await setting("ig_auto")) === "1") { await sql`update ig_posts set status = 'approved' where id = ${p.id}`; await publishInstagram(p.id).catch((x) => log("instagram publish", (x as Error).message)); }
