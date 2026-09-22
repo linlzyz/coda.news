@@ -3,8 +3,8 @@ import { useState, type ReactNode } from "react";
 import Link from "@/components/LLink";
 
 /** Latest-news list with category tabs and "load more", all in the browser (the page itself stays static and fast). */
-export function Feed({ items, tabs, title, more, disclaimer, links = false }: {
-  items: { tags: string[]; hideInAll?: boolean; node: ReactNode; day?: string; at?: number }[]; tabs: [string, string | undefined][]; title: string; more: string; disclaimer: string;
+export function Feed({ items, tabs, title, more, disclaimer, note, links = false }: {
+  items: { tags: string[]; hideInAll?: boolean; node: ReactNode; day?: string; at?: number }[]; tabs: [string, string | undefined][]; title: string; more: string; disclaimer: string; note?: string;
   /** tabs are links to section pages instead of filters (keeps the home page small) */ links?: boolean;
 }) {
   const [tab, setTab] = useState<string | undefined>(undefined);
@@ -14,7 +14,7 @@ export function Feed({ items, tabs, title, more, disclaimer, links = false }: {
   return (
     <section>
       <div className="flex items-center gap-5 border-b border-[#E5E7EB]">
-        <h2 className="shrink-0 whitespace-nowrap py-3 text-[22px] font-semibold tracking-[-0.02em]">{title}</h2>
+        <h2 className="flex shrink-0 items-baseline gap-2 whitespace-nowrap py-3 text-[22px] font-semibold tracking-[-0.02em]">{title}{note && <span className="text-[12px] font-normal tracking-normal text-neutral-400">{note}</span>}</h2>
         <nav className="flex gap-1 overflow-x-auto text-[13px]" role="tablist">
           {tabs.map(([label, v]) => links ? (
             v === undefined

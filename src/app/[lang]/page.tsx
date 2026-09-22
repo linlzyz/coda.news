@@ -87,7 +87,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
 
           <FeaturedCards events={key} lang={l} heading={t(l, "keyStories")} />
 
-          <Feed title={t(l, "latest")} more={t(l, "loadMore")} disclaimer={t(l, "disclaimer")}
+          <Feed title={t(l, "latest")} note={t(l, "updateNote")} more={t(l, "loadMore")} disclaimer={t(l, "disclaimer")}
             tabs={(["all", "australia", "china", "economy", "technology", "sport", "entertainment", "fashion", "automotive", "gaming"] as const).map((k) => [t(l, k), k === "all" ? undefined : k])}
             links
             items={list.map((e) => ({ tags: [e.category, ...regionTags(e)], node: <NewsItem e={e} companies={companies} topics={topicMap} lang={l} />, day: dayLabel(e.last_article_at, l), at: Date.parse(e.last_article_at) }))} />
