@@ -112,6 +112,10 @@ function Meta({ e, lang }: { e: EventRow; lang: Lang }) {
 /** Picks: the most important stories covered by several sources (a photo helps but is not required),
  *  plus a couple of magazine reads (travel, fashion, design) so the picks are not all hard news. */
 export function pickFeatured(events: EventRow[], n: number, skip: Set<number> = new Set()): EventRow[] {
+  // picture cards only for stories that broke today, Melbourne time (Lyn: yesterday's stories don't belong up top)
+  const melDay = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: "Australia/Melbourne" });
+  const today = melDay(new Date());
+  events = events.filter((e) => e.pinned_at || melDay(new Date(e.started_at)) === today);
   const fresh = (e: EventRow, h: number) => Date.now() - Date.parse(e.last_article_at) < h * 3600_000;
   // pinned by the editor: always first, as long as the pin is under 3 days old
   const pinned = events.filter((e) => !skip.has(e.id) && e.pinned_at && Date.now() - Date.parse(e.pinned_at) < 72 * 3600_000)

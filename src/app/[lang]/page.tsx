@@ -41,13 +41,16 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   // ranked by importance that halves every day since the story broke, so the top changes day to day
   const multi = events.filter((e) => (persp.get(e.id)?.length ?? 0) >= 2).sort((a, b) => hotness(b) - hotness(a));
   // headline: multi-country stories that broke in the last 36 hours come first
-  const fresh = multi.filter((e) => Date.now() - Date.parse(e.started_at) < 36 * 3600_000);
+  // today's stories (Melbourne) first; only if there are none yet (just after midnight) the last 36 hours
+  const melDay = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: "Australia/Melbourne" });
+  const todays = multi.filter((e) => melDay(new Date(e.started_at)) === melDay(new Date()));
+  const fresh = todays.length ? todays : multi.filter((e) => Date.now() - Date.parse(e.started_at) < 36 * 3600_000);
   const top = fresh[0] ?? multi[0] ?? events[0];
   // the headline slot turns through up to five multi-country stories (the ones that show what coda.news is for)
   // a mix of sections: one story per section first, then a second from any section, never all football on a Sunday
   // only stories with a real picture go up here; the rest stay in the Latest list
   const pic = (e?: EventRow) => !!e?.image_url && e.image_focus !== "logo";
-  const all = [top, ...[...fresh, ...multi].filter((e, k, a) => e.id !== top?.id && a.findIndex((x) => x.id === e.id) === k)].filter(Boolean) as EventRow[];
+  const all = [top, ...[...fresh, ...(todays.length ? [] : multi)].filter((e, k, a) => e.id !== top?.id && a.findIndex((x) => x.id === e.id) === k)].filter(Boolean) as EventRow[];
   const pool = all.some(pic) ? all.filter(pic) : all;
   const tops: EventRow[] = [];
   for (const cap of [1, 2]) for (const e of pool) {
