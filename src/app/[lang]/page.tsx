@@ -1,7 +1,7 @@
 import { dayLabel } from "@/lib/loc";
 import { orgLd } from "@/lib/site";
 import Link from "@/components/LLink";
-import { allTopics, hotness, pinnedEvents, officialPicks, companyMap, indices, getPerspectives, listEvents, oneUsePerImage, trendingCompanies, type EventRow, type Perspective } from "@/lib/data";
+import { allTopics, hotness, newProducts, pinnedEvents, officialPicks, companyMap, indices, getPerspectives, listEvents, oneUsePerImage, trendingCompanies, type EventRow, type Perspective } from "@/lib/data";
 import { crypto, fx } from "@/lib/markets";
 import { Cover } from "@/components/Cover";
 import { Flag, Flags } from "@/components/Flag";
@@ -11,6 +11,7 @@ import { FeaturedCards, NewsItem, pickFeatured } from "@/components/NewsItem";
 import { HeroCarousel } from "@/components/HeroCarousel";
 import { Newsletter } from "@/components/Newsletter";
 import { TopicsGrid } from "@/components/TopicsGrid";
+import { NewProducts } from "@/components/NewProducts";
 import { AnatomyBox } from "@/components/anatomy/Promo";
 import { Ticker } from "@/components/Ticker";
 import { AutoRefresh } from "@/components/AutoRefresh";
@@ -35,6 +36,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
     ...CATS.map((c) => listEvents({ category: c, limit: 6 })),   // only for the picks (magazine reads)
   ]);
   const [iq, rq, cnq] = await Promise.all([indices("indices"), indices("rates"), indices("cn")]);
+  const launches = await newProducts().catch(() => [] as EventRow[]);
   const l = await langFrom(params);
   const persp = await getPerspectives(events.map((e) => e.id));
   const companies = await companyMap(events);
@@ -95,6 +97,8 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
           )}
 
           <FeaturedCards events={key} lang={l} heading={t(l, "keyStories")} />
+
+          <NewProducts events={launches.filter((e) => !tops.some((x) => x.id === e.id) && !key.some((x) => x.id === e.id))} lang={l} />
 
           <Feed title={t(l, "latest")} note={t(l, "updateNote")} more={t(l, "loadMore")} disclaimer={t(l, "disclaimer")}
             tabs={(["all", "australia", "china", "economy", "technology", "sport", "entertainment", "fashion", "automotive", "gaming"] as const).map((k) => [t(l, k), k === "all" ? undefined : k])}

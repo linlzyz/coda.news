@@ -203,6 +203,20 @@ async function _officialPicks() {
   return (data ?? []) as EventRow[];
 }
 export const officialPicks = unstable_cache(_officialPicks, ["officialPicks"], { revalidate: 1800, tags: ["list"] });
+/** New products for the home "New launches" row: launches and reveals of things you can buy, with a real picture (no logos, no stock). */
+const LAUNCH = /\b(launch(es|ed)?|unveil(s|ed)?|reveal(s|ed)?|debut(s|ed)?|introduc(es|ed)|releases?|released|arrives?|goes on sale|premier(es|ed)|presents?)\b|发布|上市|推出|亮相|首发|开售/i;
+const NOT_PRODUCT = /\b(leak(s|ed)?|rumou?rs?|report(s|ed)?|teases?|teaser|requirements|benchmark|campaign|licen[cs]e|share|record|details|states|says|pricing|price cut|recall|delay(s|ed)?|app|apps|service|platform|update|version|beta|feature|features|preview|developer|open-source|crowdfunding|translation|model|models|architecture|trial|pilot|partnership|plans?|investment)\b|泄露|爆料|传闻|曝光|预告|招募/i;
+async function _newProducts() {
+  const since = new Date(Date.now() - 72 * 3600_000).toISOString();
+  const { data } = await supabase.from("events").select(EVENT_COLS).eq("hidden", false).in("category", ["automotive", "technology", "gaming", "fashion"])
+    .gte("last_article_at", since).not("image_url", "is", null).not("summary", "is", null).order("last_article_at", { ascending: false }).limit(250);
+  const rows = ((data ?? []) as EventRow[]).filter((e) => LAUNCH.test(e.title) && !NOT_PRODUCT.test(e.title)
+    && e.image_focus !== "logo" && !/^Logo:/.test(e.image_credit ?? "") && !/(Unsplash|Pexels|Pixabay)/i.test(e.image_credit ?? "")
+    && Date.now() - Date.parse(e.started_at) < 7 * 86400_000);
+  rows.sort((a, b) => (b.countries.length - a.countries.length) || (b.source_count - a.source_count) || (Date.parse(b.last_article_at) - Date.parse(a.last_article_at)));
+  return oneUsePerImage(rows).slice(0, 10);
+}
+export const newProducts = unstable_cache(_newProducts, ["newProducts"], { revalidate: 900, tags: ["list"] });
 export const pinnedEvents = unstable_cache(_pinnedEvents, ["pinnedEvents"], { revalidate: 3600, tags: ["list"] });
 export const listEvents = unstable_cache(_listEvents, ["listEvents3"], { revalidate: 300, tags: ["list"] });
 export const getEvent = unstable_cache(_getEvent, ["getEvent"], { revalidate: 1800, tags: ["ev"] });
