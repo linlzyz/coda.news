@@ -55,7 +55,7 @@ export function NewProductsBox({ events, lang }: { events: EventRow[]; lang: Lan
   if (!events.length) return null;
   const zh = lang === "zh";
   return (
-    <section className="rounded-2xl border border-[#E5E7EB] bg-white p-5">
+    <section className="rounded-2xl border border-[#E5E7EB] bg-white p-5 min-w-0 overflow-hidden">
       <div className="flex items-baseline"><h2 className="text-[17px] font-semibold tracking-[-0.015em]">{t(lang, "newProducts")}</h2>
         <span className="ml-auto text-[12px] text-neutral-500">{zh ? "最近三天" : "Last 3 days"}</span></div>
       <div className="mt-4">
