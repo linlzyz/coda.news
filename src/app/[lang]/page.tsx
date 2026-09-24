@@ -96,9 +96,11 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
             </div>
           )}
 
+          {/* new launches sit right under the headline carousel so they are seen without scrolling */}
+          <NewProducts events={launches.filter((e) => !tops.some((x) => x.id === e.id) && !key.some((x) => x.id === e.id))} lang={l} />
+
           <FeaturedCards events={key} lang={l} heading={t(l, "keyStories")} />
 
-          <NewProducts events={launches.filter((e) => !tops.some((x) => x.id === e.id) && !key.some((x) => x.id === e.id))} lang={l} />
 
           <Feed title={t(l, "latest")} note={t(l, "updateNote")} more={t(l, "loadMore")} disclaimer={t(l, "disclaimer")}
             tabs={(["all", "australia", "china", "economy", "technology", "sport", "entertainment", "fashion", "automotive", "gaming"] as const).map((k) => [t(l, k), k === "all" ? undefined : k])}
