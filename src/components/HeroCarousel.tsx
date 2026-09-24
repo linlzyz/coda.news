@@ -19,7 +19,8 @@ export function HeroCarousel({ children, label, every = 8000 }: { children: Reac
     const id = setTimeout(() => go((i + 1) % slides.length), every);
     return () => clearTimeout(id);
   }, [i, hold, slides.length, every]);
-  if (slides.length < 2) return <>{slides}</>;
+  // a lone slide still gets a wrapper: its h-full would otherwise take the whole column height on phones (a 4,000 px grey card)
+  if (slides.length < 2) return <div>{slides}</div>;
   return (
     <div onMouseEnter={() => setHold(true)} onMouseLeave={() => setHold(false)} onTouchStart={() => setHold(true)} onFocus={() => setHold(true)} aria-roledescription="carousel" aria-label={label}>
       <div ref={box} className="flex snap-x snap-mandatory overflow-x-auto rounded-3xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
