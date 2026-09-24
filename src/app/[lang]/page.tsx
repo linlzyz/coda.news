@@ -44,7 +44,12 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   // headline: multi-country stories that broke in the last 36 hours come first
   // today's stories (Melbourne) first; only if there are none yet (just after midnight) the last 36 hours
   const melDay = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: "Australia/Melbourne" });
-  const todays = multi.filter((e) => melDay(new Date(e.started_at)) === melDay(new Date()));
+  // a story also counts as today's when an editor pinned it today, or when an older story breaks again in a big way
+  // (e.g. a teaser from last week becomes today's launch: 8+ sources, 4+ countries, new reports in the last 24 h)
+  const today = melDay(new Date());
+  const breaksToday = (e: EventRow) => melDay(new Date(e.started_at)) === today || (!!e.pinned_at && melDay(new Date(e.pinned_at)) === today)
+    || (Date.now() - Date.parse(e.last_article_at) < 24 * 3600_000 && e.source_count >= 8 && e.countries.length >= 4);
+  const todays = [...multi.filter((e) => e.pinned_at && melDay(new Date(e.pinned_at)) === today), ...multi.filter(breaksToday)].filter((e, k, a) => a.findIndex((x) => x.id === e.id) === k);
   const fresh = todays.length ? todays : multi.filter((e) => Date.now() - Date.parse(e.started_at) < 36 * 3600_000);
   const top = fresh[0] ?? multi[0] ?? events[0];
   // the headline slot turns through up to five multi-country stories (the ones that show what coda.news is for)
