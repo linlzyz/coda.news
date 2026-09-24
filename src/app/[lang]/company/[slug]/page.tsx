@@ -9,6 +9,7 @@ import { Flag } from "@/components/Flag";
 import { NewsItem } from "@/components/NewsItem";
 import { CategoryLabel } from "@/components/Pills";
 import { FollowBox } from "@/components/FollowBox";
+import { AnatomyPromo } from "@/components/anatomy/Promo";
 import { Avatar } from "@/components/Avatar";
 import { CompanyLogo } from "@/components/companies/Logo";
 import { Tabs } from "@/components/companies/Tabs";
@@ -241,6 +242,8 @@ export default async function Page({ params }: PageProps<"/[lang]/company/[slug]
           </section>
         )}
 
+        <div className="mt-12"><AnatomyPromo companyIds={[c.id]} zh={zh} /></div>
+
         {/* our coverage */}
         <section className="mt-12">
           <div className="flex items-baseline justify-between border-b border-[#E5E7EB] pb-3">
@@ -304,6 +307,8 @@ export default async function Page({ params }: PageProps<"/[lang]/company/[slug]
           </aside>
         )}
       </div>
+
+      <div className="mt-10"><AnatomyPromo companyIds={[c.id]} zh={zh} /></div>
 
       <div className="mt-10">
         <Tabs tabs={[

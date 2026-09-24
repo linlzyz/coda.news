@@ -17,6 +17,8 @@ export type Point = { x: number; label: string; v: number };
 export type Profile = {
   slug: string; no: number; companyId: number; companySlug: string;
   title: L; dek: L; social: L; published: string; updated: string; cover: Photo;
+  /** what people search for: used in the <title> and meta description; the page itself shows `title` */
+  seoTitle: L; seoDesc: L; keywords: string[];
   lede: L[]; sections: Section[]; timeline: TimelineItem[]; countries: CountryCard[]; sources: Source[];
   stats: { label: L; from: number; to: number; fromLabel: L; toLabel: L; unit: "bn" | "pct"; src: number[] }[];
   cap: Point[]; intel: Point[]; revenue: { year: number; v: number; dc?: number }[];
@@ -31,6 +33,12 @@ const AMD: Profile = {
     zh: "从 Zen、台积电到 AI，AMD 用十二年完成的三次关键换轨。",
   },
   social: { en: "Three decisions that rebuilt AMD", zh: "三个决定，如何重做 AMD" },
+  seoTitle: { en: "How AMD Went From Near Bankruptcy to $1 Trillion Under Lisa Su", zh: "AMD 如何从濒临破产到市值 1 万亿美元：苏姿丰的十二年" },
+  seoDesc: {
+    en: "AMD was worth about $2 billion in 2014 and passed $1 trillion in September 2026. The Zen chip design, TSMC and chiplets, data centres, Xilinx and AI deals with OpenAI and Meta, with every number sourced, and how media in four countries reported it.",
+    zh: "2014 年市值约 20 亿美元，2026 年 9 月突破 1 万亿美元。Zen 架构、台积电代工与小芯片（chiplet）、数据中心、收购 Xilinx、OpenAI 与 Meta 的 AI 大单，每个数字附来源，以及四国媒体怎么报道。",
+  },
+  keywords: ["AMD", "Lisa Su", "苏姿丰", "AMD turnaround", "AMD 市值", "Zen", "chiplet", "TSMC", "台积电", "EPYC", "Xilinx", "MI450", "AMD vs Intel"],
   published: "2026-09-24", updated: "2026-09-24",
   cover: { file: "Zen2 Matisse Ryzen 7nm Core Die shot.jpg", credit: "Fritzchens Fritz", license: "CC0",
     caption: { en: "A Zen 2 compute die, the 7-nanometre chiplet made by TSMC, photographed under a microscope.", zh: "显微镜下的 Zen 2 计算芯片，也就是台积电 7 纳米工艺生产的小芯片。" },

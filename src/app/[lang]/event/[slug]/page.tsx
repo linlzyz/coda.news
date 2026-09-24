@@ -10,6 +10,7 @@ import { Flag, Flags } from "@/components/Flag";
 import { CategoryLabel, StatusPill } from "@/components/Pills";
 import { Cover } from "@/components/Cover";
 import { ReportError, ShareBar } from "@/components/EventTools";
+import { AnatomyPromo } from "@/components/anatomy/Promo";
 export const revalidate = 21600;
 export async function generateStaticParams() { return []; }
 export const dynamicParams = true;
@@ -79,6 +80,8 @@ export default async function EventPage({ params }: PageProps<"/[lang]/event/[sl
               {shownCos.map((c) => <Link key={c.id} href={`/company/${c.slug}`} className="rounded-full bg-[#FFF1EA] px-3 py-1 font-medium text-[#C2410C] hover:bg-[#FFE3D4]">{c.name}</Link>)}
             </div>
           </header>
+
+          <AnatomyPromo companyIds={e.company_ids} zh={l === "zh"} />
 
           {e.image_url && <Cover e={e} credit priority className="aspect-[21/9] w-full rounded-3xl" />}
 

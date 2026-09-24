@@ -19,8 +19,9 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/anatomy/[s
   if (!pr) return {};
   const zh = p.lang === "zh";
   return {
-    title: `${pick(pr.title, zh)} · ${zh ? "Coda 剖面" : "Coda Anatomy"}`,
-    description: pick(pr.dek, zh),
+    title: { absolute: `${pick(pr.seoTitle, zh)} | ${zh ? "Coda 剖面" : "Coda Anatomy"} · coda.news` },
+    description: pick(pr.seoDesc, zh),
+    keywords: pr.keywords,
     alternates: alternates(`/anatomy/${pr.slug}`, zh ? "zh" : "en"),
     openGraph: { type: "article", title: pick(pr.title, zh), description: pick(pr.dek, zh), publishedTime: pr.published, modifiedTime: pr.updated, images: [{ url: photoUrl(pr.cover.file, 1200), alt: pick(pr.cover.alt, zh) }] },
     twitter: { card: "summary_large_image", images: [photoUrl(pr.cover.file, 1200)] },
@@ -121,7 +122,7 @@ export default async function Page({ params }: PageProps<"/[lang]/anatomy/[slug]
   const sources: Source[] = pr.sources.filter((s) => used.has(s.n) || [7, 8, 9, 13, 17].includes(s.n));
   const url = `${SITE.url}${zh ? "/zh" : ""}/anatomy/${pr.slug}`;
   const ld = {
-    "@context": "https://schema.org", "@type": "Article", headline: pick(pr.title, zh), alternativeHeadline: pick(pr.dek, zh),
+    "@context": "https://schema.org", "@type": "Article", headline: pick(pr.seoTitle, zh), alternativeHeadline: pick(pr.title, zh),
     datePublished: pr.published, dateModified: pr.updated, inLanguage: zh ? "zh-CN" : "en", mainEntityOfPage: url, isAccessibleForFree: true,
     about: { "@type": "Corporation", name: "AMD", legalName: "Advanced Micro Devices, Inc." },
     author: { "@type": "Organization", name: SITE.name, url: SITE.url }, publisher: orgLd,
@@ -131,7 +132,12 @@ export default async function Page({ params }: PageProps<"/[lang]/anatomy/[slug]
   const date = new Date(pr.updated).toLocaleDateString(zh ? "zh-CN" : "en-AU", { day: "numeric", month: "long", year: "numeric" });
   return (
     <article>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ ...ld, image: photoUrl(pr.cover.file, 1600) }) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ ...ld, image: photoUrl(pr.cover.file, 1600), keywords: pr.keywords.join(", "), description: pick(pr.seoDesc, zh) }) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [
+        { "@type": "ListItem", position: 1, name: "coda.news", item: `${SITE.url}${zh ? "/zh" : ""}` },
+        { "@type": "ListItem", position: 2, name: zh ? "Coda 剖面" : "Coda Anatomy", item: `${SITE.url}${zh ? "/zh" : ""}/anatomy` },
+        { "@type": "ListItem", position: 3, name: pick(pr.title, zh), item: url },
+      ] }) }} />
       <header className="relative isolate overflow-hidden bg-[#08090B] text-white">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={photoUrl(pr.cover.file, 2000)} alt={pick(pr.cover.alt, zh)} fetchPriority="high"
