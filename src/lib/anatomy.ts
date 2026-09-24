@@ -4,7 +4,11 @@
 
 export type L = { en: string; zh: string };
 export type Figure = "cap" | "chiplet" | "revenue" | "vsintel" | "deals" | "timeline" | "countries";
-export type Section = { id: string; h: L; paras: L[]; figure?: Figure };
+/** A freely licensed photo from Wikimedia Commons, hotlinked at a set width, always credited. */
+export type Photo = { file: string; credit: string; license: string; caption: L; alt: L; fit?: "cover" | "contain" };
+export const photoUrl = (file: string, width = 1600) => `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}?width=${width}`;
+export const photoPage = (file: string) => `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(file.replace(/ /g, "_"))}`;
+export type Section = { id: string; h: L; paras: L[]; figure?: Figure; photo?: Photo };
 export type Source = { n: number; name: string; title: string; url: string };
 export type TimelineItem = { date: L; text: L; src: number[] };
 export type CountryCard = { code: string; count: number; outlets: string; focus: L; headlines: { t: string; url: string; outlet: string }[] };
@@ -12,7 +16,7 @@ export type Point = { x: number; label: string; v: number };
 
 export type Profile = {
   slug: string; no: number; companyId: number; companySlug: string;
-  title: L; dek: L; social: L; published: string; updated: string;
+  title: L; dek: L; social: L; published: string; updated: string; cover: Photo;
   lede: L[]; sections: Section[]; timeline: TimelineItem[]; countries: CountryCard[]; sources: Source[];
   stats: { label: L; from: number; to: number; fromLabel: L; toLabel: L; unit: "bn" | "pct"; src: number[] }[];
   cap: Point[]; intel: Point[]; revenue: { year: number; v: number; dc?: number }[];
@@ -28,6 +32,9 @@ const AMD: Profile = {
   },
   social: { en: "Three decisions that rebuilt AMD", zh: "三个决定，如何重做 AMD" },
   published: "2026-09-24", updated: "2026-09-24",
+  cover: { file: "Zen2 Matisse Ryzen 7nm Core Die shot.jpg", credit: "Fritzchens Fritz", license: "CC0",
+    caption: { en: "A Zen 2 compute die, the 7-nanometre chiplet made by TSMC, photographed under a microscope.", zh: "显微镜下的 Zen 2 计算芯片，也就是台积电 7 纳米工艺生产的小芯片。" },
+    alt: { en: "Colourful microscope photo of an AMD Zen 2 chip die", zh: "AMD Zen 2 芯片裸片的彩色显微照片" } },
   lede: [
     {
       en: "On 21 September 2026, AMD's market value passed $1 trillion for the first time during trading [[20]][[21]]. At the end of 2014, weeks after Lisa Su became chief executive, it was worth about $2 billion [[7]]. The rise was not one lucky product. It was a set of decisions that depended on each other: a new chip design, a new way of making chips, and a new place to sell them.",
@@ -37,6 +44,8 @@ const AMD: Profile = {
   sections: [
     {
       id: "bottom", h: { en: "The bottom", zh: "谷底" }, figure: "cap",
+      photo: { file: "2485 Augustine Drive headquarters in Santa Clara, California.jpg", credit: "Coolcaesar", license: "CC BY-SA 4.0",
+        caption: { en: "AMD headquarters in Santa Clara, California.", zh: "AMD 位于美国加州圣克拉拉的总部。" }, alt: { en: "AMD headquarters building", zh: "AMD 总部大楼" } },
       paras: [
         {
           en: "In 2006 AMD bought the graphics company ATI for about $5.4 billion, a price later widely judged too high, and its 2007 \"Barcelona\" server chip shipped with a bug [[6]]. In 2009 it moved its factories into a separate company, GlobalFoundries, and became a designer that still depended on its former plants [[5]].",
@@ -50,6 +59,8 @@ const AMD: Profile = {
     },
     {
       id: "zen", h: { en: "Decision one: a new design, not a patch", zh: "决定一：重新设计，而不是修补" },
+      photo: { file: "AMD Ryzen 7 1800X.jpg", credit: "Brian Wong", license: "CC BY-SA 2.0",
+        caption: { en: "A Ryzen 7 1800X, one of the first Zen desktop chips from 2017, in its socket.", zh: "Ryzen 7 1800X，2017 年第一批 Zen 台式机芯片之一，装在主板插槽上。" }, alt: { en: "AMD Ryzen processor in a motherboard socket", zh: "装在主板上的 AMD Ryzen 处理器" } },
       paras: [
         {
           en: "Instead of improving the processors it had, AMD put its limited money into a new design called Zen. The first Ryzen desktop chips went on sale on 2 March 2017, followed by EPYC server chips the same year [[2]]. For the first time in years, AMD's best chips competed with Intel's at the top of the market. Investors moved early: year-end market value rose from $2.3 billion in 2015 to $10.5 billion in 2016 [[7]].",
@@ -59,6 +70,9 @@ const AMD: Profile = {
     },
     {
       id: "tsmc", h: { en: "Decision two: let TSMC build it, in pieces", zh: "决定二：交给台积电，拆成小块来造" }, figure: "chiplet",
+      photo: { file: "AMD@7nm(12nmIO)@Zen2@Matisse@Ryzen 5 3600@100-000000031 BF 1923SUT 9HM6935R90062 DSCx2@Infrared.jpg", credit: "Fritzchens Fritz", license: "CC0", fit: "contain",
+        caption: { en: "Infrared photo through the lid of a Ryzen 5 3600: two separate chips in one package, a larger input/output die (12 nm) and a smaller compute die (7 nm).", zh: "透过 Ryzen 5 3600 外壳拍的红外照片：同一个封装里有两块独立芯片，较大的是 12 纳米的输入输出芯片，较小的是 7 纳米的计算芯片。" },
+        alt: { en: "Infrared image showing two dies inside a Ryzen processor", zh: "红外照片中 Ryzen 处理器内部的两块芯片" } },
       paras: [
         {
           en: "In 2018 GlobalFoundries stopped developing its 7-nanometre process, and AMD moved its leading chips to TSMC [[2]]. At the same time it changed how the chips are built. Zen 2, launched in 2019, puts several small compute dies next to a separate input/output die in one package, the \"chiplet\" approach, and scales up to 64 cores in a server chip [[10]].",
@@ -72,6 +86,8 @@ const AMD: Profile = {
     },
     {
       id: "datacenter", h: { en: "Decision three: go where the servers are", zh: "决定三：去服务器所在的地方" }, figure: "revenue",
+      photo: { file: "Amd epyc 7302 top side IMGP3332 smial wp.jpg", credit: "Smial", license: "FAL", fit: "contain",
+        caption: { en: "An EPYC 7302P server processor. The lid reads \"Diffused in USA, Diffused in Taiwan\".", zh: "EPYC 7302P 服务器处理器，外壳上印着\"Diffused in USA, Diffused in Taiwan\"。" }, alt: { en: "AMD EPYC server processor", zh: "AMD EPYC 服务器处理器" } },
       paras: [
         {
           en: "PCs were a shrinking market; data centres were growing. EPYC gave AMD a way back into servers, where each chip sells for much more. In 2025 AMD's revenue was $34.6 billion, more than six times 2014, and the data centre segment alone brought in $16.6 billion, about 48% of the total [[9]][[19]].",
@@ -81,6 +97,8 @@ const AMD: Profile = {
     },
     {
       id: "xilinx", h: { en: "Scale: Xilinx, and passing Intel", zh: "扩张：收购 Xilinx，市值超过 Intel" }, figure: "vsintel",
+      photo: { file: "Xilinx Headquarters Sign - San Jose - California.jpg", credit: "Will Buckner", license: "CC BY 2.0",
+        caption: { en: "Xilinx headquarters in San Jose, California, before the brand was folded into AMD.", zh: "Xilinx 位于加州圣何塞的总部，摄于品牌并入 AMD 之前。" }, alt: { en: "Xilinx headquarters sign", zh: "Xilinx 总部标牌" } },
       paras: [
         {
           en: "In October 2020 AMD agreed to buy the programmable-chip maker Xilinx in an all-stock deal worth about $35 billion at the time. When it closed on 14 February 2022 the deal was valued at about $49 billion, because AMD's own shares had risen, making it the largest chip acquisition to that date [[11]][[12]]. The next day AMD's market value, $197.75 billion, passed Intel's, $197.24 billion, for the first time [[13]].",

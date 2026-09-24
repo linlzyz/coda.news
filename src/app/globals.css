@@ -89,6 +89,8 @@ html.dark .ana-cite { color: #F28C5B; }
 .ana-tl-text { opacity: .45; transform: translateY(4px); transition: opacity .5s ease, transform .5s ease; }
 .ana-tl.is-on .ana-tl-dot { background: var(--ana-amd); border-color: var(--ana-amd); }
 .ana-tl.is-on .ana-tl-text { opacity: 1; transform: none; }
+.ana-hero-img { animation: anaZoom 20s ease-out both; transform-origin: 70% 50%; }
+@keyframes anaZoom { from { transform: scale(1.08); opacity: 0; } 8% { opacity: .8; } to { transform: scale(1); opacity: .8; } }
 /* phones: charts are drawn at 720 wide and scaled down, so enlarge their text and markers */
 @media (max-width: 640px) {
   .ana-axis { font-size: 20px; } .ana-value, .ana-note { font-size: 20px; } .ana-endlabel { font-size: 21px; }
@@ -96,4 +98,5 @@ html.dark .ana-cite { color: #F28C5B; }
 }
 @media (prefers-reduced-motion: reduce) {
   .ana-draw, .ana-pop, .ana-grow, .ana-scale, .ana-die, .ana-die-bad, .ana-tl-dot, .ana-tl-text { transition: none !important; }
+  .ana-hero-img { animation: none; }
 }

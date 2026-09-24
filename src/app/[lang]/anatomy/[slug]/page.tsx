@@ -6,7 +6,7 @@ import { SITE, orgLd } from "@/lib/site";
 import { regionName } from "@/lib/ui";
 import { Flag } from "@/components/Flag";
 import { NewsItem } from "@/components/NewsItem";
-import { PROFILES, getProfile, money, pick, type Figure, type Profile, type Source } from "@/lib/anatomy";
+import { PROFILES, getProfile, money, photoPage, photoUrl, pick, type Figure, type Photo, type Profile, type Source } from "@/lib/anatomy";
 import { CapChart, Chiplet, CountUp, Deals, RevenueBars, TimelineRow, VsIntel } from "@/components/anatomy/Charts";
 
 export const revalidate = 3600;
@@ -22,7 +22,8 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/anatomy/[s
     title: `${pick(pr.title, zh)} · ${zh ? "Coda 剖面" : "Coda Anatomy"}`,
     description: pick(pr.dek, zh),
     alternates: alternates(`/anatomy/${pr.slug}`, zh ? "zh" : "en"),
-    openGraph: { type: "article", title: pick(pr.title, zh), description: pick(pr.dek, zh), publishedTime: pr.published, modifiedTime: pr.updated },
+    openGraph: { type: "article", title: pick(pr.title, zh), description: pick(pr.dek, zh), publishedTime: pr.published, modifiedTime: pr.updated, images: [{ url: photoUrl(pr.cover.file, 1200), alt: pick(pr.cover.alt, zh) }] },
+    twitter: { card: "summary_large_image", images: [photoUrl(pr.cover.file, 1200)] },
   };
 }
 
@@ -35,6 +36,24 @@ function Rich({ text }: { text: string }) {
   })}</>;
 }
 const Cites = ({ ns }: { ns: number[] }) => <>{ns.map((n) => <sup key={n} className="ml-[1px]"><a href={`#src-${n}`} className="ana-cite">{n}</a></sup>)}</>;
+
+function Credit({ p, zh, light }: { p: Photo; zh: boolean; light?: boolean }) {
+  return <a href={photoPage(p.file)} target="_blank" rel="noopener noreferrer" className={`hover:underline ${light ? "text-white/60" : "text-neutral-400"}`}>{zh ? "照片：" : "Photo: "}{p.credit} / Wikimedia Commons ({p.license})</a>;
+}
+
+function PhotoFig({ p, zh }: { p: Photo; zh: boolean }) {
+  const contain = p.fit === "contain";
+  return (
+    <figure className="my-6">
+      <div className={`overflow-hidden rounded-2xl ${contain ? "bg-[#F4F5F7] p-4 sm:p-6" : ""}`}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={photoUrl(p.file, 1400)} alt={pick(p.alt, zh)} loading="lazy" decoding="async"
+          className={contain ? "mx-auto block max-h-[320px] w-auto max-w-full object-contain" : "block aspect-[16/9] w-full object-cover"} />
+      </div>
+      <figcaption className="mt-2 text-[12.5px] leading-relaxed text-neutral-500">{pick(p.caption, zh)} <Credit p={p} zh={zh} /></figcaption>
+    </figure>
+  );
+}
 
 function FigureFor({ f, pr, zh }: { f: Figure; pr: Profile; zh: boolean }) {
   switch (f) {
@@ -111,18 +130,29 @@ export default async function Page({ params }: PageProps<"/[lang]/anatomy/[slug]
   };
   const date = new Date(pr.updated).toLocaleDateString(zh ? "zh-CN" : "en-AU", { day: "numeric", month: "long", year: "numeric" });
   return (
-    <article className="mx-auto max-w-[760px] px-4 py-10 sm:px-6 sm:py-14">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
-      <Link href="/anatomy" className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[#C2410C]">
-        {zh ? `Coda 剖面 ${String(pr.no).padStart(2, "0")}` : `Coda Anatomy ${String(pr.no).padStart(2, "0")}`}
-      </Link>
-      <h1 className="mt-3 text-[38px] font-semibold leading-[1.08] tracking-[-0.03em] text-[#16181D] sm:text-[48px]">{pick(pr.title, zh)}</h1>
-      <p className="mt-3 text-[18px] leading-snug text-neutral-600 sm:text-[20px]">{pick(pr.dek, zh)}</p>
-      <p className="mt-4 text-[12.5px] text-neutral-500">{date} · {zh ? "AI 辅助整理，人工核对。每个数字都可以点开来源。" : "AI-assisted, checked by an editor. Every number links to its source."}</p>
+    <article>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ ...ld, image: photoUrl(pr.cover.file, 1600) }) }} />
+      <header className="relative isolate overflow-hidden bg-[#08090B] text-white">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={photoUrl(pr.cover.file, 2000)} alt={pick(pr.cover.alt, zh)} fetchPriority="high"
+          className="ana-hero-img absolute inset-y-0 right-0 -z-10 h-full w-full object-cover opacity-80 sm:w-[78%]" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#08090B] via-[#08090B]/80 to-transparent" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#08090B] via-transparent to-transparent" />
+        <div className="mx-auto flex min-h-[460px] max-w-[1080px] flex-col justify-end px-4 pb-10 pt-24 sm:min-h-[560px] sm:px-8 sm:pb-14">
+          <Link href="/anatomy" className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#FF8A50]">
+            {zh ? `Coda 剖面 ${String(pr.no).padStart(2, "0")}` : `Coda Anatomy ${String(pr.no).padStart(2, "0")}`}
+          </Link>
+          <h1 className="mt-3 max-w-[720px] text-[36px] font-semibold leading-[1.05] tracking-[-0.035em] text-white [word-break:keep-all] sm:text-[72px] sm:leading-[1.02]">{pick(pr.title, zh)}</h1>
+          <p className="mt-4 max-w-[600px] text-[18px] leading-snug text-white/80 sm:text-[21px]">{pick(pr.dek, zh)}</p>
+          <p className="mt-5 text-[12.5px] text-white/60">{date} · {zh ? "AI 辅助整理，人工核对" : "AI-assisted, checked by an editor"}</p>
+          <p className="mt-6 max-w-[560px] text-[11.5px] leading-snug text-white/50">{pick(pr.cover.caption, zh)} <Credit p={pr.cover} zh={zh} light /></p>
+        </div>
+      </header>
+      <div className="mx-auto max-w-[760px] px-4 pb-14 sm:px-6">
 
-      <div className="mt-8 grid gap-3 sm:grid-cols-3">
+      <div className="-mt-6 relative grid gap-3 sm:grid-cols-3">
         {pr.stats.map((s, i) => (
-          <div key={i} className="rounded-2xl bg-[#F4F5F7] p-4">
+          <div key={i} className="rounded-2xl border border-[#E5E7EB] bg-white p-4 shadow-[0_8px_24px_-12px_rgba(0,0,0,.25)]">
             <div className="text-[12px] font-medium text-neutral-600">{pick(s.label, zh)}<Cites ns={s.src} /></div>
             <div className="mt-1 text-[30px] font-semibold leading-none tracking-[-0.03em] text-[#16181D]"><CountUp from={s.from} to={s.to} unit={s.unit} zh={zh} /></div>
             <div className="mt-2 text-[12px] text-neutral-500">
@@ -138,7 +168,8 @@ export default async function Page({ params }: PageProps<"/[lang]/anatomy/[slug]
 
       {pr.sections.map((s) => (
         <section key={s.id} id={s.id} className="mt-12 scroll-mt-24">
-          <h2 className="text-[24px] font-semibold tracking-[-0.02em] text-[#16181D]">{pick(s.h, zh)}</h2>
+          <h2 className="text-[26px] font-semibold tracking-[-0.02em] text-[#16181D]">{pick(s.h, zh)}</h2>
+          {s.photo && <PhotoFig p={s.photo} zh={zh} />}
           <div className="mt-3 space-y-4 text-[16.5px] leading-[1.7] text-neutral-800">
             {s.paras.map((x, i) => <p key={i}><Rich text={pick(x, zh)} /></p>)}
           </div>
@@ -171,6 +202,7 @@ export default async function Page({ params }: PageProps<"/[lang]/anatomy/[slug]
           <a href={`mailto:${SITE.email}`} className="underline">{SITE.email}</a>{zh ? "。" : "."}
         </p>
       </section>
+      </div>
     </article>
   );
 }
