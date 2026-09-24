@@ -27,6 +27,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
   const used: string[] = [];
   const T = (en: string, z: string) => { used.push(en, z); return zh ? z : en; };
   const title = zh ? pr.title.zh : pr.title.en;
+  const hook = zh ? pr.igHook.zh : pr.igHook.en;
+  const hookSize = zh ? (hook.length > 18 ? 76 : 92) : (hook.length > 48 ? 70 : hook.length > 32 ? 82 : 96);
   const link = `https://coda.news${zh ? "/zh" : ""}/anatomy/${pr.slug}`;
   const kick = T("CODA ANATOMY", "CODA 剖面") + ` ${String(pr.no).padStart(2, "0")}`;
   const credit = `${T("Photo", "照片")}: ${pr.cover.credit} / Wikimedia Commons (${pr.cover.license})`;
@@ -78,10 +80,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
           <div style={{ position: "absolute", right: 30, bottom: 22, display: "flex", fontSize: 17, color: "rgba(255,255,255,0.85)" }}>{credit}</div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", flexGrow: 1, padding: "52px 84px 60px" }}>
-          <div style={{ display: "flex", fontWeight: 900, fontSize: zh ? 104 : 124, lineHeight: 1.0, color: INK, letterSpacing: zh ? 0 : -4 }}>{title}</div>
-          <div style={{ display: "flex", marginTop: 24, fontSize: 36, lineHeight: 1.35, color: "#3F434A" }}>
-            {T("How three decisions took AMD from about $2 billion to $1 trillion in twelve years.", "三个决定，让 AMD 在十二年里从约 20 亿美元走到 1 万亿美元。")}
-          </div>
+          {/* the hook does the stopping; the page title sits small above it, so the cover never just repeats the title */}
+          <div style={{ display: "flex", fontSize: 30, fontWeight: 700, color: ORANGE }}>{title}</div>
+          <div style={{ display: "flex", marginTop: 14, fontWeight: 900, fontSize: hookSize, lineHeight: 1.05, color: INK, letterSpacing: zh ? 0 : -2.5 }}>{hook}</div>
           <div style={{ marginTop: "auto", display: "flex", alignItems: "center", fontSize: 26, color: MUTED }}>
             <div style={{ display: "flex" }}>{T("An original long read · Swipe →", "原创专题 · 左滑 →")}</div>
             <div style={{ marginLeft: "auto", display: "flex", fontSize: 38, fontWeight: 700, color: INK }}><B text="coda.news" /></div>

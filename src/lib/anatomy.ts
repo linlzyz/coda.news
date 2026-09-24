@@ -19,6 +19,8 @@ export type Profile = {
   title: L; dek: L; social: L; published: string; updated: string; cover: Photo;
   /** what people search for: used in the <title> and meta description; the page itself shows `title` */
   seoTitle: L; seoDesc: L; keywords: string[];
+  /** Instagram cover line: a stronger hook than the page title, never the same words */
+  igHook: L;
   lede: L[]; sections: Section[]; timeline: TimelineItem[]; countries: CountryCard[]; sources: Source[];
   stats: { label: L; from: number; to: number; fromLabel: L; toLabel: L; unit: "bn" | "pct"; src: number[] }[];
   cap: Point[]; intel: Point[]; revenue: { year: number; v: number; dc?: number }[];
@@ -33,6 +35,7 @@ const AMD: Profile = {
     zh: "从 Zen、台积电到 AI，AMD 用十二年完成的三次关键换轨。",
   },
   social: { en: "Three decisions that rebuilt AMD", zh: "三个决定，如何重做 AMD" },
+  igHook: { en: "Three decisions took AMD from $2 billion to $1 trillion", zh: "三个决定，让 AMD 从 20 亿走到 1 万亿" },
   seoTitle: { en: "How AMD Went From Near Bankruptcy to $1 Trillion Under Lisa Su", zh: "AMD 如何从濒临破产到市值 1 万亿美元：苏姿丰的十二年" },
   seoDesc: {
     en: "AMD was worth about $2 billion in 2014 and passed $1 trillion in September 2026. The Zen chip design, TSMC and chiplets, data centres, Xilinx and AI deals with OpenAI and Meta, with every number sourced, and how media in four countries reported it.",
