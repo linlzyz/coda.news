@@ -2,7 +2,7 @@
 import { Children, useEffect, useRef, useState, type ReactNode } from "react";
 
 /** Up to five headline stories, one at a time: swipe or use the dots; turns every 8 s unless the reader is on it. */
-export function HeroCarousel({ children, label }: { children: ReactNode; label: string }) {
+export function HeroCarousel({ children, label, every = 8000 }: { children: ReactNode; label: string; every?: number }) {
   const slides = Children.toArray(children);
   const box = useRef<HTMLDivElement>(null);
   const [i, setI] = useState(0);
@@ -16,9 +16,9 @@ export function HeroCarousel({ children, label }: { children: ReactNode; label: 
   }, []);
   useEffect(() => {
     if (hold || slides.length < 2 || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const id = setTimeout(() => go((i + 1) % slides.length), 8000);
+    const id = setTimeout(() => go((i + 1) % slides.length), every);
     return () => clearTimeout(id);
-  }, [i, hold, slides.length]);
+  }, [i, hold, slides.length, every]);
   if (slides.length < 2) return <>{slides}</>;
   return (
     <div onMouseEnter={() => setHold(true)} onMouseLeave={() => setHold(false)} onTouchStart={() => setHold(true)} onFocus={() => setHold(true)} aria-roledescription="carousel" aria-label={label}>
