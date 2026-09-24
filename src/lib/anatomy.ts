@@ -6,7 +6,13 @@ export type L = { en: string; zh: string };
 export type Figure = "cap" | "chiplet" | "revenue" | "vsintel" | "deals" | "timeline" | "countries";
 /** A freely licensed photo from Wikimedia Commons, hotlinked at a set width, always credited. */
 export type Photo = { file: string; credit: string; license: string; caption: L; alt: L; fit?: "cover" | "contain"; pos?: string };
-export const photoUrl = (file: string, width = 1600) => `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}?width=${width}`;
+/** Commons photos are copied once into /public/anatomy-img as WebP (scripts/anatomy-images.mts), so they load from our own CDN, not from Wikimedia in the US. */
+export const photoKey = (file: string) => { let h = 5381; for (const c of file) h = ((h * 33) ^ c.codePointAt(0)!) >>> 0; return h.toString(36); };
+export const PHOTO_WIDTHS = [800, 1600] as const;
+export const photoUrl = (file: string, width = 1600) => `/anatomy-img/${photoKey(file)}-${width <= 900 ? 800 : 1600}.webp`;
+export const photoSrcSet = (file: string) => PHOTO_WIDTHS.map((w) => `${photoUrl(file, w)} ${w}w`).join(", ");
+/** the original on Commons, for the downloader */
+export const commonsUrl = (file: string, width: number) => `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}?width=${width}`;
 export const photoPage = (file: string) => `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(file.replace(/ /g, "_"))}`;
 export type Section = { id: string; h: L; paras: L[]; figure?: Figure; photo?: Photo };
 export type Source = { n: number; name: string; title: string; url: string };

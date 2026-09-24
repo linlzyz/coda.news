@@ -31,7 +31,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
 
       <Link href={`/anatomy/${lead.slug}`} className="group relative isolate mt-10 block overflow-hidden rounded-3xl bg-[#08090B] text-white">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={photoUrl(lead.cover.file, 1800)} alt={pick(lead.cover.alt, zh)}
+        <img src={photoUrl(lead.cover.file, 1600)} alt={pick(lead.cover.alt, zh)}
           className="absolute inset-y-0 right-0 -z-10 h-full w-full object-cover opacity-75 transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04] sm:w-[75%]" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#08090B] via-[#08090B]/75 to-transparent" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#08090B]/90 via-transparent to-transparent" />

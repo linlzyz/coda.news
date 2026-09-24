@@ -6,7 +6,7 @@ import { SITE, orgLd } from "@/lib/site";
 import { regionName } from "@/lib/ui";
 import { Flag } from "@/components/Flag";
 import { NewsItem } from "@/components/NewsItem";
-import { PROFILES, getProfile, money, photoPage, photoUrl, pick, type Figure, type Photo, type Profile, type Source } from "@/lib/anatomy";
+import { PROFILES, getProfile, money, photoPage, photoSrcSet, photoUrl, pick, type Figure, type Photo, type Profile, type Source } from "@/lib/anatomy";
 import { CapChart, Chiplet, CountUp, Deals, RevenueBars, TimelineRow, VsIntel } from "@/components/anatomy/Charts";
 
 export const revalidate = 3600;
@@ -48,7 +48,7 @@ function PhotoFig({ p, zh }: { p: Photo; zh: boolean }) {
     <figure className="my-6">
       <div className={`overflow-hidden rounded-2xl ${contain ? "bg-[#F4F5F7] p-4 sm:p-6" : ""}`}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={photoUrl(p.file, 1400)} alt={pick(p.alt, zh)} loading="lazy" decoding="async"
+        <img src={photoUrl(p.file, 1600)} srcSet={photoSrcSet(p.file)} sizes="(max-width: 760px) 100vw, 712px" alt={pick(p.alt, zh)} loading="lazy" decoding="async"
           style={p.pos ? { objectPosition: p.pos } : undefined}
           className={contain ? "mx-auto block max-h-[320px] w-auto max-w-full object-contain" : "block aspect-[16/9] w-full object-cover"} />
       </div>
@@ -133,7 +133,7 @@ export default async function Page({ params }: PageProps<"/[lang]/anatomy/[slug]
   const date = new Date(pr.updated).toLocaleDateString(zh ? "zh-CN" : "en-AU", { day: "numeric", month: "long", year: "numeric" });
   return (
     <article>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ ...ld, image: photoUrl(pr.cover.file, 1600), keywords: pr.keywords.join(", "), description: pick(pr.seoDesc, zh) }) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ ...ld, image: `${SITE.url}${photoUrl(pr.cover.file, 1600)}`, keywords: pr.keywords.join(", "), description: pick(pr.seoDesc, zh) }) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [
         { "@type": "ListItem", position: 1, name: "coda.news", item: `${SITE.url}${zh ? "/zh" : ""}` },
         { "@type": "ListItem", position: 2, name: zh ? "Coda 剖面" : "Coda Anatomy", item: `${SITE.url}${zh ? "/zh" : ""}/anatomy` },
@@ -141,7 +141,7 @@ export default async function Page({ params }: PageProps<"/[lang]/anatomy/[slug]
       ] }) }} />
       <header className="relative isolate overflow-hidden bg-[#08090B] text-white">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={photoUrl(pr.cover.file, 2000)} alt={pick(pr.cover.alt, zh)} fetchPriority="high"
+        <img src={photoUrl(pr.cover.file, 1600)} srcSet={photoSrcSet(pr.cover.file)} sizes="100vw" alt={pick(pr.cover.alt, zh)} fetchPriority="high"
           className="ana-hero-img absolute inset-y-0 right-0 -z-10 h-full w-full object-cover opacity-80 sm:w-[78%]" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#08090B] via-[#08090B]/80 to-transparent" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#08090B] via-transparent to-transparent" />

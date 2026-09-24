@@ -12,7 +12,8 @@ const W = 1080, H = 1350, ORANGE = "#EA5514", INK = "#16181D", PAPER = "#F4F3F0"
 const B = ({ text }: { text: string }) => <>{brandParts(text).map((p, i) => <span key={i} style={p.dot ? { color: ORANGE } : {}}>{p.t}</span>)}</>;
 
 async function dataUri(url: string) {
-  const r = await fetch(url, { headers: { "user-agent": "coda.news/1.0 (info@coda.news)" } });
+  const r = await fetch(url, { headers: { "user-agent": "coda.news/1.0 (info@coda.news)" }, signal: AbortSignal.timeout(15000) }).catch(() => null);
+  if (!r) return null;
   if (!r.ok) return null;
   return `data:${r.headers.get("content-type") ?? "image/jpeg"};base64,${Buffer.from(await r.arrayBuffer()).toString("base64")}`;
 }
@@ -54,7 +55,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
 
   let body: React.ReactElement;
   let size = { width: W, height: H };
-  const cover = (s === "1" || s === "story") ? await dataUri(photoUrl(pr.cover.file, 1400)) : null;
+  const cover = (s === "1" || s === "story") ? await dataUri(`https://coda.news${photoUrl(pr.cover.file, 1600)}`) : null;
   const st = pr.stats;
 
   if (s === "story") {
