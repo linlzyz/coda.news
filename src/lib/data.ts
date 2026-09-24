@@ -171,12 +171,12 @@ export const indices = unstable_cache(_indices, ["indices"], { revalidate: 3600 
 
 async function _sitemapRows() {
   const [ev, co, tp] = await Promise.all([
-    supabase.from("events").select("slug,title,title_zh,summary,category,image_url,started_at,last_article_at").not("summary", "is", null).neq("status", "archived").eq("hidden", false).gte("source_count", 2).order("last_article_at", { ascending: false }).limit(5000),
+    supabase.from("events").select("slug,title,title_zh,summary,summary_zh,category,image_url,image_focus,image_credit,started_at,last_article_at").not("summary", "is", null).neq("status", "archived").eq("hidden", false).gte("source_count", 2).order("last_article_at", { ascending: false }).limit(5000),
     supabase.from("companies").select("slug").limit(3000),
     supabase.from("topics").select("slug"),
   ]);
   return {
-    events: (ev.data ?? []) as { slug: string; title: string; title_zh: string | null; summary: string; category: string; image_url: string | null; started_at: string; last_article_at: string }[],
+    events: (ev.data ?? []) as { slug: string; title: string; title_zh: string | null; summary: string; summary_zh: string | null; category: string; image_url: string | null; image_focus: string | null; image_credit: string | null; started_at: string; last_article_at: string }[],
     companies: (co.data ?? []) as { slug: string }[], topics: (tp.data ?? []) as { slug: string }[],
   };
 }

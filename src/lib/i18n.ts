@@ -10,6 +10,7 @@ export const lp = (lang: Lang, path: string) => (lang === "zh" ? `/zh${path === 
 export const alternates = (path: string, lang: Lang = "en") => ({
   canonical: lp(lang, path),
   languages: { en: path, "zh-CN": lp("zh", path), "x-default": path },
+  types: { "application/rss+xml": lang === "zh" ? "https://coda.news/feed-zh.xml" : "https://coda.news/feed.xml" },
 });
 
 const D = {

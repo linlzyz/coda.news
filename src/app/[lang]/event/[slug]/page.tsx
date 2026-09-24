@@ -11,6 +11,7 @@ import { CategoryLabel, StatusPill } from "@/components/Pills";
 import { Cover } from "@/components/Cover";
 import { ReportError, ShareBar } from "@/components/EventTools";
 import { AnatomyPromo } from "@/components/anatomy/Promo";
+import { shareImages } from "@/lib/share-image";
 export const revalidate = 21600;
 export async function generateStaticParams() { return []; }
 export const dynamicParams = true;
@@ -23,8 +24,8 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/event/[slu
   return { title: ti, description: de, alternates: alternates(`/event/${e.slug}`, l),
     // one-source briefs stay out of search until a second source confirms the story
     ...(e.source_count < 2 || e.status === "archived" ? { robots: { index: false, follow: true } } : {}),
-    openGraph: { title: ti, description: de, locale: l === "zh" ? "zh_CN" : "en_AU", type: "article", publishedTime: e.started_at, modifiedTime: e.last_article_at, section: e.category, images: e.image_url ? [e.image_url] : ["/og.png"] },
-    twitter: { card: "summary_large_image", title: ti, description: de, images: e.image_url ? [e.image_url] : ["/og.png"] } };
+    openGraph: { title: ti, description: de, locale: l === "zh" ? "zh_CN" : "en_AU", type: "article", publishedTime: e.started_at, modifiedTime: e.last_article_at, section: e.category, images: [{ url: shareImages(e)[0], alt: ti }] },
+    twitter: { card: "summary_large_image", title: ti, description: de, images: [shareImages(e)[0]] } };
 }
 
 export default async function EventPage({ params }: PageProps<"/[lang]/event/[slug]">) {
@@ -56,7 +57,7 @@ export default async function EventPage({ params }: PageProps<"/[lang]/event/[sl
     "use server";
     await reportError(e!.id, String(fd.get("kind") ?? "other"), String(fd.get("note") ?? ""), l);
   }
-  const jsonLd = { "@context": "https://schema.org", "@type": "NewsArticle", headline: e.title, description: e.summary, image: e.image_url ? [e.image_url] : undefined,
+  const jsonLd = { "@context": "https://schema.org", "@type": "NewsArticle", headline: e.title, description: e.summary, image: shareImages(e),
     datePublished: e.started_at, dateModified: e.last_article_at, articleSection: e.category, isAccessibleForFree: true,
     mainEntityOfPage: `https://coda.news/event/${e.slug}`, author: { "@type": "Organization", name: "coda.news", url: "https://coda.news" },
     publisher: orgLd,
