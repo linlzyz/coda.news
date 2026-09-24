@@ -19,6 +19,7 @@ export function Sidebar({ l }: { l: Lang }) {
         ))}
       </nav>
       <div className="border-t border-[#E5E7EB] pt-3">
+        <Link href="/anatomy" className="flex items-center gap-3 rounded-xl px-3 py-2 text-[14px] font-medium text-neutral-600 hover:bg-[#F4F5F7]"><Icon name="topics" />{t(l, "anatomy")}</Link>
         <Link href="/brief" className="flex items-center gap-3 rounded-xl px-3 py-2 text-[14px] font-medium text-neutral-600 hover:bg-[#F4F5F7]"><Icon name="mail" />{t(l, "briefNav")}<TodayBadge zh={l === "zh"} /></Link>
         <Link href="/about" className="flex items-center gap-3 rounded-xl px-3 py-2 text-[14px] font-medium text-neutral-600 hover:bg-[#F4F5F7]"><Icon name="info" />{t(l, "about")}</Link>
       </div>

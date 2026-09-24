@@ -15,7 +15,7 @@ export const alternates = (path: string, lang: Lang = "en") => ({
 const D = {
   tagline: ["One story. Every perspective.", "一件事，每一种视角。"],
   home: ["Home", "首页"], economy: ["Economy", "经济"], technology: ["Technology", "科技"], sport: ["Sport", "体育"], entertainment: ["Entertainment", "娱乐"], fashion: ["Fashion", "时尚"], travel: ["Travel reads", "旅行灵感"], automotive: ["Automotive", "汽车"], gaming: ["Gaming", "游戏"], china: ["China", "中国"], australia: ["Australia", "澳洲"], companies: ["Companies", "公司"], topics: ["Topics", "话题"],
-  newsletter: ["Newsletter", "每日简报"], about: ["About", "关于"],
+  newsletter: ["Newsletter", "每日简报"], about: ["About", "关于"], anatomy: ["Coda Anatomy", "Coda 剖面"],
   promoTitle: ["See every side of the story.", "看见一件事的每一面。"],
   promoText: ["The day's news, compared across countries and languages.", "每天的新闻，按国家和语言对比呈现。"],
   joinFree: ["Get the 7am brief by email", "每天 7 点收简报"], search: ["Search events, companies, topics…", "搜索事件、公司、话题…"],

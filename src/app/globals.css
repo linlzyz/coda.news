@@ -48,3 +48,52 @@ html.dark .text-\[\#334155\] { color: #CBD5E1; } html.dark .text-\[\#4338CA\] { 
 html.dark .cover-ph { filter: invert(.9) hue-rotate(180deg); }
 html.dark img[src="/logo.svg"] { filter: invert(1) hue-rotate(180deg); }
 html.dark .bg-\[\#FFF6F0\] { background-color: #231A15; } html.dark .border-\[\#FBD9C6\] { border-color: #4A2E1F; }
+
+/* ---------- Coda Anatomy figures (validated pair: AMD orange / Intel blue, light and dark) ---------- */
+:root { --ana-amd: #D9480F; --ana-intel: #3B6FB6; --ana-neutral: #7C8591; --ana-grid: #ECEEF1; --ana-axis: #6B7280; --ana-ink: #16181D; --ana-surface: #FFFFFF; --ana-bad: #B91C1C; --ana-die: #E7E9EC; }
+html.dark { --ana-amd: #E8591C; --ana-intel: #5B8AD6; --ana-neutral: #6B7280; --ana-grid: #252A31; --ana-axis: #9AA0A6; --ana-ink: #E8EAED; --ana-surface: #171A1F; --ana-bad: #F87171; --ana-die: #2A2F36; }
+.ana-grid { stroke: var(--ana-grid); stroke-width: 1; }
+.ana-base { stroke: var(--ana-axis); stroke-width: 1; opacity: .5; }
+.ana-axis { fill: var(--ana-axis); font-size: 11px; }
+.ana-value { fill: var(--ana-ink); font-size: 11px; font-weight: 600; }
+.ana-note { fill: var(--ana-ink); font-size: 11.5px; font-weight: 600; }
+.ana-endlabel { fill: var(--ana-ink); font-size: 12px; font-weight: 700; }
+.ana-line { fill: none; stroke-width: 2.25; stroke-linejoin: round; stroke-linecap: round; }
+.ana-amd { stroke: var(--ana-amd); } .ana-intel { stroke: var(--ana-intel); }
+.ana-amd-fill { fill: var(--ana-amd); } .ana-intel-fill { fill: var(--ana-intel); } .ana-neutral-fill { fill: var(--ana-neutral); }
+.ana-amd-bg { background: var(--ana-amd); } .ana-intel-bg { background: var(--ana-intel); } .ana-neutral-bg { background: var(--ana-neutral); }
+.ana-key { display: inline-block; width: 12px; height: 3px; border-radius: 2px; }
+.ana-draw { stroke-dasharray: 1; transition: stroke-dashoffset 1.8s cubic-bezier(.4, 0, .2, 1); }
+.ana-pop { transition: opacity .45s ease; }
+.ana-grow, .ana-scale { transition: transform .8s cubic-bezier(.2, .8, .2, 1); }
+.ana-cross { stroke: var(--ana-axis); stroke-width: 1; stroke-dasharray: 3 3; }
+.ana-dot { stroke: var(--ana-surface); stroke-width: 2; }
+.ana-mark { fill: var(--ana-surface); stroke: var(--ana-amd); stroke-width: 2; }
+.ana-marknum { fill: var(--ana-amd); font-size: 10.5px; font-weight: 700; }
+.ana-ring { fill: none; stroke: var(--ana-ink); stroke-width: 1.5; }
+.ana-chip { display: inline-flex; width: 18px; height: 18px; flex: none; align-items: center; justify-content: center; border-radius: 999px; border: 1.5px solid var(--ana-amd); color: var(--ana-amd); font-size: 10px; font-weight: 700; }
+.ana-die { fill: var(--ana-die); transition: fill .4s ease, opacity .4s ease; }
+.ana-die-bad { fill: var(--ana-die); opacity: .35; transition: opacity .4s ease; }
+.ana-defect { fill: var(--ana-bad); stroke: var(--ana-surface); stroke-width: 2; }
+.ana-x { stroke: var(--ana-bad); stroke-width: 2.25; stroke-linecap: round; }
+.ana-panel { fill: var(--ana-ink); font-size: 13px; font-weight: 600; }
+.ana-result { fill: var(--ana-amd); font-size: 13px; font-weight: 700; }
+.ana-bubble { fill: color-mix(in srgb, var(--ana-amd) 14%, transparent); stroke: var(--ana-amd); stroke-width: 2; }
+.ana-bname { fill: var(--ana-ink); font-size: 15px; font-weight: 700; }
+.ana-bval { fill: var(--ana-ink); font-size: 12px; }
+.ana-cite { color: #C2410C; font-size: 10.5px; font-weight: 600; padding: 0 1px; text-decoration: none; }
+html.dark .ana-cite { color: #F28C5B; }
+.ana-cite:hover { text-decoration: underline; }
+.ana-tl-dot { position: absolute; left: 0; top: 4px; width: 11px; height: 11px; border-radius: 999px; border: 2px solid var(--ana-neutral); background: var(--ana-surface); transition: background .4s ease, border-color .4s ease; }
+.ana-tl-line { position: absolute; left: 4.5px; top: 17px; bottom: -3px; width: 2px; background: var(--ana-grid); }
+.ana-tl-text { opacity: .45; transform: translateY(4px); transition: opacity .5s ease, transform .5s ease; }
+.ana-tl.is-on .ana-tl-dot { background: var(--ana-amd); border-color: var(--ana-amd); }
+.ana-tl.is-on .ana-tl-text { opacity: 1; transform: none; }
+/* phones: charts are drawn at 720 wide and scaled down, so enlarge their text and markers */
+@media (max-width: 640px) {
+  .ana-axis { font-size: 20px; } .ana-value, .ana-note { font-size: 20px; } .ana-endlabel { font-size: 21px; }
+  .ana-marknum { font-size: 17px; } .ana-mark { r: 15px; } .ana-line { stroke-width: 3.5; } .ana-ring { r: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ana-draw, .ana-pop, .ana-grow, .ana-scale, .ana-die, .ana-die-bad, .ana-tl-dot, .ana-tl-text { transition: none !important; }
+}

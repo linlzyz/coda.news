@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { PROFILES } from "@/lib/anatomy";
 import { archiveDays, companyDirectory, notable, sitemapRows } from "@/lib/data";
 
 const BASE = "https://coda.news";
@@ -17,6 +18,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...["sport", "entertainment", "fashion", "travel", "automotive", "gaming", "australia", "china"].map((s) => ({ url: `${BASE}/${s}`, changeFrequency: "hourly" as const, priority: 0.7 })),
     { url: `${BASE}/topics`, changeFrequency: "daily" as const, priority: 0.5 },
     { url: `${BASE}/companies`, changeFrequency: "daily" as const, priority: 0.5 },
+    { url: `${BASE}/anatomy`, changeFrequency: "weekly" as const, priority: 0.6 },
+    ...PROFILES.map((p) => ({ url: `${BASE}/anatomy/${p.slug}`, lastModified: p.updated, changeFrequency: "weekly" as const, priority: 0.8 })),
     { url: `${BASE}/about`, changeFrequency: "monthly" as const, priority: 0.3 },
     { url: `${BASE}/corrections`, changeFrequency: "daily" as const, priority: 0.3 },
     { url: `${BASE}/archive`, changeFrequency: "daily" as const, priority: 0.4 },
