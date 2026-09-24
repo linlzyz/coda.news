@@ -5,7 +5,7 @@
 export type L = { en: string; zh: string };
 export type Figure = "cap" | "chiplet" | "revenue" | "vsintel" | "deals" | "timeline" | "countries";
 /** A freely licensed photo from Wikimedia Commons, hotlinked at a set width, always credited. */
-export type Photo = { file: string; credit: string; license: string; caption: L; alt: L; fit?: "cover" | "contain" };
+export type Photo = { file: string; credit: string; license: string; caption: L; alt: L; fit?: "cover" | "contain"; pos?: string };
 export const photoUrl = (file: string, width = 1600) => `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}?width=${width}`;
 export const photoPage = (file: string) => `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(file.replace(/ /g, "_"))}`;
 export type Section = { id: string; h: L; paras: L[]; figure?: Figure; photo?: Photo };
@@ -55,8 +55,8 @@ const AMD: Profile = {
   sections: [
     {
       id: "bottom", h: { en: "The bottom", zh: "谷底" }, figure: "cap",
-      photo: { file: "2485 Augustine Drive headquarters in Santa Clara, California.jpg", credit: "Coolcaesar", license: "CC BY-SA 4.0",
-        caption: { en: "AMD headquarters in Santa Clara, California.", zh: "AMD 位于美国加州圣克拉拉的总部。" }, alt: { en: "AMD headquarters building", zh: "AMD 总部大楼" } },
+      photo: { file: "AMD CEO Lisa Su 20150603.jpg", credit: "Gene Wang", license: "CC BY 2.0", pos: "center 22%",
+        caption: { en: "Lisa Su holding an AMD chip in June 2015, eight months into the job.", zh: "2015 年 6 月，上任约八个月的苏姿丰手持 AMD 芯片亮相。" }, alt: { en: "Lisa Su on stage holding a chip", zh: "苏姿丰在台上手持芯片" } },
       paras: [
         {
           en: "In 2006 AMD bought the graphics company ATI for about $5.4 billion, a price later widely judged too high, and its 2007 \"Barcelona\" server chip shipped with a bug [[6]]. In 2009 it moved its factories into a separate company, GlobalFoundries, and became a designer that still depended on its former plants [[5]].",
@@ -123,6 +123,8 @@ const AMD: Profile = {
     },
     {
       id: "ai", h: { en: "The AI turn: becoming the second source", zh: "AI 转向：成为第二供应商" }, figure: "deals",
+      photo: { file: "AMD CEO Lisa Su speaking at ORNL 2019-05-07-2.jpg", credit: "Genevieve Martin, OLCF at ORNL", license: "CC BY 2.0", pos: "center 30%",
+        caption: { en: "May 2019: Lisa Su at Oak Ridge National Laboratory, announcing that Cray and AMD would build the Frontier supercomputer.", zh: "2019 年 5 月，苏姿丰在美国橡树岭国家实验室宣布，Cray 与 AMD 将合作建造 Frontier 超级计算机。" }, alt: { en: "Lisa Su speaking at a podium at Oak Ridge National Laboratory", zh: "苏姿丰在橡树岭国家实验室的讲台上发言" } },
       paras: [
         {
           en: "AMD launched its Instinct MI300X AI accelerator on 6 December 2023 [[14]]. The larger shift came with multi-year capacity deals. On 6 October 2025 OpenAI agreed to deploy up to 6 gigawatts of AMD GPUs, starting with 1 gigawatt of MI450 chips in the second half of 2026, and AMD gave OpenAI warrants for up to 160 million shares tied to deployment milestones [[15]][[16]]. Oracle ordered 50,000 MI450 chips, Meta agreed to up to 6 gigawatts in February 2026, and Anthropic up to 2 gigawatts in July 2026 [[17]].",
@@ -146,6 +148,8 @@ const AMD: Profile = {
     },
     {
       id: "open", h: { en: "What is not settled", zh: "还没有答案的问题" },
+      photo: { file: "2485 Augustine Drive headquarters in Santa Clara, California.jpg", credit: "Coolcaesar", license: "CC BY-SA 4.0",
+        caption: { en: "AMD headquarters in Santa Clara, California.", zh: "AMD 位于美国加州圣克拉拉的总部。" }, alt: { en: "AMD headquarters building", zh: "AMD 总部大楼" } },
       paras: [
         { en: "Software. Nvidia's CUDA has been the default for AI developers for years; AMD's ROCm still has to prove it can match it at scale [[22]].", zh: "软件。英伟达的 CUDA 多年来是 AI 开发者的默认选择，AMD 的 ROCm 仍需证明能在大规模部署中追上 [[22]]。" },
         { en: "Delivery. The OpenAI, Meta and Anthropic agreements are \"up to\" capacity over several years, and the MI450 and Helios racks only begin shipping in volume in the second half of 2026 [[17]][[31]].", zh: "交付。OpenAI、Meta、Anthropic 的协议都是多年期的\"最多\"容量，MI450 和 Helios 机架从 2026 年下半年才开始大规模出货 [[17]][[31]]。" },

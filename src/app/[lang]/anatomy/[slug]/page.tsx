@@ -49,6 +49,7 @@ function PhotoFig({ p, zh }: { p: Photo; zh: boolean }) {
       <div className={`overflow-hidden rounded-2xl ${contain ? "bg-[#F4F5F7] p-4 sm:p-6" : ""}`}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={photoUrl(p.file, 1400)} alt={pick(p.alt, zh)} loading="lazy" decoding="async"
+          style={p.pos ? { objectPosition: p.pos } : undefined}
           className={contain ? "mx-auto block max-h-[320px] w-auto max-w-full object-contain" : "block aspect-[16/9] w-full object-cover"} />
       </div>
       <figcaption className="mt-2 text-[12.5px] leading-relaxed text-neutral-500">{pick(p.caption, zh)} <Credit p={p} zh={zh} /></figcaption>
