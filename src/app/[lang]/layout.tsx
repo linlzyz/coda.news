@@ -10,6 +10,7 @@ import { Brand } from "@/components/Brand";
 import "../globals.css";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { SiteAnalytics } from "@/components/SiteAnalytics";
+import Script from "next/script";
 
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"], axes: ["opsz"], display: "swap" });
 
@@ -67,6 +68,11 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
           </div>
         </div>
         <SiteAnalytics />
+        {/* Google Reader Revenue Manager (open access): powers the custom "get the 7am brief" call-to-action in Google News */}
+        <Script src="https://news.google.com/swg/js/v1/swg-basic.js" strategy="afterInteractive" />
+        <Script id="swg-basic" strategy="afterInteractive">{`(self.SWG_BASIC = self.SWG_BASIC || []).push(function (basicSubscriptions) {
+  basicSubscriptions.init({ type: "NewsArticle", isPartOfType: ["Product"], isPartOfProductId: "CAowlezHDA:openaccess", clientOptions: { theme: "light", lang: "${zh ? "zh-CN" : "en-GB"}" } });
+});`}</Script>
         <InstallPrompt zh={zh} />
       </body>
     </html>
