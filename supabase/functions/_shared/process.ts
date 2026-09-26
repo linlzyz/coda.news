@@ -40,16 +40,24 @@ export async function processBatch(): Promise<{ claimed: number; relevant: numbe
     const texts = await Promise.all(rows.map((r) => fetchText(r.url)));
     for (let k = 0; k < rows.length; k++) if (texts[k]) await sql`update articles set full_text = ${texts[k]} where id = ${rows[k].id}`;
 
-    const res = await generateJSON<{ items: Extracted[] }>(extractPrompt(rows.map((r, k) => ({
-      i: k, country: r.country, source: r.source, lang: r.language, title: r.title,
-      text: (texts[k] ?? r.rss_summary ?? "").slice(0, TEXT_MAX),
-    }))), "fast");
-    // models sometimes return the index as a string, or drop the list entirely: never treat that as "irrelevant"
-    // deno-lint-ignore no-explicit-any
-    const raw: any = res;
-    const items: Extracted[] = Array.isArray(raw) ? raw : Array.isArray(raw?.items) ? raw.items : (Object.values(raw ?? {}).find(Array.isArray) as Extracted[] | undefined) ?? [];
-    if (items.length === 0) throw new Error("AI returned no items");
-    const byI = new Map(items.map((x) => [Number(x.i), x]));
+    const ask = async (ks: number[], max: number) => {
+      const res = await generateJSON<{ items: Extracted[] }>(extractPrompt(ks.map((k, j) => ({
+        i: j, country: rows[k].country, source: rows[k].source, lang: rows[k].language, title: rows[k].title,
+        text: (texts[k] ?? rows[k].rss_summary ?? "").slice(0, max),
+      }))), "fast");
+      // models sometimes return the index as a string, or drop the list entirely: never treat that as "irrelevant"
+      // deno-lint-ignore no-explicit-any
+      const raw: any = res;
+      const list: Extracted[] = Array.isArray(raw) ? raw : Array.isArray(raw?.items) ? raw.items : (Object.values(raw ?? {}).find(Array.isArray) as Extracted[] | undefined) ?? [];
+      return list.filter((x) => ks[Number(x.i)] !== undefined).map((x) => [ks[Number(x.i)], x] as [number, Extracted]);
+    };
+    const first = await ask(rows.map((_, k) => k), TEXT_MAX);
+    if (first.length === 0) throw new Error("AI returned no items");
+    const byI = new Map(first);
+    // the model often skips a few items in a long batch: ask again straight away for just those, with shorter text,
+    // instead of sending them back to the queue where they used to be skipped again until they failed
+    const skipped = rows.map((_, k) => k).filter((k) => !byI.has(k));
+    if (skipped.length) { try { for (const [k, x] of await ask(skipped, Math.min(TEXT_MAX, 1200))) byI.set(k, x); } catch { /* the queue retries them */ } }
 
     // only an explicit "relevant": false drops an article; one the model left out of its answer goes back in the queue
     // (it used to be dropped, which silently lost about three quarters of the news, e.g. the iPhone 18 launch coverage)

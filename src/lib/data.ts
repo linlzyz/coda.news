@@ -7,6 +7,13 @@ const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env
   auth: { persistSession: false },
 });
 
+// Story data is cached per story for 6 hours. When the pipeline changes a story it refreshes only that story's
+// tags (ev-<id>, evs-<slug>) through /api/revalidate, so a change never forces every other story page to refetch.
+const EV_TTL = 21600;
+function perStory<A extends unknown[], R>(fn: (...a: A) => Promise<R>, name: string, tags: (...a: A) => string[], revalidate = EV_TTL) {
+  return (...a: A) => unstable_cache(fn, [name], { revalidate, tags: ["ev", ...tags(...a)].slice(0, 120) })(...a);
+}
+
 export type Status = "rumor" | "breaking" | "developing" | "confirmed" | "resolved" | "archived";
 export interface EventRow {
   id: number; slug: string; title: string; title_zh: string | null; category: string; status: Status; regions?: string[]; image_focus?: string | null; lead_url?: string | null; lead_source?: string | null; pinned_at?: string | null;
@@ -46,7 +53,7 @@ async function _perspectiveRows(eventIds: number[]) {
   const { data } = await supabase.from("perspectives").select("event_id,country,headline,framing,emphasis,downplayed,tone,article_count,headline_zh,framing_zh,emphasis_zh,downplayed_zh").in("event_id", eventIds);
   return (data ?? []) as (Perspective & { event_id: number })[];
 }
-const perspectiveRows = unstable_cache(_perspectiveRows, ["perspectiveRows"], { revalidate: 1800, tags: ["ev"] });
+const perspectiveRows = perStory(_perspectiveRows, "perspectiveRows", (ids) => ids.map((i) => `ev-${i}`), 1800);
 export async function getPerspectives(eventIds: number[]) {
   const m = new Map<number, Perspective[]>();
   for (const p of await perspectiveRows(eventIds)) m.set(p.event_id, [...(m.get(p.event_id) ?? []), p]);
@@ -219,10 +226,10 @@ async function _newProducts() {
 export const newProducts = unstable_cache(_newProducts, ["newProducts"], { revalidate: 900, tags: ["list"] });
 export const pinnedEvents = unstable_cache(_pinnedEvents, ["pinnedEvents"], { revalidate: 3600, tags: ["list"] });
 export const listEvents = unstable_cache(_listEvents, ["listEvents3"], { revalidate: 300, tags: ["list"] });
-export const getEvent = unstable_cache(_getEvent, ["getEvent"], { revalidate: 1800, tags: ["ev"] });
-export const getLatestSummary = unstable_cache(_getLatestSummary, ["getLatestSummary"], { revalidate: 1800, tags: ["ev"] });
-export const getFacts = unstable_cache(_getFacts, ["getFacts"], { revalidate: 1800, tags: ["ev"] });
-export const getArticles = unstable_cache(_getArticles, ["getArticles"], { revalidate: 1800, tags: ["ev"] });
+export const getEvent = perStory(_getEvent, "getEvent", (slug) => [`evs-${slug}`]);
+export const getLatestSummary = perStory(_getLatestSummary, "getLatestSummary", (id) => [`ev-${id}`]);
+export const getFacts = perStory(_getFacts, "getFacts", (id) => [`ev-${id}`]);
+export const getArticles = perStory(_getArticles, "getArticles", (id) => [`ev-${id}`]);
 export const latestUpdates = unstable_cache(_latestUpdates, ["latestUpdates"], { revalidate: 600 });
 export const allTopics = unstable_cache(_allTopics, ["allTopics"], { revalidate: 3600 });
 export const companiesByIds = unstable_cache(_companiesByIds, ["companiesByIds2"], { revalidate: 3600 });
@@ -273,7 +280,7 @@ async function _eventCorrections(eventId: number) {
   return (data ?? []) as Correction[];
 }
 export const listCorrections = unstable_cache(_listCorrections, ["listCorrections"], { revalidate: 1800 });
-export const eventCorrections = unstable_cache(_eventCorrections, ["eventCorrections"], { revalidate: 3600, tags: ["ev"] });
+export const eventCorrections = perStory(_eventCorrections, "eventCorrections", (id) => [`ev-${id}`]);
 
 // ---- archive by day (Melbourne time) ----
 async function _eventsOnDay(day: string) {
