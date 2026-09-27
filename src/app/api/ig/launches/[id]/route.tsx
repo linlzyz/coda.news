@@ -28,7 +28,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     ...Object.values(SEC).map((v) => v[0]), ...items.flatMap((x) => [x.name, x.brand, x.line, x.credit ?? ""])].join("");
   const [r4, b7, k9] = await Promise.all([gfont("Inter", 400, text), gfont("Inter", 700, text), gfont("Inter", 900, text)]);
   const fonts = [{ name: "Sans", data: r4, weight: 400 as const }, { name: "Sans", data: b7, weight: 700 as const }, { name: "Sans", data: k9, weight: 900 as const }];
-  const flags = (cs: string[]) => cs.slice(0, 6).map((c) => <img key={c} src={`https://flagcdn.com/48x36/${c.toLowerCase()}.png`} width={40} height={30} style={{ marginRight: 10, borderRadius: 3 }} alt="" />);
+  const flags = (cs: string[]) => cs.slice(0, 5).map((c) => <img key={c} src={`https://flagcdn.com/48x36/${c.toLowerCase()}.png`} width={40} height={30} style={{ marginRight: 10, borderRadius: 3 }} alt="" />);
   const nameSize = (n: string) => (n.length > 36 ? 68 : n.length > 24 ? 84 : 100);
 
   const cover = (
@@ -68,16 +68,18 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
             <img src={LOGO_DATA_URI} width={236} height={37} alt="" />
             <div style={{ marginLeft: "auto", display: "flex", fontSize: 22, fontWeight: 700, letterSpacing: 5 }}>NEW LAUNCHES · {k}/{items.length}</div>
           </div>}
-          {!photo && <div style={{ display: "flex", position: "absolute", right: 60, top: 150, fontSize: 380, fontWeight: 900, color: "rgba(22,24,29,.06)", letterSpacing: -20 }}>{String(k).padStart(2, "0")}</div>}
-          <div style={{ display: "flex", marginTop: photo ? 0 : 150 }}>
+          {!photo && <div style={{ display: "flex", position: "absolute", right: 50, bottom: 110, fontSize: 380, fontWeight: 900, color: "rgba(22,24,29,.06)", letterSpacing: -20 }}>{String(k).padStart(2, "0")}</div>}
+          <div style={{ display: "flex", flexDirection: "column", marginTop: photo ? 0 : "auto", marginBottom: photo ? 0 : "auto" }}>
+          <div style={{ display: "flex" }}>
             <div style={{ display: "flex", background: tag[1], color: "#fff", fontSize: 22, fontWeight: 700, letterSpacing: 4, padding: "8px 16px", borderRadius: 6 }}>{tag[0]}</div>
           </div>
           <div style={{ display: "flex", marginTop: 26, fontSize: photo ? Math.min(78, nameSize(it.name)) : nameSize(it.name), fontWeight: 900, lineHeight: 1.02, letterSpacing: -2 }}>{it.name}</div>
           <div style={{ display: "flex", marginTop: 16, fontSize: 32, fontWeight: 700, color: "#4B5563" }}>{it.brand}</div>
           <div style={{ display: "flex", marginTop: 30, fontSize: photo ? 32 : 40, lineHeight: 1.3, color: INK, maxWidth: 900 }}>{it.line}</div>
-          <div style={{ marginTop: "auto", display: "flex", alignItems: "center", fontSize: 26, color: "#4B5563" }}>
+          </div>
+          <div style={{ marginTop: photo ? "auto" : 0, display: "flex", alignItems: "center", fontSize: 26, color: "#4B5563" }}>
             {flags(it.countries)}
-            <div style={{ display: "flex", marginLeft: 6 }}>{`Reported in ${it.countries.length} ${it.countries.length === 1 ? "country" : "countries"} · ${it.sources} sources`}</div>
+            <div style={{ display: "flex", marginLeft: 6 }}>{`${it.countries.length} ${it.countries.length === 1 ? "country" : "countries"} · ${it.sources} sources`}</div>
             <div style={{ marginLeft: "auto", display: "flex", fontSize: 38, fontWeight: 700, color: INK }}><B text="coda.news" /></div>
           </div>
         </div>
