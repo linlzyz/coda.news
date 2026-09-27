@@ -94,8 +94,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     return (
       <div style={{ width: W, height: H, display: "flex", flexDirection: "column", background: PAPER, color: INK, fontFamily: "Sans" }}>
         {photo && (
-          <div style={{ display: "flex", width: W, height: 600, position: "relative", borderBottom: `9px solid ${tag[1]}` }}>
-            <img src={pic!} width={W} height={600} style={{ objectFit: "cover" }} alt="" />
+          <div style={{ display: "flex", width: W, height: 760, position: "relative", borderBottom: `9px solid ${tag[1]}` }}>
+            <img src={pic!} width={W} height={760} style={{ objectFit: "cover" }} alt="" />
             <div style={{ position: "absolute", left: 40, top: 36, display: "flex", background: ORANGE, color: "#fff", fontSize: 24, fontWeight: 900, padding: "6px 14px", borderRadius: 8 }}>{`${String(k).padStart(2, "0")} / ${String(items.length).padStart(2, "0")}`}</div>
             {it.credit && <div style={{ position: "absolute", right: 30, bottom: 22, display: "flex", fontSize: 17, color: "rgba(255,255,255,.92)", textShadow: "0 1px 3px rgba(0,0,0,.6)" }}>{`Photo: ${it.credit}`}</div>}
           </div>
