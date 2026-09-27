@@ -130,6 +130,27 @@ export async function openai(prompt: string, model = "gpt-5-nano", maxOut = 1200
   return j.choices?.[0]?.message?.content ?? "";
 }
 /** Cheap JSON for small, high-volume jobs (screening): OpenAI nano first, then Groq, then Gemini. */
+/** Looks at one picture (low detail, a few hundred tokens) and answers in JSON. The picture is fetched here and sent inline,
+ *  since many publishers refuse OpenAI's fetcher. Metered like every other call. */
+export async function visionJSON<T = unknown>(prompt: string, imageUrl: string, model = "gpt-5-mini"): Promise<T | null> {
+  const key = env("OPENAI_API_KEY"); if (!key) return null;
+  if (await spentToday() >= dailyCap()) return null;
+  const img = await fetch(imageUrl, { headers: { "user-agent": "Mozilla/5.0 (compatible; coda.news/1.0)" }, signal: AbortSignal.timeout(12000) }).catch(() => null);
+  const type = img?.headers.get("content-type") ?? "";
+  if (!img?.ok || !/^image\/(jpeg|png|webp|gif)/.test(type)) return null;
+  const buf = new Uint8Array(await img.arrayBuffer());
+  if (buf.length > 6_000_000) return null;
+  let bin = ""; for (let i = 0; i < buf.length; i += 0x8000) bin += String.fromCharCode(...buf.subarray(i, i + 0x8000));
+  const r = await fetch("https://api.openai.com/v1/chat/completions", { method: "POST", signal: AbortSignal.timeout(60000),
+    headers: { Authorization: `Bearer ${key}`, "content-type": "application/json" },
+    body: JSON.stringify({ model, reasoning_effort: "minimal", response_format: { type: "json_object" }, max_completion_tokens: 400,
+      messages: [{ role: "user", content: [{ type: "text", text: prompt }, { type: "image_url", image_url: { url: `data:${type.split(";")[0]};base64,${btoa(bin)}`, detail: "low" } }] }] }) }).catch(() => null);
+  if (!r?.ok) { log("vision:", r ? `${r.status} ${(await r.text()).slice(0, 120)}` : "no response"); return null; }
+  const j = await r.json();
+  await meter(model, j.usage?.prompt_tokens ?? 0, j.usage?.completion_tokens ?? 0);
+  try { return JSON.parse(j.choices?.[0]?.message?.content ?? "") as T; } catch { return null; }
+}
+
 export async function cheapJSON<T = unknown>(prompt: string): Promise<T> {
   let text: string | null = null;
   try { text = await openai(prompt, "gpt-5-nano", 6000, "low"); } catch (e) { log("cheap: openai", (e as Error).message.slice(0, 100)); }

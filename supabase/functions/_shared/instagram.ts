@@ -7,7 +7,7 @@ import { db } from "./db.ts";
 import { env, log } from "./env.ts";
 import { pressImage, travelPhoto } from "./images.ts";
 import { sourceEn } from "./source-names.ts";
-import { cheapJSON } from "./ai.ts";
+import { cheapJSON, visionJSON } from "./ai.ts";
 import { fetchText } from "./text.ts";
 
 const G = "https://graph.instagram.com/v23.0";
@@ -115,7 +115,24 @@ async function pickTravel(): Promise<{ e: Ev; img: string; credit: string; copy:
 // New launches box: a launch word in the title, not a leak/rumour/update, never bad news.
 const LAUNCH = /\b(launch(es|ed)?|unveil(s|ed)?|reveal(s|ed)?|debut(s|ed)?|introduc(es|ed)|releases?|released|arrives?|goes on sale|premier(es|ed)|presents?)\b/i;
 const NOT_PRODUCT = /\b(leak(s|ed)?|rumou?rs?|report(s|ed)?|teases?|teaser|requirements|benchmark|campaign|licen[cs]e|share|record|details|states|says|pricing|price cut|recall|delay(s|ed)?|app|apps|service|platform|update|version|beta|feature|features|preview|developer|open-source|crowdfunding|translation|model|models|architecture|trial|pilot|partnership|plans?|investment|confirm(s|ed)?|exclusive|delisted|removed)\b/i;
-type Launch = { slug: string; cat: string; name: string; brand: string; line: string; countries: string[]; sources: number; img: string | null; credit: string | null };
+type Launch = { slug: string; cat: string; name: string; brand: string; line: string; countries: string[]; sources: number; img: string | null; credit: string | null; pos?: string };
+
+// what a good launch picture is, per section (Lyn, 27 Sept: clothes not faces, no underwear or see-through looks, cars from the front)
+const LOOK: Record<string, string> = {
+  fashion: "a runway or lookbook photo where the model wears a complete outfit. NOT ok: only a face or head-and-shoulders portrait of a person, lingerie, bra, underwear, swimwear, see-through or sheer clothing showing the body, nudity, a crowd or backstage shot, a logo or text card",
+  automotive: "the car's exterior, with the front of the car clearly visible (front or front three-quarter view). NOT ok: rear view, side-only view, interior, a covered car, a logo or text card, a person",
+  technology: "the product itself clearly visible. NOT ok: a logo or text/graphic card, a person's portrait, a stage or event photo without the product",
+  gaming: "game art, the console or device, or an in-game scene. NOT ok: a logo or text card only, a person's portrait",
+};
+/** First picture that fits the section, with where the subject sits (for cropping the cover tile). */
+async function goodPicture(cat: string, name: string, cands: { url: string; credit: string }[]): Promise<{ url: string; credit: string; pos: string } | null> {
+  for (const c of cands.slice(0, 6)) {
+    const v = await visionJSON<{ ok: boolean; subject_x: number }>(`This picture would illustrate "${name}" in an Instagram roundup of new launches. Is it ${LOOK[cat] ?? LOOK.technology}?
+Answer JSON {"ok": true|false, "subject_x": 0-100 (horizontal centre of the main subject, percent from the left)}.`, c.url).catch(() => null);
+    if (v?.ok) return { ...c, pos: `${Math.max(0, Math.min(100, Math.round(Number(v.subject_x) || 50)))}% 50%` };
+  }
+  return null;
+}
 
 async function pickLaunches(): Promise<{ first: number; week: string; items: Launch[] } | undefined> {
   const sql = db();
@@ -127,21 +144,19 @@ async function pickLaunches(): Promise<{ first: number; week: string; items: Lau
       -- a picture of the product itself (Lyn: "主要是看图"): no logos, no stock photos
       and image_url is not null and coalesce(image_focus, '') <> 'logo' and coalesce(image_source, '') not in ('logo', 'pexels', 'unsplash', 'pixabay')
     order by (pinned_at > now() - interval '7 days') is true desc, coalesce(array_length(countries, 1), 0) desc, source_count desc limit 400`;
-  const picked: typeof rows = [];
+  const picked: typeof rows = [], t0 = Date.now();
   for (const e of rows) {
+    if (Date.now() - t0 > 110_000) break;   // edge functions stop at 150 s
     if (!LAUNCH.test(e.title) || NOT_PRODUCT.test(e.title)) continue;
     if (picked.filter((x) => x.category === e.category).length >= 3) continue;   // a mix of sections, not eight phones
-    // a collection shown by the designer's face is not a launch picture (Lyn): use a runway shot from the coverage, or skip it
-    if (e.category === "fashion" && (e.image_person || e.image_source === "commons")) {
-      const arts = await sql<{ url: string; source: string }[]>`select a.url, s.name as source from articles a join sources s on s.id = a.source_id
-        where a.event_id = ${e.id} order by s.type = 'official' desc, a.published_at desc limit 5`;
-      let found = false;
-      for (const a of arts) {
-        const img = await pressImage(a.url).catch(() => null);
-        if (img && img !== e.image_url) { e.image_url = img; e.image_credit = a.source; found = true; break; }
-      }
-      if (!found) continue;
-    }
+    // the story's own picture first, then the pictures of the articles that covered it; each one judged against LOOK
+    const arts = await sql<{ url: string; source: string }[]>`select a.url, s.name as source from articles a join sources s on s.id = a.source_id
+      where a.event_id = ${e.id} order by s.type = 'official' desc, a.published_at desc limit 6`;
+    const cands: { url: string; credit: string }[] = e.image_url && !e.image_person ? [{ url: e.image_url, credit: e.image_credit ?? "" }] : [];
+    for (const a of arts) { const img = await pressImage(a.url).catch(() => null); if (img && !cands.some((c) => c.url === img)) cands.push({ url: img, credit: a.source }); if (cands.length >= 5) break; }
+    const good = await goodPicture(e.category, e.title, cands);
+    if (!good) continue;
+    e.image_url = good.url; e.image_credit = good.credit; (e as unknown as { pos: string }).pos = good.pos;
     picked.push(e); if (picked.length >= 8) break;
   }
   if (picked.length < 4) return undefined;
@@ -156,7 +171,7 @@ ${picked.map((e, i) => `${i}. ${e.title}\n${e.summary}`).join("\n\n")}`);
   const byI = new Map((res?.items ?? []).map((x) => [Number(x.i), x]));
   const items: Launch[] = picked.map((e, i) => {
     const x = byI.get(i);
-    const pic = { img: e.image_url, credit: e.image_credit };
+    const pic = { img: e.image_url, credit: e.image_credit, pos: (e as unknown as { pos?: string }).pos };
     return { slug: e.slug, cat: e.category, name: (x?.name || e.title).slice(0, 40), brand: (x?.brand ?? "").slice(0, 30), line: (x?.line || (e.summary.match(/^.*?[.!?](\s|$)/)?.[0] ?? e.summary)).replace(/\s*[—–]\s*/g, ", ").slice(0, 120),
       countries: e.countries ?? [], sources: e.source_count, ...pic };
   });
@@ -225,6 +240,22 @@ export async function proposeInstagram(force = false, eventId: number | null = n
 }
 
 /** Build this week's launches post without publishing it, so the owner can look first (tick?step=igpreview). */
+/** Sunday 15:00 Melbourne: build the week's launches and email the owner a preview; the 20:00 run posts that preview. */
+export async function scheduledLaunchPreview(): Promise<number | null> {
+  if (!melb({ weekday: "short" }).startsWith("Sun") || !["15", "16"].includes(melb({ hour: "numeric", hour12: false }))) return null;
+  if ((await db()`select 1 from ig_posts where kind = 'launches' and created_at > now() - interval '20 hours'`).length) return null;
+  const id = await previewLaunches();
+  if (!id) return null;
+  const [p] = await db()<{ copy: { items: Launch[] } }[]>`select copy from ig_posts where id = ${id}`;
+  const n = p.copy.items.length, to = env("REPORT_EMAIL"), key = env("RESEND_API_KEY");
+  const urls = ["0", ...Array.from({ length: n }, (_, i) => String(i + 1))].map((s) => launchUrl(id, s));
+  if (to && key) await fetch("https://api.resend.com/emails", { method: "POST", headers: { Authorization: `Bearer ${key}`, "content-type": "application/json" },
+    body: JSON.stringify({ from: "coda.news <hello@coda.news>", to: [to], subject: `本周新品预览（今晚 20:00 发，${n} 款）`, html: `<div style="font-family:Helvetica,Arial,sans-serif;max-width:680px">
+      <h2 style="margin:0 0 8px">本周新品 · 今晚 20:00 发到 Instagram</h2><p style="color:#6B7280;margin:0 0 16px">想换哪张图或去掉哪一款，20:00 前告诉 Claude。不用改就不用回复。</p>
+      <div>${urls.map((u) => `<img src="${u}" width="200" style="margin:0 6px 6px 0;border:1px solid #E5E7EB">`).join("")}</div></div>` }) });
+  return id;
+}
+
 export async function previewLaunches(): Promise<number | null> {
   const w = await pickLaunches();
   if (!w) return null;
