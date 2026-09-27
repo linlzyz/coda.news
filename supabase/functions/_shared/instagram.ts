@@ -110,11 +110,11 @@ async function pickTravel(): Promise<{ e: Ev; img: string; credit: string; copy:
   }
 }
 
-// Sunday roundup "This week's launches" (Lyn, 27 Sept): the week's product launches, one per slide, typographic
-// (publishers' photos are not ours to post; only Wikimedia Commons pictures go on a slide). Same rules as the site's
+// Sunday roundup "This week's launches" (Lyn, 27 Sept): the week's product launches, one per slide
+// with the product picture the site shows, credited on the slide. Same rules as the site's
 // New launches box: a launch word in the title, not a leak/rumour/update, never bad news.
 const LAUNCH = /\b(launch(es|ed)?|unveil(s|ed)?|reveal(s|ed)?|debut(s|ed)?|introduc(es|ed)|releases?|released|arrives?|goes on sale|premier(es|ed)|presents?)\b/i;
-const NOT_PRODUCT = /\b(leak(s|ed)?|rumou?rs?|report(s|ed)?|teases?|teaser|requirements|benchmark|campaign|licen[cs]e|share|record|details|states|says|pricing|price cut|recall|delay(s|ed)?|app|apps|service|platform|update|version|beta|feature|features|preview|developer|open-source|crowdfunding|translation|model|models|architecture|trial|pilot|partnership|plans?|investment)\b/i;
+const NOT_PRODUCT = /\b(leak(s|ed)?|rumou?rs?|report(s|ed)?|teases?|teaser|requirements|benchmark|campaign|licen[cs]e|share|record|details|states|says|pricing|price cut|recall|delay(s|ed)?|app|apps|service|platform|update|version|beta|feature|features|preview|developer|open-source|crowdfunding|translation|model|models|architecture|trial|pilot|partnership|plans?|investment|confirm(s|ed)?|exclusive|delisted|removed)\b/i;
 type Launch = { slug: string; cat: string; name: string; brand: string; line: string; countries: string[]; sources: number; img: string | null; credit: string | null };
 
 async function pickLaunches(): Promise<{ first: number; week: string; items: Launch[] } | undefined> {
@@ -123,12 +123,14 @@ async function pickLaunches(): Promise<{ first: number; week: string; items: Lau
     select id, slug, title, summary, category, countries, source_count, image_url, image_credit, image_source from events
     where not hidden and summary is not null and category in ('technology','automotive','gaming','fashion')
       and started_at > now() - interval '7 days' and (title || ' ' || summary) !~* ${GRIM}
-    order by coalesce(array_length(countries, 1), 0) desc, source_count desc limit 300`;
+      -- a picture of the product itself (Lyn: "主要是看图"): no logos, no stock photos
+      and image_url is not null and coalesce(image_focus, '') <> 'logo' and coalesce(image_source, '') not in ('logo', 'pexels', 'unsplash', 'pixabay')
+    order by coalesce(array_length(countries, 1), 0) desc, source_count desc limit 400`;
   const picked: typeof rows = [];
   for (const e of rows) {
     if (!LAUNCH.test(e.title) || NOT_PRODUCT.test(e.title)) continue;
-    if (picked.filter((x) => x.category === e.category).length >= 2) continue;   // a mix of sections, not six phones
-    picked.push(e); if (picked.length >= 6) break;
+    if (picked.filter((x) => x.category === e.category).length >= 3) continue;   // a mix of sections, not eight phones
+    picked.push(e); if (picked.length >= 8) break;
   }
   if (picked.length < 4) return undefined;
   // short product name, maker and one line on what is new, from our own summaries (the model may not invent facts)
@@ -142,7 +144,7 @@ ${picked.map((e, i) => `${i}. ${e.title}\n${e.summary}`).join("\n\n")}`);
   const byI = new Map((res?.items ?? []).map((x) => [Number(x.i), x]));
   const items: Launch[] = picked.map((e, i) => {
     const x = byI.get(i);
-    const pic = e.image_source === "commons" && e.image_url && e.image_credit ? { img: e.image_url, credit: e.image_credit } : { img: null, credit: null };
+    const pic = { img: e.image_url, credit: e.image_credit };
     return { slug: e.slug, cat: e.category, name: (x?.name || e.title).slice(0, 40), brand: (x?.brand ?? "").slice(0, 30), line: (x?.line || (e.summary.match(/^.*?[.!?](\s|$)/)?.[0] ?? e.summary)).replace(/\s*[—–]\s*/g, ", ").slice(0, 120),
       countries: e.countries ?? [], sources: e.source_count, ...pic };
   });

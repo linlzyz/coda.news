@@ -12,6 +12,16 @@ const SEC: Record<string, [string, string]> = { technology: ["TECH", "#1D5FD1"],
 type Item = { slug: string; cat: string; name: string; brand: string; line: string; countries: string[]; sources: number; img?: string | null; credit?: string | null };
 const B = ({ text }: { text: string }) => <>{brandParts(text).map((p, i) => <span key={i} style={p.dot ? { color: ORANGE } : {}}>{p.t}</span>)}</>;
 
+async function dataUri(url: string) {
+  const r = await fetch(url, { headers: { "user-agent": "Mozilla/5.0 (compatible; coda.news/1.0)" }, signal: AbortSignal.timeout(12000) }).catch(() => null);
+  if (!r?.ok) return null;
+  const type = r.headers.get("content-type") ?? "";
+  if (!type.startsWith("image/")) return null;
+  const sharp = (await import("sharp")).default;
+  const buf = await sharp(Buffer.from(await r.arrayBuffer())).resize(1080, 1080, { fit: "inside", withoutEnlargement: true }).jpeg({ quality: 85 }).toBuffer().catch(() => null);
+  return buf ? `data:image/jpeg;base64,${buf.toString("base64")}` : null;
+}
+
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const u = new URL(req.url);
   const s = u.searchParams.get("s") ?? "0";
@@ -20,18 +30,44 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   const items = copy?.items ?? [];
   if (post?.kind !== "launches" || !items.length) return new Response("Not found", { status: 404 });
   const week = copy?.week ?? "";
+  // pictures: the cover shows them all as a grid, each launch slide its own
+  const want = s === "0" ? items.map((x) => x.img) : [items[Number(s) - 1]?.img];
+  const pics = await Promise.all(want.map((u) => (u ? dataUri(u) : Promise.resolve(null))));
   const k = Number(s);
   const it = s !== "story" && k >= 1 ? items[k - 1] : undefined;
   if (s !== "0" && s !== "story" && !it) return new Response("Not found", { status: 404 });
 
-  const text = ["NEW LAUNCHES THIS WEEK", "This week's launches", "Swipe →", "Reported in countries sources", "More on coda.news: link in bio", "New post: this week's launches", week, "0123456789/·", "coda.news",
+  const text = ["NEW LAUNCHES THIS WEEK", "This week's launches", "Swipe →", "Reported in countries sources Photo:", "More on coda.news: link in bio", "New post: this week's launches", week, "0123456789/·", "coda.news",
     ...Object.values(SEC).map((v) => v[0]), ...items.flatMap((x) => [x.name, x.brand, x.line, x.credit ?? ""])].join("");
   const [r4, b7, k9] = await Promise.all([gfont("Inter", 400, text), gfont("Inter", 700, text), gfont("Inter", 900, text)]);
   const fonts = [{ name: "Sans", data: r4, weight: 400 as const }, { name: "Sans", data: b7, weight: 700 as const }, { name: "Sans", data: k9, weight: 900 as const }];
   const flags = (cs: string[]) => cs.slice(0, 5).map((c) => <img key={c} src={`https://flagcdn.com/48x36/${c.toLowerCase()}.png`} width={40} height={30} style={{ marginRight: 10, borderRadius: 3 }} alt="" />);
   const nameSize = (n: string) => (n.length > 36 ? 68 : n.length > 24 ? 84 : 100);
 
-  const cover = (
+  const tiles = items.map((x, i) => ({ x, i, pic: pics[i] }));
+  const cols = items.length > 6 ? 4 : items.length > 4 ? 3 : 2, tw = Math.floor((W - 152 - (cols - 1) * 16) / cols);
+  const cover = pics.some(Boolean) && s === "0" ? (
+    <div style={{ width: W, height: H, display: "flex", flexDirection: "column", background: INK, color: "#fff", fontFamily: "Sans", padding: "64px 76px" }}>
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <img src={LOGO_WHITE_DATA_URI} width={236} height={37} alt="" />
+        <div style={{ marginLeft: "auto", display: "flex", fontSize: 22, fontWeight: 700, letterSpacing: 5, opacity: 0.8 }}>{week}</div>
+      </div>
+      <div style={{ display: "flex", marginTop: 56, fontSize: 24, fontWeight: 700, letterSpacing: 6, color: ORANGE }}>NEW LAUNCHES THIS WEEK</div>
+      <div style={{ display: "flex", marginTop: 14, fontSize: 92, fontWeight: 900, lineHeight: 1, letterSpacing: -3 }}>This week&apos;s launches</div>
+      <div style={{ display: "flex", flexWrap: "wrap", marginTop: 48, gap: 16 }}>
+        {tiles.map(({ x, i, pic }) => (
+          <div key={x.slug} style={{ display: "flex", flexDirection: "column", width: tw }}>
+            <div style={{ display: "flex", width: tw, height: Math.round(tw * (cols === 4 ? 1.05 : 0.8)), background: "#2A2D35", borderRadius: 10, overflow: "hidden", position: "relative" }}>
+              {pic && <img src={pic} width={tw} height={Math.round(tw * (cols === 4 ? 1.05 : 0.8))} style={{ objectFit: "cover" }} alt="" />}
+              <div style={{ position: "absolute", left: 10, top: 10, display: "flex", background: ORANGE, color: "#fff", fontSize: 20, fontWeight: 900, padding: "4px 10px", borderRadius: 6 }}>{String(i + 1).padStart(2, "0")}</div>
+            </div>
+            <div style={{ display: "flex", marginTop: 10, fontSize: cols === 4 ? 22 : 26, fontWeight: 700, lineHeight: 1.15 }}>{x.name}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: "auto", display: "flex", fontSize: 30, fontWeight: 700 }}>Swipe →</div>
+    </div>
+  ) : (
     <div style={{ width: W, height: H, display: "flex", flexDirection: "column", background: ORANGE, color: "#fff", fontFamily: "Sans", padding: "70px 76px" }}>
       <div style={{ display: "flex", alignItems: "center" }}>
         <img src={LOGO_WHITE_DATA_URI} width={236} height={37} alt="" />
@@ -54,13 +90,14 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
   const slide = it && (() => {
     const tag = SEC[it.cat] ?? [it.cat.toUpperCase(), INK];
-    const photo = !!it.img;
+    const pic = pics[0], photo = !!pic;
     return (
       <div style={{ width: W, height: H, display: "flex", flexDirection: "column", background: PAPER, color: INK, fontFamily: "Sans" }}>
         {photo && (
           <div style={{ display: "flex", width: W, height: 600, position: "relative", borderBottom: `9px solid ${tag[1]}` }}>
-            <img src={it.img!} width={W} height={600} style={{ objectFit: "cover" }} alt="" />
-            {it.credit && <div style={{ position: "absolute", right: 30, bottom: 22, display: "flex", fontSize: 17, color: "rgba(255,255,255,.92)", textShadow: "0 1px 3px rgba(0,0,0,.6)" }}>{it.credit}</div>}
+            <img src={pic!} width={W} height={600} style={{ objectFit: "cover" }} alt="" />
+            <div style={{ position: "absolute", left: 40, top: 36, display: "flex", background: ORANGE, color: "#fff", fontSize: 24, fontWeight: 900, padding: "6px 14px", borderRadius: 8 }}>{`${String(k).padStart(2, "0")} / ${String(items.length).padStart(2, "0")}`}</div>
+            {it.credit && <div style={{ position: "absolute", right: 30, bottom: 22, display: "flex", fontSize: 17, color: "rgba(255,255,255,.92)", textShadow: "0 1px 3px rgba(0,0,0,.6)" }}>{`Photo: ${it.credit}`}</div>}
           </div>
         )}
         <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: photo ? "44px 76px 60px" : "70px 76px 60px", position: "relative" }}>
