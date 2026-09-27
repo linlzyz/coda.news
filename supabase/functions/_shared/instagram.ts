@@ -26,10 +26,13 @@ async function refreshToken() {
   else log("instagram: token refresh failed", JSON.stringify(j).slice(0, 160));
 }
 
-type Post = { id: number; slug: string; kind: string; format?: string };
+type Post = { id: number; slug: string; kind: string; format?: string; n?: number };
 const reelUrl = (id: number) => `https://coda.news/api/ig/reel/${id}.mp4`;
-const storyUrl = (p: Post) => `https://coda.news/event/${p.slug}/social?s=story&p=${p.id}&fmt=jpg`;
-const slides = (p: Post) => p.kind === "travel"
+const launchUrl = (id: number, s: string) => `https://coda.news/api/ig/launches/${id}?s=${s}&fmt=jpg`;
+const storyUrl = (p: Post) => p.kind === "launches" ? launchUrl(p.id, "story") : `https://coda.news/event/${p.slug}/social?s=story&p=${p.id}&fmt=jpg`;
+const slides = (p: Post) => p.kind === "launches"
+  ? ["0", ...Array.from({ length: p.n ?? 0 }, (_, i) => String(i + 1))].map((s) => launchUrl(p.id, s))
+  : p.kind === "travel"
   ? ["t1", "t2"].map((s) => `https://coda.news/event/${p.slug}/social?s=${s}&p=${p.id}&fmt=jpg`)
   : [1, 2, 3].map((s) => `https://coda.news/event/${p.slug}/social?s=${s}&fmt=jpg`);
 const licensed = (c: string | null) => !!c && (/\/ (Pexels|Unsplash|Pixabay)$/.test(c) || /\((CC BY[^)]*|CC0[^)]*|Public domain|PDM)\)/i.test(c));
@@ -107,6 +110,46 @@ async function pickTravel(): Promise<{ e: Ev; img: string; credit: string; copy:
   }
 }
 
+// Sunday roundup "This week's launches" (Lyn, 27 Sept): the week's product launches, one per slide, typographic
+// (publishers' photos are not ours to post; only Wikimedia Commons pictures go on a slide). Same rules as the site's
+// New launches box: a launch word in the title, not a leak/rumour/update, never bad news.
+const LAUNCH = /\b(launch(es|ed)?|unveil(s|ed)?|reveal(s|ed)?|debut(s|ed)?|introduc(es|ed)|releases?|released|arrives?|goes on sale|premier(es|ed)|presents?)\b/i;
+const NOT_PRODUCT = /\b(leak(s|ed)?|rumou?rs?|report(s|ed)?|teases?|teaser|requirements|benchmark|campaign|licen[cs]e|share|record|details|states|says|pricing|price cut|recall|delay(s|ed)?|app|apps|service|platform|update|version|beta|feature|features|preview|developer|open-source|crowdfunding|translation|model|models|architecture|trial|pilot|partnership|plans?|investment)\b/i;
+type Launch = { slug: string; cat: string; name: string; brand: string; line: string; countries: string[]; sources: number; img: string | null; credit: string | null };
+
+async function pickLaunches(): Promise<{ first: number; week: string; items: Launch[] } | undefined> {
+  const sql = db();
+  const rows = await sql<{ id: number; slug: string; title: string; summary: string; category: string; countries: string[]; source_count: number; image_url: string | null; image_credit: string | null; image_source: string | null }[]>`
+    select id, slug, title, summary, category, countries, source_count, image_url, image_credit, image_source from events
+    where not hidden and summary is not null and category in ('technology','automotive','gaming','fashion')
+      and started_at > now() - interval '7 days' and (title || ' ' || summary) !~* ${GRIM}
+    order by coalesce(array_length(countries, 1), 0) desc, source_count desc limit 300`;
+  const picked: typeof rows = [];
+  for (const e of rows) {
+    if (!LAUNCH.test(e.title) || NOT_PRODUCT.test(e.title)) continue;
+    if (picked.filter((x) => x.category === e.category).length >= 2) continue;   // a mix of sections, not six phones
+    picked.push(e); if (picked.length >= 6) break;
+  }
+  if (picked.length < 4) return undefined;
+  // short product name, maker and one line on what is new, from our own summaries (the model may not invent facts)
+  const res = await cheapJSON<{ items: { i: number; name: string; brand: string; line: string }[] }>(`For an Instagram roundup of this week's product launches, write for each item below:
+- "name": the product's name only, as short as possible (max 32 characters, e.g. "Bentley Torcal", "Galaxy Tab S11"). No verbs.
+- "brand": the company that makes it (max 24 characters).
+- "line": one plain sentence, max 90 characters, on what is new about it. Only facts in the text. No hype words, no emoji, no dashes.
+Return JSON {"items":[{"i":0,"name":"","brand":"","line":""}]}.
+
+${picked.map((e, i) => `${i}. ${e.title}\n${e.summary}`).join("\n\n")}`);
+  const byI = new Map((res?.items ?? []).map((x) => [Number(x.i), x]));
+  const items: Launch[] = picked.map((e, i) => {
+    const x = byI.get(i);
+    const pic = e.image_source === "commons" && e.image_url && e.image_credit ? { img: e.image_url, credit: e.image_credit } : { img: null, credit: null };
+    return { slug: e.slug, cat: e.category, name: (x?.name || e.title).slice(0, 40), brand: (x?.brand ?? "").slice(0, 30), line: (x?.line || (e.summary.match(/^.*?[.!?](\s|$)/)?.[0] ?? e.summary)).replace(/\s*[—–]\s*/g, ", ").slice(0, 120),
+      countries: e.countries ?? [], sources: e.source_count, ...pic };
+  });
+  const d = (n: number) => new Date(Date.now() - n * 86400_000).toLocaleDateString("en-AU", { timeZone: "Australia/Melbourne", day: "numeric", month: "short" });
+  return { first: picked[0].id, week: `${d(6)} to ${d(0)}`.toUpperCase(), items };
+}
+
 /** 20:00 Melbourne: pick tonight's story and email the owner. */
 export async function proposeInstagram(force = false, eventId: number | null = null): Promise<number> {
   const sql = db();
@@ -115,6 +158,11 @@ export async function proposeInstagram(force = false, eventId: number | null = n
   // 20:00 Melbourne, with 21:00 as a second chance if the first attempt failed
   if (!force && !["20", "21"].includes(melb({ hour: "numeric", hour12: false }))) return 0;
   if (!force && (await sql`select 1 from ig_posts where created_at > now() - interval '20 hours' and status <> 'failed'`).length) return 0;
+  // Sundays: the week's launches instead of a single story (falls back to the usual post if the week had too few)
+  if (!eventId && melb({ weekday: "short" }).startsWith("Sun") && !(await sql`select 1 from ig_posts where kind = 'launches' and created_at > now() - interval '6 days' and status <> 'failed'`).length) {
+    const w = await pickLaunches().catch((x) => { log("instagram launches", (x as Error).message); return undefined; });
+    if (w) return await proposeLaunches(w);
+  }
   const recent = (await sql<{ category: string }[]>`select e.category from ig_posts p join events e on e.id = p.event_id order by p.id desc limit 2`).map((r) => r.category);
   // every third day a travel read, when there is a fresh one with a good photo
   const travelDue = !(await sql`select 1 from ig_posts where kind = 'travel' and created_at > now() - interval '60 hours'`).length;
@@ -159,6 +207,25 @@ export async function proposeInstagram(force = false, eventId: number | null = n
   return 1;
 }
 
+async function proposeLaunches(w: { first: number; week: string; items: Launch[] }): Promise<number> {
+  const sql = db();
+  const tags = [...new Set(w.items.map((x) => TAGS[x.cat] ?? ""))].join(" ");
+  const caption = `This week's launches, ${w.week.toLowerCase()}\n\n${w.items.map((x, i) => `${i + 1}. ${x.name}${x.brand && !x.name.toLowerCase().includes(x.brand.toLowerCase()) ? ` (${x.brand})` : ""}: ${x.line}`).join("\n")}\n\nSwipe →\nEvery launch, with how each country covered it: link in bio\n\n${tags} #newlaunch #newproduct #codanews`;
+  const [p] = await sql<{ id: number }[]>`insert into ig_posts (event_id, caption, kind, format, copy) values (${w.first}, ${caption}, 'launches', 'carousel', ${sql.json({ week: w.week, items: w.items })}) returning id`;
+  const post: Post = { id: p.id, slug: "", kind: "launches", format: "carousel", n: w.items.length };
+  const to = env("REPORT_EMAIL"), key = env("RESEND_API_KEY");
+  const auto = (await setting("ig_auto")) === "1";
+  if (to && key) await fetch("https://api.resend.com/emails", { method: "POST", headers: { Authorization: `Bearer ${key}`, "content-type": "application/json" },
+    body: JSON.stringify({ from: "coda.news <hello@coda.news>", to: [to], subject: `Instagram 今晚待发：本周新品（${w.items.length} 款）`, html: `<div style="font-family:Helvetica,Arial,sans-serif;max-width:680px">
+      <h2 style="margin:0 0 8px">今晚的 Instagram：本周新品合集</h2><p style="color:#6B7280;margin:0 0 16px">${auto ? "已设为自动发布，几分钟内发到 @thecodanews。有问题请到 Instagram 删除，并告诉我原因。" : "还没开自动发布，这条不会自己发出。"}</p>
+      <p style="margin:0 0 10px;font-weight:700">形式：轮播图帖子，共 ${slides(post).length} 张。</p>
+      <div>${slides(post).map((u) => `<img src="${u}" width="200" style="margin:0 6px 6px 0;border:1px solid #E5E7EB">`).join("")}</div>
+      <pre style="white-space:pre-wrap;font-family:inherit;background:#F4F5F7;padding:12px;border-radius:8px">${esc(caption)}</pre></div>` }) });
+  log(`instagram: launches roundup ${w.items.length}`);
+  if (auto) { await sql`update ig_posts set status = 'approved' where id = ${p.id}`; await publishInstagram(p.id).catch((x) => log("instagram publish", (x as Error).message)); }
+  return 1;
+}
+
 async function waitReady(id: string, token: string) {
   for (let i = 0; i < 20; i++) {
     const j = await (await fetch(`${G}/${id}?fields=status_code&access_token=${token}`)).json();
@@ -183,7 +250,7 @@ async function api() {
 }
 
 async function loadPost(postId: number) {
-  const [p] = await db()<(Post & { caption: string; container_id: string | null; created_at: Date })[]>`select p.id, e.slug, p.caption, p.kind, p.format, p.container_id, p.created_at from ig_posts p join events e on e.id = p.event_id where p.id = ${postId}`;
+  const [p] = await db()<(Post & { caption: string; container_id: string | null; created_at: Date })[]>`select p.id, e.slug, p.caption, p.kind, p.format, p.container_id, p.created_at, coalesce(jsonb_array_length(p.copy->'items'), 0)::int as n from ig_posts p join events e on e.id = p.event_id where p.id = ${postId}`;
   if (!p) throw new Error("post missing");
   return p;
 }
