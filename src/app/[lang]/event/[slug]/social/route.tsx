@@ -259,7 +259,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ lang: st
   // Instagram's publishing API only takes JPEG
   if (new URL(req.url).searchParams.get("fmt") === "jpg") {
     const sharp = (await import("sharp")).default;
-    const jpg = await sharp(Buffer.from(await img.arrayBuffer())).flatten({ background: "#ffffff" }).jpeg({ quality: 90 }).toBuffer();
+    const jpg = await sharp(Buffer.from(await img.arrayBuffer())).flatten({ background: "#ffffff" }).jpeg({ quality: 95, chromaSubsampling: "4:4:4" }).toBuffer();
     return new Response(new Uint8Array(jpg), { headers: { "content-type": "image/jpeg", "cache-control": "public, max-age=0, s-maxage=3600" } });
   }
   const pageUrl = `https://coda.news${zh ? "/zh" : ""}/event/${slug}`;

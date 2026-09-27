@@ -12,14 +12,28 @@ const SEC: Record<string, [string, string]> = { technology: ["TECH", "#1D5FD1"],
 type Item = { slug: string; cat: string; name: string; brand: string; line: string; countries: string[]; sources: number; img?: string | null; credit?: string | null; pos?: string };
 const B = ({ text }: { text: string }) => <>{brandParts(text).map((p, i) => <span key={i} style={p.dot ? { color: ORANGE } : {}}>{p.t}</span>)}</>;
 
+// og:images are often a reduced copy; many CDNs serve a larger one by changing the size in the URL
+function bigger(url: string): string[] {
+  const out = [
+    url.replace(/-\d{3,4}x\d{3,4}(\.(jpe?g|png|webp))/i, "$1"),                 // WordPress: name-1152x648.jpg -> name.jpg
+    url.replace(/\/w_\d{3,4},/, "/w_2560,"),                                     // Condé Nast (Vogue): w_1280 -> w_2560
+    url.replace(/\.width-\d{3,4}\./, ".width-2600."),                              // Google Blog: width-1300 -> width-2600
+    url.replace(/\$width_\d{3,4}/, "$width_2400"),                                // Fairfax (SMH, The Age)
+    url.replace(/\/(\d{3,4})x\//, "/2560x/"),                                        // Thumbor (MacRumors): /1920x/
+  ].filter((u) => u !== url);
+  return [...new Set(out), url];
+}
 async function dataUri(url: string) {
-  const r = await fetch(url, { headers: { "user-agent": "Mozilla/5.0 (compatible; coda.news/1.0)" }, signal: AbortSignal.timeout(12000) }).catch(() => null);
-  if (!r?.ok) return null;
-  const type = r.headers.get("content-type") ?? "";
-  if (!type.startsWith("image/")) return null;
-  const sharp = (await import("sharp")).default;
-  const buf = await sharp(Buffer.from(await r.arrayBuffer())).resize(1080, 1080, { fit: "inside", withoutEnlargement: true }).jpeg({ quality: 85 }).toBuffer().catch(() => null);
-  return buf ? `data:image/jpeg;base64,${buf.toString("base64")}` : null;
+  for (const u of bigger(url)) {
+    const r = await fetch(u, { headers: { "user-agent": "Mozilla/5.0 (compatible; coda.news/1.0)" }, signal: AbortSignal.timeout(12000) }).catch(() => null);
+    if (!r?.ok || !(r.headers.get("content-type") ?? "").startsWith("image/")) continue;
+    const sharp = (await import("sharp")).default;
+    // keep enough pixels for the 1080x760 photo band (the renderer scales down, never up)
+    const buf = await sharp(Buffer.from(await r.arrayBuffer())).resize({ width: 2160, height: 1520, fit: "outside", withoutEnlargement: true })
+      .jpeg({ quality: 92, mozjpeg: true }).toBuffer().catch(() => null);
+    if (buf) return `data:image/jpeg;base64,${buf.toString("base64")}`;
+  }
+  return null;
 }
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -139,7 +153,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   const img = new ImageResponse(s === "story" ? story : it ? slide! : cover, { width: W, height: s === "story" ? SH : H, fonts, headers: { "cache-control": "public, max-age=0, s-maxage=86400" } });
   if (u.searchParams.get("fmt") === "jpg") {
     const sharp = (await import("sharp")).default;
-    const jpg = await sharp(Buffer.from(await img.arrayBuffer())).flatten({ background: "#ffffff" }).jpeg({ quality: 90 }).toBuffer();
+    const jpg = await sharp(Buffer.from(await img.arrayBuffer())).flatten({ background: "#ffffff" }).jpeg({ quality: 95, chromaSubsampling: "4:4:4" }).toBuffer();
     return new Response(new Uint8Array(jpg), { headers: { "content-type": "image/jpeg", "cache-control": "public, max-age=0, s-maxage=86400" } });
   }
   return img;
