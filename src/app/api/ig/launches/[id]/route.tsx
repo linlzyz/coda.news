@@ -57,8 +57,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       <div style={{ display: "flex", flexWrap: "wrap", marginTop: 48, gap: 16 }}>
         {tiles.map(({ x, i, pic }) => (
           <div key={x.slug} style={{ display: "flex", flexDirection: "column", width: tw }}>
-            <div style={{ display: "flex", width: tw, height: Math.round(tw * (cols === 4 ? 1.05 : 0.8)), background: "#2A2D35", borderRadius: 10, overflow: "hidden", position: "relative" }}>
-              {pic && <img src={pic} width={tw} height={Math.round(tw * (cols === 4 ? 1.05 : 0.8))} style={{ objectFit: "cover" }} alt="" />}
+            <div style={{ display: "flex", width: tw, height: Math.round(tw * (cols === 4 ? 1.3 : 0.9)), background: "#2A2D35", borderRadius: 10, overflow: "hidden", position: "relative" }}>
+              {pic && <img src={pic} width={tw} height={Math.round(tw * (cols === 4 ? 1.3 : 0.9))} style={{ objectFit: "cover" }} alt="" />}
               <div style={{ position: "absolute", left: 10, top: 10, display: "flex", background: ORANGE, color: "#fff", fontSize: 20, fontWeight: 900, padding: "4px 10px", borderRadius: 6 }}>{String(i + 1).padStart(2, "0")}</div>
             </div>
             <div style={{ display: "flex", marginTop: 10, fontSize: cols === 4 ? 22 : 26, fontWeight: 700, lineHeight: 1.15 }}>{x.name}</div>
