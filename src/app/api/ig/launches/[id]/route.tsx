@@ -9,7 +9,7 @@ import { brandParts, gfont } from "@/lib/og-font";
 export const revalidate = 86400;
 const W = 1080, H = 1350, SH = 1920, ORANGE = "#EA5514", INK = "#16181D", PAPER = "#F4F3F0";
 const SEC: Record<string, [string, string]> = { technology: ["TECH", "#1D5FD1"], automotive: ["AUTO", "#B42318"], gaming: ["GAMES", "#7A2E9E"], fashion: ["STYLE", "#16181D"] };
-type Item = { slug: string; cat: string; name: string; brand: string; line: string; countries: string[]; sources: number; img?: string | null; credit?: string | null };
+type Item = { slug: string; cat: string; name: string; brand: string; line: string; countries: string[]; sources: number; img?: string | null; credit?: string | null; pos?: string };
 const B = ({ text }: { text: string }) => <>{brandParts(text).map((p, i) => <span key={i} style={p.dot ? { color: ORANGE } : {}}>{p.t}</span>)}</>;
 
 async function dataUri(url: string) {
@@ -58,7 +58,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
         {tiles.map(({ x, i, pic }) => (
           <div key={x.slug} style={{ display: "flex", flexDirection: "column", width: tw }}>
             <div style={{ display: "flex", width: tw, height: Math.round(tw * (cols === 4 ? 1.3 : 0.9)), background: "#2A2D35", borderRadius: 10, overflow: "hidden", position: "relative" }}>
-              {pic && <img src={pic} width={tw} height={Math.round(tw * (cols === 4 ? 1.3 : 0.9))} style={{ objectFit: "cover" }} alt="" />}
+              {pic && <img src={pic} width={tw} height={Math.round(tw * (cols === 4 ? 1.3 : 0.9))} style={{ objectFit: "cover", objectPosition: x.pos ?? "50% 50%" }} alt="" />}
               <div style={{ position: "absolute", left: 10, top: 10, display: "flex", background: ORANGE, color: "#fff", fontSize: 20, fontWeight: 900, padding: "4px 10px", borderRadius: 6 }}>{String(i + 1).padStart(2, "0")}</div>
             </div>
             <div style={{ display: "flex", marginTop: 10, fontSize: cols === 4 ? 22 : 26, fontWeight: 700, lineHeight: 1.15 }}>{x.name}</div>
