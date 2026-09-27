@@ -185,16 +185,33 @@ export const indices = unstable_cache(_indices, ["indices"], { revalidate: 3600 
 
 async function _sitemapRows() {
   const [ev, co, tp] = await Promise.all([
-    supabase.from("events").select("slug,title,title_zh,summary,summary_zh,category,image_url,image_focus,image_credit,started_at,last_article_at").not("summary", "is", null).neq("status", "archived").eq("hidden", false).gte("source_count", 2).order("last_article_at", { ascending: false }).limit(5000),
+    supabase.from("events").select("slug,title,title_zh,summary,summary_zh,category,image_url,image_focus,image_credit,started_at,last_article_at,countries").not("summary", "is", null).neq("status", "archived").eq("hidden", false).gte("source_count", 2).order("last_article_at", { ascending: false }).limit(5000),
     supabase.from("companies").select("slug").limit(3000),
     supabase.from("topics").select("slug"),
   ]);
   return {
-    events: (ev.data ?? []) as { slug: string; title: string; title_zh: string | null; summary: string; summary_zh: string | null; category: string; image_url: string | null; image_focus: string | null; image_credit: string | null; started_at: string; last_article_at: string }[],
+    events: (ev.data ?? []) as { countries: string[] | null; slug: string; title: string; title_zh: string | null; summary: string; summary_zh: string | null; category: string; image_url: string | null; image_focus: string | null; image_credit: string | null; started_at: string; last_article_at: string }[],
     companies: (co.data ?? []) as { slug: string }[], topics: (tp.data ?? []) as { slug: string }[],
   };
 }
-export const sitemapRows = unstable_cache(_sitemapRows, ["sitemapRows"], { revalidate: 3600 });
+export const sitemapRows = unstable_cache(_sitemapRows, ["sitemapRows2"], { revalidate: 3600 });
+
+/** Search engines only get stories covered in at least this many countries: our comparison is the point of the site,
+ *  and thousands of thin one- or two-country pages would pull the whole domain down. */
+export const INDEX_MIN_COUNTRIES = 3;
+
+/** Where coverage really differs between countries: the "differ" points of each story's latest summary. */
+async function _differences(eventIds: number[]) {
+  if (!eventIds.length) return [] as { event_id: number; differ: string[]; differ_zh: string[] }[];
+  const { data } = must(await supabase.from("event_updates").select("event_id,version,content->differ,content->differ_zh").eq("type", "summary_updated").in("event_id", eventIds).order("version", { ascending: false }));
+  const seen = new Set<number>(), out: { event_id: number; differ: string[]; differ_zh: string[] }[] = [];
+  for (const r of (data ?? []) as { event_id: number; differ: string[] | null; differ_zh: string[] | null }[]) {
+    if (seen.has(r.event_id)) continue; seen.add(r.event_id);
+    out.push({ event_id: r.event_id, differ: r.differ ?? [], differ_zh: r.differ_zh ?? [] });
+  }
+  return out;
+}
+export const differences = unstable_cache(_differences, ["differences"], { revalidate: 1800, tags: ["list"] });
 
 // Cached reads: shared across requests for 60s, so switching language or pages does not wait for the database.
 /** Safety net: a picture appears once per list; later stories with the same picture fall back to no picture (usually a missed duplicate). */

@@ -1,5 +1,5 @@
 // Google News sitemap: events updated in the last 48 hours.
-import { sitemapRows } from "@/lib/data";
+import { INDEX_MIN_COUNTRIES, sitemapRows } from "@/lib/data";
 
 export const revalidate = 1800;
 const esc = (s: string) => s.replace(/[<>&'"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", "'": "&apos;", '"': "&quot;" }[c]!));
@@ -7,7 +7,7 @@ const esc = (s: string) => s.replace(/[<>&'"]/g, (c) => ({ "<": "&lt;", ">": "&g
 export async function GET() {
   const { events } = await sitemapRows();
   const since = Date.now() - 48 * 3600_000;
-  const recent = events.filter((e) => +new Date(e.last_article_at) > since).slice(0, 500);
+  const recent = events.filter((e) => (e.countries?.length ?? 0) >= INDEX_MIN_COUNTRIES && +new Date(e.last_article_at) > since).slice(0, 500);
   const item = (path: string, lang: string, title: string, date: string) => `
   <url><loc>https://coda.news${path}</loc>
     <news:news><news:publication><news:name>coda.news</news:name><news:language>${lang}</news:language></news:publication>

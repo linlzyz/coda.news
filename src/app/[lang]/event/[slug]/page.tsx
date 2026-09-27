@@ -2,7 +2,7 @@ import { orgLd } from "@/lib/site";
 import type { Metadata } from "next";
 import Link from "@/components/LLink";
 import { notFound } from "next/navigation";
-import { reportError, eventCorrections, companiesByIds, getArticles, getEvent, getFacts, getLatestSummary, getPerspectives, listEvents } from "@/lib/data";
+import { INDEX_MIN_COUNTRIES, reportError, eventCorrections, companiesByIds, getArticles, getEvent, getFacts, getLatestSummary, getPerspectives, listEvents } from "@/lib/data";
 import { alternates, langFrom, t } from "@/lib/i18n";
 import { countryL, persp as perspL, summary, timeAgoL, title } from "@/lib/loc";
 import { fmtDate, TONE } from "@/lib/ui";
@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/event/[slu
   const ti = (l === "zh" && e.title_zh) || e.title, de = (l === "zh" && e.summary_zh) || e.summary || undefined;
   return { title: ti, description: de, alternates: alternates(`/event/${e.slug}`, l),
     // one-source briefs stay out of search until a second source confirms the story
-    ...(e.source_count < 2 || e.status === "archived" ? { robots: { index: false, follow: true } } : {}),
+    ...((e.countries?.length ?? 0) < INDEX_MIN_COUNTRIES || e.status === "archived" ? { robots: { index: false, follow: true } } : {}),
     openGraph: { title: ti, description: de, locale: l === "zh" ? "zh_CN" : "en_AU", type: "article", publishedTime: e.started_at, modifiedTime: e.last_article_at, section: e.category, images: [{ url: shareImages(e)[0], alt: ti }] },
     twitter: { card: "summary_large_image", title: ti, description: de, images: [shareImages(e)[0]] } };
 }

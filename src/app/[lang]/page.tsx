@@ -1,7 +1,7 @@
 import { dayLabel } from "@/lib/loc";
 import { orgLd } from "@/lib/site";
 import Link from "@/components/LLink";
-import { allTopics, hotness, newProducts, pinnedEvents, officialPicks, companyMap, indices, getPerspectives, listEvents, oneUsePerImage, trendingCompanies, type EventRow, type Perspective } from "@/lib/data";
+import { differences, allTopics, hotness, newProducts, pinnedEvents, officialPicks, companyMap, indices, getPerspectives, listEvents, oneUsePerImage, trendingCompanies, type EventRow, type Perspective } from "@/lib/data";
 import { crypto, fx } from "@/lib/markets";
 import { Cover } from "@/components/Cover";
 import { Flag, Flags } from "@/components/Flag";
@@ -65,8 +65,11 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
     if (tops.length >= 5) break;
     if (!tops.includes(e) && tops.filter((x) => x.category === e.category).length < cap) tops.push(e);
   }
-  const divided = multi.filter((e) => !tops.some((x) => x.id === e.id))
-    .sort((a, b) => new Set((persp.get(b.id) ?? []).map((p) => p.tone)).size - new Set((persp.get(a.id) ?? []).map((p) => p.tone)).size).slice(0, 4);
+  // stories where the countries' coverage visibly differs (the summary's "differ" points), most countries first
+  const cand = multi.filter((e) => e.countries.length >= 3 && !tops.some((x) => x.id === e.id));
+  const diff = new Map((await differences(cand.map((e) => e.id)).catch(() => [])).map((d) => [d.event_id, l === "zh" && d.differ_zh.length ? d.differ_zh : d.differ]));
+  const divided = cand.filter((e) => (diff.get(e.id)?.length ?? 0) > 0)
+    .sort((a, b) => (b.countries.length - a.countries.length) || ((diff.get(b.id)?.length ?? 0) - (diff.get(a.id)?.length ?? 0)) || (hotness(b) - hotness(a))).slice(0, 4);
   // 4 key stories with pictures up top (picked for importance and sources, not for having a photo); everything else is the uniform Latest list
   const topImages = new Set(tops.map((e) => e.image_url).filter(Boolean) as string[]);
   const key = pickFeatured(oneUsePerImage([...pinnedList, ...events, ...byCat.flat(), ...official].filter((e, i, a) => a.findIndex((x) => x.id === e.id) === i), topImages), 4, new Set(tops.map((e) => e.id)));   // 4 news + 2 magazine reads
@@ -117,6 +120,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                 {divided.map((e) => (
                   <Link key={e.id} href={`/event/${e.slug}`} className="block py-3">
                     <div className="text-[14px] font-semibold leading-snug hover:text-[#C2410C]">{title(e, l)}</div>
+                    <p className="mt-1 line-clamp-2 text-[13px] leading-snug text-neutral-600">{diff.get(e.id)?.[0]}</p>
                     <div className="mt-1.5 flex items-center gap-2 text-[12px] text-neutral-500"><Flags codes={e.countries} max={6} size={11} />{e.countries.length} {t(l, "countries")}</div>
                   </Link>
                 ))}
