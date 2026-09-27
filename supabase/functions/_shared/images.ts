@@ -258,7 +258,7 @@ ${rows.map((r, k) => `${k + 1}. ${r.title}`).join("\n")}`;
 // Never news-agency photos, never site logos or default share images.
 const AGENCY = /getty|gettyimages|apimages|\bap\.org|reuters|afp\b|afpforum|shutterstock|alamy|\bepa\b|epa-images|aap\.com|paimages|imago|zumapress|sipa|abaca|bloomberg|wireimage|splash|backgrid|mega-agency/i;
 const NOT_ART = /logo|default|placeholder|fallback|favicon|sprite|avatar|brand[-_]|share[-_]?image|og[-_]?default|social[-_]?card/i;
-async function pressImage(url: string): Promise<string | null> {
+export async function pressImage(url: string): Promise<string | null> {
   try {
     const r = await fetch(url, { headers: { "user-agent": BOT, accept: "text/html" }, redirect: "follow", signal: AbortSignal.timeout(8000) });
     if (!r.ok) return null;

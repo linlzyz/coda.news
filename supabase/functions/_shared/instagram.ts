@@ -5,7 +5,7 @@
 // Every post is followed by a Story pointing to it. The long-lived token is kept in app_settings and refreshed weekly.
 import { db } from "./db.ts";
 import { env, log } from "./env.ts";
-import { travelPhoto } from "./images.ts";
+import { pressImage, travelPhoto } from "./images.ts";
 import { sourceEn } from "./source-names.ts";
 import { cheapJSON } from "./ai.ts";
 import { fetchText } from "./text.ts";
@@ -119,17 +119,29 @@ type Launch = { slug: string; cat: string; name: string; brand: string; line: st
 
 async function pickLaunches(): Promise<{ first: number; week: string; items: Launch[] } | undefined> {
   const sql = db();
-  const rows = await sql<{ id: number; slug: string; title: string; summary: string; category: string; countries: string[]; source_count: number; image_url: string | null; image_credit: string | null; image_source: string | null }[]>`
-    select id, slug, title, summary, category, countries, source_count, image_url, image_credit, image_source from events
+  const rows = await sql<{ id: number; slug: string; title: string; summary: string; category: string; countries: string[]; source_count: number; image_url: string | null; image_credit: string | null; image_source: string | null; image_person: string | null }[]>`
+    select id, slug, title, summary, category, countries, source_count, image_url, image_credit, image_source, image_person from events
     where not hidden and summary is not null and category in ('technology','automotive','gaming','fashion')
-      and started_at > now() - interval '7 days' and (title || ' ' || summary) !~* ${GRIM}
+      -- launched or covered this week: a big launch often joins a teaser story from days before (Bentley Torcal, 18 Sept teaser)
+      and last_article_at > now() - interval '7 days' and started_at > now() - interval '14 days' and (title || ' ' || summary) !~* ${GRIM}
       -- a picture of the product itself (Lyn: "主要是看图"): no logos, no stock photos
       and image_url is not null and coalesce(image_focus, '') <> 'logo' and coalesce(image_source, '') not in ('logo', 'pexels', 'unsplash', 'pixabay')
-    order by coalesce(array_length(countries, 1), 0) desc, source_count desc limit 400`;
+    order by (pinned_at > now() - interval '7 days') is true desc, coalesce(array_length(countries, 1), 0) desc, source_count desc limit 400`;
   const picked: typeof rows = [];
   for (const e of rows) {
     if (!LAUNCH.test(e.title) || NOT_PRODUCT.test(e.title)) continue;
     if (picked.filter((x) => x.category === e.category).length >= 3) continue;   // a mix of sections, not eight phones
+    // a collection shown by the designer's face is not a launch picture (Lyn): use a runway shot from the coverage, or skip it
+    if (e.category === "fashion" && (e.image_person || e.image_source === "commons")) {
+      const arts = await sql<{ url: string; source: string }[]>`select a.url, s.name as source from articles a join sources s on s.id = a.source_id
+        where a.event_id = ${e.id} order by s.type = 'official' desc, a.published_at desc limit 5`;
+      let found = false;
+      for (const a of arts) {
+        const img = await pressImage(a.url).catch(() => null);
+        if (img && img !== e.image_url) { e.image_url = img; e.image_credit = a.source; found = true; break; }
+      }
+      if (!found) continue;
+    }
     picked.push(e); if (picked.length >= 8) break;
   }
   if (picked.length < 4) return undefined;
@@ -159,10 +171,13 @@ export async function proposeInstagram(force = false, eventId: number | null = n
   if (!(await setting("ig_token"))) return 0;
   // 20:00 Melbourne, with 21:00 as a second chance if the first attempt failed
   if (!force && !["20", "21"].includes(melb({ hour: "numeric", hour12: false }))) return 0;
-  if (!force && (await sql`select 1 from ig_posts where created_at > now() - interval '20 hours' and status <> 'failed'`).length) return 0;
+  if (!force && (await sql`select 1 from ig_posts where created_at > now() - interval '20 hours' and status not in ('failed', 'preview')`).length) return 0;
   // Sundays: the week's launches instead of a single story (falls back to the usual post if the week had too few)
-  if (!eventId && melb({ weekday: "short" }).startsWith("Sun") && !(await sql`select 1 from ig_posts where kind = 'launches' and created_at > now() - interval '6 days' and status <> 'failed'`).length) {
-    const w = await pickLaunches().catch((x) => { log("instagram launches", (x as Error).message); return undefined; });
+  if (!eventId && melb({ weekday: "short" }).startsWith("Sun") && !(await sql`select 1 from ig_posts where kind = 'launches' and created_at > now() - interval '6 days' and status not in ('failed', 'preview')`).length) {
+    // a preview made earlier today (step=igpreview, for the owner to look at) goes out as it was shown
+    const [pv] = await sql<{ id: number; event_id: number; copy: { week: string; items: Launch[] } }[]>`select id, event_id, copy from ig_posts where kind = 'launches' and status = 'preview' and created_at > now() - interval '8 hours' order by id desc limit 1`;
+    const w = pv ? { first: pv.event_id, ...pv.copy } : await pickLaunches().catch((x) => { log("instagram launches", (x as Error).message); return undefined; });
+    if (pv) await sql`update ig_posts set status = 'failed', error = 'preview (used)' where id = ${pv.id}`;
     if (w) return await proposeLaunches(w);
   }
   const recent = (await sql<{ category: string }[]>`select e.category from ig_posts p join events e on e.id = p.event_id order by p.id desc limit 2`).map((r) => r.category);
@@ -207,6 +222,14 @@ export async function proposeInstagram(force = false, eventId: number | null = n
   // owner switched to hands-off posting (app_settings ig_auto = 1): publish straight away; the email above is then just a notice
   if ((await setting("ig_auto")) === "1") { await sql`update ig_posts set status = 'approved' where id = ${p.id}`; await publishInstagram(p.id).catch((x) => log("instagram publish", (x as Error).message)); }
   return 1;
+}
+
+/** Build this week's launches post without publishing it, so the owner can look first (tick?step=igpreview). */
+export async function previewLaunches(): Promise<number | null> {
+  const w = await pickLaunches();
+  if (!w) return null;
+  const [p] = await db()<{ id: number }[]>`insert into ig_posts (event_id, caption, kind, format, status, copy) values (${w.first}, 'preview', 'launches', 'carousel', 'preview', ${db().json({ week: w.week, items: w.items })}) returning id`;
+  return p.id;
 }
 
 async function proposeLaunches(w: { first: number; week: string; items: Launch[] }): Promise<number> {
