@@ -41,6 +41,94 @@ Deno.serve(async (req) => {
   const sql = db();
   const id = Number(b.id);
 
+  // system status report for the admin page: every check says what it measured, when that last happened, and ok/warn/bad
+  if (b.action === "status") {
+    type Check = { group: string; label: string; state: "ok" | "warn" | "bad"; value: string; at: string | null };
+    const out: Check[] = [];
+    const ago = (t: string | Date | null) => t ? (Date.now() - new Date(t).getTime()) / 60000 : Infinity;   // minutes
+    const add = (group: string, label: string, state: Check["state"], value: string, at: string | Date | null = null) =>
+      out.push({ group, label, state, value, at: at ? new Date(at).toISOString() : null });
+    const run = async (group: string, label: string, f: () => Promise<void>) => {
+      try { await f(); } catch (e) { add(group, label, "bad", `查询失败：${(e as Error).message.slice(0, 80)}`); }
+    };
+    const t0 = Date.now();
+    await run("数据库", "响应速度", async () => {
+      await sql`select 1`; const ms = Date.now() - t0;
+      add("数据库", "响应速度", ms < 800 ? "ok" : ms < 3000 ? "warn" : "bad", `${ms} ms`, new Date());
+    });
+    await run("数据库", "大小", async () => {
+      const [r] = await sql`select pg_database_size(current_database())::bigint b`;
+      const mb = Math.round(Number(r.b) / 1048576);
+      add("数据库", "大小", mb < 6000 ? "ok" : "warn", `${mb} MB`);
+    });
+    await run("流水线", "定时任务", async () => {
+      const [r] = await sql`select max(start_time) filter (where status = 'succeeded') last_ok, count(*) filter (where status <> 'succeeded' and status <> 'running')::int bad, count(*)::int n
+        from cron.job_run_details where start_time > now() - interval '1 hour'`;
+      const m = ago(r.last_ok);
+      add("流水线", "定时任务", m < 12 && r.bad <= 2 ? "ok" : m < 30 ? "warn" : "bad", `最近 1 小时 ${r.n} 次，失败 ${r.bad} 次`, r.last_ok);
+    });
+    await run("流水线", "抓取新闻", async () => {
+      const [r] = await sql`select max(fetched_at) t, count(*) filter (where fetched_at > now() - interval '1 hour')::int n from articles where fetched_at > now() - interval '6 hours'`;
+      const m = ago(r.t);
+      add("流水线", "抓取新闻", m < 20 ? "ok" : m < 60 ? "warn" : "bad", `最近 1 小时 ${r.n} 篇`, r.t);
+    });
+    await run("流水线", "AI 处理", async () => {
+      const [r] = await sql`select count(*) filter (where status = 'pending')::int pending, count(*) filter (where status = 'failed' and created_at > now() - interval '24 hours')::int failed,
+          count(*) filter (where status = 'processing' and fetched_at < now() - interval '20 minutes')::int stuck from articles where status in ('pending','failed','processing')`;
+      add("流水线", "AI 处理", r.pending < 300 && r.failed < 30 && r.stuck === 0 ? "ok" : r.pending < 800 ? "warn" : "bad",
+        `排队 ${r.pending} 篇 · 24 小时失败 ${r.failed} 篇${r.stuck ? ` · 卡住 ${r.stuck} 篇` : ""}`);
+    });
+    await run("流水线", "新事件", async () => {
+      const [r] = await sql`select max(started_at) t, count(*) filter (where started_at > now() - interval '24 hours')::int n from events where started_at > now() - interval '2 days' and summary is not null`;
+      const m = ago(r.t);
+      add("流水线", "新事件", m < 60 ? "ok" : m < 180 ? "warn" : "bad", `24 小时新增 ${r.n} 条`, r.t);
+    });
+    await run("网站内容", "首页最新新闻", async () => {
+      const [r] = await sql`select max(last_article_at) t from events where not hidden and summary is not null and last_article_at > now() - interval '2 days'`;
+      const m = ago(r.t);
+      add("网站内容", "首页最新新闻", m < 45 ? "ok" : m < 120 ? "warn" : "bad", Number.isFinite(m) ? `${Math.round(m)} 分钟前` : "无", r.t);
+    });
+    await run("网站内容", "行情数据", async () => {
+      const [r] = await sql`select max(updated_at) t, count(*)::int n, max(as_of)::text as_of from market_series`;
+      const m = ago(r.t);
+      add("网站内容", "行情数据", m < 6 * 60 ? "ok" : m < 24 * 60 ? "warn" : "bad", `${r.n} 项 · 收盘日 ${r.as_of ?? "无"}`, r.t);
+    });
+    await run("网站内容", "新品发布（近 3 天有图）", async () => {
+      const [r] = await sql`select count(*)::int n, max(last_article_at) t from events where not hidden and image_url is not null and summary is not null
+        and category in ('automotive','technology','gaming','fashion') and last_article_at > now() - interval '72 hours'`;
+      add("网站内容", "新品发布（近 3 天有图）", r.n >= 20 ? "ok" : r.n >= 5 ? "warn" : "bad", `候选 ${r.n} 条`, r.t);
+    });
+    await run("网站内容", "置顶精选", async () => {
+      const [r] = await sql`select count(*)::int n, min(pinned_at) t from events where pinned_at > now() - interval '72 hours' and not hidden`;
+      add("网站内容", "置顶精选", "ok", r.n ? `${r.n} 条（72 小时后自动取消）` : "无", r.t);
+    });
+    await run("网站内容", "今日简报", async () => {
+      const [r] = await sql`select sent_on::text d, recipients, created_at from newsletter_issues order by sent_on desc limit 1`;
+      add("网站内容", "今日简报", r && ago(r.created_at) < 30 * 60 ? "ok" : "warn", r ? `${r.d} 发出 ${r.recipients} 封` : "未发送", r?.created_at ?? null);
+    });
+    await run("新闻源", "新闻源", async () => {
+      const [r] = await sql`select count(*) filter (where active)::int active, count(*) filter (where active and fail_count >= 6)::int broken,
+          count(*) filter (where not active)::int off from sources`;
+      const bad = await sql`select name from sources where active and fail_count >= 6 order by fail_count desc limit 5`;
+      add("新闻源", "新闻源", r.broken === 0 ? "ok" : r.broken <= 3 ? "warn" : "bad",
+        `启用 ${r.active} 个 · 出错 ${r.broken} 个${bad.length ? `（${bad.map((x) => x.name).join("、")}）` : ""} · 已停用 ${r.off} 个`);
+    });
+    await run("成本", "AI 花费（今天）", async () => {
+      const [r] = await sql`select coalesce(sum(usd), 0)::float usd, coalesce(sum(calls), 0)::int calls from ai_usage where day = (now() at time zone 'utc')::date`;
+      const cap = Number(env("OPENAI_DAILY_USD") || "0.30");
+      add("成本", "AI 花费（今天）", r.usd < cap * 0.8 ? "ok" : r.usd < cap ? "warn" : "bad", `US$${r.usd.toFixed(3)} / 上限 US$${cap.toFixed(2)} · ${r.calls} 次`);
+    });
+    await run("读者", "订阅者", async () => {
+      const [r] = await sql`select count(*) filter (where unsubscribed_at is null)::int n, count(*) filter (where created_at > now() - interval '7 days')::int wk from subscribers`;
+      add("读者", "订阅者", "ok", `${r.n} 人 · 7 天新增 ${r.wk}`);
+    });
+    await run("读者", "读者报错", async () => {
+      const [r] = await sql`select count(*)::int n, max(created_at) t from feedback where created_at > now() - interval '24 hours'`;
+      add("读者", "读者报错", r.n === 0 ? "ok" : "warn", `24 小时 ${r.n} 条`, r.t);
+    });
+    return json({ checks: out, at: new Date().toISOString(), ms: Date.now() - t0 });
+  }
+
   if (b.action === "list") {
     const q = String(b.q ?? "").trim();
     const f = String(b.filter ?? "recent");

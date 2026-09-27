@@ -14,6 +14,13 @@ function perStory<A extends unknown[], R>(fn: (...a: A) => Promise<R>, name: str
   return (...a: A) => unstable_cache(fn, [name], { revalidate, tags: ["ev", ...tags(...a)].slice(0, 120) })(...a);
 }
 
+// A failed or timed-out database read must throw, not return an empty list: the cache then keeps serving the last good
+// copy (stale-while-revalidate) instead of storing and showing an empty Markets box, ticker or New launches for an hour.
+function must<T extends { error: { message: string } | null }>(r: T): T {
+  if (r.error) throw new Error(`supabase: ${r.error.message}`);
+  return r;
+}
+
 export type Status = "rumor" | "breaking" | "developing" | "confirmed" | "resolved" | "archived";
 export interface EventRow {
   id: number; slug: string; title: string; title_zh: string | null; category: string; status: Status; regions?: string[]; image_focus?: string | null; lead_url?: string | null; lead_source?: string | null; pinned_at?: string | null;
@@ -44,13 +51,13 @@ async function _listEvents(opts: { category?: string; region?: string; companyId
 }
 
 async function _getEvent(slug: string) {
-  const { data } = await supabase.from("events").select(EVENT_COLS).eq("slug", slug).eq("hidden", false).maybeSingle();
+  const { data } = must(await supabase.from("events").select(EVENT_COLS).eq("slug", slug).eq("hidden", false).maybeSingle());
   return data as EventRow | null;
 }
 
 async function _perspectiveRows(eventIds: number[]) {
   if (!eventIds.length) return [] as (Perspective & { event_id: number })[];
-  const { data } = await supabase.from("perspectives").select("event_id,country,headline,framing,emphasis,downplayed,tone,article_count,headline_zh,framing_zh,emphasis_zh,downplayed_zh").in("event_id", eventIds);
+  const { data } = must(await supabase.from("perspectives").select("event_id,country,headline,framing,emphasis,downplayed,tone,article_count,headline_zh,framing_zh,emphasis_zh,downplayed_zh").in("event_id", eventIds));
   return (data ?? []) as (Perspective & { event_id: number })[];
 }
 const perspectiveRows = perStory(_perspectiveRows, "perspectiveRows", (ids) => ids.map((i) => `ev-${i}`), 1800);
@@ -62,36 +69,36 @@ export async function getPerspectives(eventIds: number[]) {
 }
 
 async function _getLatestSummary(eventId: number) {
-  const { data } = await supabase.from("event_updates").select("content,version,created_at").eq("event_id", eventId).eq("type", "summary_updated")
-    .order("version", { ascending: false }).limit(1).maybeSingle();
+  const { data } = must(await supabase.from("event_updates").select("content,version,created_at").eq("event_id", eventId).eq("type", "summary_updated")
+    .order("version", { ascending: false }).limit(1).maybeSingle());
   return data ? { ...(data.content as { agreed?: string[]; agreed_zh?: string[]; differ?: string[]; differ_zh?: string[]; analysis?: string; analysis_zh?: string }), created_at: data.created_at as string } : undefined;
 }
 
 async function _getFacts(eventId: number) {
-  const { data } = await supabase.from("event_updates").select("id,content,source_ids,occurred_at").eq("event_id", eventId).eq("type", "fact")
-    .order("occurred_at", { ascending: false }).limit(40);
+  const { data } = must(await supabase.from("event_updates").select("id,content,source_ids,occurred_at").eq("event_id", eventId).eq("type", "fact")
+    .order("occurred_at", { ascending: false }).limit(40));
   return (data ?? []) as { id: number; content: { text: string; text_zh?: string; subject: string; predicate: string; object: string }; source_ids: number[]; occurred_at: string }[];
 }
 
 async function _getArticles(eventId: number) {
-  const { data } = await supabase.from("articles").select("id,url,title,headline_en,published_at,sources(name,country,type)").eq("event_id", eventId)
-    .order("published_at", { ascending: false }).limit(80);
+  const { data } = must(await supabase.from("articles").select("id,url,title,headline_en,published_at,sources(name,country,type)").eq("event_id", eventId)
+    .order("published_at", { ascending: false }).limit(80));
   return (data ?? []) as unknown as { id: number; url: string; title: string; headline_en: string | null; published_at: string; sources: { name: string; country: string; type: string } }[];
 }
 
 async function _latestUpdates(limit = 14) {
-  const { data } = await supabase.from("event_updates").select("id,type,content,created_at,events!inner(slug,title,title_zh,status)")
-    .eq("type", "fact").order("created_at", { ascending: false }).limit(limit);
+  const { data } = must(await supabase.from("event_updates").select("id,type,content,created_at,events!inner(slug,title,title_zh,status)")
+    .eq("type", "fact").order("created_at", { ascending: false }).limit(limit));
   return (data ?? []) as unknown as { id: number; content: { text: string }; created_at: string; events: { slug: string; title: string; title_zh: string | null; status: Status } }[];
 }
 
 async function _allTopics() {
-  const { data } = await supabase.from("topics").select("id,name,slug,color").order("id");
+  const { data } = must(await supabase.from("topics").select("id,name,slug,color").order("id"));
   return (data ?? []) as Topic[];
 }
 async function _companiesByIds(ids: number[]) {
   if (!ids.length) return [] as Company[];
-  const { data } = await supabase.from("companies").select("id,name,slug").in("id", ids).in("kind", ["company", "org"]);
+  const { data } = must(await supabase.from("companies").select("id,name,slug").in("id", ids).in("kind", ["company", "org"]));
   return (data ?? []) as Company[];
 }
 export type CompanyProfile = Company & {
@@ -110,17 +117,17 @@ export type CompanyStory = {
   people?: { name: string; role: string; role_zh: string; photo?: string; credit?: string }[];
 };
 async function _getCompany(slug: string) {
-  const { data } = await supabase.from("companies")
+  const { data } = must(await supabase.from("companies")
     .select("id,name,slug,website,description,wikidata_id,name_zh,description_zh,about_en,about_zh,founded,hq,hq_zh,industry,industry_zh,ticker,wikipedia_en,wikipedia_zh,logo_url,slogan,parent,parent_zh,sector,country,instagram,x_handle,facebook,youtube,linkedin,founders,founders_zh,ceo,ceo_zh,story,indices,kind")
-    .eq("slug", slug).in("kind", ["company", "org"]).maybeSingle();
+    .eq("slug", slug).in("kind", ["company", "org"]).maybeSingle());
   return data as CompanyProfile | null;
 }
 export async function companyRedirect(slug: string): Promise<string | null> {
-  const { data } = await supabase.from("company_redirects").select("companies(slug)").eq("slug", slug).maybeSingle();
+  const { data } = must(await supabase.from("company_redirects").select("companies(slug)").eq("slug", slug).maybeSingle());
   return (data as { companies: { slug: string } | null } | null)?.companies?.slug ?? null;
 }
 async function _getTopic(slug: string) {
-  const { data } = await supabase.from("topics").select("id,name,slug,color").eq("slug", slug).maybeSingle();
+  const { data } = must(await supabase.from("topics").select("id,name,slug,color").eq("slug", slug).maybeSingle());
   return data as Topic | null;
 }
 async function _stats() {
@@ -134,7 +141,7 @@ async function _stats() {
 /** Companies with the most events in the last 3 days (for "Trending"). */
 async function _trendingCompanies(limit = 10) {
   const since = new Date(Date.now() - 3 * 86400_000).toISOString();
-  const { data } = await supabase.from("events").select("company_ids").gt("last_article_at", since).not("summary", "is", null).limit(500);
+  const { data } = must(await supabase.from("events").select("company_ids").gt("last_article_at", since).not("summary", "is", null).limit(500));
   const count = new Map<number, number>();
   for (const e of data ?? []) for (const id of (e.company_ids as number[]) ?? []) count.set(id, (count.get(id) ?? 0) + 1);
   const top = [...count].sort((a, b) => b[1] - a[1]).slice(0, limit).map(([id]) => id);
@@ -171,7 +178,7 @@ export async function unsubscribe(token: string) {
 }
 
 async function _indices(grp = "indices") {
-  const { data } = await supabase.from("market_series").select("name,value,change,series,digits,as_of").eq("grp", grp).order("sort");
+  const { data } = must(await supabase.from("market_series").select("name,value,change,series,digits,as_of").eq("grp", grp).order("sort"));
   return (data ?? []) as { name: string; value: number; change: number; series: number[]; digits: number; as_of: string }[];
 }
 export const indices = unstable_cache(_indices, ["indices"], { revalidate: 3600 });
@@ -200,13 +207,13 @@ export function oneUsePerImage<T extends { image_url: string | null }>(rows: T[]
 }
 
 async function _pinnedEvents() {
-  const { data } = await supabase.from("events").select(EVENT_COLS).eq("hidden", false).neq("category", "travel").not("pinned_at", "is", null).gte("pinned_at", new Date(Date.now() - 72 * 3600_000).toISOString()).order("pinned_at", { ascending: false }).limit(6);
+  const { data } = must(await supabase.from("events").select(EVENT_COLS).eq("hidden", false).neq("category", "travel").not("pinned_at", "is", null).gte("pinned_at", new Date(Date.now() - 72 * 3600_000).toISOString()).order("pinned_at", { ascending: false }).limit(6));
   return (data ?? []) as EventRow[];
 }
 /** One-source stories with the publisher's own picture (or game art) from the last 36 hours: they join the picks. */
 async function _officialPicks() {
-  const { data } = await supabase.from("events").select(EVENT_COLS).eq("hidden", false).neq("category", "travel").lt("source_count", 2).in("image_source", ["press", "igdb"])
-    .not("summary", "is", null).gte("last_article_at", new Date(Date.now() - 36 * 3600_000).toISOString()).order("importance", { ascending: false }).limit(60);
+  const { data } = must(await supabase.from("events").select(EVENT_COLS).eq("hidden", false).neq("category", "travel").lt("source_count", 2).in("image_source", ["press", "igdb"])
+    .not("summary", "is", null).gte("last_article_at", new Date(Date.now() - 36 * 3600_000).toISOString()).order("importance", { ascending: false }).limit(60));
   return (data ?? []) as EventRow[];
 }
 export const officialPicks = unstable_cache(_officialPicks, ["officialPicks"], { revalidate: 1800, tags: ["list"] });
@@ -215,8 +222,8 @@ const LAUNCH = /\b(launch(es|ed)?|unveil(s|ed)?|reveal(s|ed)?|debut(s|ed)?|intro
 const NOT_PRODUCT = /\b(leak(s|ed)?|rumou?rs?|report(s|ed)?|teases?|teaser|requirements|benchmark|campaign|licen[cs]e|share|record|details|states|says|pricing|price cut|recall|delay(s|ed)?|app|apps|service|platform|update|version|beta|feature|features|preview|developer|open-source|crowdfunding|translation|model|models|architecture|trial|pilot|partnership|plans?|investment)\b|泄露|爆料|传闻|曝光|预告|招募/i;
 async function _newProducts() {
   const since = new Date(Date.now() - 72 * 3600_000).toISOString();
-  const { data } = await supabase.from("events").select(EVENT_COLS).eq("hidden", false).in("category", ["automotive", "technology", "gaming", "fashion"])
-    .gte("last_article_at", since).not("image_url", "is", null).not("summary", "is", null).order("last_article_at", { ascending: false }).limit(250);
+  const { data } = must(await supabase.from("events").select(EVENT_COLS).eq("hidden", false).in("category", ["automotive", "technology", "gaming", "fashion"])
+    .gte("last_article_at", since).not("image_url", "is", null).not("summary", "is", null).order("last_article_at", { ascending: false }).limit(250));
   const rows = ((data ?? []) as EventRow[]).filter((e) => LAUNCH.test(e.title) && !NOT_PRODUCT.test(e.title)
     && e.image_focus !== "logo" && !/^Logo:/.test(e.image_credit ?? "") && !/(Unsplash|Pexels|Pixabay)/i.test(e.image_credit ?? "")
     && Date.now() - Date.parse(e.started_at) < 7 * 86400_000);
@@ -245,7 +252,7 @@ export async function reportError(eventId: number, kind: string, note: string, l
 
 export type SourceRow = { name: string; country: string; language: string; homepage: string | null; type: string };
 async function _allSources() {
-  const { data } = await supabase.from("sources").select("name,country,language,homepage,type").eq("active", true).order("country").order("name");
+  const { data } = must(await supabase.from("sources").select("name,country,language,homepage,type").eq("active", true).order("country").order("name"));
   return (data ?? []) as SourceRow[];
 }
 export const allSources = unstable_cache(_allSources, ["allSources"], { revalidate: 3600 });
@@ -272,11 +279,11 @@ export async function correctionStats() {
   return { verified: v.count ?? 0, corrected: c.count ?? 0 };
 }
 async function _listCorrections(limit = 100) {
-  const { data } = await supabase.from("corrections").select("id,event_slug,event_title,kind,detail_en,detail_zh,created_at").order("created_at", { ascending: false }).limit(limit);
+  const { data } = must(await supabase.from("corrections").select("id,event_slug,event_title,kind,detail_en,detail_zh,created_at").order("created_at", { ascending: false }).limit(limit));
   return (data ?? []) as Correction[];
 }
 async function _eventCorrections(eventId: number) {
-  const { data } = await supabase.from("corrections").select("id,event_slug,event_title,kind,detail_en,detail_zh,created_at").eq("event_id", eventId).neq("kind", "verified").order("created_at", { ascending: false }).limit(20);
+  const { data } = must(await supabase.from("corrections").select("id,event_slug,event_title,kind,detail_en,detail_zh,created_at").eq("event_id", eventId).neq("kind", "verified").order("created_at", { ascending: false }).limit(20));
   return (data ?? []) as Correction[];
 }
 export const listCorrections = unstable_cache(_listCorrections, ["listCorrections"], { revalidate: 1800 });
@@ -289,15 +296,15 @@ async function _eventsOnDay(day: string) {
     .formatToParts(new Date(`${day}T12:00:00Z`)).find((p) => p.type === "timeZoneName")?.value.replace("GMT", "") || "+10";
   const [h, m = "00"] = off.replace(/^([+-])(\d+)/, "$1$2").split(":");
   const from = new Date(`${day}T00:00:00${h[0]}${h.slice(1).padStart(2, "0")}:${m}`), to = new Date(from.getTime() + 86400_000);
-  const { data } = await supabase.from("events").select(EVENT_COLS).not("summary", "is", null).neq("status", "archived").eq("hidden", false)
-    .gte("started_at", from.toISOString()).lt("started_at", to.toISOString()).order("importance", { ascending: false }).limit(500);
+  const { data } = must(await supabase.from("events").select(EVENT_COLS).not("summary", "is", null).neq("status", "archived").eq("hidden", false)
+    .gte("started_at", from.toISOString()).lt("started_at", to.toISOString()).order("importance", { ascending: false }).limit(500));
   return (data ?? []) as EventRow[];
 }
 async function _archiveDays(days = 90) {
   const since = new Date(Date.now() - days * 86400_000).toISOString();
   const counts = new Map<string, number>();
   for (let from = 0; ; from += 1000) {
-    const { data } = await supabase.from("events").select("started_at").not("summary", "is", null).neq("status", "archived").eq("hidden", false).gte("started_at", since).range(from, from + 999);
+    const { data } = must(await supabase.from("events").select("started_at").not("summary", "is", null).neq("status", "archived").eq("hidden", false).gte("started_at", since).range(from, from + 999));
     for (const r of data ?? []) { const d = new Date(r.started_at).toLocaleDateString("en-CA", { timeZone: "Australia/Melbourne" }); counts.set(d, (counts.get(d) ?? 0) + 1); }
     if (!data || data.length < 1000) break;
   }
@@ -312,12 +319,12 @@ export type CompanyCard = { id: number; name: string; name_zh: string | null; sl
 async function _companyDirectory() {
   const rows: Omit<CompanyCard, "events" | "last_at">[] = [];
   for (let from = 0; ; from += 1000) {
-    const { data } = await supabase.from("companies").select("id,name,name_zh,slug,sector,country,logo_url,description,description_zh,industry,wikidata_id,kind,indices,parent,parent_zh").order("id").range(from, from + 999);
+    const { data } = must(await supabase.from("companies").select("id,name,name_zh,slug,sector,country,logo_url,description,description_zh,industry,wikidata_id,kind,indices,parent,parent_zh").order("id").range(from, from + 999));
     rows.push(...((data ?? []) as typeof rows)); if (!data || data.length < 1000) break;
   }
   const stats = new Map<number, { events: number; last_at: string | null }>();
   for (let from = 0; ; from += 1000) {
-    const { data } = await supabase.from("company_stats").select("company_id,events,last_at").range(from, from + 999);
+    const { data } = must(await supabase.from("company_stats").select("company_id,events,last_at").range(from, from + 999));
     for (const r of data ?? []) stats.set(Number(r.company_id), { events: r.events, last_at: r.last_at });
     if (!data || data.length < 1000) break;
   }

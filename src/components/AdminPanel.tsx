@@ -4,18 +4,24 @@ import { useCallback, useEffect, useState } from "react";
 // The site owner's control room: take a story down, pin it to Picks, reject its picture, redo its Chinese, move it to another section.
 const API = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/admin`;
 const CATS: [string, string][] = [["technology", "科技"], ["economy", "经济"], ["sport", "体育"], ["entertainment", "娱乐"], ["fashion", "时尚"], ["travel", "旅行"], ["automotive", "汽车"], ["gaming", "游戏"]];
-const FILTERS: [string, string][] = [["flagged", "待确认"], ["auto", "系统自动处理的"], ["recent", "最新"], ["pinned", "已置顶"], ["noimage", "多来源但没图"], ["hidden", "已下架"]];
+const FILTERS: [string, string][] = [["status", "系统状态"], ["flagged", "待确认"], ["auto", "系统自动处理的"], ["recent", "最新"], ["pinned", "已置顶"], ["noimage", "多来源但没图"], ["hidden", "已下架"]];
 type Row = { id: string; review_note: string | null; slug: string; title: string; title_zh: string | null; summary_zh: string | null; category: string; image_url: string | null; image_source: string | null;
   source_count: number; countries: string[]; hidden: boolean; pinned_at: string | null; last_article_at: string; lead_url: string | null; lead_source: string | null };
+
+type Check = { group: string; label: string; state: "ok" | "warn" | "bad"; value: string; at: string | null };
+const DOT = { ok: "bg-green-500", warn: "bg-amber-500", bad: "bg-red-500" };
+const since = (t: string) => { const m = Math.round((Date.now() - Date.parse(t)) / 60000); return m < 1 ? "刚刚" : m < 60 ? `${m} 分钟前` : m < 1440 ? `${Math.round(m / 60)} 小时前` : `${Math.round(m / 1440)} 天前`; };
+const clock = (t: string) => new Date(t).toLocaleString("zh-CN", { timeZone: "Australia/Melbourne", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" });
 
 export function AdminPanel() {
   const [key, setKey] = useState("");
   const [ok, setOk] = useState(false);
   const [rows, setRows] = useState<Row[]>([]);
-  const [filter, setFilter] = useState("flagged");
+  const [filter, setFilter] = useState("status");
   const [q, setQ] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [msg, setMsg] = useState("");
+  const [status, setStatus] = useState<{ checks: Check[]; at: string; ms: number } | null>(null);
 
   const call = useCallback(async (body: Record<string, unknown>, k = key) => {
     const r = await fetch(API, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ key: k, ...body }) });
@@ -23,6 +29,7 @@ export function AdminPanel() {
     return r.json();
   }, [key]);
   const load = useCallback(async (k = key) => {
+    if (filter === "status") { const j = await call({ action: "status" }, k); setStatus(j); setOk(true); return; }
     const j = await call({ action: "list", filter, q }, k); setRows(j.rows ?? []); setOk(true);
   }, [call, filter, q, key]);
 
@@ -61,7 +68,35 @@ export function AdminPanel() {
         </form>
       </div>
       {msg && <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-xl bg-[#16181D] px-4 py-2 text-[14px] text-white">{msg}</div>}
-      <ul className="mt-6 divide-y divide-[#E5E7EB] border-y border-[#E5E7EB]">
+      {filter === "status" && (status ? (() => {
+        const bad = status.checks.filter((c) => c.state === "bad").length, warn = status.checks.filter((c) => c.state === "warn").length;
+        const groups = [...new Set(status.checks.map((c) => c.group))];
+        return (
+          <div className="mt-6">
+            <div className={`rounded-xl px-4 py-3 text-[15px] font-semibold ${bad ? "bg-red-50 text-red-700" : warn ? "bg-amber-50 text-amber-800" : "bg-green-50 text-green-800"}`}>
+              {bad ? `${bad} 项异常，${warn} 项需留意` : warn ? `一切运行中，${warn} 项需留意` : "一切正常"}
+              <span className="ml-2 text-[12px] font-normal opacity-70">报告生成于 {clock(status.at)} · 用时 {status.ms} ms</span>
+              <button className="ml-3 text-[12px] font-normal underline" onClick={() => load().catch(() => {})}>刷新</button>
+            </div>
+            {groups.map((g) => (
+              <section key={g} className="mt-5">
+                <h2 className="text-[13px] font-semibold uppercase tracking-wide text-neutral-500">{g}</h2>
+                <ul className="mt-2 space-y-1.5">
+                  {status.checks.filter((c) => c.group === g).map((c) => (
+                    <li key={c.label} className="flex items-baseline gap-2 text-[14px]">
+                      <span className={`relative top-[-1px] inline-block h-2 w-2 shrink-0 rounded-full ${DOT[c.state]}`} />
+                      <span className="font-medium">{c.label}</span>
+                      <span className="text-neutral-600">{c.value}</span>
+                      {c.at && <span className="ml-auto shrink-0 text-[12px] text-neutral-400" title={clock(c.at)}>更新于 {since(c.at)}</span>}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ))}
+          </div>
+        );
+      })() : <p className="py-10 text-center text-neutral-500">正在生成报告…</p>)}
+      {filter !== "status" && <ul className="mt-6 divide-y divide-[#E5E7EB] border-y border-[#E5E7EB]">
         {rows.map((r) => (
           <li key={r.id} className={`grid gap-4 py-4 sm:grid-cols-[120px_minmax(0,1fr)] ${r.hidden ? "opacity-50" : ""}`}>
             <div className="aspect-[4/3] w-full overflow-hidden rounded-xl bg-[#F4F5F7]">{r.image_url
@@ -90,8 +125,8 @@ export function AdminPanel() {
             </div>
           </li>
         ))}
-      </ul>
-      {!rows.length && <p className="py-10 text-center text-neutral-500">{filter === "flagged" ? "没有需要你确认的，系统都处理好了。" : "没有内容"}</p>}
+      </ul>}
+      {filter !== "status" && !rows.length && <p className="py-10 text-center text-neutral-500">{filter === "flagged" ? "没有需要你确认的，系统都处理好了。" : "没有内容"}</p>}
     </div>
   );
 }
