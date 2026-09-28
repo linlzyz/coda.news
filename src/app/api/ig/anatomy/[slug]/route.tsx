@@ -3,7 +3,7 @@
 //   &l=zh for Chinese. Figures come from src/lib/anatomy.ts, the same data as the page.
 import { ImageResponse } from "next/og";
 import QRCode from "qrcode";
-import { getProfile, money, photoUrl } from "@/lib/anatomy";
+import { getProfile, money, photoUrl, type L } from "@/lib/anatomy";
 import { LOGO_DATA_URI, LOGO_WHITE_DATA_URI } from "@/lib/logo-data";
 import { brandParts, gfont } from "@/lib/og-font";
 
@@ -27,6 +27,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
   if (!pr) return new Response("Not found", { status: 404 });
   const used: string[] = [];
   const T = (en: string, z: string) => { used.push(en, z); return zh ? z : en; };
+  const P = (l: L) => T(l.en, l.zh);
+  const ig = pr.ig;
   const title = zh ? pr.title.zh : pr.title.en;
   const hook = zh ? pr.igHook.zh : pr.igHook.en;
   const hookSize = zh ? (hook.length > 18 ? 76 : 92) : (hook.length > 48 ? 70 : hook.length > 32 ? 82 : 96);
@@ -66,7 +68,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
         <div style={{ position: "absolute", top: 0, left: 0, width: 1080, height: 1920, display: "flex", backgroundImage: "linear-gradient(180deg, rgba(8,9,11,.2) 0%, rgba(8,9,11,.1) 40%, rgba(8,9,11,.95) 78%)" }} />
         <div style={{ display: "flex", flexDirection: "column", marginTop: "auto", padding: "0 90px 220px", position: "relative" }}>
           <div style={{ display: "flex", fontSize: 30, fontWeight: 900, color: ORANGE, letterSpacing: 4 }}>{T("NEW · ", "新 · ")}{kick}</div>
-          <div style={{ display: "flex", marginTop: 20, fontSize: zh ? 110 : 128, fontWeight: 900, lineHeight: 1.02, color: "#fff", letterSpacing: zh ? 0 : -4 }}>{title}</div>
+          <div style={{ display: "flex", marginTop: 20, fontSize: zh ? (title.length > 14 ? 92 : 110) : (title.length > 30 ? 112 : 128), fontWeight: 900, lineHeight: 1.02, color: "#fff", letterSpacing: zh ? 0 : -4 }}>{title}</div>
           <div style={{ display: "flex", marginTop: 28, fontSize: 60, fontWeight: 700, color: "#fff" }}>{money(st[0].from, zh)} <span style={{ color: ORANGE, margin: "0 18px" }}>→</span> {money(st[0].to, zh)}</div>
           <div style={{ display: "flex", marginTop: 60, fontSize: 38, fontWeight: 700, color: "#fff", background: ORANGE, padding: "18px 34px", borderRadius: 999, alignSelf: "flex-start" }}>{T("Read it: link in bio", "完整剖面：主页链接")}</div>
         </div>
@@ -92,15 +94,11 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
       </div>
     );
   } else if (s === "2") {
-    const rows: [string, string, string][] = [
-      [`${money(st[0].from, zh)} → ${money(st[0].to, zh)}`, T("Market value", "市值"), T("End of 2014 → 21 September 2026", "2014 年底 → 2026 年 9 月 21 日")],
-      [`${money(st[1].from, zh)} → ${money(st[1].to, zh)}`, T("Annual revenue", "年营收"), T("2014 → 2025", "2014 年 → 2025 年")],
-      [`${st[2].to}%`, T("of revenue from data centres", "营收来自数据中心"), T("2025", "2025 年")],
-    ];
+    const rows = ig.numbers.rows.map((r) => [P(r.big), P(r.label), P(r.sub)] as const);
     body = (
       <div style={{ width: W, height: H, display: "flex", flexDirection: "column", background: INK, fontFamily: "Sans", padding: "64px 72px 60px", color: "#fff" }}>
         {head(true, "")}
-        {kicker(T("TWELVE YEARS IN THREE NUMBERS", "十二年，三个数字"))}
+        {kicker(P(ig.numbers.kicker))}
         <div style={{ display: "flex", flexDirection: "column", marginTop: 40, flexGrow: 1 }}>
           {rows.map(([big, label, sub], i) => (
             <div key={i} style={{ display: "flex", flexDirection: "column", padding: "34px 0", borderTop: i ? "1px solid rgba(255,255,255,.14)" : "none" }}>
@@ -110,15 +108,11 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
             </div>
           ))}
         </div>
-        {foot(true, T("Sources: CompaniesMarketCap, AMD results", "来源：CompaniesMarketCap、AMD 财报"))}
+        {foot(true, P(ig.numbers.source))}
       </div>
     );
   } else if (s === "3") {
-    const ds: [string, string, string][] = [
-      [T("A new design, not a patch", "重新设计，而不是修补"), "Zen", T("Instead of fixing old chips, AMD bet on a new design. The first Ryzen chips went on sale in March 2017.", "AMD 没有修补旧芯片，而是押注全新设计。2017 年 3 月，第一批 Ryzen 上市。")],
-      [T("Let TSMC build it, in pieces", "交给台积电，拆成小块来造"), "Chiplets", T("From 2019, small compute dies made by TSMC sit next to one input/output die in a single package.", "从 2019 年起，台积电生产的小计算芯片和一块输入输出芯片封装在一起。")],
-      [T("Go where the servers are", "去服务器所在的地方"), "EPYC", T("Data centres brought in $16.6 billion in 2025, about half of all revenue.", "2025 年，数据中心带来 166 亿美元收入，约占一半。")],
-    ];
+    const ds = ig.decisions.map((d) => [P(d.h), d.tag, P(d.t)] as const);
     body = (
       <div style={{ width: W, height: H, display: "flex", flexDirection: "column", background: "#fff", fontFamily: "Sans", padding: "64px 72px 60px" }}>
         {head(false, "")}
@@ -140,8 +134,35 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
         {foot(false, T("Sources on the page", "来源见专题页"))}
       </div>
     );
-  } else if (s === "4") {
+  } else if (s === "4" && ig.chart.kind === "tags" && pr.priceTags) {
+    // horizontal bars: deal prices in grey, market values in orange, value at the end of each bar
+    const c = ig.chart, rows = pr.priceTags.rows, max = Math.max(...rows.map((r) => r.v));
+    body = (
+      <div style={{ width: W, height: H, display: "flex", flexDirection: "column", background: PAPER, fontFamily: "Sans", padding: "64px 72px 60px" }}>
+        {head(false, "")}
+        {kicker(P(c.kicker))}
+        <div style={{ display: "flex", marginTop: 18, fontSize: 30, color: "#3F434A", lineHeight: 1.35 }}>{P(c.sub)}</div>
+        <div style={{ display: "flex", marginTop: 22, fontSize: 24, color: MUTED }}>
+          <div style={{ display: "flex", alignItems: "center", marginRight: 34 }}><div style={{ width: 26, height: 14, background: "#A3A8B0", marginRight: 10, display: "flex" }} />{T("Deal price", "交易价格")}</div>
+          <div style={{ display: "flex", alignItems: "center" }}><div style={{ width: 26, height: 14, background: ORANGE, marginRight: 10, display: "flex" }} />{T("Market value", "市值")}</div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", marginTop: 34, flexGrow: 1, justifyContent: "space-around" }}>
+          {rows.map((r, i) => (
+            <div key={i} style={{ display: "flex", flexDirection: "column" }}>
+              <div style={{ display: "flex", fontSize: 26, color: "#3F434A" }}>{P(r.label)}</div>
+              <div style={{ display: "flex", alignItems: "center", marginTop: 8 }}>
+                <div style={{ display: "flex", height: 44, width: Math.max(12, (r.v / max) * 700), background: r.kind === "deal" ? "#A3A8B0" : ORANGE, borderRadius: "0 8px 8px 0" }} />
+                <div style={{ display: "flex", marginLeft: 16, fontSize: 36, fontWeight: 900, color: INK }}>{money(r.v, zh)}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+        {foot(false, P(c.foot))}
+      </div>
+    );
+  } else if (s === "4" && ig.chart.kind === "logcap" && pr.cap) {
     // log-scale line, $1bn to $1.5tn, with four direct labels
+    const c = ig.chart;
     const cw = 936, ch = 780, l = 110, r = 40, t = 30, b = 60;
     const X0 = 2014.6, X1 = 2026.72, lo = 0, hi = Math.log10(1500);
     const sx = (x: number) => l + ((x - X0) / (X1 - X0)) * (cw - l - r);
@@ -149,12 +170,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
     const d = pr.cap.map((p, i) => `${i ? "L" : "M"}${sx(p.x).toFixed(1)},${sy(p.v).toFixed(1)}`).join("");
     const ticks: [number, string][] = [[1, zh ? "10亿" : "$1B"], [10, zh ? "100亿" : "$10B"], [100, zh ? "1000亿" : "$100B"], [1000, zh ? "1万亿" : "$1T"]];
     // [x, value, label, dx, dy, right-aligned]: labels sit in the empty space beside the line
-    const marks: [number, number, string, number, number, boolean][] = [
-      [2014.99, 2.07, T("2014: Lisa Su becomes CEO", "2014 苏姿丰上任"), 24, 12, false],
-      [2016.99, 9.91, T("2017: first Zen chips", "2017 首批 Zen 芯片"), 24, 14, false],
-      [2021.99, 173.77, T("2022: Xilinx, passes Intel", "2022 收购 Xilinx，超过 Intel"), -24, -58, true],
-      [2026.72, 1003, T("Sep 2026: $1 trillion", "2026.9 破 1 万亿美元"), -26, -12, true],
-    ];
+    const marks = c.marks.map(([x, v, lab, dx, dy, right]) => [x, v, P(lab), dx, dy, right] as const);
     const esc = (x: string) => x.replace(/&/g, "&amp;").replace(/</g, "&lt;");
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${cw}" height="${ch}" viewBox="0 0 ${cw} ${ch}">
       ${ticks.map(([v, lab]) => `<line x1="${l}" x2="${cw - r}" y1="${sy(v)}" y2="${sy(v)}" stroke="#E4E1DA" stroke-width="2"/><text x="${l - 16}" y="${sy(v) + 9}" text-anchor="end" font-size="26" fill="${MUTED}" font-family="sans-serif">${esc(lab)}</text>`).join("")}
@@ -166,8 +182,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
     body = (
       <div style={{ width: W, height: H, display: "flex", flexDirection: "column", background: PAPER, fontFamily: "Sans", padding: "64px 72px 60px" }}>
         {head(false, "")}
-        {kicker(T("MARKET VALUE, 2014 TO 2026", "市值，2014 至 2026"))}
-        <div style={{ display: "flex", marginTop: 18, fontSize: 30, color: "#3F434A", lineHeight: 1.35 }}>{T("Each gridline is ten times the one below.", "对数刻度：每条横线是下面一条的 10 倍。")}</div>
+        {kicker(P(c.kicker))}
+        <div style={{ display: "flex", marginTop: 18, fontSize: 30, color: "#3F434A", lineHeight: 1.35 }}>{P(c.sub)}</div>
         <div style={{ display: "flex", position: "relative", marginTop: 30, width: cw, height: ch }}>
           <img src={src} width={cw} height={ch} alt="" />
           {marks.map(([x, v, lab, dx, dy, right], i) => (
@@ -175,35 +191,31 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
               fontSize: 27, fontWeight: 700, color: INK }}>{lab}</div>
           ))}
         </div>
-        {foot(false, T("Year-end values · CompaniesMarketCap", "年末市值 · CompaniesMarketCap"))}
+        {foot(false, P(c.foot))}
       </div>
     );
   } else {
     const qr = await QRCode.toDataURL(link, { margin: 0, width: 220, color: { dark: INK, light: "#ffffff" } });
-    const rows: [string[], string, string][] = [
-      [["us"], T("United States", "美国"), T("The stock: a five-day rally, a 10% chip price rise, and is it still worth buying?", "股票本身：连涨五天、芯片提价 10%、还值不值得买。")],
-      [["sg", "in"], T("Singapore and India", "新加坡、印度"), T("The industry: one of several chipmakers lifted by demand for AI computing.", "整个行业：被 AI 算力需求带动的几家芯片公司之一。")],
-      [["cn"], T("China", "中国"), T("First the milestone, often in yuan; then long reads on Lisa Su's twelve years.", "先报里程碑，常换算成人民币；再写苏姿丰的十二年。")],
-    ];
+    const rows = ig.countries.rows.map((r) => [r.flags, P(r.name), P(r.t)] as const);
     body = (
       <div style={{ width: W, height: H, display: "flex", flexDirection: "column", background: "#fff", fontFamily: "Sans", padding: "64px 72px 60px" }}>
         {head(false, "")}
-        {kicker(T("ONE MILESTONE, THREE STORIES", "同一个里程碑，三种讲法"))}
-        <div style={{ display: "flex", marginTop: 22, fontSize: zh ? 56 : 60, fontWeight: 900, lineHeight: 1.1, color: INK, letterSpacing: zh ? 0 : -1 }}>{T("How outlets in four countries reported AMD's $1 trillion day", "四个国家的媒体，怎么报道 AMD 破万亿")}</div>
+        {kicker(P(ig.countries.kicker))}
+        <div style={{ display: "flex", marginTop: 22, fontSize: zh ? 56 : 60, fontWeight: 900, lineHeight: 1.1, color: INK, letterSpacing: zh ? 0 : -1 }}>{P(ig.countries.title)}</div>
         <div style={{ display: "flex", flexDirection: "column", marginTop: 34, flexGrow: 1 }}>
           {rows.map(([flags, c, t], i) => (
-            <div key={i} style={{ display: "flex", flexDirection: "column", borderTop: "1px solid #E5E7EB", padding: "36px 0" }}>
+            <div key={i} style={{ display: "flex", flexDirection: "column", borderTop: "1px solid #E5E7EB", padding: rows.length < 3 ? "56px 0" : "36px 0" }}>
               <div style={{ display: "flex", alignItems: "center" }}>
                 {flags.map((f) => <img key={f} src={`https://flagcdn.com/48x36/${f}.png`} width={44} height={33} style={{ marginRight: 12, borderRadius: 3 }} alt="" />)}
-                <div style={{ display: "flex", marginLeft: 6, fontSize: 36, fontWeight: 900, color: INK }}>{c}</div>
+                <div style={{ display: "flex", marginLeft: 6, fontSize: rows.length < 3 ? 44 : 36, fontWeight: 900, color: INK }}>{c}</div>
               </div>
-              <div style={{ display: "flex", marginTop: 14, fontSize: 34, lineHeight: 1.36, color: "#374151" }}>{t}</div>
+              <div style={{ display: "flex", marginTop: 14, fontSize: rows.length < 3 ? 42 : 34, lineHeight: 1.36, color: "#374151" }}>{t}</div>
             </div>
           ))}
         </div>
         <div style={{ display: "flex", alignItems: "flex-end", borderTop: `4px solid ${INK}`, paddingTop: 24 }}>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ display: "flex", fontSize: 22, color: MUTED }}>{T("22 articles in our sources, 21 to 23 September 2026", "我们收录的 22 篇报道，2026 年 9 月 21 至 23 日")}</div>
+            <div style={{ display: "flex", fontSize: 22, color: MUTED }}>{P(ig.countries.foot)}</div>
             <div style={{ display: "flex", marginTop: 10, fontSize: 32, fontWeight: 700, color: INK }}>{T("Full anatomy: link in bio →", "完整剖面：主页链接 →")}</div>
           </div>
           <div style={{ marginLeft: "auto", display: "flex", flexDirection: "column", alignItems: "center" }}>

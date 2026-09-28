@@ -3,7 +3,7 @@
 // Rules: facts from the listed sources only; no investment advice; no personal wealth or family gossip.
 
 export type L = { en: string; zh: string };
-export type Figure = "cap" | "chiplet" | "revenue" | "vsintel" | "deals" | "timeline" | "countries";
+export type Figure = "cap" | "chiplet" | "revenue" | "vsintel" | "deals" | "timeline" | "countries" | "pricetags" | "split" | "royalty" | "model";
 /** A freely licensed photo from Wikimedia Commons, hotlinked at a set width, always credited. */
 export type Photo = { file: string; credit: string; license: string; caption: L; alt: L; fit?: "cover" | "contain"; pos?: string };
 /** Commons photos are copied once into /public/anatomy-img as WebP (scripts/anatomy-images.mts), so they load from our own CDN, not from Wikimedia in the US. */
@@ -14,7 +14,7 @@ export const photoSrcSet = (file: string) => PHOTO_WIDTHS.map((w) => `${photoUrl
 /** the original on Commons, for the downloader */
 export const commonsUrl = (file: string, width: number) => `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}?width=${width}`;
 export const photoPage = (file: string) => `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(file.replace(/ /g, "_"))}`;
-export type Section = { id: string; h: L; paras: L[]; figure?: Figure; photo?: Photo };
+export type Section = { id: string; h: L; paras: L[]; figure?: Figure | Figure[]; photo?: Photo };
 export type Source = { n: number; name: string; title: string; url: string };
 export type TimelineItem = { date: L; text: L; src: number[] };
 export type CountryCard = { code: string; count: number; outlets: string; focus: L; headlines: { t: string; url: string; outlet: string }[] };
@@ -29,8 +29,31 @@ export type Profile = {
   igHook: L;
   lede: L[]; sections: Section[]; timeline: TimelineItem[]; countries: CountryCard[]; sources: Source[];
   stats: { label: L; from: number; to: number; fromLabel: L; toLabel: L; unit: "bn" | "pct"; src: number[] }[];
-  cap: Point[]; intel: Point[]; revenue: { year: number; v: number; dc?: number }[];
-  deals: { name: string; gw: number; date: L; src: number[] }[];
+  /** who the piece is about: the "Latest on …" heading, JSON-LD, and which live events count as being about it */
+  name: string; legalName: string; newsMatch: { src: string; flags: string };
+  /** sources listed even when no [[n]] marker points at them (chart data) */
+  alwaysCite?: number[];
+  /** the method note at the foot of the page */
+  method: L;
+  // figure data; each is only needed by the figures a profile uses
+  cap?: Point[]; capMarks?: { x: number; label: L }[]; intel?: Point[]; revenue?: { year: number; v: number; dc?: number }[];
+  deals?: { name: string; gw: number; date: L; src: number[] }[];
+  /** horizontal bars of what the company was worth at set moments ($ billion) */
+  priceTags?: { title: L; note: L; rows: { label: L; v: number; kind: "deal" | "market" }[] };
+  /** stacked yearly bars: part a + part b = total; rows without a split show the total only */
+  split?: { title: L; note: L; a: L; b: L; rows: { label: string; total: number; a?: number; b?: number }[] };
+  /** ranges in percent, e.g. royalty rates */
+  royalty?: { title: L; note: L; rows: { label: L; lo: number; hi: number; sub: L; approx?: boolean }[] };
+  ig: IgSlides;
+};
+
+/** Text for Instagram slides 2 to 5 and the Story; slide 1 is built from title, igHook and cover. */
+export type IgSlides = {
+  numbers: { kicker: L; rows: { big: L; label: L; sub: L }[]; source: L };
+  decisions: { h: L; tag: string; t: L }[];
+  /** slide 4: "logcap" draws cap on a log scale with labelled marks [x, value, label, dx, dy, right-aligned]; "tags" draws priceTags as bars */
+  chart: { kind: "logcap"; kicker: L; sub: L; foot: L; marks: [number, number, L, number, number, boolean][] } | { kind: "tags"; kicker: L; sub: L; foot: L };
+  countries: { kicker: L; title: L; rows: { flags: string[]; name: L; t: L }[]; foot: L };
 };
 
 const AMD: Profile = {
@@ -267,9 +290,356 @@ const AMD: Profile = {
     { name: "Meta", gw: 6, date: { en: "Feb 2026", zh: "2026 年 2 月" }, src: [17] },
     { name: "Anthropic", gw: 2, date: { en: "Jul 2026", zh: "2026 年 7 月" }, src: [17] },
   ],
+  name: "AMD", legalName: "Advanced Micro Devices, Inc.", newsMatch: { src: "\\bAMD\\b|Advanced Micro Devices|超威", flags: "i" },
+  alwaysCite: [7, 8, 9, 13, 17],
+  method: {
+    en: "Method: drafted with AI from the sources above and checked line by line by an editor. Market values are year-end figures and may differ slightly between data providers. This is not investment advice. Found a mistake? Email ",
+    zh: "写法：本文由 AI 根据上列来源整理，编辑逐条核对。市值为年末数据，可能与其他数据商略有出入。本文不构成投资建议。发现错误请写信到 ",
+  },
+  capMarks: [
+    { x: 2014.77, label: { en: "Oct 2014: Lisa Su becomes CEO", zh: "2014.10 苏姿丰出任 CEO" } },
+    { x: 2017.17, label: { en: "Mar 2017: first Zen chips", zh: "2017.3 首批 Zen 芯片上市" } },
+    { x: 2019.5, label: { en: "2019: Zen 2 chiplets, made by TSMC", zh: "2019 Zen 2 小芯片，台积电生产" } },
+    { x: 2022.12, label: { en: "Feb 2022: Xilinx deal closes", zh: "2022.2 完成收购 Xilinx" } },
+    { x: 2023.93, label: { en: "Dec 2023: MI300X launched", zh: "2023.12 发布 MI300X" } },
+    { x: 2025.76, label: { en: "Oct 2025: OpenAI 6 GW deal", zh: "2025.10 OpenAI 6 吉瓦协议" } },
+    { x: 2026.72, label: { en: "21 Sep 2026: $1 trillion", zh: "2026.9.21 市值破 1 万亿美元" } },
+  ],
+  ig: {
+    numbers: {
+      kicker: { en: "TWELVE YEARS IN THREE NUMBERS", zh: "十二年，三个数字" },
+      rows: [
+        { big: { en: "$2.1B → $1T", zh: "21 亿美元 → 1 万亿美元" }, label: { en: "Market value", zh: "市值" }, sub: { en: "End of 2014 → 21 September 2026", zh: "2014 年底 → 2026 年 9 月 21 日" } },
+        { big: { en: "$5.5B → $35B", zh: "55 亿美元 → 346 亿美元" }, label: { en: "Annual revenue", zh: "年营收" }, sub: { en: "2014 → 2025", zh: "2014 年 → 2025 年" } },
+        { big: { en: "48%", zh: "48%" }, label: { en: "of revenue from data centres", zh: "营收来自数据中心" }, sub: { en: "2025", zh: "2025 年" } },
+      ],
+      source: { en: "Sources: CompaniesMarketCap, AMD results", zh: "来源：CompaniesMarketCap、AMD 财报" },
+    },
+    decisions: [
+      { h: { en: "A new design, not a patch", zh: "重新设计，而不是修补" }, tag: "Zen", t: { en: "Instead of fixing old chips, AMD bet on a new design. The first Ryzen chips went on sale in March 2017.", zh: "AMD 没有修补旧芯片，而是押注全新设计。2017 年 3 月，第一批 Ryzen 上市。" } },
+      { h: { en: "Let TSMC build it, in pieces", zh: "交给台积电，拆成小块来造" }, tag: "Chiplets", t: { en: "From 2019, small compute dies made by TSMC sit next to one input/output die in a single package.", zh: "从 2019 年起，台积电生产的小计算芯片和一块输入输出芯片封装在一起。" } },
+      { h: { en: "Go where the servers are", zh: "去服务器所在的地方" }, tag: "EPYC", t: { en: "Data centres brought in $16.6 billion in 2025, about half of all revenue.", zh: "2025 年，数据中心带来 166 亿美元收入，约占一半。" } },
+    ],
+    chart: {
+      kind: "logcap", kicker: { en: "MARKET VALUE, 2014 TO 2026", zh: "市值，2014 至 2026" },
+      sub: { en: "Each gridline is ten times the one below.", zh: "对数刻度：每条横线是下面一条的 10 倍。" },
+      foot: { en: "Year-end values · CompaniesMarketCap", zh: "年末市值 · CompaniesMarketCap" },
+      marks: [
+        [2014.99, 2.07, { en: "2014: Lisa Su becomes CEO", zh: "2014 苏姿丰上任" }, 24, 12, false],
+        [2016.99, 9.91, { en: "2017: first Zen chips", zh: "2017 首批 Zen 芯片" }, 24, 14, false],
+        [2021.99, 173.77, { en: "2022: Xilinx, passes Intel", zh: "2022 收购 Xilinx，超过 Intel" }, -24, -58, true],
+        [2026.72, 1003, { en: "Sep 2026: $1 trillion", zh: "2026.9 破 1 万亿美元" }, -26, -12, true],
+      ],
+    },
+    countries: {
+      kicker: { en: "ONE MILESTONE, THREE STORIES", zh: "同一个里程碑，三种讲法" },
+      title: { en: "How outlets in four countries reported AMD's $1 trillion day", zh: "四个国家的媒体，怎么报道 AMD 破万亿" },
+      rows: [
+        { flags: ["us"], name: { en: "United States", zh: "美国" }, t: { en: "The stock: a five-day rally, a 10% chip price rise, and is it still worth buying?", zh: "股票本身：连涨五天、芯片提价 10%、还值不值得买。" } },
+        { flags: ["sg", "in"], name: { en: "Singapore and India", zh: "新加坡、印度" }, t: { en: "The industry: one of several chipmakers lifted by demand for AI computing.", zh: "整个行业：被 AI 算力需求带动的几家芯片公司之一。" } },
+        { flags: ["cn"], name: { en: "China", zh: "中国" }, t: { en: "First the milestone, often in yuan; then long reads on Lisa Su's twelve years.", zh: "先报里程碑，常换算成人民币；再写苏姿丰的十二年。" } },
+      ],
+      foot: { en: "22 articles in our sources, 21 to 23 September 2026", zh: "我们收录的 22 篇报道，2026 年 9 月 21 至 23 日" },
+    },
+  },
 };
 
-export const PROFILES: Profile[] = [AMD];
+const ARM: Profile = {
+  slug: "arm", no: 2, companyId: 335, companySlug: "arm-holdings",
+  title: { en: "Arm: The Chipmaker That Makes No Chips", zh: "Arm：不造芯片，也能从全球手机赚钱" },
+  dek: {
+    en: "For more than thirty years Arm sold only designs and licences and collected a fee on nearly every smartphone; in 2026 it started selling a chip of its own.",
+    zh: "三十多年只卖设计图和授权，几乎每部智能手机都要向它交费；2026 年，它第一次卖起了自己的芯片。",
+  },
+  social: { en: "The company nearly every phone pays", zh: "几乎每部手机都向它交钱" },
+  igHook: { en: "It owns no factory, yet gets paid for almost every phone", zh: "它不生产芯片，却能按颗收钱" },
+  seoTitle: { en: "How Arm Makes Money: Licences, Royalties and 99% of Smartphones", zh: "Arm 怎么赚钱：授权费、版税与 99% 的智能手机" },
+  seoDesc: {
+    en: "Arm Holdings' technology is in more than 99% of smartphones, yet it has never manufactured a chip. How its licence-and-royalty model works, the Nokia and iPhone years, Armv9 royalty rates, SoftBank, the failed Nvidia deal, the 2023 IPO and its first own chip, the AGI CPU, with every number sourced.",
+    zh: "超过 99% 的智能手机基于 Arm 的技术，它却从不自己生产芯片。授权费加版税的模式怎么运作，诺基亚与 iPhone 时代，Armv9 版税率，软银收购、英伟达收购失败、2023 年上市，以及第一颗自有芯片 AGI CPU，每个数字附来源。",
+  },
+  keywords: ["Arm", "Arm Holdings", "安谋", "Arm 架构", "Arm business model", "Arm 版税", "royalty", "Armv9", "Rene Haas", "SoftBank Arm", "软银 Arm", "Nvidia Arm deal", "Arm IPO", "Arm AGI CPU", "Neoverse"],
+  published: "2026-10-01", updated: "2026-10-01",
+  cover: { file: "STM32F100C4T6B-HD.jpg", credit: "ZeptoBars", license: "CC BY 3.0",
+    caption: { en: "The silicon die of an STM32F100 microcontroller. ST Microelectronics built it around an Arm Cortex-M3 processor core, licensed from Arm.", zh: "STM32F100 微控制器的硅芯片。意法半导体用从 Arm 授权的 Cortex-M3 处理器核心设计了这颗芯片。" },
+    alt: { en: "Colourful microscope photo of a microcontroller die", zh: "微控制器芯片裸片的彩色显微照片" } },
+  lede: [
+    {
+      en: "More than 99% of the world's smartphones are based on technology from a company that does not manufacture chips [[1]][[5]]. Arm, based in Cambridge, England, sells blueprints. Chip companies pay a fee to license its designs, then a royalty on every chip they ship. In the year to March 2026 that brought in $4.92 billion, $2.61 billion of it royalties [[2]]. More than 350 billion Arm-based chips have been shipped so far [[1]]. On 25 September 2026 Arm was worth about $331 billion [[17]], more than ten times the $31 billion SoftBank paid for it in 2016 [[12]].",
+      zh: "全世界超过 99% 的智能手机，都基于一家不生产芯片的公司的技术 [[1]][[5]]。这家公司叫 Arm，总部在英国剑桥，卖的是图纸：芯片公司先付授权费拿到设计，之后每卖出一颗芯片，再付一笔版税。截至 2026 年 3 月的财年，Arm 由此收入 49.2 亿美元，其中版税 26.1 亿美元 [[2]]。基于 Arm 的芯片累计出货已超过 3500 亿颗 [[1]]。2026 年 9 月 25 日，Arm 市值约 3314 亿美元 [[17]]，是 2016 年软银收购价 310 亿美元的十倍多 [[12]]。",
+    },
+  ],
+  sections: [
+    {
+      id: "origin", h: { en: "A chip that saved power by accident", zh: "一颗意外省电的芯片" },
+      photo: { file: "Acorn Archimedes A310 with mouse and keyboard.jpg", credit: "mikkohoo", license: "CC BY-SA 4.0",
+        caption: { en: "An Acorn Archimedes A310, one of Acorn's home computers built on the ARM processor.", zh: "Acorn Archimedes A310，Acorn 基于 ARM 处理器推出的家用电脑之一。" },
+        alt: { en: "Beige Acorn Archimedes computer with keyboard and mouse", zh: "米色的 Acorn Archimedes 电脑、键盘和鼠标" } },
+      paras: [
+        {
+          en: "The first ARM chip came from Acorn Computers, a British home-computer maker. Designed by Sophie Wilson and Steve Furber, it was first switched on on 26 April 1985 [[6]]. It had about 25,000 transistors [[9]] and drew about 120 milliwatts [[6]]. According to Wilson, a fault on the test board meant no current reached the chip through its power lines, yet it kept running on leakage from the surrounding circuits. She later called the low power \"a complete accident\" [[7]].",
+          zh: "第一颗 ARM 芯片出自英国家用电脑公司 Acorn。它由 Sophie Wilson 和 Steve Furber 设计，1985 年 4 月 26 日第一次通电 [[6]]。芯片约有 2.5 万个晶体管 [[9]]，功耗约 120 毫瓦 [[6]]。据 Wilson 回忆，测试板出了故障，电源线上其实没有电流流进芯片，它却靠周围电路漏过来的电继续运行。她后来说，低功耗\"完全是个意外\" [[7]]。",
+        },
+        {
+          en: "Acorn put the chip into its Archimedes computers [[28]]. In November 1990 the design team became a separate company, Advanced RISC Machines, a joint venture of Acorn, Apple and the chipmaker VLSI Technology. Its 12 engineers started out in an old turkey barn in Swaffham Bulbeck, near Cambridge [[1]][[9]].",
+          zh: "Acorn 把这颗芯片用在了自家的 Archimedes 电脑上 [[28]]。1990 年 11 月，设计团队独立成一家新公司 Advanced RISC Machines，由 Acorn、苹果和芯片公司 VLSI Technology 合资成立。12 名工程师的起点，是剑桥附近 Swaffham Bulbeck 村的一座旧火鸡谷仓 [[1]][[9]]。",
+        },
+      ],
+    },
+    {
+      id: "licence", h: { en: "Decision one: sell the design, not the chip", zh: "决定一：只卖设计，不卖芯片" }, figure: "model",
+      photo: { file: "Apple Newton MessagePad 100.jpg", credit: "Felix Winkelnkemper", license: "CC BY-SA 4.0", fit: "contain",
+        caption: { en: "Apple's Newton MessagePad, launched in 1993 on an ARM processor. It did not sell well.", zh: "苹果 Newton MessagePad，1993 年上市，使用 ARM 处理器，销量不佳。" },
+        alt: { en: "Apple Newton MessagePad handheld computer", zh: "苹果 Newton MessagePad 掌上电脑" } },
+      paras: [
+        {
+          en: "Apple backed the new company because it wanted an ARM processor for the Newton, its handheld computer [[29]]. The Newton launched in 1993 and was not a commercial success [[1]]. A young company with one weak customer could not afford factories of its own. Robin Saxby, its first chief executive and a chip-industry veteran who had worked at Motorola, chose a model that was unusual at the time: license the processor design to many chip companies, and earn a royalty on each chip they sell [[1]][[8]].",
+          zh: "苹果投资这家新公司，是因为它想为掌上电脑 Newton 配一颗 ARM 处理器 [[29]]。Newton 于 1993 年上市，商业上并不成功 [[1]]。一家只有一个弱势客户的小公司，建不起自己的工厂。首任 CEO Robin Saxby 曾在摩托罗拉工作，是芯片行业老手，他选择了当时少见的模式：把处理器设计授权给许多芯片公司，再从它们卖出的每一颗芯片里抽取版税 [[1]][[8]]。",
+        },
+        {
+          en: "The licensees do the expensive part: they build complete chips around Arm's designs, pay factories to make them and sell them under their own names. Arm does not manufacture chips itself [[5]]. Each new licensee adds to the number of chips that will one day pay it a royalty.",
+          zh: "昂贵的部分由客户承担：它们围绕 Arm 的设计做出完整芯片，付钱请工厂生产，再用自己的品牌出售。Arm 自己不生产芯片 [[5]]。每多一家授权客户，将来付版税的芯片就多一批。",
+        },
+      ],
+    },
+    {
+      id: "mobile", h: { en: "Decision two: bet on low power, and on phones", zh: "决定二：押注省电，押注手机" },
+      photo: { file: "Nokia 6110 blue-92107.jpg", credit: "Raimond Spekking", license: "CC BY-SA 4.0", fit: "contain",
+        caption: { en: "A Nokia 6110. Launched in 1997, it ran on an ARM7 processor core.", zh: "诺基亚 6110。这款手机 1997 年上市，使用 ARM7 处理器核心。" },
+        alt: { en: "Blue Nokia 6110 mobile phone", zh: "蓝色的诺基亚 6110 手机" } },
+      paras: [
+        {
+          en: "Low power mattered little in a desktop computer and a great deal in anything with a battery. In 1993 Arm signed a licence with Texas Instruments, which advised Nokia to use Arm designs. The Nokia 6110, launched in 1997 on an ARM7 core, was a big success [[1]][[10]]. Apple's first iPod, in 2001, also used ARM7 [[10]].",
+          zh: "在台式电脑里，省电不算什么；在任何靠电池工作的设备里，省电至关重要。1993 年，Arm 与德州仪器签下授权，德州仪器又建议诺基亚采用 Arm 的设计。1997 年上市的诺基亚 6110 使用 ARM7 核心，大获成功 [[1]][[10]]。2001 年苹果的第一代 iPod 同样用的是 ARM7 [[10]]。",
+        },
+        {
+          en: "When smartphones arrived, both camps started on Arm: the first iPhone and the first Android phone, the HTC Dream, were both Arm-based [[10]]. In the year to March 2023 alone, Arm's partners reported shipping more than 30 billion Arm-based chips [[5]].",
+          zh: "智能手机到来时，两大阵营都从 Arm 起步：第一代 iPhone 和第一部安卓手机 HTC Dream 都基于 Arm [[10]]。仅截至 2023 年 3 月的一个财年，Arm 的合作伙伴就报告出货超过 300 亿颗基于 Arm 的芯片 [[5]]。",
+        },
+      ],
+    },
+    {
+      id: "royalty", h: { en: "Decision three: charge more for each chip", zh: "决定三：每颗芯片收得更多" }, figure: ["royalty", "split"],
+      paras: [
+        {
+          en: "For most of its history the limit on Arm's income was the size of each payment: a royalty is a small share of a chip's price. Newer designs raise that share. On an earnings call in July 2025, chief executive Rene Haas said royalties on the older Armv8 designs were about 2.5% to 3.5% of a chip's price, on Armv9 about 5%, and on compute subsystems (CSS), where Arm supplies much more of the finished design, roughly double that [[11]].",
+          zh: "在大部分历史里，限制 Arm 收入的是每笔钱的大小：版税只占芯片售价的一小部分。新一代设计提高了这个比例。2025 年 7 月的业绩电话会上，CEO Rene Haas 说，旧一代 Armv8 设计的版税约为芯片售价的 2.5% 到 3.5%，Armv9 约 5%，而由 Arm 提供更完整设计的计算子系统（CSS）大约再翻一倍 [[11]]。",
+        },
+        {
+          en: "Revenue followed. In the year to March 2026 it rose 23% to $4.92 billion, with $2.61 billion from royalties and $2.31 billion from licensing. It was Arm's third year in a row of growth above 20% since it went public [[2]].",
+          zh: "收入随之增长。截至 2026 年 3 月的财年，Arm 营收增长 23%，达到 49.2 亿美元，其中版税 26.1 亿美元，授权 23.1 亿美元。这是它上市以来连续第三个财年增长超过 20% [[2]]。",
+        },
+      ],
+    },
+    {
+      id: "owners", h: { en: "Sold, nearly sold again, then listed", zh: "被收购，差点再被转卖，然后上市" }, figure: "pricetags",
+      photo: { file: "Cambridge ARM building panorama.jpg", credit: "Cmglee", license: "CC BY-SA 3.0",
+        caption: { en: "Arm's headquarters at Peterhouse Technology Park, Cambridge.", zh: "Arm 位于英国剑桥 Peterhouse 科技园的总部大楼。" },
+        alt: { en: "Panorama of the Arm headquarters building in Cambridge", zh: "剑桥 Arm 总部大楼全景" } },
+      paras: [
+        {
+          en: "In July 2016 SoftBank agreed to buy Arm for £24.0 billion, about $31 billion, and took it off the stock market; the deal completed that September [[12]][[1]]. In September 2020 SoftBank agreed to sell Arm to Nvidia for up to $40 billion in cash and shares [[13]]. The deal met what the companies called \"significant regulatory challenges\" and was cancelled in February 2022 [[14]].",
+          zh: "2016 年 7 月，软银同意以 240 亿英镑（约 310 亿美元）收购 Arm，并让它退市，交易于当年 9 月完成 [[12]][[1]]。2020 年 9 月，软银同意以最多 400 亿美元的现金加股票把 Arm 卖给英伟达 [[13]]。这笔交易遇到了双方所说的\"重大监管挑战\"，2022 年 2 月宣告取消 [[14]]。",
+        },
+        {
+          en: "Arm went back to the stock market instead. It priced its Nasdaq listing at $51 a share on 13 September 2023, a value of more than $54 billion, and SoftBank kept about 90% [[15]][[16]][[27]]. At the end of 2025 Arm's market value was $117 billion; on 25 September 2026 it was about $331 billion [[17]].",
+          zh: "Arm 转而重新上市。2023 年 9 月 13 日，它在纳斯达克以每股 51 美元定价，估值超过 540 亿美元，软银保留约 90% 的股份 [[15]][[16]][[27]]。2025 年底，Arm 市值为 1170 亿美元；2026 年 9 月 25 日约为 3314 亿美元 [[17]]。",
+        },
+      ],
+    },
+    {
+      id: "ownchip", h: { en: "2026: a chip of its own", zh: "2026 年：第一颗自己的芯片" },
+      photo: { file: "Nvidia DGX GB200.jpg", credit: "Pokiiri", license: "CC BY-SA 4.0", fit: "contain",
+        caption: { en: "An Nvidia GB200 rack, with 36 Arm-based Grace processors alongside 72 GPUs, photographed in 2025.", zh: "英伟达 GB200 机柜，内有 36 颗基于 Arm 的 Grace 处理器和 72 颗 GPU，摄于 2025 年。" },
+        alt: { en: "Tall black Nvidia server rack", zh: "黑色的英伟达服务器机柜" } },
+      paras: [
+        {
+          en: "Arm's designs reached data centres through the cloud companies. Amazon's Graviton, Google's Axion, Microsoft's Cobalt and Nvidia's Grace are all built on Arm, and Arm expected close to half of the computing shipped to the largest cloud companies in 2025 to be Arm-based [[18]].",
+          zh: "Arm 的设计通过云计算公司进入了数据中心。亚马逊的 Graviton、谷歌的 Axion、微软的 Cobalt 和英伟达的 Grace 都基于 Arm。Arm 预计，2025 年交付给最大几家云公司的算力中，接近一半基于 Arm [[18]]。",
+        },
+        {
+          en: "On 24 March 2026 Arm went a step further and launched the Arm AGI CPU, a data-centre processor that it sells itself, with up to 136 cores, made by TSMC on a 3-nanometre process. Arm called it a \"historic company first\"; Meta is its lead partner and co-developer [[19]]. In the quarter to June 2026 revenue rose 22% to $1.29 billion, data-centre royalties more than doubled, and Arm said demand for the new chip was above $2 billion across this financial year and the next, to March 2028 [[21]].",
+          zh: "2026 年 3 月 24 日，Arm 更进一步，发布了自己销售的数据中心处理器 Arm AGI CPU：最多 136 个核心，由台积电以 3 纳米工艺生产。Arm 称之为\"公司历史上的第一次\"，Meta 是首要合作伙伴和共同开发者 [[19]]。截至 2026 年 6 月的季度，Arm 营收增长 22%，达到 12.9 亿美元，数据中心版税增长超过一倍；Arm 表示，新芯片在本财年和下一财年（至 2028 年 3 月）的需求超过 20 亿美元 [[21]]。",
+        },
+        {
+          en: "In a CNBC interview on 16 September, Haas said he was more confident that the new chip could reach $2 billion in revenue [[23]]. On 21 September Arm's shares rose as much as 16.8% during trading [[22]].",
+          zh: "9 月 16 日接受 CNBC 采访时，Haas 表示，对新芯片实现 20 亿美元收入更有信心了 [[23]]。9 月 21 日，Arm 股价盘中一度上涨 16.8% [[22]]。",
+        },
+      ],
+    },
+    { id: "timeline", h: { en: "Timeline", zh: "时间线" }, figure: "timeline", paras: [] },
+    {
+      id: "countries", h: { en: "One company, told two ways", zh: "同一家公司，两种讲法" }, figure: "countries",
+      paras: [
+        {
+          en: "We looked at articles in our sources between 16 and 25 September 2026 with Arm in the headline: 23 articles, all from two countries. Outlets in Japan, Singapore, India, Germany and France covered SoftBank's record bond sale in the same week, but their headlines were about SoftBank, not Arm. This shows only what our sources carried.",
+          zh: "我们查看了 2026 年 9 月 16 日至 25 日，收录来源中标题提到 Arm 的报道：共 23 篇，全部来自两个国家。同一周，日本、新加坡、印度、德国和法国的媒体报道了软银创纪录的债券发行，但标题说的是软银，不是 Arm。这里只反映我们收录的来源。",
+        },
+      ],
+    },
+    {
+      id: "open", h: { en: "What is not settled", zh: "还没有答案的问题" },
+      paras: [
+        { en: "Partner or rival. Arm now sells its own data-centre processor in a market where some of the companies that build on its designs, such as Nvidia with Grace, sell Arm-based processors too [[18]][[19]].", zh: "伙伴还是对手。Arm 现在自己卖数据中心处理器，而在同一个市场里，一些基于它的设计做芯片的公司，比如做 Grace 的英伟达，也在卖基于 Arm 的处理器 [[18]][[19]]。" },
+        { en: "Licences in court. In December 2024 a US jury found that Qualcomm had not breached the Arm licence of Nuvia, a start-up it bought, and that its chips were covered by its own Arm licence; a judge entered final judgment for Qualcomm in September 2025, and Arm said it would appeal [[24]][[25]].", zh: "授权官司。2024 年 12 月，美国陪审团认定高通没有违反其收购的初创公司 Nuvia 与 Arm 的授权协议，其芯片也在高通自己的 Arm 授权范围内；2025 年 9 月法官作出有利于高通的最终判决，Arm 表示将上诉 [[24]][[25]]。" },
+        { en: "Expectations. Arm's stated target is $25 billion of revenue a year by the year to March 2031, $15 billion of it from its own chips [[20]]. Revenue in the latest full year was $4.92 billion [[2]], so today's market value reflects revenue expected rather than revenue already earned.", zh: "预期。Arm 公开的目标是：到截至 2031 年 3 月的财年，年营收达到 250 亿美元，其中 150 亿来自自有芯片 [[20]]。最近一个完整财年的营收是 49.2 亿美元 [[2]]，所以今天的市值反映的是预期收入，而不是已经实现的收入。" },
+      ],
+    },
+  ],
+  timeline: [
+    { date: { en: "26 Apr 1985", zh: "1985 年 4 月 26 日" }, text: { en: "First ARM chip switched on at Acorn", zh: "第一颗 ARM 芯片在 Acorn 通电" }, src: [6] },
+    { date: { en: "Nov 1990", zh: "1990 年 11 月" }, text: { en: "Advanced RISC Machines founded by Acorn, Apple and VLSI; 12 engineers", zh: "Acorn、苹果、VLSI 合资成立 Advanced RISC Machines，12 名工程师" }, src: [1] },
+    { date: { en: "1993", zh: "1993 年" }, text: { en: "Apple Newton launches; licence deal with Texas Instruments", zh: "苹果 Newton 上市；与德州仪器签下授权" }, src: [1] },
+    { date: { en: "1997", zh: "1997 年" }, text: { en: "Nokia 6110 on an ARM7 core", zh: "诺基亚 6110 采用 ARM7 核心" }, src: [10] },
+    { date: { en: "Apr 1998", zh: "1998 年 4 月" }, text: { en: "Listed in London and on Nasdaq", zh: "在伦敦和纳斯达克上市" }, src: [1] },
+    { date: { en: "2001", zh: "2001 年" }, text: { en: "First iPod, on ARM7", zh: "第一代 iPod 采用 ARM7" }, src: [10] },
+    { date: { en: "2007 to 2008", zh: "2007 至 2008 年" }, text: { en: "First iPhone (2007) and first Android phone (2008), both Arm-based", zh: "第一代 iPhone（2007）和第一部安卓手机（2008），都基于 Arm" }, src: [10] },
+    { date: { en: "Sep 2016", zh: "2016 年 9 月" }, text: { en: "SoftBank completes purchase, about $31 billion", zh: "软银完成收购，约 310 亿美元" }, src: [12, 1] },
+    { date: { en: "2018", zh: "2018 年" }, text: { en: "Neoverse server designs; first Amazon Graviton", zh: "推出 Neoverse 服务器设计；亚马逊第一代 Graviton" }, src: [1, 10] },
+    { date: { en: "Feb 2022", zh: "2022 年 2 月" }, text: { en: "Sale to Nvidia (up to $40 billion) cancelled", zh: "卖给英伟达的交易（最多 400 亿美元）取消" }, src: [13, 14] },
+    { date: { en: "Sep 2023", zh: "2023 年 9 月" }, text: { en: "Back on the market: Nasdaq listing at $51 a share", zh: "重新上市：纳斯达克每股 51 美元" }, src: [15] },
+    { date: { en: "Mar 2026", zh: "2026 年 3 月" }, text: { en: "Arm AGI CPU, its first own chip; Meta lead partner", zh: "发布首款自有芯片 Arm AGI CPU，Meta 为首要合作伙伴" }, src: [19] },
+    { date: { en: "May 2026", zh: "2026 年 5 月" }, text: { en: "Full-year revenue $4.92 billion, up 23%", zh: "全年营收 49.2 亿美元，增长 23%" }, src: [2] },
+    { date: { en: "Sep 2026", zh: "2026 年 9 月" }, text: { en: "Shares up as much as 16.8% in a day; value about $331 billion", zh: "股价单日盘中最多涨 16.8%；市值约 3314 亿美元" }, src: [22, 17] },
+  ],
+  countries: [
+    {
+      code: "US", count: 14, outlets: "Yahoo Finance, CNBC",
+      focus: { en: "Mostly the stock: whether it is worth buying, comparisons with AMD, Intel and Nvidia, and the chief executive's confidence in the new data-centre chip. Most pieces come from one finance site.", zh: "主要是股票本身：值不值得买，与 AMD、英特尔、英伟达的比较，以及 CEO 对新数据中心芯片的信心。大部分文章来自同一家财经网站。" },
+      headlines: [
+        { t: "Arm CEO says he's more confident its new AI chip can meet a loftier $2B revenue goal", outlet: "CNBC", url: "https://www.cnbc.com/2026/09/16/jim-cramer-arm-ceo-ai-revenue-goal.html" },
+        { t: "Arm Stock: Too Good to Sell, Too Expensive to Buy", outlet: "Yahoo Finance", url: "https://finance.yahoo.com/markets/stocks/articles/arm-stock-too-good-sell-182431532.html" },
+        { t: "Meta’s Muse Highlights Arm’s Growing Role in AI Infrastructure", outlet: "Yahoo Finance", url: "https://finance.yahoo.com/technology/ai/articles/meta-muse-highlights-arm-growing-190000939.html" },
+      ],
+    },
+    {
+      code: "CN", count: 9, outlets: "21世纪经济报道, 36氪, 钛媒体, IT之家",
+      focus: { en: "Arm appears in three ways: as one line in overnight US market roundups, through SoftBank's loan backed by Arm shares, and as a technology inside products and business models, from Arm-based storage devices to a Chinese car-chip maker, Horizon Robotics, betting on an \"Arm plus Android\" platform model.", zh: "Arm 以三种方式出现：美股隔夜行情综述里的一行；以 Arm 股票为抵押的软银贷款；以及产品和商业模式里的技术，从基于 Arm 的存储设备，到中国车载芯片公司地平线押注的\"Arm+Android\"平台模式。" },
+      headlines: [
+        { t: "从卖芯片到做平台，地平线押注“Arm+Android”模式", outlet: "钛媒体", url: "https://www.tmtpost.com/8148860.html" },
+        { t: "软银将Arm保证金贷款增至250亿美元，加大人工智能押注", outlet: "36氪", url: "https://36kr.com/newsflashes/3988504767626241" },
+        { t: "威联通推出 12\" 短机身 1U NAS 新品 TS-432XeU，基于 4 核 Arm Cortex-A57 处理器", outlet: "IT之家", url: "https://www.ithome.com/1/005/992.htm" },
+      ],
+    },
+  ],
+  sources: [
+    { n: 1, name: "Arm", title: "Arm's official history", url: "https://newsroom.arm.com/blog/arm-official-history" },
+    { n: 2, name: "Arm", title: "Arm reports results for the fourth quarter and fiscal year 2026", url: "https://newsroom.arm.com/news/arm-q4-fye26-results" },
+    { n: 3, name: "Arm (SEC form 6-K, via Stock Titan)", title: "Fiscal year 2026 and 2025 results by revenue type", url: "https://www.stocktitan.net/sec-filings/ARM/6-k-arm-holdings-plc-uk-current-report-foreign-issuer-7e9ca9ac7dda.html" },
+    { n: 4, name: "Arm", title: "Q4 fiscal year 2024 shareholder letter", url: "https://investors.arm.com/static-files/0c5f0128-b149-4196-9ef6-3c618ec2782b" },
+    { n: 5, name: "SEC", title: "Arm Holdings plc, Form F-1 registration statement (August 2023)", url: "https://www.sec.gov/Archives/edgar/data/1973239/000119312523216983/d393891df1.htm" },
+    { n: 6, name: "The Register", title: "Arm at 40: the first chip was switched on 26 April 1985", url: "https://www.theregister.com/2025/04/29/arm_40/" },
+    { n: 7, name: "The Register", title: "Unsung heroes of tech: Arm creators Sophie Wilson and Steve Furber", url: "https://www.theregister.com/2012/05/03/unsung_heroes_of_tech_arm_creators_sophie_wilson_and_steve_furber/?page=3" },
+    { n: 8, name: "Arm Community", title: "A brief history of Arm, part 1", url: "https://developer.arm.com/community/arm-community-blogs/b/architectures-and-processors-blog/posts/a-brief-history-of-arm-part-1" },
+    { n: 9, name: "Cambridge Independent", title: "Birth pangs of modern processing at Arm Holdings celebrated", url: "https://www.cambridgeindependent.co.uk/business/birth-pangs-of-modern-processing-at-arm-holdings-celebrated-9415304/" },
+    { n: 10, name: "Arm", title: "35 years of Arm technology innovation", url: "https://newsroom.arm.com/blog/arm-35-years-technology-innovation" },
+    { n: 11, name: "EE Times", title: "Armv9 and CSS royalties drive growth in $1bn Arm Q1 earnings", url: "https://www.eetimes.com/armv9-and-css-royalties-drive-growth-in-1bn-arm-q1-earnings/" },
+    { n: 12, name: "SoftBank Group", title: "SoftBank to acquire ARM (18 July 2016)", url: "https://group.softbank/en/news/press/20160718" },
+    { n: 13, name: "SoftBank Group", title: "Agreement to sell Arm to NVIDIA (14 September 2020)", url: "https://group.softbank/en/news/press/20200914_0" },
+    { n: 14, name: "SoftBank Group", title: "Termination of the sale of Arm to NVIDIA (8 February 2022)", url: "https://group.softbank/en/news/press/20220208" },
+    { n: 15, name: "Arm", title: "Arm announces pricing of initial public offering", url: "https://newsroom.arm.com/news/arm-announces-pricing-of-initial-public-offering" },
+    { n: 16, name: "CNBC", title: "Arm prices IPO at $51 per share", url: "https://www.cnbc.com/2023/09/13/arm-prices-ipo-at-51-per-share.html" },
+    { n: 17, name: "CompaniesMarketCap", title: "Arm Holdings market capitalization", url: "https://companiesmarketcap.com/arm-holdings/marketcap/" },
+    { n: 18, name: "Arm", title: "Half of the compute shipped to top hyperscalers in 2025 will be Arm-based", url: "https://newsroom.arm.com/blog/half-of-compute-shipped-to-top-hyperscalers-in-2025-will-be-arm-based" },
+    { n: 19, name: "Arm", title: "Arm launches the Arm AGI CPU (24 March 2026)", url: "https://newsroom.arm.com/news/arm-agi-cpu-launch" },
+    { n: 20, name: "Arm", title: "Q4 fiscal year 2026 earnings call transcript", url: "https://investors.arm.com/static-files/78526857-5997-46eb-9b65-0d3249d83711" },
+    { n: 21, name: "Arm", title: "Arm reports results for the first quarter of fiscal year 2027", url: "https://newsroom.arm.com/news/arm-q1-fye27-results" },
+    { n: 22, name: "Yahoo Finance", title: "Arm Holdings (ARM) soars 17% on ambitious $2B revenue goal", url: "https://finance.yahoo.com/markets/stocks/articles/arm-holdings-arm-soars-17-184855651.html" },
+    { n: 23, name: "CNBC", title: "Arm CEO says he's more confident its new AI chip can meet a loftier $2B revenue goal", url: "https://www.cnbc.com/2026/09/16/jim-cramer-arm-ceo-ai-revenue-goal.html" },
+    { n: 24, name: "EE Times", title: "Twists and turns as Qualcomm wins Arm legal case", url: "https://www.eetimes.com/twists-and-turns-as-qualcomm-wins-arm-legal-case-arm-shares-rise/" },
+    { n: 25, name: "RCR Wireless", title: "Court enters final judgment for Qualcomm in Arm case", url: "https://rcrwireless.com/20251001/business/qualcomm-arm-2" },
+    { n: 26, name: "Arm", title: "Results for the fourth quarter and full year 2015", url: "https://newsroom.arm.com/news/arm-holdings-plc-reports-results-for-the-fourth-quarter-and-full-year-2015" },
+    { n: 27, name: "CNN", title: "Arm shares soar in Nasdaq debut", url: "https://www.cnn.com/2023/09/14/investing/arm-ipo-nasdaq/index.html" },
+    { n: 28, name: "Centre for Computing History", title: "Acorn Archimedes", url: "https://chrisacorns.computinghistory.org.uk/Computers/Archimedes.html" },
+    { n: 29, name: "AppleInsider", title: "How Arm has already saved Apple, twice", url: "https://appleinsider.com/articles/20/06/09/how-arm-has-already-saved-apple---twice" },
+  ],
+  stats: [
+    { label: { en: "What Arm is worth", zh: "公司价值" }, from: 31, to: 331.42, fromLabel: { en: "SoftBank's price, 2016", zh: "2016 年软银收购价" }, toLabel: { en: "Sep 2026", zh: "2026 年 9 月" }, unit: "bn", src: [12, 17] },
+    { label: { en: "Annual revenue", zh: "年营收" }, from: 1.49, to: 4.92, fromLabel: { en: "2015", zh: "2015 年" }, toLabel: { en: "year to Mar 2026", zh: "截至 2026 年 3 月" }, unit: "bn", src: [26, 2] },
+    { label: { en: "Smartphones based on Arm", zh: "基于 Arm 的智能手机" }, from: 0, to: 99, fromLabel: { en: "", zh: "" }, toLabel: { en: "more than 99%, Arm's figure", zh: "超过 99%，Arm 公布" }, unit: "pct", src: [1, 5] },
+  ],
+  name: "Arm", legalName: "Arm Holdings plc", newsMatch: { src: "\\b(Arm|ARM)\\b|安谋", flags: "" },
+  alwaysCite: [3, 4, 5, 13, 16, 17],
+  method: {
+    en: "Method: drafted with AI from the sources above and checked line by line by an editor. Revenue is by Arm's financial year, which ends on 31 March; 2015 is a calendar year. Market values may differ slightly between data providers. This is not investment advice. Found a mistake? Email ",
+    zh: "写法：本文由 AI 根据上列来源整理，编辑逐条核对。营收按 Arm 的财年计算，财年截至每年 3 月 31 日；2015 年为自然年。市值在不同数据商之间可能略有出入。本文不构成投资建议。发现错误请写信到 ",
+  },
+  // $ billion: deal prices [12][13], value at the IPO price [16], market value [17]
+  priceTags: {
+    title: { en: "What Arm was worth ($ billion)", zh: "Arm 值多少钱（十亿美元）" },
+    note: {
+      en: "2016 and 2020 are agreed deal prices; the Nvidia deal was cancelled. September 2023 is the value at the IPO price (\"more than $54 billion\"). The rest are market values at year-end and on 25 September 2026. Sources: SoftBank, CNBC, CompaniesMarketCap.",
+      zh: "2016 年和 2020 年是谈定的交易价格，其中英伟达的交易已取消。2023 年 9 月是按发行价计算的估值（\"超过 540 亿美元\"）。其余是年末和 2026 年 9 月 25 日的市值。来源：软银、CNBC、CompaniesMarketCap。",
+    },
+    rows: [
+      { label: { en: "SoftBank deal, Jul 2016", zh: "软银收购，2016.7" }, v: 31, kind: "deal" },
+      { label: { en: "Nvidia deal, Sep 2020 (cancelled)", zh: "英伟达收购，2020.9（取消）" }, v: 40, kind: "deal" },
+      { label: { en: "Value at IPO, Sep 2023", zh: "上市时估值，2023.9" }, v: 54, kind: "deal" },
+      { label: { en: "End of 2023", zh: "2023 年底" }, v: 77.04, kind: "market" },
+      { label: { en: "End of 2024", zh: "2024 年底" }, v: 135.78, kind: "market" },
+      { label: { en: "End of 2025", zh: "2025 年底" }, v: 116.99, kind: "market" },
+      { label: { en: "25 Sep 2026", zh: "2026.9.25" }, v: 331.42, kind: "market" },
+    ],
+  },
+  // $ billion by financial year to 31 March: totals FY2021 to FY2023 [5], split FY2023 and FY2024 [4], FY2025 and FY2026 [3][2]
+  split: {
+    title: { en: "Arm revenue by financial year ($ billion)", zh: "Arm 各财年营收（十亿美元）" },
+    note: {
+      en: "Financial years end on 31 March, so FY2026 is April 2025 to March 2026. The split is not shown for FY2021 and FY2022. Sources: Arm F-1, Arm results.",
+      zh: "财年截至每年 3 月 31 日，FY2026 即 2025 年 4 月至 2026 年 3 月。FY2021 和 FY2022 未拆分。来源：Arm 招股书、Arm 业绩公告。",
+    },
+    a: { en: "Royalties", zh: "版税" }, b: { en: "Licensing and other", zh: "授权及其他" },
+    rows: [
+      { label: "FY2021", total: 2.03 }, { label: "FY2022", total: 2.7 },
+      { label: "FY2023", total: 2.68, a: 1.675, b: 1.004 }, { label: "FY2024", total: 3.23, a: 1.802, b: 1.431 },
+      { label: "FY2025", total: 4.01, a: 2.161, b: 1.846 }, { label: "FY2026", total: 4.92, a: 2.613, b: 2.307 },
+    ],
+  },
+  royalty: {
+    title: { en: "Royalty as a share of a chip's price", zh: "版税占芯片售价的比例" },
+    note: {
+      en: "Approximate figures given by chief executive Rene Haas on the July 2025 earnings call, as reported by EE Times. Actual rates differ by contract and are not published.",
+      zh: "CEO Rene Haas 在 2025 年 7 月业绩电话会上给出的大致数字，据 EE Times 报道。实际费率因合同而异，并不公开。",
+    },
+    rows: [
+      { label: { en: "Armv8", zh: "Armv8" }, lo: 2.5, hi: 3.5, sub: { en: "older designs", zh: "旧一代设计" } },
+      { label: { en: "Armv9", zh: "Armv9" }, lo: 5, hi: 5, sub: { en: "newer designs", zh: "新一代设计" } },
+      { label: { en: "CSS", zh: "CSS" }, lo: 10, hi: 10, approx: true, sub: { en: "compute subsystems", zh: "计算子系统" } },
+    ],
+  },
+  ig: {
+    numbers: {
+      kicker: { en: "ONE COMPANY, THREE NUMBERS", zh: "一家公司，三个数字" },
+      rows: [
+        { big: { en: "$31B → $331B", zh: "310 亿 → 3314 亿美元" }, label: { en: "What Arm is worth", zh: "公司价值" }, sub: { en: "SoftBank's price in 2016 → 25 September 2026", zh: "2016 年软银收购价 → 2026 年 9 月 25 日市值" } },
+        { big: { en: "350 billion+", zh: "3500 亿颗+" }, label: { en: "Arm-based chips shipped so far", zh: "累计出货的 Arm 芯片" }, sub: { en: "Arm's count", zh: "Arm 公布的数字" } },
+        { big: { en: "99%+", zh: "99%+" }, label: { en: "of smartphones are based on Arm", zh: "的智能手机基于 Arm 技术" }, sub: { en: "Arm's figure", zh: "Arm 公布的数字" } },
+      ],
+      source: { en: "Sources: SoftBank, CompaniesMarketCap, Arm", zh: "来源：软银、CompaniesMarketCap、Arm" },
+    },
+    decisions: [
+      { h: { en: "Sell the design, not the chip", zh: "只卖设计，不卖芯片" }, tag: "Licensing", t: { en: "Chip companies pay once to license a design, then a royalty on every chip they ship.", zh: "芯片公司先付授权费拿到设计，之后每卖一颗芯片再付版税。" } },
+      { h: { en: "Bet on low power", zh: "押注省电" }, tag: "Mobile", t: { en: "The Nokia 6110 in 1997, the first iPod in 2001, then the first iPhone (2007) and Android phone (2008).", zh: "1997 年的诺基亚 6110、2001 年的第一代 iPod，再到 2007 年的第一代 iPhone 和 2008 年的第一部安卓手机。" } },
+      { h: { en: "Charge more for each chip", zh: "每颗芯片收得更多" }, tag: "Armv9 · CSS", t: { en: "Newer designs earn about 5% of a chip's price, up from 2.5 to 3.5%, the CEO says.", zh: "CEO 说，新一代设计的版税约为芯片售价的 5%，旧一代是 2.5% 到 3.5%。" } },
+    ],
+    chart: {
+      kind: "tags", kicker: { en: "WHAT ARM WAS WORTH", zh: "Arm 值多少钱" },
+      sub: { en: "Deal prices first, then market value.", zh: "先是交易价格，后是市值。" },
+      foot: { en: "SoftBank, CNBC, CompaniesMarketCap", zh: "软银、CNBC、CompaniesMarketCap" },
+    },
+    countries: {
+      kicker: { en: "ONE COMPANY, TWO STORIES", zh: "同一家公司，两种讲法" },
+      title: { en: "How US and Chinese outlets wrote about Arm in September", zh: "9 月中旬，美国和中国媒体怎么写 Arm" },
+      rows: [
+        { flags: ["us"], name: { en: "United States", zh: "美国" }, t: { en: "Mostly the stock: is it worth buying, and can the new data-centre chip reach its $2 billion goal?", zh: "主要是股票：值不值得买，新数据中心芯片能否达到 20 亿美元目标。" } },
+        { flags: ["cn"], name: { en: "China", zh: "中国" }, t: { en: "A line in market roundups, SoftBank's loan against Arm shares, and Arm inside products and business models.", zh: "行情综述里的一行、以 Arm 股票抵押的软银贷款，以及产品和商业模式里的 Arm。" } },
+      ],
+      foot: { en: "23 articles in our sources, 16 to 25 September 2026", zh: "我们收录的 23 篇报道，2026 年 9 月 16 日至 25 日" },
+    },
+  },
+};
+
+export const PROFILES: Profile[] = [AMD, ARM];
 export const getProfile = (slug: string) => PROFILES.find((p) => p.slug === slug) ?? null;
 export const pick = (l: L, zh: boolean) => (zh ? l.zh : l.en);
 

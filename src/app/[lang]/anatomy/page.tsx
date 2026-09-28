@@ -6,7 +6,7 @@ export const revalidate = 86400;
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const l = await langFrom(params);
-  const p = PROFILES[0];
+  const p = [...PROFILES].sort((a, b) => b.no - a.no)[0];
   return {
     title: l === "zh" ? "Coda 剖面" : "Coda Anatomy",
     description: l === "zh" ? "切开一家公司、一个行业或一次转折：决定、数字、利益关系，以及各国怎么讲。" : "Cutting open one company, industry or turning point: the decisions, the numbers, and how each country tells it.",
@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 
 export default async function Page({ params }: { params: Promise<{ lang: string }> }) {
   const zh = (await langFrom(params)) === "zh";
-  const [lead, ...rest] = PROFILES;
+  const [lead, ...rest] = [...PROFILES].sort((a, b) => b.no - a.no);
   const s = lead.stats[0];
   return (
     <div className="mx-auto max-w-[1080px] px-4 py-10 sm:px-8 sm:py-14">

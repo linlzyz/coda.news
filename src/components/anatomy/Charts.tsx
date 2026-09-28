@@ -296,3 +296,149 @@ export function TimelineRow({ date, children, last }: { date: string; children: 
     </li>
   );
 }
+
+/* ---------- 8. what the company was worth: deal prices, then market value ---------- */
+type LL = { en: string; zh: string };
+const tr = (l: LL, zh: boolean) => (zh ? l.zh : l.en);
+
+export function PriceTags({ data, zh }: { data: { title: LL; note: LL; rows: { label: LL; v: number; kind: "deal" | "market" }[] }; zh: boolean }) {
+  const [ref, on] = useInView<HTMLDivElement>(0.3);
+  const max = Math.max(...data.rows.map((r) => r.v));
+  return (
+    <Frame title={tr(data.title, zh)} note={tr(data.note, zh)}
+      table={<Table head={[zh ? "时间" : "When", zh ? "价值" : "Value"]} rows={data.rows.map((r) => [tr(r.label, zh), money(r.v, zh)])} />}>
+      <div className="mb-3 flex flex-wrap gap-4 text-[12px] text-neutral-600">
+        <span className="inline-flex items-center gap-1.5"><span className="ana-key ana-neutral-bg" />{zh ? "交易价格" : "Deal price"}</span>
+        <span className="inline-flex items-center gap-1.5"><span className="ana-key ana-amd-bg" />{zh ? "市值" : "Market value"}</span>
+      </div>
+      <div ref={ref} className="space-y-2.5">
+        {data.rows.map((r, i) => (
+          <div key={i} className="grid grid-cols-[112px_1fr] items-center gap-3 sm:grid-cols-[200px_1fr]">
+            <span className="text-[12.5px] leading-tight text-neutral-600">{tr(r.label, zh)}</span>
+            <span className="flex items-center gap-2">
+              <span className={`block h-[18px] rounded-r-md ${r.kind === "deal" ? "ana-neutral-bg" : "ana-amd-bg"} transition-[width] duration-700 ease-out motion-reduce:transition-none`}
+                style={{ width: on ? `${Math.max(1.5, (r.v / max) * 78)}%` : "0%", transitionDelay: `${i * 0.12}s` }} />
+              <span className="shrink-0 text-[12.5px] font-semibold tabular-nums text-[#16181D] dark:text-neutral-100">{money(r.v, zh)}</span>
+            </span>
+          </div>
+        ))}
+      </div>
+    </Frame>
+  );
+}
+
+/* ---------- 9. revenue by year, split in two parts ---------- */
+export function SplitBars({ data, zh }: { data: { title: LL; note: LL; a: LL; b: LL; rows: { label: string; total: number; a?: number; b?: number }[] }; zh: boolean }) {
+  const [ref, on] = useInView<HTMLDivElement>();
+  const [hi, setHi] = useState<number | null>(null);
+  const BW = 720, BH = 280, m = { l: 40, r: 12, t: 30, b: 30 };
+  const top = Math.ceil(Math.max(...data.rows.map((r) => r.total)) + 0.5);
+  const slot = (BW - m.l - m.r) / data.rows.length, bw = Math.min(64, slot - 24);
+  const sy = (v: number) => m.t + (1 - v / top) * (BH - m.t - m.b);
+  const ticks = Array.from({ length: top + 1 }, (_, i) => i).filter((v) => top <= 6 || v % 2 === 0);
+  const fmt = (v: number) => (zh ? `${(v * 10).toFixed(v * 10 >= 100 ? 0 : 1).replace(/\.0$/, "")} 亿` : `$${v.toFixed(2)}B`);
+  return (
+    <Frame title={tr(data.title, zh)} note={tr(data.note, zh)}
+      table={<Table head={[zh ? "财年" : "Year", zh ? "总计" : "Total", tr(data.a, zh), tr(data.b, zh)]} rows={data.rows.map((r) => [r.label, r.total, r.a ?? "", r.b ?? ""])} />}>
+      <div className="mb-2 flex flex-wrap gap-4 text-[12px] text-neutral-600">
+        <span className="inline-flex items-center gap-1.5"><span className="ana-key ana-amd-bg" />{tr(data.a, zh)}</span>
+        <span className="inline-flex items-center gap-1.5"><span className="ana-key ana-intel-bg" />{tr(data.b, zh)}</span>
+        <span className="inline-flex items-center gap-1.5"><span className="ana-key ana-neutral-bg" />{zh ? "总计（未拆分）" : "Total (no split)"}</span>
+      </div>
+      <div ref={ref} className="relative">
+        <svg viewBox={`0 0 ${BW} ${BH}`} className="block h-auto w-full" role="img" aria-label={data.rows.map((r) => `${r.label} ${fmt(r.total)}`).join(", ")}>
+          {ticks.map((v) => <g key={v}><line x1={m.l} x2={BW - m.r} y1={sy(v)} y2={sy(v)} className={v ? "ana-grid" : "ana-base"} /><text x={m.l - 8} y={sy(v)} dy="0.32em" textAnchor="end" className="ana-axis">{v}</text></g>)}
+          {data.rows.map((r, k) => {
+            const x = m.l + k * slot + (slot - bw) / 2;
+            const hA = r.a !== undefined ? sy(0) - sy(r.a) : 0;
+            return (
+              <g key={r.label} className="ana-grow" style={{ transform: on ? "scaleY(1)" : "scaleY(0)", transitionDelay: `${(k * 0.1).toFixed(2)}s`, transformOrigin: `0 ${sy(0)}px` }}
+                onPointerEnter={() => setHi(k)} onPointerLeave={() => setHi(null)} opacity={hi === null || hi === k ? 1 : 0.6}>
+                <rect x={x - 6} y={m.t} width={bw + 12} height={BH - m.t - m.b} fill="transparent" />
+                {r.a !== undefined && r.b !== undefined ? (
+                  <>
+                    <rect x={x} y={sy(r.a)} width={bw} height={hA} className="ana-amd-fill" />
+                    <rect x={x} y={sy(r.a + r.b)} width={bw} height={sy(r.a) - sy(r.a + r.b) - 1.5} rx={3} className="ana-intel-fill" />
+                  </>
+                ) : <rect x={x} y={sy(r.total)} width={bw} height={sy(0) - sy(r.total)} rx={3} className="ana-neutral-fill" />}
+                <text x={x + bw / 2} y={sy(r.total) - 7} textAnchor="middle" className="ana-value">{fmt(r.total)}</text>
+                <text x={x + bw / 2} y={BH - 9} textAnchor="middle" className="ana-axis">{r.label}</text>
+              </g>
+            );
+          })}
+        </svg>
+        {hi !== null && data.rows[hi].a !== undefined && (
+          <Tip x={m.l + hi * slot + slot / 2} y={sy(data.rows[hi].total)}>
+            <b>{data.rows[hi].label}</b> · {fmt(data.rows[hi].total)}<br />{tr(data.a, zh)} {fmt(data.rows[hi].a!)}<br />{tr(data.b, zh)} {fmt(data.rows[hi].b!)}
+          </Tip>
+        )}
+      </div>
+    </Frame>
+  );
+}
+
+/* ---------- 10. ranges in percent (royalty rates) ---------- */
+export function RangeBars({ data, zh }: { data: { title: LL; note: LL; rows: { label: LL; lo: number; hi: number; sub: LL; approx?: boolean }[] }; zh: boolean }) {
+  const [ref, on] = useInView<HTMLDivElement>(0.4);
+  const max = Math.max(...data.rows.map((r) => r.hi)) * 1.15;
+  const txt = (r: { lo: number; hi: number; approx?: boolean }) => (r.lo === r.hi ? `${r.approx ? "~" : ""}${r.hi}%` : `${r.lo}–${r.hi}%`);
+  return (
+    <Frame title={tr(data.title, zh)} note={tr(data.note, zh)}
+      table={<Table head={["", zh ? "占芯片售价" : "Share of chip price"]} rows={data.rows.map((r) => [tr(r.label, zh), txt(r)])} />}>
+      <div ref={ref} className="space-y-4">
+        {data.rows.map((r, i) => (
+          <div key={i} className="grid grid-cols-[92px_1fr] items-center gap-3 sm:grid-cols-[150px_1fr]">
+            <span className="leading-tight"><span className="block text-[14px] font-semibold text-[#16181D] dark:text-neutral-100">{tr(r.label, zh)}</span><span className="block text-[11.5px] text-neutral-500">{tr(r.sub, zh)}</span></span>
+            <span className="relative flex h-7 items-center">
+              <span className="absolute inset-y-[9px] left-0 right-0 rounded-full bg-[var(--ana-grid)]" />
+              <span className="relative block h-[10px] rounded-full ana-amd-bg transition-[width] duration-700 ease-out motion-reduce:transition-none"
+                style={{ width: on ? `${(r.hi / max) * 100}%` : "0%", transitionDelay: `${i * 0.25}s` }}>
+                {r.lo !== r.hi && <span className="absolute inset-y-0 rounded-r-full bg-white/45" style={{ left: `${(r.lo / r.hi) * 100}%`, right: 0 }} />}
+              </span>
+              <span className="relative ml-2 shrink-0 text-[13px] font-semibold tabular-nums text-[#16181D] transition-opacity duration-500 dark:text-neutral-100" style={{ opacity: on ? 1 : 0, transitionDelay: `${0.5 + i * 0.25}s` }}>{txt(r)}</span>
+            </span>
+          </div>
+        ))}
+      </div>
+    </Frame>
+  );
+}
+
+/* ---------- 11. how a licensing business gets paid ---------- */
+export function LicenceModel({ zh }: { zh: boolean }) {
+  const [ref, on] = useInView<HTMLDivElement>(0.4);
+  const steps: [string, string][] = zh
+    ? [["Arm", "设计处理器架构和核心，不生产芯片"], ["芯片公司", "买授权，围绕 Arm 核心设计完整芯片"], ["代工厂", "按芯片公司的订单生产"], ["设备", "手机、汽车、服务器等，用上这些芯片"]]
+    : [["Arm", "Designs processor architectures and cores; makes no chips"], ["Chip companies", "License a design and build a complete chip around it"], ["Factories", "Manufacture the chips to order"], ["Devices", "Phones, cars, servers and more ship with the chips"]];
+  const back: [string, string][] = zh
+    ? [["授权费", "一次性，获得某个设计的使用权"], ["版税", "每卖出一颗芯片，按售价的一定比例付给 Arm"]]
+    : [["Licence fee", "Paid once, for the right to use a design"], ["Royalty", "A share of the price of every chip sold, paid to Arm"]];
+  return (
+    <Frame title={zh ? "Arm 怎么收钱" : "How Arm gets paid"} note={zh ? "示意图。具体费率因合同而异，不公开。" : "Illustration. Actual terms differ by contract and are not published."}>
+      <div ref={ref}>
+        <ol className="grid gap-2 sm:grid-cols-4 sm:gap-3">
+          {steps.map(([h, t], i) => (
+            <li key={h} className="relative rounded-xl border p-3 transition-all duration-500 motion-reduce:transition-none"
+              style={{ opacity: on ? 1 : 0, transform: on ? "none" : "translateY(8px)", transitionDelay: `${i * 0.2}s`,
+                borderColor: i === 0 ? "var(--ana-amd)" : "var(--ana-grid)", background: i === 0 ? "color-mix(in srgb, var(--ana-amd) 8%, transparent)" : undefined }}>
+              <span className="block text-[14px] font-semibold text-[#16181D] dark:text-neutral-100">{h}</span>
+              <span className="mt-1 block text-[12.5px] leading-snug text-neutral-600">{t}</span>
+              {i < steps.length - 1 && <span aria-hidden className="absolute -bottom-[13px] left-1/2 z-10 -translate-x-1/2 text-[13px] text-neutral-400 sm:-right-[13px] sm:bottom-auto sm:left-auto sm:top-1/2 sm:-translate-y-1/2 sm:translate-x-0">{"→"}</span>}
+            </li>
+          ))}
+        </ol>
+        <div className="mt-4 rounded-xl p-3 transition-opacity duration-500 motion-reduce:transition-none" style={{ opacity: on ? 1 : 0, transitionDelay: "0.9s", background: "color-mix(in srgb, var(--ana-amd) 8%, transparent)" }}>
+          <div className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--ana-amd)]">{zh ? "钱从芯片公司流回 Arm" : "Money flows back to Arm from the chip companies"}</div>
+          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            {back.map(([h, t], i) => (
+              <div key={h} className="flex gap-2">
+                <span className="ana-chip">{i + 1}</span>
+                <span className="text-[13px] leading-snug text-neutral-700"><b className="text-[#16181D] dark:text-neutral-100">{h}</b>{zh ? "：" : ": "}{t}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </Frame>
+  );
+}

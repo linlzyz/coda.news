@@ -7,7 +7,7 @@ import { regionName } from "@/lib/ui";
 import { Flag } from "@/components/Flag";
 import { NewsItem } from "@/components/NewsItem";
 import { PROFILES, getProfile, money, photoPage, photoSrcSet, photoUrl, pick, type Figure, type Photo, type Profile, type Source } from "@/lib/anatomy";
-import { CapChart, Chiplet, CountUp, Deals, RevenueBars, TimelineRow, VsIntel } from "@/components/anatomy/Charts";
+import { CapChart, Chiplet, CountUp, Deals, LicenceModel, PriceTags, RangeBars, RevenueBars, SplitBars, TimelineRow, VsIntel } from "@/components/anatomy/Charts";
 
 export const revalidate = 3600;
 export function generateStaticParams() { return PROFILES.map((p) => ({ slug: p.slug })); }
@@ -59,19 +59,15 @@ function PhotoFig({ p, zh }: { p: Photo; zh: boolean }) {
 
 function FigureFor({ f, pr, zh }: { f: Figure; pr: Profile; zh: boolean }) {
   switch (f) {
-    case "cap": return <CapChart pts={pr.cap} zh={zh} marks={[
-      { x: 2014.77, label: zh ? "2014.10 苏姿丰出任 CEO" : "Oct 2014: Lisa Su becomes CEO" },
-      { x: 2017.17, label: zh ? "2017.3 首批 Zen 芯片上市" : "Mar 2017: first Zen chips" },
-      { x: 2019.5, label: zh ? "2019 Zen 2 小芯片，台积电生产" : "2019: Zen 2 chiplets, made by TSMC" },
-      { x: 2022.12, label: zh ? "2022.2 完成收购 Xilinx" : "Feb 2022: Xilinx deal closes" },
-      { x: 2023.93, label: zh ? "2023.12 发布 MI300X" : "Dec 2023: MI300X launched" },
-      { x: 2025.76, label: zh ? "2025.10 OpenAI 6 吉瓦协议" : "Oct 2025: OpenAI 6 GW deal" },
-      { x: 2026.72, label: zh ? "2026.9.21 市值破 1 万亿美元" : "21 Sep 2026: $1 trillion" },
-    ]} />;
+    case "cap": return pr.cap ? <CapChart pts={pr.cap} zh={zh} marks={(pr.capMarks ?? []).map((m) => ({ x: m.x, label: pick(m.label, zh) }))} /> : null;
     case "chiplet": return <Chiplet zh={zh} />;
-    case "revenue": return <RevenueBars rows={pr.revenue} zh={zh} />;
-    case "vsintel": return <VsIntel amd={pr.cap} intel={pr.intel} zh={zh} />;
-    case "deals": return <Deals deals={pr.deals} zh={zh} />;
+    case "revenue": return pr.revenue ? <RevenueBars rows={pr.revenue} zh={zh} /> : null;
+    case "vsintel": return pr.cap && pr.intel ? <VsIntel amd={pr.cap} intel={pr.intel} zh={zh} /> : null;
+    case "deals": return pr.deals ? <Deals deals={pr.deals} zh={zh} /> : null;
+    case "pricetags": return pr.priceTags ? <PriceTags data={pr.priceTags} zh={zh} /> : null;
+    case "split": return pr.split ? <SplitBars data={pr.split} zh={zh} /> : null;
+    case "royalty": return pr.royalty ? <RangeBars data={pr.royalty} zh={zh} /> : null;
+    case "model": return <LicenceModel zh={zh} />;
     case "timeline": return (
       <ol className="mt-5">
         {pr.timeline.map((t, i) => <TimelineRow key={i} date={pick(t.date, zh)} last={i === pr.timeline.length - 1}>{pick(t.text, zh)}<Cites ns={t.src} /></TimelineRow>)}
@@ -112,7 +108,7 @@ export default async function Page({ params }: PageProps<"/[lang]/anatomy/[slug]
   const zh = l === "zh";
   // only stories that are actually about the company, not ones that merely mention it
   const events = (await listEvents({ companyId: pr.companyId, order: "recent", limit: 40 }).catch(() => []))
-    .filter((e) => /\bAMD\b|Advanced Micro Devices|超威/i.test(`${e.title} ${(e as { title_zh?: string | null }).title_zh ?? ""}`)).slice(0, 6);
+    .filter((e) => new RegExp(pr.newsMatch.src, pr.newsMatch.flags).test(`${e.title} ${(e as { title_zh?: string | null }).title_zh ?? ""}`)).slice(0, 6);
   const companies = await companyMap(events).catch(() => undefined);
   const used = new Set<number>();
   const collect = (s: string) => { for (const m of s.matchAll(/\[\[(\d+)\]\]/g)) used.add(Number(m[1])); };
@@ -120,12 +116,12 @@ export default async function Page({ params }: PageProps<"/[lang]/anatomy/[slug]
   pr.sections.forEach((s) => s.paras.forEach((x) => collect(pick(x, zh))));
   pr.timeline.forEach((t) => t.src.forEach((n) => used.add(n)));
   pr.stats.forEach((t) => t.src.forEach((n) => used.add(n)));
-  const sources: Source[] = pr.sources.filter((s) => used.has(s.n) || [7, 8, 9, 13, 17].includes(s.n));
+  const sources: Source[] = pr.sources.filter((s) => used.has(s.n) || (pr.alwaysCite ?? []).includes(s.n));
   const url = `${SITE.url}${zh ? "/zh" : ""}/anatomy/${pr.slug}`;
   const ld = {
     "@context": "https://schema.org", "@type": "Article", headline: pick(pr.seoTitle, zh), alternativeHeadline: pick(pr.title, zh),
     datePublished: pr.published, dateModified: pr.updated, inLanguage: zh ? "zh-CN" : "en", mainEntityOfPage: url, isAccessibleForFree: true,
-    about: { "@type": "Corporation", name: "AMD", legalName: "Advanced Micro Devices, Inc." },
+    about: { "@type": "Corporation", name: pr.name, legalName: pr.legalName },
     author: { "@type": "Organization", name: SITE.name, url: SITE.url }, publisher: orgLd,
     isPartOf: { "@type": "CreativeWorkSeries", name: zh ? "Coda 剖面" : "Coda Anatomy", url: `${SITE.url}${zh ? "/zh" : ""}/anatomy` },
     citation: sources.map((s) => s.url),
@@ -180,13 +176,13 @@ export default async function Page({ params }: PageProps<"/[lang]/anatomy/[slug]
           <div className="mt-3 space-y-4 text-[16.5px] leading-[1.7] text-neutral-800">
             {s.paras.map((x, i) => <p key={i}><Rich text={pick(x, zh)} /></p>)}
           </div>
-          {s.figure && <FigureFor f={s.figure} pr={pr} zh={zh} />}
+          {s.figure && (Array.isArray(s.figure) ? s.figure : [s.figure]).map((f) => <FigureFor key={f} f={f} pr={pr} zh={zh} />)}
         </section>
       ))}
 
       <section className="mt-14 border-t border-[#E5E7EB] pt-6">
         <div className="flex items-baseline justify-between gap-4">
-          <h2 className="text-[20px] font-semibold tracking-[-0.02em] text-[#16181D]">{zh ? "AMD 最新动态" : "Latest on AMD"}</h2>
+          <h2 className="text-[20px] font-semibold tracking-[-0.02em] text-[#16181D]">{zh ? `${pr.name} 最新动态` : `Latest on ${pr.name}`}</h2>
           <Link href={`/company/${pr.companySlug}`} className="shrink-0 text-[13px] font-medium text-[#C2410C] hover:underline">{zh ? "公司页 →" : "Company page →"}</Link>
         </div>
         <p className="mt-1 text-[13px] text-neutral-500">{zh ? "这一段自动更新，来自 coda.news 追踪的各国报道。" : "This part updates by itself from the coverage coda.news tracks."}</p>
@@ -203,9 +199,7 @@ export default async function Page({ params }: PageProps<"/[lang]/anatomy/[slug]
           ))}
         </ol>
         <p className="mt-5 text-[12.5px] leading-relaxed text-neutral-500">
-          {zh
-            ? "写法：本文由 AI 根据上列来源整理，编辑逐条核对。市值为年末数据，可能与其他数据商略有出入。本文不构成投资建议。发现错误请写信到 "
-            : "Method: drafted with AI from the sources above and checked line by line by an editor. Market values are year-end figures and may differ slightly between data providers. This is not investment advice. Found a mistake? Email "}
+          {pick(pr.method, zh)}
           <a href={`mailto:${SITE.email}`} className="underline">{SITE.email}</a>{zh ? "。" : "."}
         </p>
       </section>
