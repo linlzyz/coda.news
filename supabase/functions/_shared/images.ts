@@ -174,19 +174,23 @@ async function openverse(q: string): Promise<Img | null> {
 const UA = { "user-agent": "CodaNewsBot/0.1 (https://coda.news; info@coda.news)" };
 /** A vision model looks at the picture before it goes on a story (Lyn, 29 Sept: a blurry night-time still for Cole Bennett,
  *  a Serapian furniture shot from a WWD roundup on a Marni show). No answer (budget, fetch error) counts as a no. */
+type PortraitScore = { sharp?: number; flattering?: number; drawing?: boolean };
+/** Only clear quality failures count: the model is noisy on anything subtler (calibrated on 166 flagged pictures, 29 Sept). */
+export const portraitBad = (v: PortraitScore) => v.drawing === true || Number(v.sharp ?? 5) <= 2 || Number(v.flattering ?? 5) <= 1;
 export async function portraitFits(url: string, name: string, title: string): Promise<boolean> {
-  void title;
-  const v = await visionJSON<{ sharp: number; flattering: number; drawing: boolean; single_subject: boolean }>(
-    `Rate this photo as a news portrait of ${name}. JSON {"sharp":1-5 (5 = crisp, well-lit professional photo; 1 = blurry, dark, grainy phone or video still),"flattering":1-5 (1 = eyes half shut, drunk-looking, grimace),"drawing":true|false,"single_subject":true|false}`,
+  void title; void name;
+  const r = await visionJSON<PortraitScore & { rating?: PortraitScore }>(
+    `Rate this photo for use as a news portrait. Do not identify the person; rate the image only. JSON {"sharp":1-5 (5 = crisp, well-lit professional photo; 1 = blurry, dark, grainy phone or video still),"flattering":1-5 (1 = eyes half shut, drunk-looking, grimace),"drawing":true|false (drawing, engraving, cartoon or painting)}`,
     url, "gpt-5-mini", { effort: "low", detail: "high" }).catch(() => null);
-  // calibrated on 29 Sept: the Cole Bennett still scored 2/2, ordinary red-carpet photos 4-5 / 3-5
-  return !!v && !v.drawing && v.single_subject !== false && Number(v.sharp) >= 3 && Number(v.flattering) >= 3;
+  return !!r && !portraitBad(r.rating ?? r);
 }
+type PressScore = { other_brand?: boolean; fits?: number };
+export const pressBad = (v: PressScore) => Number(v.fits ?? 5) <= 1 || (v.other_brand === true && Number(v.fits ?? 5) <= 2);
 export async function pressFits(url: string, title: string, brand: string | null): Promise<boolean> {
-  const v = await visionJSON<{ mostly_text: boolean; logo_only: boolean; other_brand: boolean; fits: number }>(
-    `This picture illustrates the news story "${title}"${brand ? ` (about ${brand})` : ""}. JSON {"mostly_text":true|false (a headline card, list graphic or screenshot of a notice),"logo_only":true|false,"other_brand":true|false (shows a different brand's product than the story's),"fits":1-5 (5 = shows the story's subject or a scene from it; 1 = unrelated)}`,
+  const v = await visionJSON<PressScore>(
+    `This picture illustrates the news story "${title}"${brand ? ` (about ${brand})` : ""}. JSON {"other_brand":true|false (shows a different brand's product than the story's),"fits":1-5 (5 = shows the story's subject or a scene from it; 1 = unrelated to the story)}`,
     url, "gpt-5-mini", { effort: "low", detail: "high" }).catch(() => null);
-  return !!v && !v.mostly_text && !v.logo_only && !v.other_brand && Number(v.fits) >= 2;
+  return !!v && !pressBad(v);
 }
 
 export async function personPhoto(name: string, eventId: number, title = ""): Promise<Img | null> {
@@ -199,9 +203,10 @@ export async function personPhoto(name: string, eventId: number, title = ""): Pr
   // several people can share a name (Tom Holland the actor and the director): the best-known one, by Wikipedia editions, is the one in the news
   // deno-lint-ignore no-explicit-any
   const person = ids.map((id) => j.entities?.[id]).sort((a: any, b: any) => Object.keys(b?.sitelinks ?? {}).length - Object.keys(a?.sitelinks ?? {}).length).find((e: any) => e &&
-    (e.claims?.P31 ?? []).some((c: any) => c.mainsnak?.datavalue?.value?.id === "Q5") && e.claims?.P18 &&
+    (e.claims?.P31 ?? []).some((c: any) => c.mainsnak?.datavalue?.value?.id === "Q5") &&
     [e.labels?.en?.value, e.labels?.mul?.value, ...(e.aliases?.en ?? []).map((a: any) => a.value), ...(e.aliases?.mul ?? []).map((a: any) => a.value)].filter(Boolean).some((n: string) => norm(n) === norm(name)));
-  if (!person) return null;
+  // the best-known namesake has no portrait: a lesser-known one's (a footballer for a film editor) is worse than none
+  if (!person?.claims?.P18) return null;
   // only the portrait Wikidata editors chose for this person (P18); other Commons files are too often group shots or CD covers
   const files = new Set<string>();
   for (const c of person.claims?.P18 ?? []) { const f = c?.mainsnak?.datavalue?.value; if (typeof f === "string" && c.rank !== "deprecated") files.add("File:" + f); }

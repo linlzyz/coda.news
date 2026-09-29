@@ -1,10 +1,10 @@
 // Audit story pictures with the same vision check the pipeline now uses (supabase/functions/_shared/images.ts).
-//   npx tsx scripts/imagecheck.mts [days=14] [limit=2000] [--apply]    without --apply it only lists what would be dropped
+//   npx tsx scripts/imagecheck.mts [days=14] [limit=2000] [offset=0] [--apply]    without --apply it only lists what would be dropped
 // Dropped pictures go into image_blocked (like the admin "wrong picture" button), so the story falls back to its designed cover.
 import { config } from "dotenv"; config({ path: ".env.local" });
 import postgres from "postgres";
 const sql = postgres(process.env.DATABASE_URL!, { prepare: false });
-const [days = "14", limit = "2000"] = process.argv.slice(2).filter((a) => !a.startsWith("--"));
+const [days = "14", limit = "2000", offset = "0"] = process.argv.slice(2).filter((a) => !a.startsWith("--"));
 const apply = process.argv.includes("--apply");
 const ids = process.argv.find((a) => a.startsWith("--ids="))?.slice(6).split(",").map(Number);
 
@@ -22,25 +22,32 @@ async function vision<T>(prompt: string, url: string): Promise<T | null> {
   try { return JSON.parse((await r.json()).choices[0].message.content) as T; } catch { return null; }
 }
 // same prompts and thresholds as portraitFits / pressFits in supabase/functions/_shared/images.ts
+type PortraitScore = { sharp?: number; flattering?: number; drawing?: boolean };
+const portraitBad = (v: PortraitScore) => v.drawing === true || Number(v.sharp ?? 5) <= 2 || Number(v.flattering ?? 5) <= 1;
+type PressScore = { other_brand?: boolean; fits?: number };
+const pressBad = (v: PressScore) => Number(v.fits ?? 5) <= 1 || (v.other_brand === true && Number(v.fits ?? 5) <= 2);
 async function portraitOk(name: string, url: string) {
-  const v = await vision<{ sharp: number; flattering: number; drawing: boolean; single_subject: boolean }>(`Rate this photo as a news portrait of ${name}. JSON {"sharp":1-5 (5 = crisp, well-lit professional photo; 1 = blurry, dark, grainy phone or video still),"flattering":1-5 (1 = eyes half shut, drunk-looking, grimace),"drawing":true|false,"single_subject":true|false}`, url);
-  return v ? !v.drawing && v.single_subject !== false && Number(v.sharp) >= 3 && Number(v.flattering) >= 3 : null;
+  void name;
+  const r = await vision<PortraitScore & { rating?: PortraitScore }>(`Rate this photo for use as a news portrait. Do not identify the person; rate the image only. JSON {"sharp":1-5 (5 = crisp, well-lit professional photo; 1 = blurry, dark, grainy phone or video still),"flattering":1-5 (1 = eyes half shut, drunk-looking, grimace),"drawing":true|false (drawing, engraving, cartoon or painting)}`, url);
+  return r ? { ok: !portraitBad(r.rating ?? r), v: r } : null;
 }
 async function pressOk(title: string, brand: string | null, url: string) {
-  const v = await vision<{ mostly_text: boolean; logo_only: boolean; other_brand: boolean; fits: number }>(`This picture illustrates the news story "${title}"${brand ? ` (about ${brand})` : ""}. JSON {"mostly_text":true|false (a headline card, list graphic or screenshot of a notice),"logo_only":true|false,"other_brand":true|false (shows a different brand's product than the story's),"fits":1-5 (5 = shows the story's subject or a scene from it; 1 = unrelated)}`, url);
-  return v ? !v.mostly_text && !v.logo_only && !v.other_brand && Number(v.fits) >= 2 : null;
+  const v = await vision<PressScore>(`This picture illustrates the news story "${title}"${brand ? ` (about ${brand})` : ""}. JSON {"other_brand":true|false (shows a different brand's product than the story's),"fits":1-5 (5 = shows the story's subject or a scene from it; 1 = unrelated to the story)}`, url);
+  return v ? { ok: !pressBad(v), v } : null;
 }
 
 const rows = await sql<{ id: number; slug: string; title: string; image_url: string; image_source: string; image_focus: string | null; image_person: string | null; image_brand: string | null }[]>`
   select id, slug, title, image_url, image_source, image_focus, image_person, image_brand from events
   where not hidden and image_url is not null and (image_source = 'press' or (image_source = 'commons' and image_focus = 'top'))
     and ${ids ? sql`id = any(${ids})` : sql`last_article_at > now() - make_interval(days => ${Number(days)})`}
-  order by last_article_at desc limit ${Number(limit)}`;
+  order by id desc limit ${Number(limit)} offset ${Number(offset)}`;
 let bad = 0, unknown = 0;
 const queue = [...rows];
-await Promise.all(Array.from({ length: 6 }, async () => {
+await Promise.all(Array.from({ length: 16 }, async () => {
   for (let e = queue.shift(); e; e = queue.shift()) {
-    const ok = e.image_focus === "top" && e.image_person ? await portraitOk(e.image_person, e.image_url) : await pressOk(e.title, e.image_brand, e.image_url);
+    const res = e.image_focus === "top" && e.image_person ? await portraitOk(e.image_person, e.image_url) : await pressOk(e.title, e.image_brand, e.image_url);
+    const ok = res ? res.ok : null;
+    if (process.argv.includes("--why")) console.log("why", e.id, JSON.stringify(res?.v ?? null));
     if (ok === null) { unknown++; continue; }
     if (ok) continue;
     bad++;
