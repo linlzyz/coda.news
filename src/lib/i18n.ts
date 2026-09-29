@@ -27,7 +27,7 @@ const D = {
   cryptoNote: ["7-day trend, CoinGecko", "7 日走势，CoinGecko"], fxNote: ["ECB reference rates", "欧洲央行参考汇率"],
   marketsDown: ["Market data is temporarily unavailable.", "行情数据暂时无法获取。"],
   topTopics: ["Top topics", "热门话题"], viewAll: ["View all", "查看全部"], featured: ["Featured insight", "精选"],
-  compareN: ["Compare {n} countries", "对比 {n} 个国家"], disagree: ["Where the world disagrees", "各国分歧最大"],
+  compareN: ["Compare {n} countries", "对比 {n} 个国家"], disagree: ["Different angles by country", "各国报道角度不同"],
   nlTitle: ["coda.news Daily Brief", "coda.news 每日简报"], nlText: ["The day's biggest stories, and how each side of the world told them.", "每天最重要的新闻，以及世界各地如何报道。"],
   nlPlaceholder: ["Your email address", "你的邮箱"], subscribe: ["Subscribe", "订阅"], nlOk: ["You're on the list. The first brief is on its way soon.", "订阅成功，第一期简报很快送到。"],
   nlErr: ["Please check the email address and try again.", "请检查邮箱地址后重试。"],

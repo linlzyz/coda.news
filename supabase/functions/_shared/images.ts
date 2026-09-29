@@ -5,7 +5,7 @@
 // Stock photos are searched with scene words only (never company, product or person names), and a photo is never reused.
 import { db } from "./db.ts";
 import { env, log } from "./env.ts";
-import { cheapJSON } from "./ai.ts";
+import { cheapJSON, visionJSON } from "./ai.ts";
 import { UA as BOT } from "./text.ts";
 
 export type Img = { url: string; credit: string; link: string; source?: string; license?: string; licenseUrl?: string };
@@ -172,15 +172,33 @@ async function openverse(q: string): Promise<Img | null> {
 // A real portrait of the person the story is about: their Wikidata entry's main image (P18), which always lives on Commons.
 // We check it is a human with that exact name, and that the file's licence is free, before using it.
 const UA = { "user-agent": "CodaNewsBot/0.1 (https://coda.news; info@coda.news)" };
-export async function personPhoto(name: string, eventId: number): Promise<Img | null> {
+/** A vision model looks at the picture before it goes on a story (Lyn, 29 Sept: a blurry night-time still for Cole Bennett,
+ *  a Serapian furniture shot from a WWD roundup on a Marni show). No answer (budget, fetch error) counts as a no. */
+export async function portraitFits(url: string, name: string, title: string): Promise<boolean> {
+  void title;
+  const v = await visionJSON<{ sharp: number; flattering: number; drawing: boolean; single_subject: boolean }>(
+    `Rate this photo as a news portrait of ${name}. JSON {"sharp":1-5 (5 = crisp, well-lit professional photo; 1 = blurry, dark, grainy phone or video still),"flattering":1-5 (1 = eyes half shut, drunk-looking, grimace),"drawing":true|false,"single_subject":true|false}`,
+    url, "gpt-5-mini", { effort: "low", detail: "high" }).catch(() => null);
+  // calibrated on 29 Sept: the Cole Bennett still scored 2/2, ordinary red-carpet photos 4-5 / 3-5
+  return !!v && !v.drawing && v.single_subject !== false && Number(v.sharp) >= 3 && Number(v.flattering) >= 3;
+}
+export async function pressFits(url: string, title: string, brand: string | null): Promise<boolean> {
+  const v = await visionJSON<{ mostly_text: boolean; logo_only: boolean; other_brand: boolean; fits: number }>(
+    `This picture illustrates the news story "${title}"${brand ? ` (about ${brand})` : ""}. JSON {"mostly_text":true|false (a headline card, list graphic or screenshot of a notice),"logo_only":true|false,"other_brand":true|false (shows a different brand's product than the story's),"fits":1-5 (5 = shows the story's subject or a scene from it; 1 = unrelated)}`,
+    url, "gpt-5-mini", { effort: "low", detail: "high" }).catch(() => null);
+  return !!v && !v.mostly_text && !v.logo_only && !v.other_brand && Number(v.fits) >= 2;
+}
+
+export async function personPhoto(name: string, eventId: number, title = ""): Promise<Img | null> {
   const w = "https://www.wikidata.org/w/api.php?format=json&";
   const s = await (await fetch(`${w}action=wbsearchentities&search=${encodeURIComponent(name)}&language=en&type=item&limit=5`, { headers: UA, signal: AbortSignal.timeout(10000) })).json();
   const ids: string[] = (s.search ?? []).map((x: { id: string }) => x.id);
   if (!ids.length) return null;
-  const j = await (await fetch(`${w}action=wbgetentities&ids=${ids.join("|")}&props=labels|aliases|claims&languages=en|mul`, { headers: UA, signal: AbortSignal.timeout(10000) })).json();
+  const j = await (await fetch(`${w}action=wbgetentities&ids=${ids.join("|")}&props=labels|aliases|claims|sitelinks&languages=en|mul`, { headers: UA, signal: AbortSignal.timeout(10000) })).json();
   const norm = (x: string) => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  // several people can share a name (Tom Holland the actor and the director): the best-known one, by Wikipedia editions, is the one in the news
   // deno-lint-ignore no-explicit-any
-  const person = ids.map((id) => j.entities?.[id]).find((e: any) => e &&
+  const person = ids.map((id) => j.entities?.[id]).sort((a: any, b: any) => Object.keys(b?.sitelinks ?? {}).length - Object.keys(a?.sitelinks ?? {}).length).find((e: any) => e &&
     (e.claims?.P31 ?? []).some((c: any) => c.mainsnak?.datavalue?.value?.id === "Q5") && e.claims?.P18 &&
     [e.labels?.en?.value, e.labels?.mul?.value, ...(e.aliases?.en ?? []).map((a: any) => a.value), ...(e.aliases?.mul ?? []).map((a: any) => a.value)].filter(Boolean).some((n: string) => norm(n) === norm(name)));
   if (!person) return null;
@@ -200,6 +218,7 @@ export async function personPhoto(name: string, eventId: number): Promise<Img | 
     const lic = String(m.LicenseShortName?.value ?? "");
     const artist = String(m.Artist?.value ?? "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().slice(0, 60) || "Unknown";
     const url = info.thumburl ?? info.url;
+    if (!(await portraitFits(url, name, title))) { log("portrait rejected by vision check", name, url); continue; }
     void sql; void eventId;   // the same person's portrait may appear on several of their stories
     return { url, credit: `${artist} / Wikimedia Commons (${lic})`, link: info.descriptionurl, source: "commons", license: lic, licenseUrl: String(m.LicenseUrl?.value ?? "") || undefined };
   }
@@ -350,7 +369,7 @@ export async function assignImages(limit = 12): Promise<number> {
     // products named after people (e.g. NVIDIA's "Vera Rubin" chips) must not get that person's portrait
     const esc = p.image_person.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const product = new RegExp(`${esc}\\s+(NVL|system|chip|gpu|platform|architecture|supercomputer|telescope|observatory|model|series|edition|award|prize|trophy|cup|stadium|arena)`, "i").test(p.title);
-    try { if (!product) img = await personPhoto(p.image_person, p.id); } catch (e) { log("person photo", p.image_person, (e as Error).message); }
+    try { if (!product) img = await personPhoto(p.image_person, p.id, p.title); } catch (e) { log("person photo", p.image_person, (e as Error).message); }
     if (img) {
       await sql`update events set image_url = ${img.url}, image_credit = ${img.credit}, image_link = ${img.link}, image_source = ${img.source ?? null},
                 image_license = ${img.license ?? null}, image_license_url = ${img.licenseUrl ?? null}, image_fetched_at = now(), image_checked_at = now(),
@@ -389,8 +408,8 @@ ${games.map((g, i) => `${i + 1}. ${g.title}`).join("\n")}`)).g ?? {};
   }
 
   // 1b) games, cars, tech products, travel, films: the publicity image used by the story's own article
-  const press = await sql<{ id: number; arts: { url: string; source: string }[] }[]>`
-    select e.id, (select json_agg(x) from (select a.url, s.name as source from articles a join sources s on s.id = a.source_id
+  const press = await sql<{ id: number; title: string; image_brand: string | null; arts: { url: string; source: string; title: string }[] }[]>`
+    select e.id, e.title, e.image_brand, (select json_agg(x) from (select a.url, s.name as source, a.title from articles a join sources s on s.id = a.source_id
                    where a.event_id = e.id order by s.type = 'official' desc, a.published_at desc limit 4) x) as arts
     from events e
     where e.press_checked_at is null and e.summary is not null and e.status <> 'archived'
@@ -405,8 +424,12 @@ ${games.map((g, i) => `${i + 1}. ${g.title}`).join("\n")}`)).g ?? {};
     // every article in the story, official ones first: one site blocking us should not leave the story without its image
     let img: string | null = null, from: { url: string; source: string } | null = null;
     for (const a of p.arts ?? []) {
+      // a roundup article that joined the story (e.g. "best bags of Milan Fashion Week" on a Marni show) carries another brand's picture
+      if (p.image_brand && !a.title.toLowerCase().includes(p.image_brand.toLowerCase())) continue;
       const x = await pressImage(a.url);
-      if (x && !(await sql`select 1 from events where image_url = ${x} limit 1`).length) { img = x; from = a; break; }
+      if (!x || (await sql`select 1 from events where image_url = ${x} limit 1`).length) continue;
+      if (!(await pressFits(x, p.title, p.image_brand))) { log("press image rejected by vision check", p.id, x); continue; }
+      img = x; from = a; break;
     }
     if (img && from) {
       await sql`update events set image_url = ${img}, image_credit = ${from.source}, image_link = ${from.url}, image_source = 'press', image_license = 'Publicity image',
