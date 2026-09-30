@@ -25,7 +25,7 @@ export type Profile = {
   title: L; dek: L; social: L; published: string; updated: string; cover: Photo;
   /** what people search for: used in the <title> and meta description; the page itself shows `title` */
   seoTitle: L; seoDesc: L; keywords: string[];
-  /** Instagram cover line: a stronger hook than the page title, never the same words */
+  /** Instagram cover line: a stronger hook than the page title, never the same words; "\n" marks line ends on the slide */
   igHook: L;
   lede: L[]; sections: Section[]; timeline: TimelineItem[]; countries: CountryCard[]; sources: Source[];
   stats: { label: L; from: number; to: number; fromLabel: L; toLabel: L; unit: "bn" | "pct"; src: number[] }[];
@@ -654,7 +654,7 @@ const WORLD_LABS: Profile = {
     zh: "AMD 同意以约 82 亿美元股票收购李飞飞参与创办、成立两年的 World Labs。若交易完成，这将是它史上第二大收购；它押注的是：让做模型的人，反过来定义下一代芯片。",
   },
   social: { en: "Why a chipmaker paid $8.2 billion for a model company", zh: "一家芯片公司，为什么花 82 亿美元买模型公司" },
-  igHook: { en: "It makes the compute. Now it wants to pay $8.2 billion for the people who build the models", zh: "它造算力，却要花 82 亿美元买下李飞飞的团队" },
+  igHook: { en: "It makes the compute. Now it wants to pay $8.2 billion for the people who build the models", zh: "它造算力，\n却要花 82 亿美元\n买下李飞飞的团队" },
   seoTitle: { en: "AMD to Acquire Fei-Fei Li's World Labs for $8.2 Billion: What It Buys and Why", zh: "AMD 拟 82 亿美元收购李飞飞 World Labs：买什么，为什么买" },
   seoDesc: {
     en: "AMD agreed on 28 September 2026 to buy World Labs, Fei-Fei Li's spatial-intelligence start-up, in an all-stock deal worth about $8.2 billion. What World Labs makes (Marble, RTFM), Li's new role as AMD chief scientist, the price against its funding rounds, AMD's earlier acquisitions, the race for world models, and how media in six countries reported it. Every number sourced.",

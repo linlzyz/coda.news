@@ -30,7 +30,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
   const P = (l: L) => T(l.en, l.zh);
   const ig = pr.ig;
   const title = zh ? pr.title.zh : pr.title.en;
-  const hook = zh ? pr.igHook.zh : pr.igHook.en;
+  // "\n" in igHook marks where a line may end (Satori otherwise breaks Chinese mid-amount, "82 亿美 / 元")
+  const hookLines = (zh ? pr.igHook.zh : pr.igHook.en).split("\n");
+  const hook = hookLines.join("");
   const hookSize = zh ? (hook.length > 18 ? 76 : 92) : (hook.length > 48 ? 70 : hook.length > 32 ? 82 : 96);
   const link = `https://coda.news${zh ? "/zh" : ""}/anatomy/${pr.slug}`;
   const kick = T("CODA ANATOMY", "CODA 剖面") + ` ${String(pr.no).padStart(2, "0")}`;
@@ -57,7 +59,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
 
   let body: React.ReactElement;
   let size = { width: W, height: H };
-  const cover = (s === "1" || s === "story") ? await dataUri(`https://coda.news${photoUrl(pr.cover.file, 1600)}`) : null;
+  const cover = (s === "1" || s === "story") ? await dataUri(`https://coda.news${photoUrl(pr.cover.file, 1600).replace(/\.webp$/, ".jpg")}`)   // JPEG copy: Satori cannot draw WebP : null;
   const st = pr.stats;
 
   if (s === "story") {
@@ -85,7 +87,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
         <div style={{ display: "flex", flexDirection: "column", flexGrow: 1, padding: "52px 84px 60px" }}>
           {/* the hook does the stopping; the page title sits small above it, so the cover never just repeats the title */}
           <div style={{ display: "flex", fontSize: 30, fontWeight: 700, color: ORANGE }}>{title}</div>
-          <div style={{ display: "flex", marginTop: 14, fontWeight: 900, fontSize: hookSize, lineHeight: 1.05, color: INK, letterSpacing: zh ? 0 : -2.5 }}>{hook}</div>
+          <div style={{ display: "flex", flexDirection: "column", marginTop: 14, fontWeight: 900, fontSize: hookSize, lineHeight: 1.05, color: INK, letterSpacing: zh ? 0 : -2.5 }}>{hookLines.map((x, i) => <div key={i} style={{ display: "flex" }}>{x}</div>)}</div>
           <div style={{ marginTop: "auto", display: "flex", alignItems: "center", fontSize: 26, color: MUTED }}>
             <div style={{ display: "flex" }}>{T("An original long read · Swipe →", "原创专题 · 左滑 →")}</div>
             <div style={{ marginLeft: "auto", display: "flex", fontSize: 38, fontWeight: 700, color: INK }}><B text="coda.news" /></div>

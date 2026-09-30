@@ -9,10 +9,13 @@ for (const p of [...PROFILES, ...DRAFTS]) { files.add(p.cover.file); for (const 
 fs.mkdirSync("public/anatomy-img", { recursive: true });
 for (const f of files) {
   const outs = PHOTO_WIDTHS.map((w) => ({ w, path: `public${photoUrl(f, w)}` }));
-  if (outs.every((o) => fs.existsSync(o.path))) continue;
+  // plus one JPEG for the Instagram slides: Satori (next/og) cannot draw WebP
+  const jpg = `public${photoUrl(f, 1600).replace(/\.webp$/, ".jpg")}`;
+  if (outs.every((o) => fs.existsSync(o.path)) && fs.existsSync(jpg)) continue;
   const r = await fetch(commonsUrl(f, 2000), { headers: { "user-agent": "coda.news/1.0 (info@coda.news)" } });
   if (!r.ok) { console.error("failed", r.status, f); process.exitCode = 1; continue; }
   const buf = Buffer.from(await r.arrayBuffer());
   for (const o of outs) await sharp(buf).rotate().resize({ width: o.w, withoutEnlargement: true }).webp({ quality: o.w > 900 ? 72 : 76 }).toFile(o.path);
-  console.log("ok", f, outs.map((o) => `${o.path} ${Math.round(fs.statSync(o.path).size / 1024)}KB`).join(" "));
+  await sharp(buf).rotate().resize({ width: 1600, withoutEnlargement: true }).flatten({ background: "#ffffff" }).jpeg({ quality: 82, mozjpeg: true }).toFile(jpg);
+  console.log("ok", f, [...outs.map((o) => o.path), jpg].map((x) => `${x} ${Math.round(fs.statSync(x).size / 1024)}KB`).join(" "));
 }
