@@ -65,6 +65,7 @@ function FigureFor({ f, pr, zh }: { f: Figure; pr: Profile; zh: boolean }) {
     case "vsintel": return pr.cap && pr.intel ? <VsIntel amd={pr.cap} intel={pr.intel} zh={zh} /> : null;
     case "deals": return pr.deals ? <Deals deals={pr.deals} zh={zh} /> : null;
     case "pricetags": return pr.priceTags ? <PriceTags data={pr.priceTags} zh={zh} /> : null;
+    case "pricetags2": return pr.priceTags2 ? <PriceTags data={pr.priceTags2} zh={zh} /> : null;
     case "split": return pr.split ? <SplitBars data={pr.split} zh={zh} /> : null;
     case "royalty": return pr.royalty ? <RangeBars data={pr.royalty} zh={zh} /> : null;
     case "model": return <LicenceModel zh={zh} />;

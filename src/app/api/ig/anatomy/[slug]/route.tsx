@@ -1,5 +1,5 @@
 // Instagram slides for a Coda Anatomy profile (1080×1350; ?s=story is 9:16).
-//   ?s=1 cover (photo card)  2 the numbers  3 three decisions  4 market value chart  5 how countries told it  story
+//   ?s=1 cover (photo card)  explain (optional plain-language slide)  2 the numbers  3 three decisions  4 chart  5 how countries told it  story
 //   &l=zh for Chinese. Figures come from src/lib/anatomy.ts, the same data as the page.
 import { ImageResponse } from "next/og";
 import QRCode from "qrcode";
@@ -93,6 +93,24 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
         </div>
       </div>
     );
+  } else if (s === "explain" && ig.explain) {
+    // plain-language slide for readers who know none of the names (Lyn, 30 Sept: "零基础的一个人都能看懂")
+    const ex = ig.explain;
+    body = (
+      <div style={{ width: W, height: H, display: "flex", flexDirection: "column", background: PAPER, fontFamily: "Sans", padding: "64px 72px 60px" }}>
+        {head(false, "")}
+        {kicker(P(ex.kicker))}
+        <div style={{ display: "flex", flexDirection: "column", marginTop: 30, flexGrow: 1, justifyContent: "space-around" }}>
+          {ex.rows.map((r, i) => (
+            <div key={i} style={{ display: "flex", flexDirection: "column", borderTop: i ? "1px solid #DDD8CF" : "none", paddingTop: i ? 34 : 0 }}>
+              <div style={{ display: "flex", fontSize: zh ? 50 : 52, fontWeight: 900, color: INK, letterSpacing: zh ? 0 : -1 }}>{P(r.q)}</div>
+              <div style={{ display: "flex", marginTop: 16, fontSize: zh ? 36 : 37, lineHeight: 1.4, color: "#374151" }}>{P(r.a)}</div>
+            </div>
+          ))}
+        </div>
+        {foot(false, T("Sources on the page", "来源见专题页"))}
+      </div>
+    );
   } else if (s === "2") {
     const rows = ig.numbers.rows.map((r) => [P(r.big), P(r.label), P(r.sub)] as const);
     body = (
@@ -136,15 +154,15 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
     );
   } else if (s === "4" && ig.chart.kind === "tags" && pr.priceTags) {
     // horizontal bars: deal prices in grey, market values in orange, value at the end of each bar
-    const c = ig.chart, rows = pr.priceTags.rows, max = Math.max(...rows.map((r) => r.v));
+    const c = ig.chart, c2 = pr.priceTags, rows = c2.rows, max = Math.max(...rows.map((r) => r.v));
     body = (
       <div style={{ width: W, height: H, display: "flex", flexDirection: "column", background: PAPER, fontFamily: "Sans", padding: "64px 72px 60px" }}>
         {head(false, "")}
         {kicker(P(c.kicker))}
         <div style={{ display: "flex", marginTop: 18, fontSize: 30, color: "#3F434A", lineHeight: 1.35 }}>{P(c.sub)}</div>
         <div style={{ display: "flex", marginTop: 22, fontSize: 24, color: MUTED }}>
-          <div style={{ display: "flex", alignItems: "center", marginRight: 34 }}><div style={{ width: 26, height: 14, background: "#A3A8B0", marginRight: 10, display: "flex" }} />{T("Deal price", "交易价格")}</div>
-          <div style={{ display: "flex", alignItems: "center" }}><div style={{ width: 26, height: 14, background: ORANGE, marginRight: 10, display: "flex" }} />{T("Market value", "市值")}</div>
+          <div style={{ display: "flex", alignItems: "center", marginRight: 34 }}><div style={{ width: 26, height: 14, background: "#A3A8B0", marginRight: 10, display: "flex" }} />{c2.legend ? P(c2.legend[0]) : T("Deal price", "交易价格")}</div>
+          <div style={{ display: "flex", alignItems: "center" }}><div style={{ width: 26, height: 14, background: ORANGE, marginRight: 10, display: "flex" }} />{c2.legend ? P(c2.legend[1]) : T("Market value", "市值")}</div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", marginTop: 34, flexGrow: 1, justifyContent: "space-around" }}>
           {rows.map((r, i) => (

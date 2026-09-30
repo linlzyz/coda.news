@@ -56,7 +56,7 @@ export function CountUp({ from, to, unit, zh }: { from: number; to: number; unit
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
   }, [on, from, to, unit]);
-  return <span ref={ref} className="tabular-nums">{unit === "pct" ? `${Math.round(v)}%` : money(v, zh)}</span>;
+  return <span ref={ref} className="tabular-nums">{unit === "pct" ? `${to < 10 ? v.toFixed(1) : Math.round(v)}%` : money(v, zh)}</span>;
 }
 
 /* ---------- shared line-chart geometry ---------- */
@@ -301,15 +301,15 @@ export function TimelineRow({ date, children, last }: { date: string; children: 
 type LL = { en: string; zh: string };
 const tr = (l: LL, zh: boolean) => (zh ? l.zh : l.en);
 
-export function PriceTags({ data, zh }: { data: { title: LL; note: LL; rows: { label: LL; v: number; kind: "deal" | "market" }[] }; zh: boolean }) {
+export function PriceTags({ data, zh }: { data: { title: LL; note: LL; legend?: [LL, LL]; rows: { label: LL; v: number; kind: "deal" | "market" }[] }; zh: boolean }) {
   const [ref, on] = useInView<HTMLDivElement>(0.3);
   const max = Math.max(...data.rows.map((r) => r.v));
   return (
     <Frame title={tr(data.title, zh)} note={tr(data.note, zh)}
       table={<Table head={[zh ? "时间" : "When", zh ? "价值" : "Value"]} rows={data.rows.map((r) => [tr(r.label, zh), money(r.v, zh)])} />}>
       <div className="mb-3 flex flex-wrap gap-4 text-[12px] text-neutral-600">
-        <span className="inline-flex items-center gap-1.5"><span className="ana-key ana-neutral-bg" />{zh ? "交易价格" : "Deal price"}</span>
-        <span className="inline-flex items-center gap-1.5"><span className="ana-key ana-amd-bg" />{zh ? "市值" : "Market value"}</span>
+        {data.rows.some((r) => r.kind === "deal") && <span className="inline-flex items-center gap-1.5"><span className="ana-key ana-neutral-bg" />{data.legend ? tr(data.legend[0], zh) : zh ? "交易价格" : "Deal price"}</span>}
+        {data.rows.some((r) => r.kind === "market") && <span className="inline-flex items-center gap-1.5"><span className="ana-key ana-amd-bg" />{data.legend ? tr(data.legend[1], zh) : zh ? "市值" : "Market value"}</span>}
       </div>
       <div ref={ref} className="space-y-2.5">
         {data.rows.map((r, i) => (

@@ -3,7 +3,7 @@
 // Rules: facts from the listed sources only; no investment advice; no personal wealth or family gossip.
 
 export type L = { en: string; zh: string };
-export type Figure = "cap" | "chiplet" | "revenue" | "vsintel" | "deals" | "timeline" | "countries" | "pricetags" | "split" | "royalty" | "model";
+export type Figure = "cap" | "chiplet" | "revenue" | "vsintel" | "deals" | "timeline" | "countries" | "pricetags" | "pricetags2" | "split" | "royalty" | "model";
 /** A freely licensed photo from Wikimedia Commons, hotlinked at a set width, always credited. */
 export type Photo = { file: string; credit: string; license: string; caption: L; alt: L; fit?: "cover" | "contain"; pos?: string };
 /** Commons photos are copied once into /public/anatomy-img as WebP (scripts/anatomy-images.mts), so they load from our own CDN, not from Wikimedia in the US. */
@@ -39,7 +39,7 @@ export type Profile = {
   cap?: Point[]; capMarks?: { x: number; label: L }[]; intel?: Point[]; revenue?: { year: number; v: number; dc?: number }[];
   deals?: { name: string; gw: number; date: L; src: number[] }[];
   /** horizontal bars of what the company was worth at set moments ($ billion) */
-  priceTags?: { title: L; note: L; rows: { label: L; v: number; kind: "deal" | "market" }[] };
+  priceTags?: PriceTags; priceTags2?: PriceTags;
   /** stacked yearly bars: part a + part b = total; rows without a split show the total only */
   split?: { title: L; note: L; a: L; b: L; rows: { label: string; total: number; a?: number; b?: number }[] };
   /** ranges in percent, e.g. royalty rates */
@@ -47,8 +47,13 @@ export type Profile = {
   ig: IgSlides;
 };
 
+/** grey bars ("deal") and orange bars ("market"); `legend` renames the two, e.g. earlier deals vs this one */
+export type PriceTags = { title: L; note: L; legend?: [L, L]; rows: { label: L; v: number; kind: "deal" | "market" }[] };
+
 /** Text for Instagram slides 2 to 5 and the Story; slide 1 is built from title, igHook and cover. */
 export type IgSlides = {
+  /** optional plain-language slide ("start here"), shown after the cover: ?s=explain */
+  explain?: { kicker: L; rows: { q: L; a: L }[] };
   numbers: { kicker: L; rows: { big: L; label: L; sub: L }[]; source: L };
   decisions: { h: L; tag: string; t: L }[];
   /** slide 4: "logcap" draws cap on a log scale with labelled marks [x, value, label, dx, dy, right-aligned]; "tags" draws priceTags as bars */
@@ -345,7 +350,7 @@ const AMD: Profile = {
 };
 
 const ARM: Profile = {
-  slug: "arm", no: 2, companyId: 335, companySlug: "arm-holdings",
+  slug: "arm", no: 3, companyId: 335, companySlug: "arm-holdings",
   title: { en: "Arm: The Chipmaker That Makes No Chips", zh: "Arm：不造芯片，也能从全球手机赚钱" },
   dek: {
     en: "For more than thirty years Arm sold only designs and licences and collected a fee on nearly every smartphone; in 2026 it started selling a chip of its own.",
@@ -359,7 +364,7 @@ const ARM: Profile = {
     zh: "超过 99% 的智能手机基于 Arm 的技术，它却从不自己生产芯片。授权费加版税的模式怎么运作，诺基亚与 iPhone 时代，Armv9 版税率，软银收购、英伟达收购失败、2023 年上市，以及第一颗自有芯片 AGI CPU，每个数字附来源。",
   },
   keywords: ["Arm", "Arm Holdings", "安谋", "Arm 架构", "Arm business model", "Arm 版税", "royalty", "Armv9", "Rene Haas", "SoftBank Arm", "软银 Arm", "Nvidia Arm deal", "Arm IPO", "Arm AGI CPU", "Neoverse"],
-  published: "2026-10-01", updated: "2026-10-01",
+  published: "2026-10-08", updated: "2026-10-08",
   cover: { file: "STM32F100C4T6B-HD.jpg", credit: "ZeptoBars", license: "CC BY 3.0",
     caption: { en: "The silicon die of an STM32F100 microcontroller. ST Microelectronics built it around an Arm Cortex-M3 processor core, licensed from Arm.", zh: "STM32F100 微控制器的硅芯片。意法半导体用从 Arm 授权的 Cortex-M3 处理器核心设计了这颗芯片。" },
     alt: { en: "Colourful microscope photo of a microcontroller die", zh: "微控制器芯片裸片的彩色显微照片" } },
@@ -639,7 +644,349 @@ const ARM: Profile = {
   },
 };
 
-export const PROFILES: Profile[] = [AMD, ARM];
+const WORLD_LABS: Profile = {
+  slug: "amd-world-labs", no: 2, companyId: 18, companySlug: "amd",
+  title: { en: "AMD Buys World Labs: A Chipmaker's Bet on World Models", zh: "AMD 买下 World Labs：芯片公司押注世界模型" },
+  dek: {
+    en: "AMD is paying about $8.2 billion in stock for World Labs, the two-year-old company Fei-Fei Li co-founded: its second-largest deal ever, and a bet that a chipmaker needs to understand the models first.",
+    zh: "AMD 以约 82 亿美元股票收购李飞飞参与创办、成立两年的 World Labs。这是它史上第二大收购，也是一次押注：造芯片的公司，要先读懂模型。",
+  },
+  social: { en: "Why a chipmaker paid $8.2 billion for a model company", zh: "一家芯片公司，为什么花 82 亿美元买模型公司" },
+  igHook: { en: "It makes the compute. Now it paid $8.2 billion for the people who build the models", zh: "它造算力，却花 82 亿美元买下了李飞飞的团队" },
+  seoTitle: { en: "AMD to Acquire Fei-Fei Li's World Labs for $8.2 Billion: What It Buys and Why", zh: "AMD 82 亿美元收购李飞飞 World Labs：买了什么，为什么买" },
+  seoDesc: {
+    en: "AMD agreed on 28 September 2026 to buy World Labs, Fei-Fei Li's spatial-intelligence start-up, in an all-stock deal worth about $8.2 billion. What World Labs makes (Marble, RTFM), Li's new role as AMD chief scientist, the price against its funding rounds, AMD's earlier acquisitions, the race for world models, and how media in six countries reported it. Every number sourced.",
+    zh: "2026 年 9 月 28 日，AMD 同意以约 82 亿美元全股票收购李飞飞的空间智能公司 World Labs。World Labs 做什么（Marble、RTFM），李飞飞出任 AMD 首席科学家，收购价与融资估值对比，AMD 以往的收购，世界模型之争，以及六个国家的媒体怎么报道。每个数字附来源。",
+  },
+  keywords: ["AMD", "World Labs", "Fei-Fei Li", "李飞飞", "苏姿丰", "Lisa Su", "AMD acquisition", "AMD 收购", "world model", "世界模型", "spatial intelligence", "空间智能", "Marble", "physical AI"],
+  published: "2026-10-01", updated: "2026-10-01",
+  cover: { file: "Polycam gaussian splatting exemplo.png", credit: "Óscar Mirás", license: "CC BY-SA 4.0",
+    caption: { en: "A garden captured as a 3D scene with Gaussian splatting, one of the formats World Labs' Marble can export.", zh: "用高斯泼溅（Gaussian splatting）技术捕捉成 3D 场景的花园。这是 World Labs 的 Marble 可以导出的格式之一。" },
+    alt: { en: "3D-captured garden with a round fountain", zh: "3D 捕捉的花园和圆形喷泉" } },
+  lede: [
+    {
+      en: "AMD sells the chips that artificial intelligence runs on. On 28 September 2026 it agreed to buy a company that makes AI models instead: World Labs, founded two years ago by the computer scientist Fei-Fei Li and three colleagues, for about $8.2 billion in AMD shares [[1]][[8]]. It is AMD's second-largest acquisition, after Xilinx [[6]]. World Labs has not disclosed any revenue [[35]]. What AMD is buying is a team, a kind of model and a closer view of where AI is going.",
+      zh: "AMD 卖的是让人工智能运行的芯片。2026 年 9 月 28 日，它同意收购一家做 AI 模型的公司：由计算机科学家李飞飞和三位同事两年前创办的 World Labs，作价约 82 亿美元，全部以 AMD 股票支付 [[1]][[8]]。这是 AMD 史上第二大收购，仅次于 Xilinx [[6]]。World Labs 没有公布过收入 [[35]]。AMD 买下的是一支团队、一类模型，以及离 AI 下一步更近的视角。",
+    },
+  ],
+  sections: [
+    {
+      id: "basics", h: { en: "Start here: three names in plain words", zh: "零基础先看：三个名词" },
+      paras: [
+        {
+          en: "World Labs. A small American AI company, founded in 2024. It builds AI that turns a sentence, a photo or a video into a 3D world you can move around in [[8]][[12]]. Think of the difference between a painting of a room and a room you can step into: most image AI makes the painting; World Labs tries to make the room.",
+          zh: "World Labs。一家 2024 年成立的美国 AI 小公司。它做的 AI，能把一句话、一张照片或一段视频变成可以在里面走动的 3D 世界 [[8]][[12]]。打个比方：一幅房间的画和一个能走进去的房间是两回事。大多数图像 AI 画的是那幅画，World Labs 想造的是那个房间。",
+        },
+        {
+          en: "World model. AI that learns how real space looks and behaves: where things are, how far apart, what you would see if you turned around. Chatbots mostly learn from text; world models learn from images and video of real places [[8]]. They can be used for games and film sets, and to train robots and self-driving cars in simulated worlds before they go into real ones [[27]].",
+          zh: "世界模型。一种学习真实空间长什么样、怎么运作的 AI：东西在哪里、相隔多远、转过身会看到什么。聊天机器人主要从文字里学习，世界模型则从真实场景的图片和视频里学习 [[8]]。它可以用来做游戏和影视场景，也可以先在模拟世界里训练机器人和自动驾驶汽车，再让它们进入真实世界 [[27]]。",
+        },
+        {
+          en: "Fei-Fei Li. A computer scientist at Stanford. In the late 2000s she led the building of ImageNet, a library of more than 14 million photos, each labelled by hand with what it shows [[34]]. It became a shared test for computers that recognise pictures. In 2012 a neural network called AlexNet won that test by a wide margin, and the technology industry took notice of deep learning, the approach behind today's AI [[34]].",
+          zh: "李飞飞。斯坦福大学的计算机科学家。2000 年代后期，她主导建立了 ImageNet：一个有 1400 多万张照片的图库，每张都由人工标注了内容 [[34]]。它成了电脑\"认图\"能力的统一考试。2012 年，一个叫 AlexNet 的神经网络在这场考试中大幅领先，科技行业由此开始重视深度学习，也就是今天 AI 背后的方法 [[34]]。",
+        },
+        {
+          en: "Why a chip company. AMD makes the processors AI runs on, and competes with Nvidia. Buying World Labs gives it a team that builds a new kind of AI model, so it can see early what hardware those models will need [[1]].",
+          zh: "芯片公司为什么要买。AMD 造的是运行 AI 的处理器，和英伟达竞争。买下 World Labs，它就有了一支做新型 AI 模型的团队，能更早看清这类模型需要什么样的硬件 [[1]]。",
+        },
+      ],
+    },
+    {
+      id: "deal", h: { en: "The deal", zh: "交易本身" },
+      paras: [
+        {
+          en: "AMD announced the purchase after the US market closed on 28 September. The deal is all-stock and valued at about $8.2 billion, and AMD expects to complete it by the end of 2026, subject to regulatory approvals [[1]][[24]]. Fei-Fei Li becomes AMD's executive vice president and chief scientist, reporting to chief executive Lisa Su [[1]].",
+          zh: "AMD 在 9 月 28 日美股收盘后宣布这笔收购。交易全部以股票支付，作价约 82 亿美元，预计 2026 年底前完成，还需通过监管审批 [[1]][[24]]。李飞飞将出任 AMD 执行副总裁兼首席科学家，直接向 CEO 苏姿丰汇报 [[1]]。",
+        },
+        {
+          en: "Justin Johnson and Ben Mildenhall, two of World Labs' co-founders, will keep leading its team together with Li, as a research organisation inside AMD [[2]]. Neither company has said what will happen to Marble, World Labs' product [[35]].",
+          zh: "World Labs 的两位联合创始人 Justin Johnson 和 Ben Mildenhall 将与李飞飞一起，继续带领这支团队，作为 AMD 内部的研究机构运作 [[2]]。产品 Marble 之后怎么安排，两家公司都没有说明 [[35]]。",
+        },
+      ],
+    },
+    {
+      id: "world", h: { en: "What World Labs makes", zh: "World Labs 做什么" },
+      paras: [
+        {
+          en: "World Labs came out of stealth on 13 September 2024 with $230 million from investors including Andreessen Horowitz, NEA and Nvidia's venture arm [[8]]. Its subject is what the company calls spatial intelligence: letting computers \"perceive and reason about the physical world in three dimensions, much like humans do\" [[8]].",
+          zh: "World Labs 于 2024 年 9 月 13 日公开亮相，获得 2.3 亿美元融资，投资方包括 Andreessen Horowitz、NEA 和英伟达的风投部门 [[8]]。它研究的是公司所说的空间智能：让计算机像人一样，在三维空间里感知和理解物理世界 [[8]]。",
+        },
+        {
+          en: "Its first public product, Marble, opened to everyone on 12 November 2025. It builds 3D worlds from text, images, video or rough 3D layouts [[12]]. A research model, RTFM, generates video in real time as a user moves through a scene, running on a single Nvidia H100 GPU [[13]]. In February 2026 World Labs raised $1 billion from investors that included both AMD and Nvidia, as well as Autodesk [[9]].",
+          zh: "它的第一款公开产品 Marble 于 2025 年 11 月 12 日向所有人开放，可以根据文字、图片、视频或粗略的 3D 布局生成 3D 世界 [[12]]。研究模型 RTFM 能在用户穿行场景时实时生成画面，只需一块英伟达 H100 GPU [[13]]。2026 年 2 月，World Labs 融资 10 亿美元，投资方中既有 AMD，也有英伟达，还有 Autodesk [[9]]。",
+        },
+      ],
+    },
+    {
+      id: "li", h: { en: "Fei-Fei Li", zh: "李飞飞" },
+      photo: { file: "Fei-Fei Li at AI for Good 2017.jpg", credit: "ITU Pictures", license: "CC BY 2.0", pos: "center 20%",
+        caption: { en: "Fei-Fei Li speaking at the AI for Good Global Summit in Geneva, June 2017.", zh: "2017 年 6 月，李飞飞在日内瓦的 AI for Good 全球峰会上演讲。" },
+        alt: { en: "Fei-Fei Li speaking at a lectern", zh: "李飞飞在讲台上演讲" } },
+      paras: [
+        {
+          en: "Li is best known for ImageNet, a large database of labelled images that she started at Princeton in 2007 and presented in 2009 [[32]][[15]]. Stanford's Institute for Human-Centered AI, which she co-founded and co-directs, describes her as the inventor of ImageNet and the ImageNet Challenge [[14]]. She is a professor of computer science at Stanford and was chief scientist of AI at Google Cloud in 2017 and 2018 [[14]][[15]].",
+          zh: "李飞飞最为人熟知的成果是 ImageNet：一个大型标注图像数据库，2007 年在普林斯顿大学启动，2009 年正式发表 [[15]][[32]]。她参与创办并担任联合主任的斯坦福以人为本人工智能研究院（HAI）称她为 ImageNet 和 ImageNet 挑战赛的发明者 [[14]]。她是斯坦福大学计算机科学教授，2017 至 2018 年曾任谷歌云 AI 首席科学家 [[14]][[15]]。",
+        },
+        {
+          en: "Some outlets call her the \"godmother of AI\" [[30]]. She has said she would never call herself that [[32]].",
+          zh: "一些媒体称她为\"AI 教母\" [[30]]，她本人说过，自己绝不会这样称呼自己 [[32]]。",
+        },
+      ],
+    },
+    {
+      id: "why", h: { en: "The choice: buy the people who build models", zh: "抉择：把做模型的人买进来" },
+      photo: { file: "SXSW-2024-alih-OB7A0861-Lisa Su (cropped 2).jpg", credit: "Fuzheado", license: "CC BY 4.0", pos: "center 25%",
+        caption: { en: "Lisa Su speaking at SXSW in Austin, March 2024.", zh: "2024 年 3 月，苏姿丰在美国奥斯汀 SXSW 大会上发言。" },
+        alt: { en: "Lisa Su speaking on stage", zh: "苏姿丰在台上发言" } },
+      paras: [
+        {
+          en: "AMD's reason is knowledge rather than revenue. \"Building the compute platforms for the next generation of AI requires a deep understanding of how models are evolving,\" Su said [[1]]. Li put it from the other side: her team needs to get \"closer to the hardware\", because without a focused hardware effort, she wrote, \"AI is hobbled in efficiency. And scale.\" [[3]]",
+          zh: "AMD 看重的是知识，而不是收入。苏姿丰说：\"为下一代 AI 打造计算平台，需要深入理解模型如何演进。\" [[1]] 李飞飞则从另一边说：团队需要\"更靠近硬件\"，因为她写道，没有专注的硬件投入，\"AI 在效率和规模上都会受限\" [[3]]。",
+        },
+        {
+          en: "The two companies already worked together: they formed a partnership on inference optimisation and training in 2025 [[4]]. AMD also says it is not trying to compete with the AI companies that buy its chips; Vamsi Boppana, its senior vice president for AI, said that is \"not the intent at all\" [[7]].",
+          zh: "两家公司此前已有合作：2025 年，它们在推理优化和训练上结成伙伴关系 [[4]]。AMD 也表示，它无意与购买其芯片的 AI 公司竞争。AMD 负责 AI 的高级副总裁 Vamsi Boppana 说，这\"完全不是本意\" [[7]]。",
+        },
+      ],
+    },
+    {
+      id: "list", h: { en: "Part of a longer shopping list", zh: "一份更长的购物清单" }, figure: "pricetags",
+      photo: { file: "2485 Augustine Drive headquarters in Santa Clara, California.jpg", credit: "Coolcaesar", license: "CC BY-SA 4.0",
+        caption: { en: "AMD headquarters in Santa Clara, California.", zh: "AMD 位于美国加州圣克拉拉的总部。" }, alt: { en: "AMD headquarters building", zh: "AMD 总部大楼" } },
+      paras: [
+        {
+          en: "World Labs follows a run of purchases that moved AMD from chips towards complete AI systems: Xilinx, completed in February 2022 at about $49 billion [[16]]; the networking-chip designer Pensando for about $1.9 billion in 2022 [[17]]; the AI lab Silo AI for about $665 million in 2024 [[18]]; and the server builder ZT Systems for $4.9 billion, completed in March 2025 [[36]][[19]]. Several smaller AI software teams joined at undisclosed prices, the latest being MK1 in November 2025 [[33]].",
+          zh: "在 World Labs 之前，AMD 已经做了一连串收购，从芯片走向完整的 AI 系统：2022 年 2 月完成收购 Xilinx，约 490 亿美元 [[16]]；2022 年以约 19 亿美元收购网络芯片设计公司 Pensando [[17]]；2024 年以约 6.65 亿美元收购 AI 实验室 Silo AI [[18]]；2025 年 3 月以 49 亿美元完成收购服务器制造商 ZT Systems [[36]][[19]]。还有几支较小的 AI 软件团队以未公开的价格并入，最近一家是 2025 年 11 月的 MK1 [[33]]。",
+        },
+      ],
+    },
+    {
+      id: "price", h: { en: "The price", zh: "价格" }, figure: "pricetags2",
+      paras: [
+        {
+          en: "World Labs was valued at about $1 billion when it emerged in 2024 [[5]][[11]]. When it raised $1 billion in February 2026, press reports put its valuation at about $5 billion, a figure the company did not confirm [[10]][[11]]. AMD's price of about $8.2 billion is roughly 6.7 times the $1.23 billion World Labs had raised [[8]][[10]], and the new shares amount to about 0.8% of AMD [[24]].",
+          zh: "2024 年亮相时，World Labs 估值约 10 亿美元 [[5]][[11]]。2026 年 2 月融资 10 亿美元时，媒体报道其估值约 50 亿美元，公司没有证实 [[10]][[11]]。AMD 约 82 亿美元的价格，约为 World Labs 累计融资额 12.3 亿美元的 6.7 倍 [[8]][[10]]；新发行的股份约占 AMD 股本的 0.8% [[24]]。",
+        },
+        {
+          en: "AMD's market value was about $992 billion at the close on 28 September [[20]]. Its shares were flat to slightly lower after hours and about 1.4% higher before the market opened the next day [[24]][[7]][[25]]. Analysts differed. Citi said the deal could give AMD \"deeper visibility\" into how AI models are evolving; RBC said Nvidia keeps a \"significant\" lead in spatial AI and physical simulation [[22]].",
+          zh: "9 月 28 日收盘时，AMD 市值约 9920 亿美元 [[20]]。消息公布后，盘后股价持平或小幅下跌，次日盘前上涨约 1.4% [[24]][[7]][[25]]。分析师看法不一：花旗认为，这笔交易能让 AMD 更深入地了解 AI 模型的演进；加拿大皇家银行则认为，英伟达在空间 AI 和物理仿真上仍有\"明显\"领先 [[22]]。",
+        },
+      ],
+    },
+    {
+      id: "race", h: { en: "Everyone wants a world model", zh: "人人都想要世界模型" },
+      paras: [
+        {
+          en: "World models, AI systems that generate and simulate 3D environments, are also a focus for AMD's rivals. Google DeepMind showed Genie 3, a real-time interactive world model, in August 2025 [[26]]. Nvidia launched its Cosmos world foundation models in January 2025 to generate training data for robots and self-driving cars [[27]]. The broker Stifel said World Labs fills a gap for AMD, which had released only text and video open models [[23]].",
+          zh: "世界模型，也就是能生成并模拟三维环境的 AI 系统，同样是 AMD 竞争对手的重点。谷歌 DeepMind 在 2025 年 8 月展示了实时交互的世界模型 Genie 3 [[26]]。英伟达在 2025 年 1 月推出 Cosmos 世界基础模型，用来为机器人和自动驾驶汽车生成训练数据 [[27]]。券商 Stifel 认为，World Labs 填补了 AMD 的空白，因为 AMD 此前只发布过文本和视频类开放模型 [[23]]。",
+        },
+        {
+          en: "Large technology companies have also paid heavily for AI teams. Meta invested $14.3 billion in Scale AI in 2025 and hired its chief executive [[29]]. In December 2025 Nvidia agreed a licensing deal with the chip start-up Groq, reported at $20 billion, with Groq's founder joining Nvidia [[28]].",
+          zh: "大型科技公司也在为 AI 团队付出高价。2025 年，Meta 向 Scale AI 投资 143 亿美元，并聘请了其 CEO [[29]]。2025 年 12 月，英伟达与芯片初创公司 Groq 达成授权协议，据报道金额为 200 亿美元，Groq 创始人加入英伟达 [[28]]。",
+        },
+      ],
+    },
+    { id: "timeline", h: { en: "Timeline", zh: "时间线" }, figure: "timeline", paras: [] },
+    {
+      id: "countries", h: { en: "One deal, told six ways", zh: "同一笔交易，六种讲法" }, figure: "countries",
+      paras: [
+        {
+          en: "We looked at the articles in our sources about the deal between 28 and 30 September 2026: 37 articles from six countries. Chinese outlets carried more than half of them. This shows only what our sources carried.",
+          zh: "我们查看了 2026 年 9 月 28 日至 30 日，收录来源中关于这笔交易的报道：6 个国家，共 37 篇，其中一半以上来自中国媒体。这里只反映我们收录的来源。",
+        },
+      ],
+    },
+    {
+      id: "open", h: { en: "What is not settled", zh: "还没有答案的问题" },
+      paras: [
+        { en: "Approval. The deal still needs regulatory approval; AMD expects to complete it by the end of 2026 [[1]].", zh: "审批。交易仍需监管部门批准，AMD 预计 2026 年底前完成 [[1]]。" },
+        { en: "A lab inside a supplier. World Labs becomes a research organisation inside a company that sells chips to many AI labs. AMD says it does not intend to compete with them [[2]][[7]].", zh: "供应商里的实验室。World Labs 将成为一家向众多 AI 实验室卖芯片的公司内部的研究机构。AMD 表示无意与这些客户竞争 [[2]][[7]]。" },
+        { en: "What the price rests on. World Labs' revenue is not public, so the price reflects the team and its technology rather than current sales [[35]].", zh: "价格的依据。World Labs 的收入不公开，所以这个价格反映的是团队和技术，而不是当前的销售 [[35]]。" },
+      ],
+    },
+  ],
+  timeline: [
+    { date: { en: "2009", zh: "2009 年" }, text: { en: "Fei-Fei Li's team presents ImageNet", zh: "李飞飞团队发表 ImageNet" }, src: [15] },
+    { date: { en: "2012", zh: "2012 年" }, text: { en: "AlexNet wins the ImageNet challenge; deep learning takes off", zh: "AlexNet 赢得 ImageNet 挑战赛，深度学习兴起" }, src: [34] },
+    { date: { en: "13 Sep 2024", zh: "2024 年 9 月 13 日" }, text: { en: "World Labs emerges with $230 million", zh: "World Labs 公开亮相，融资 2.3 亿美元" }, src: [8] },
+    { date: { en: "2025", zh: "2025 年" }, text: { en: "AMD and World Labs partner on inference and training", zh: "AMD 与 World Labs 在推理和训练上合作" }, src: [4] },
+    { date: { en: "Oct 2025", zh: "2025 年 10 月" }, text: { en: "RTFM: real-time world generation on one GPU", zh: "RTFM：单块 GPU 实时生成世界" }, src: [13] },
+    { date: { en: "12 Nov 2025", zh: "2025 年 11 月 12 日" }, text: { en: "Marble opens to everyone", zh: "Marble 向所有人开放" }, src: [12] },
+    { date: { en: "Feb 2026", zh: "2026 年 2 月" }, text: { en: "Raises $1 billion; AMD and Nvidia among investors", zh: "融资 10 亿美元，AMD 和英伟达均参投" }, src: [9] },
+    { date: { en: "28 Sep 2026", zh: "2026 年 9 月 28 日" }, text: { en: "AMD agrees to buy World Labs, about $8.2 billion in stock", zh: "AMD 同意以约 82 亿美元股票收购 World Labs" }, src: [1] },
+    { date: { en: "By end of 2026", zh: "2026 年底前" }, text: { en: "Expected completion, after regulatory approvals", zh: "预计完成交易（需监管批准）" }, src: [1] },
+  ],
+  countries: [
+    {
+      code: "US", count: 6, outlets: "CNBC, TechCrunch, The Verge, MarketWatch, Ars Technica",
+      focus: { en: "What AMD is really buying: the talent and model know-how more than a product, and whether it helps AMD against Nvidia.", zh: "AMD 真正买的是什么：比起产品，更看重人才和模型能力，以及这能否帮 AMD 对抗英伟达。" },
+      headlines: [
+        { t: "The real prize in AMD’s $8 billion World Labs acquisition isn’t what you’d think", outlet: "MarketWatch", url: "https://www.marketwatch.com/story/the-real-prize-in-amds-8-billion-world-labs-acquisition-isnt-what-youd-think-6f609d0f" },
+        { t: "AMD acquires World Labs AI startup, upping the ante against Nvidia", outlet: "Ars Technica", url: "https://arstechnica.com/ai/2026/09/amd-acquires-world-labs-ai-pioneer-fei-fei-lis-world-models-startup/" },
+        { t: "AMD acquiring Fei-Fei Li's World Labs AI firm in deal worth $8.2 billion", outlet: "CNBC", url: "https://www.cnbc.com/2026/09/28/amd-fei-fei-li-world-labs.html" },
+      ],
+    },
+    {
+      code: "CN", count: 22, outlets: "虎嗅, 钛媒体, 36氪, 爱范儿, 极客公园, cnBeta, IT之家, 量子位, 21世纪经济报道, TechNode",
+      focus: { en: "By far the most coverage. The price was often converted into yuan (about 55 billion), and many pieces centred on the two people, Lisa Su and Fei-Fei Li, both well known in China; some headlines noted that both are women. Others asked what the deal means for Chinese start-ups in embodied AI.", zh: "报道量最多。价格常换算成人民币（约 550 亿元），很多文章以苏姿丰和李飞飞两位在中国知名度很高的人物为中心，有的标题强调两人都是女性。也有文章讨论这对中国具身智能创业公司意味着什么。" },
+      headlines: [
+        { t: "82亿美元买下70人的实验室：苏姿丰牵手李飞飞，AMD要用世界模型对抗英伟达", outlet: "虎嗅", url: "https://www.huxiu.com/article/4894488.html" },
+        { t: "李飞飞上岸，具身创业者慌了", outlet: "虎嗅", url: "https://www.huxiu.com/article/4894672.html" },
+        { t: "AMD 82 亿美元收购 World Labs，买的不只是世界模型", outlet: "极客公园", url: "http://www.geekpark.net/news/372000" },
+      ],
+    },
+    {
+      code: "DE", count: 3, outlets: "Handelsblatt, heise online",
+      focus: { en: "AMD as the Nvidia challenger trying to catch up in AI chips.", zh: "AMD 作为英伟达的挑战者，想在 AI 芯片上追赶。" },
+      headlines: [
+        { t: "Künstliche Intelligenz: Nvidia-Rivale AMD kauft Start-up von KI-Vorreiterin", outlet: "Handelsblatt", url: "https://www.handelsblatt.com/technik/it-internet/kuenstliche-intelligenz-nvidia-rivale-amd-kauft-start-up-von-ki-vorreiterin/100258103.html" },
+        { t: "AMD will World Labs für 8,2 Milliarden US-Dollar übernehmen", outlet: "heise online", url: "https://www.heise.de/news/AMD-will-World-Labs-fuer-8-2-Milliarden-US-Dollar-uebernehmen-11469699.html" },
+      ],
+    },
+    {
+      code: "SG", count: 4, outlets: "CNA, The Straits Times",
+      focus: { en: "A bet on \"physical AI\": models for robots and simulation.", zh: "押注\"物理 AI\"：面向机器人和仿真的模型。" },
+      headlines: [
+        { t: "AMD to buy Fei-Fei Li's World Labs in $8.2 billion bet on 'physical AI'", outlet: "CNA", url: "https://www.channelnewsasia.com/business/amd-buy-fei-fei-lis-world-labs-in-82-billion-bet-physical-ai-6416721" },
+        { t: "Nvidia rival AMD to buy industry pioneer’s AI start-up World Labs for US$8.2 billion", outlet: "The Straits Times", url: "https://www.straitstimes.com/business/nvidia-rival-amd-to-buy-industry-pioneers-ai-start-up-world-labs-for-us8-2-billion" },
+      ],
+    },
+    {
+      code: "JP", count: 1, outlets: "ITmedia NEWS",
+      focus: { en: "AMD's own framing: hardware and models combined in an open AI ecosystem.", zh: "沿用 AMD 自己的说法：硬件和模型结合的开放 AI 生态。" },
+      headlines: [
+        { t: "AMD、フェイフェイ・リー博士のWorld Labsを約82億ドルで買収へ ハードとモデルを一体化したオープンAIエコシステム加速へ", outlet: "ITmedia NEWS", url: "https://www.itmedia.co.jp/news/article/2609/29/2000001826/" },
+      ],
+    },
+    {
+      code: "IN", count: 1, outlets: "The Economic Times",
+      focus: { en: "A straight report of the deal and World Labs' spatial-intelligence models.", zh: "直接报道交易本身和 World Labs 的空间智能模型。" },
+      headlines: [
+        { t: "AMD to acquire Fei-Fei Li's World Labs in $8.2 billion deal", outlet: "The Economic Times", url: "https://economictimes.indiatimes.com/tech/artificial-intelligence/amd-to-acquire-fei-fei-lis-world-labs-in-8-2-billion-deal/articleshow/134555077.cms" },
+      ],
+    },
+  ],
+  sources: [
+    { n: 1, name: "AMD", title: "AMD to acquire World Labs to advance the future of AI compute (28 Sept 2026)", url: "https://ir.amd.com/news-events/press-releases/detail/1299/amd-to-acquire-world-labs-to-advance-the-future-of-ai-compute" },
+    { n: 2, name: "World Labs", title: "World Labs is joining AMD", url: "https://www.worldlabs.ai/blog/amd-announcement" },
+    { n: 3, name: "Fei-Fei Li", title: "World Labs joining AMD", url: "https://drfeifei.substack.com/p/worldlabs-joining-amd" },
+    { n: 4, name: "TechCrunch", title: "AMD will acquire Fei-Fei Li's World Labs for $8.2 billion", url: "https://techcrunch.com/2026/09/28/amd-will-acquire-fei-fei-lis-world-labs-for-8-2-billion/" },
+    { n: 5, name: "Axios", title: "AMD to acquire World Labs for $8.2 billion in stock", url: "https://www.axios.com/pro/all-deals/2026/09/28/amd-world-labs-ai-8-billion" },
+    { n: 6, name: "Yahoo Finance", title: "AMD acquires Fei-Fei Li's World Labs", url: "https://finance.yahoo.com/technology/ai/articles/amd-acquires-fei-fei-lis-121544620.html" },
+    { n: 7, name: "Stocktwits (via TradingView)", title: "AMD senior exec says it's not the intent to compete with AI customers", url: "https://www.tradingview.com/news/stocktwits:e762b8c1b094b:0-amd-stock-dips-overnight-after-8-2b-world-labs-deal-senior-exec-says-it-s-not-the-intent-to-compete-with-ai-customers/" },
+    { n: 8, name: "Maginative", title: "World Labs emerges from stealth with $230 million to build spatial intelligence AI", url: "https://www.maginative.com/article/world-labs-emerges-from-stealth-with-230-million-to-build-spatial-intelligence-ai/" },
+    { n: 9, name: "World Labs", title: "World Labs raises $1 billion (18 Feb 2026)", url: "https://www.worldlabs.ai/blog/funding-2026" },
+    { n: 10, name: "Crowdfund Insider", title: "AI firm World Labs raises $1 billion at $5 billion valuation", url: "https://www.crowdfundinsider.com/2026/02/262836-ai-firm-world-labs-raises-1-billion-at-5-billion-valuation/" },
+    { n: 11, name: "TechCrunch", title: "World Labs lands $200M from Autodesk to bring world models into 3D workflows", url: "https://techcrunch.com/2026/02/18/world-labs-lands-200m-from-autodesk-to-bring-world-models-into-3d-workflows/" },
+    { n: 12, name: "World Labs", title: "Marble, a world model", url: "https://www.worldlabs.ai/blog/marble-world-model" },
+    { n: 13, name: "World Labs", title: "RTFM: a real-time frame model", url: "https://worldlabs.ai/blog/rtfm" },
+    { n: 14, name: "Stanford HAI", title: "Fei-Fei Li", url: "https://hai.stanford.edu/people/fei-fei-li" },
+    { n: 15, name: "Wikipedia", title: "Fei-Fei Li", url: "https://en.wikipedia.org/wiki/Fei-Fei_Li" },
+    { n: 16, name: "Electronic Design", title: "AMD closes $49 billion acquisition of Xilinx", url: "https://www.electronicdesign.com/technologies/embedded-revolution/article/21216849/electronic-design-amd-closes-49-billion-acquisition-of-xilinxlargest-chip-deal-ever" },
+    { n: 17, name: "AMD", title: "AMD to acquire Pensando (4 April 2022)", url: "https://ir.amd.com/news-events/press-releases/detail/1057/amd-expands-data-center-solutions-capabilities-with" },
+    { n: 18, name: "OC3D", title: "AMD completes its $665 million acquisition of Silo AI", url: "https://overclock3d.net/news/misc/amd-completes-its-665-million-acquisition-of-silo-ai/" },
+    { n: 19, name: "AMD", title: "AMD completes acquisition of ZT Systems", url: "https://ir.amd.com/news-events/press-releases/detail/1240/amd-completes-acquisition-of-zt-systems" },
+    { n: 20, name: "CompaniesMarketCap", title: "AMD market capitalization", url: "https://companiesmarketcap.com/amd/marketcap/" },
+    { n: 22, name: "Invezz", title: "AMD stock rises as analysts back $8.2B World Labs AI deal", url: "https://invezz.com/ie/news/2026/09/29/amd-stock-rises-as-analysts-back-dollar82b-world-labs-ai-deal/" },
+    { n: 23, name: "Investing.com", title: "Stifel on AMD's World Labs deal strategy", url: "https://www.investing.com/news/analyst-ratings/stifel-reiterates-amd-stock-rating-on-world-labs-deal-strategy-93CH-4921958" },
+    { n: 24, name: "FinanceFeeds", title: "AMD stock and the $8.2 billion World Labs deal", url: "https://financefeeds.com/amd-stock-world-labs-fei-fei-li-8-2-billion/" },
+    { n: 25, name: "GuruFocus", title: "AMD announces $8.2 billion acquisition of World Labs, shares rise premarket", url: "https://www.gurufocus.com/news/9101470/amd-announces-82-billion-acquisition-of-world-labs-shares-rise-premarket" },
+    { n: 26, name: "TechCrunch", title: "DeepMind reveals Genie 3, a world model", url: "https://techcrunch.com/2025/08/05/deepmind-reveals-genie-3-a-world-model-that-could-be-the-key-to-reaching-agi" },
+    { n: 27, name: "NVIDIA", title: "NVIDIA launches Cosmos world foundation model platform (6 Jan 2025)", url: "https://investor.nvidia.com/news/press-release-details/2025/NVIDIA-Launches-Cosmos-World-Foundation-Model-Platform-to-Accelerate-Physical-AI-Development/default.aspx" },
+    { n: 28, name: "Constellation Research", title: "Nvidia's Groq deal: acquisition, acquihire or licensing deal?", url: "https://www.constellationr.com/insights/news/nvidias-groq-deal-acquisition-acquihire-or-creative-licensing-deal" },
+    { n: 29, name: "Nasdaq", title: "Meta invests $14.3 billion in Scale AI, taps CEO Alexandr Wang", url: "https://www.nasdaq.com/articles/meta-invests-143-bln-scale-ai-taps-ceo-alexandr-wang-lead-superintelligence-push" },
+    { n: 30, name: "SCMP", title: "AMD acquires 'godmother of AI' Li Fei-fei's start-up as battle with Nvidia intensifies", url: "https://www.scmp.com/tech/big-tech/article/3369141/amd-acquires-godmother-ai-li-fei-feis-start-battle-nvidia-intensifies" },
+    { n: 32, name: "Princeton Alumni", title: "Fei-Fei Li receives the Woodrow Wilson Award", url: "https://alumni.princeton.edu/stories/fei-fei-li-woodrow-wilson-award" },
+    { n: 33, name: "AMD", title: "AMD acquires MK1 to advance AI inference performance", url: "https://www.amd.com/en/blogs/2025/amd-acquires-mk1-to-advance-ai-inference-performance.html" },
+    { n: 34, name: "Wikipedia", title: "ImageNet", url: "https://en.wikipedia.org/wiki/ImageNet" },
+    { n: 35, name: "Tech Times", title: "AMD buys World Labs: Fei-Fei Li will now shape the chips that run physical AI", url: "https://www.techtimes.com/articles/328200/20260929/amd-buys-world-labs-fei-fei-li-will-now-shape-chips-that-run-physical-ai.htm" },
+    { n: 36, name: "AMD (SEC filing)", title: "AMD to acquire ZT Systems (19 August 2024)", url: "https://www.sec.gov/Archives/edgar/data/2488/000119312524202457/d808469dex991.htm" },
+  ],
+  stats: [
+    { label: { en: "World Labs' value", zh: "World Labs 估值" }, from: 1, to: 8.2, fromLabel: { en: "2024", zh: "2024 年" }, toLabel: { en: "AMD deal", zh: "AMD 收购价" }, unit: "bn", src: [11, 1] },
+    { label: { en: "Money World Labs raised", zh: "World Labs 累计融资" }, from: 0.23, to: 1.23, fromLabel: { en: "2024", zh: "2024 年" }, toLabel: { en: "Feb 2026", zh: "2026 年 2 月" }, unit: "bn", src: [8, 10] },
+    { label: { en: "New AMD shares, share of total", zh: "新股占 AMD 股本" }, from: 0, to: 0.8, fromLabel: { en: "", zh: "" }, toLabel: { en: "about, per FinanceFeeds", zh: "约数，据 FinanceFeeds" }, unit: "pct", src: [24] },
+  ],
+  name: "World Labs", legalName: "World Labs", newsMatch: { src: "World Labs|Fei-Fei Li|李飞飞", flags: "i" },
+  alwaysCite: [16, 17, 18, 19, 36],
+  method: {
+    en: "Method: drafted with AI from the sources above and checked line by line by an editor. The 2026 valuation of World Labs is a press report the company did not confirm. This is not investment advice. Found a mistake? Email ",
+    zh: "写法：本文由 AI 根据上列来源整理，编辑逐条核对。World Labs 2026 年的估值来自媒体报道，公司未证实。本文不构成投资建议。发现错误请写信到 ",
+  },
+  // $ billion: announced or completed deal values [16][17][18][19][1]
+  priceTags: {
+    title: { en: "AMD's largest acquisitions ($ billion)", zh: "AMD 历次大额收购（十亿美元）" },
+    note: {
+      en: "Xilinx is the value at completion in 2022; ZT Systems includes a contingent payment of up to $400 million. Smaller deals (Nod.ai, Brium, Enosemi, MK1) had undisclosed prices. Sources: AMD, Electronic Design, OC3D.", 
+      zh: "Xilinx 为 2022 年完成时的价值；ZT Systems 含最多 4 亿美元的或有付款。较小的收购（Nod.ai、Brium、Enosemi、MK1）价格未公开。来源：AMD、Electronic Design、OC3D。",
+    },
+    legend: [{ en: "Earlier deals", zh: "此前的收购" }, { en: "World Labs", zh: "World Labs" }],
+    rows: [
+      { label: { en: "Xilinx, 2022", zh: "Xilinx，2022" }, v: 49, kind: "deal" },
+      { label: { en: "World Labs, 2026", zh: "World Labs，2026" }, v: 8.2, kind: "market" },
+      { label: { en: "ZT Systems, 2025", zh: "ZT Systems，2025" }, v: 4.9, kind: "deal" },
+      { label: { en: "Pensando, 2022", zh: "Pensando，2022" }, v: 1.9, kind: "deal" },
+      { label: { en: "Silo AI, 2024", zh: "Silo AI，2024" }, v: 0.665, kind: "deal" },
+    ],
+  },
+  // $ billion [11][10][1]
+  priceTags2: {
+    title: { en: "What World Labs was worth ($ billion)", zh: "World Labs 值多少钱（十亿美元）" },
+    note: {
+      en: "2024 and 2026 are valuations at funding rounds; the 2026 figure was reported by the press and not confirmed by World Labs. Sources: TechCrunch, Crowdfund Insider, AMD.",
+      zh: "2024 年和 2026 年为融资时的估值，其中 2026 年的数字来自媒体报道，World Labs 未证实。来源：TechCrunch、Crowdfund Insider、AMD。",
+    },
+    legend: [{ en: "Funding-round valuation", zh: "融资估值" }, { en: "AMD's price", zh: "AMD 收购价" }],
+    rows: [
+      { label: { en: "Sep 2024, first round", zh: "2024.9，首轮" }, v: 1, kind: "deal" },
+      { label: { en: "Feb 2026, reported", zh: "2026.2，媒体报道" }, v: 5, kind: "deal" },
+      { label: { en: "Sep 2026, AMD deal", zh: "2026.9，AMD 收购" }, v: 8.2, kind: "market" },
+    ],
+  },
+  ig: {
+    explain: {
+      kicker: { en: "START HERE", zh: "零基础先看" },
+      rows: [
+        { q: { en: "What is World Labs?", zh: "World Labs 是什么？" }, a: { en: "A two-year-old AI company that turns a sentence or a photo into a 3D world you can walk through.", zh: "成立两年的 AI 公司：一句话或一张照片，就能变成可以走进去的 3D 世界。" } },
+        { q: { en: "What is a world model?", zh: "世界模型是什么？" }, a: { en: "AI that learns how real space looks and works, so it can build and simulate places for games, films and training robots.", zh: "让 AI 理解真实空间长什么样、怎么运作，能搭建和模拟场景，用于游戏、影视和训练机器人。" } },
+        { q: { en: "Who is Fei-Fei Li?", zh: "李飞飞是谁？" }, a: { en: "The Stanford scientist who led ImageNet: 14 million hand-labelled photos that became the test computers learned to see with.", zh: "斯坦福科学家，主导建立 ImageNet：1400 多万张人工标注的照片，成了电脑学会\"看图\"的考卷。" } },
+      ],
+    },
+    numbers: {
+      kicker: { en: "ONE DEAL, THREE NUMBERS", zh: "一笔交易，三个数字" },
+      rows: [
+        { big: { en: "$8.2B", zh: "82 亿美元" }, label: { en: "all in AMD shares", zh: "全部以 AMD 股票支付" }, sub: { en: "Announced 28 September 2026", zh: "2026 年 9 月 28 日宣布" } },
+        { big: { en: "$1B → $8.2B", zh: "10 亿 → 82 亿美元" }, label: { en: "World Labs' value", zh: "World Labs 估值" }, sub: { en: "2024 funding round → AMD's price", zh: "2024 年融资 → AMD 收购价" } },
+        { big: { en: "No. 2", zh: "第 2 大" }, label: { en: "AMD's biggest deal after Xilinx", zh: "仅次于 Xilinx 的 AMD 收购" }, sub: { en: "Fei-Fei Li becomes AMD's chief scientist", zh: "李飞飞出任 AMD 首席科学家" } },
+      ],
+      source: { en: "Sources: AMD, TechCrunch, Yahoo Finance", zh: "来源：AMD、TechCrunch、Yahoo Finance" },
+    },
+    decisions: [
+      { h: { en: "Get closer to the models", zh: "离模型更近" }, tag: "Research", t: { en: "Lisa Su: building AI hardware needs a deep understanding of how models are evolving.", zh: "苏姿丰：为下一代 AI 造硬件，需要深入理解模型如何演进。" } },
+      { h: { en: "Fill a gap", zh: "补上空白" }, tag: "World models", t: { en: "Stifel: AMD had released only text and video open models; Nvidia has Cosmos.", zh: "Stifel：AMD 此前只有文本和视频开放模型，英伟达已有 Cosmos。" } },
+      { h: { en: "Hire a leader, not only a lab", zh: "买下团队和领路人" }, tag: "Fei-Fei Li", t: { en: "Li becomes AMD's executive vice president and chief scientist, reporting to Su.", zh: "李飞飞出任 AMD 执行副总裁兼首席科学家，向苏姿丰汇报。" } },
+    ],
+    chart: {
+      kind: "tags", kicker: { en: "AMD'S BIGGEST DEALS", zh: "AMD 的大额收购" },
+      sub: { en: "Only Xilinx cost more.", zh: "只有 Xilinx 比它更贵。" },
+      foot: { en: "AMD, Electronic Design, OC3D", zh: "AMD、Electronic Design、OC3D" },
+    },
+    countries: {
+      kicker: { en: "ONE DEAL, SIX COUNTRIES", zh: "一笔交易，六个国家" },
+      title: { en: "How outlets in six countries reported AMD buying World Labs", zh: "六个国家的媒体，怎么报道 AMD 收购 World Labs" },
+      rows: [
+        { flags: ["us"], name: { en: "United States", zh: "美国" }, t: { en: "What AMD really buys: talent and model know-how, and a stronger hand against Nvidia.", zh: "AMD 真正买的是人才和模型能力，以及对抗英伟达的筹码。" } },
+        { flags: ["cn"], name: { en: "China", zh: "中国" }, t: { en: "The most coverage: the price in yuan, the two leaders, and what it means for embodied-AI start-ups.", zh: "报道最多：换算成人民币的价格、两位主角，以及对具身智能创业公司的影响。" } },
+        { flags: ["de", "sg"], name: { en: "Germany and Singapore", zh: "德国、新加坡" }, t: { en: "The Nvidia rival catching up, and a bet on \"physical AI\".", zh: "英伟达的对手在追赶，以及对\"物理 AI\"的押注。" } },
+      ],
+      foot: { en: "37 articles in our sources, 28 to 30 September 2026", zh: "我们收录的 37 篇报道，2026 年 9 月 28 日至 30 日" },
+    },
+  },
+};
+
+export const PROFILES: Profile[] = [AMD, WORLD_LABS];
+/** written but not yet published (next issue); kept here so the text stays with the code that renders it */
+export const DRAFTS: Profile[] = [ARM];
 export const getProfile = (slug: string) => PROFILES.find((p) => p.slug === slug) ?? null;
 export const pick = (l: L, zh: boolean) => (zh ? l.zh : l.en);
 
