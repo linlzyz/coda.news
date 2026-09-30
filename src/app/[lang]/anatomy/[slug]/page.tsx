@@ -139,7 +139,7 @@ export default async function Page({ params }: PageProps<"/[lang]/anatomy/[slug]
       ] }) }} />
       <header className="relative isolate overflow-hidden bg-[#08090B] text-white">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={photoUrl(pr.cover.file, 1600)} srcSet={photoSrcSet(pr.cover.file)} sizes="100vw" alt={pick(pr.cover.alt, zh)} fetchPriority="high"
+        <img src={photoUrl(pr.cover.file, 1600)} srcSet={photoSrcSet(pr.cover.file)} sizes="100vw" alt={pick(pr.cover.alt, zh)} fetchPriority="high" style={pr.cover.pos ? { objectPosition: pr.cover.pos } : undefined}
           className="ana-hero-img absolute inset-y-0 right-0 -z-10 h-full w-full object-cover opacity-80 sm:w-[78%]" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#08090B] via-[#08090B]/80 to-transparent" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#08090B] via-transparent to-transparent" />

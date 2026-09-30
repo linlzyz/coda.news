@@ -663,9 +663,9 @@ const WORLD_LABS: Profile = {
   },
   keywords: ["AMD", "World Labs", "Fei-Fei Li", "李飞飞", "苏姿丰", "Lisa Su", "AMD acquisition", "AMD 收购", "world model", "世界模型", "spatial intelligence", "空间智能", "Marble", "physical AI"],
   published: "2026-10-01", updated: "2026-10-01",
-  cover: { file: "coda-illustration-amd-world-labs", credit: "coda.news", license: "", own: true,
-    caption: { en: "Illustration: light rising from a chip builds a world out of points. Drawn by coda.news, not a photograph.", zh: "插图：芯片发出的光，搭起一个由点构成的世界。由 coda.news 绘制，不是照片。" },
-    alt: { en: "Illustration of a glowing chip beneath a 3D landscape made of orange points", zh: "发光的芯片和由橙色光点构成的 3D 地形插图" } },
+  cover: { file: "coda-ai-illustration-amd-world-labs", credit: "coda.news, AI-generated (ChatGPT)", license: "", own: true, pos: "center 62%",
+    caption: { en: "AI-generated illustration: a 3D world rising out of a chip. Not a photograph, and not an AMD or World Labs product.", zh: "AI 生成的插图：一个 3D 世界从芯片中升起。不是照片，也不是 AMD 或 World Labs 的产品。" },
+    alt: { en: "Illustration of a glowing chip with a landscape of mountains, trees and a lake rising above it", zh: "发光的芯片上方升起山峦、树木和湖泊的插图" } },
   lede: [
     {
       en: "AMD sells the chips that artificial intelligence runs on. On 28 September 2026 it agreed to buy a company that makes AI models instead: World Labs, founded two years ago by the computer scientist Fei-Fei Li and three colleagues, for about $8.2 billion in AMD shares [[1]][[8]]. If completed, it will be AMD's second-largest acquisition, after Xilinx [[6]]. World Labs has not disclosed any revenue [[35]]. AMD is not buying sales. It is betting that a model team inside the company will show, earlier than customers can, what the next chips need. The risk is that this view of the future does not turn into software that developers use or chips that customers buy.",
