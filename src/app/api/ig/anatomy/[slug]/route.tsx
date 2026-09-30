@@ -276,6 +276,13 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
   // only the characters actually drawn, so the font download stays small
   const text = [...new Set([...used, JSON.stringify(pr), "CODA ANATOMY剖面 0123456789$→%·.,:;?'’()/-亿万美元年月日"].join(""))].join("");
   const [r4, r7, r9] = await Promise.all([gfont(zh ? "Noto+Sans+SC" : "Inter", 400, text), gfont(zh ? "Noto+Sans+SC" : "Inter", 700, text), gfont(zh ? "Noto+Sans+SC" : "Inter", 900, text)]);
-  return new ImageResponse(body, { ...size, fonts: [{ name: "Sans", data: r4, weight: 400 }, { name: "Sans", data: r7, weight: 700 }, { name: "Sans", data: r9, weight: 900 }],
+  const img = new ImageResponse(body, { ...size, fonts: [{ name: "Sans", data: r4, weight: 400 }, { name: "Sans", data: r7, weight: 700 }, { name: "Sans", data: r9, weight: 900 }],
     headers: { "cache-control": "public, max-age=3600, s-maxage=86400" } });
+  // Instagram's API takes JPEG only
+  if (u.searchParams.get("fmt") === "jpg") {
+    const sharp = (await import("sharp")).default;
+    const jpg = await sharp(Buffer.from(await img.arrayBuffer())).flatten({ background: "#ffffff" }).jpeg({ quality: 95, chromaSubsampling: "4:4:4" }).toBuffer();
+    return new Response(new Uint8Array(jpg), { headers: { "content-type": "image/jpeg", "cache-control": "public, max-age=3600, s-maxage=86400" } });
+  }
+  return img;
 }
