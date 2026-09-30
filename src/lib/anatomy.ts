@@ -664,7 +664,7 @@ const WORLD_LABS: Profile = {
     zh: "2026 年 9 月 28 日，AMD 同意以约 82 亿美元全股票收购李飞飞的空间智能公司 World Labs。World Labs 做什么（Marble、RTFM），李飞飞出任 AMD 首席科学家，收购价与融资估值对比，AMD 以往的收购，世界模型之争，以及六个国家的媒体怎么报道。每个数字附来源。",
   },
   keywords: ["AMD", "World Labs", "Fei-Fei Li", "李飞飞", "苏姿丰", "Lisa Su", "AMD acquisition", "AMD 收购", "world model", "世界模型", "spatial intelligence", "空间智能", "Marble", "physical AI"],
-  published: "2026-10-01", updated: "2026-10-01",
+  published: "2026-09-30", updated: "2026-09-30",
   cover: { file: "coda-ai-illustration-amd-world-labs", credit: "", ownCredit: { en: "made by coda.news with ChatGPT", zh: "coda.news 使用 ChatGPT 生成" }, license: "", own: true, pos: "center 62%",
     caption: { en: "Cover: an AI-generated illustration of a 3D world rising out of a chip; not a picture of an AMD or World Labs product.", zh: "封面：AI 生成插图，一个 3D 世界从芯片中升起；并非 AMD 或 World Labs 产品图。" },
     alt: { en: "Illustration of a glowing chip with a landscape of mountains, trees and a lake rising above it", zh: "发光的芯片上方升起山峦、树木和湖泊的插图" } },
