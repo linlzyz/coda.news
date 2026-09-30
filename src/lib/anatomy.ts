@@ -977,7 +977,7 @@ const WORLD_LABS: Profile = {
       kicker: { en: "START HERE", zh: "零基础先看" },
       rows: [
         { q: { en: "What is World Labs?", zh: "World Labs 是什么？" }, a: { en: "A two-year-old AI company that turns a sentence or a photo into a 3D world you can walk through.", zh: "成立两年的 AI 公司：一句话或一张照片，就能变成可以走进去的 3D 世界。" } },
-        { q: { en: "What is a world model?", zh: "世界模型是什么？" }, a: { en: "AI that learns how real space looks and works, so it can build and simulate places for games, films and training robots.", zh: "让 AI 理解真实空间长什么样、怎么运作，能搭建和模拟场景，用于游戏、影视和训练机器人。" } },
+        { q: { en: "What is a world model?", zh: "世界模型是什么？" }, a: { en: "AI that learns how real space looks and works. So far it builds places for games and films; training robots is still at the experiment stage.", zh: "让 AI 理解真实空间长什么样、怎么运作。目前主要用来搭建游戏和影视场景，训练机器人还在实验阶段。" } },
         { q: { en: "Who is Fei-Fei Li?", zh: "李飞飞是谁？" }, a: { en: "The Stanford scientist who led ImageNet: 14 million hand-labelled photos that became the test computers learned to see with.", zh: "斯坦福科学家，主导建立 ImageNet：1400 多万张人工标注的照片，成了电脑学会\"看图\"的考卷。" } },
       ],
     },
