@@ -53,6 +53,8 @@ export type PriceTags = { title: L; note: L; legend?: [L, L]; rows: { label: L; 
 
 /** Text for Instagram slides 2 to 5 and the Story; slide 1 is built from title, igHook and cover. */
 export type IgSlides = {
+  /** optional full-bleed poster cover for slide 1 instead of the photo card; "\n" breaks lines */
+  poster?: { title: L; sub: L; line: L };
   /** optional plain-language slide ("start here"), shown after the cover: ?s=explain */
   explain?: { kicker: L; rows: { q: L; a: L }[] };
   numbers: { kicker: L; rows: { big: L; label: L; sub: L }[]; source: L };
@@ -967,6 +969,11 @@ const WORLD_LABS: Profile = {
     ],
   },
   ig: {
+    poster: {
+      title: { en: "AMD bets on\nworld models", zh: "AMD 押注\n世界模型" },
+      sub: { en: "Buying World Labs for $8.2B", zh: "82 亿美元拟收购 World Labs" },
+      line: { en: "Letting model makers\nshape the next chips", zh: "让做模型的人，\n反过来定义下一代芯片" },
+    },
     explain: {
       kicker: { en: "START HERE", zh: "零基础先看" },
       rows: [

@@ -60,7 +60,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
   let body: React.ReactElement;
   let size = { width: W, height: H };
   // the JPEG copy: Satori cannot draw WebP
-  const cover = (s === "1" || s === "story") ? await dataUri(`https://coda.news${photoUrl(pr.cover.file, 1600).replace(/\.webp$/, ".jpg")}`) : null;
+  // this deployment first (previews and local runs have files not yet on coda.news), then the live site
+  const coverPath = photoUrl(pr.cover.file, 1600).replace(/\.webp$/, ".jpg");
+  const cover = (s === "1" || s === "story") ? (await dataUri(`${u.origin}${coverPath}`)) ?? (await dataUri(`https://coda.news${coverPath}`)) : null;
   const st = pr.stats;
 
   if (s === "story") {
@@ -74,6 +76,30 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
           <div style={{ display: "flex", marginTop: 20, fontSize: zh ? (title.length > 14 ? 92 : 110) : (title.length > 30 ? 112 : 128), fontWeight: 900, lineHeight: 1.02, color: "#fff", letterSpacing: zh ? 0 : -4 }}>{title}</div>
           <div style={{ display: "flex", marginTop: 28, fontSize: 60, fontWeight: 700, color: "#fff" }}>{money(st[0].from, zh)} <span style={{ color: ORANGE, margin: "0 18px" }}>→</span> {money(st[0].to, zh)}</div>
           <div style={{ display: "flex", marginTop: 60, fontSize: 38, fontWeight: 700, color: "#fff", background: ORANGE, padding: "18px 34px", borderRadius: 999, alignSelf: "flex-start" }}>{T("Read it: link in bio", "完整剖面：主页链接")}</div>
+        </div>
+      </div>
+    );
+  } else if (s === "1" && ig.poster) {
+    // full-bleed poster cover (Lyn's design, 30 Sept): picture fills the slide, text top left over a dark fade
+    const ps = ig.poster, RED = "#E3262F";
+    body = (
+      <div style={{ width: W, height: H, display: "flex", position: "relative", background: "#08090B", fontFamily: "Sans" }}>
+        {cover && <img src={cover} width={W} height={H} style={{ position: "absolute", top: 0, left: 0, width: W, height: H, objectFit: "cover" }} alt="" />}
+        <div style={{ position: "absolute", top: 0, left: 0, width: W, height: H, display: "flex", backgroundImage: "linear-gradient(90deg, rgba(8,9,11,.92) 0%, rgba(8,9,11,.6) 42%, rgba(8,9,11,0) 70%)" }} />
+        <div style={{ position: "relative", display: "flex", flexDirection: "column", padding: "96px 76px 60px", width: W, height: H }}>
+          <div style={{ display: "flex", width: 72, height: 7, background: RED }} />
+          <div style={{ display: "flex", marginTop: 26, fontSize: 30, fontWeight: 700, color: "rgba(255,255,255,.82)", letterSpacing: zh ? 1 : 3 }}>{T("CODA · ANATOMY", "CODA · 剖面")} {String(pr.no).padStart(2, "0")}</div>
+          <div style={{ display: "flex", flexDirection: "column", marginTop: 34, fontSize: zh ? 118 : 104, fontWeight: 900, lineHeight: 1.08, color: "#fff", letterSpacing: zh ? 2 : -3 }}>
+            {P(ps.title).split("\n").map((x, i) => <div key={i} style={{ display: "flex" }}>{x}</div>)}
+          </div>
+          <div style={{ display: "flex", marginTop: 44, fontSize: zh ? 40 : 38, fontWeight: 700, color: "#FF4A3D" }}>{P(ps.sub)}</div>
+          <div style={{ display: "flex", flexDirection: "column", marginTop: 26, fontSize: zh ? 36 : 34, fontWeight: 700, lineHeight: 1.45, color: "rgba(255,255,255,.85)" }}>
+            {P(ps.line).split("\n").map((x, i) => <div key={i} style={{ display: "flex" }}>{x}</div>)}
+          </div>
+          <div style={{ marginTop: "auto", display: "flex", alignItems: "center", fontSize: 20, color: "rgba(255,255,255,.6)" }}>
+            <div style={{ display: "flex" }}>{pr.cover.own ? T("AI-generated illustration", "AI 生成插图") : credit}</div>
+            <div style={{ marginLeft: "auto", display: "flex", fontSize: 36, fontWeight: 700, color: "#fff" }}><B text="coda.news" /></div>
+          </div>
         </div>
       </div>
     );
