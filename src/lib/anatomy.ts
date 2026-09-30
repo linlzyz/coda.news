@@ -648,14 +648,14 @@ const ARM: Profile = {
 
 const WORLD_LABS: Profile = {
   slug: "amd-world-labs", no: 2, companyId: 18, companySlug: "amd",
-  title: { en: "AMD Buys World Labs: A Chipmaker's Bet on World Models", zh: "AMD 买下 World Labs：芯片公司押注世界模型" },
+  title: { en: "AMD to Buy World Labs: A Chipmaker's Bet on World Models", zh: "AMD 拟收购 World Labs：芯片公司押注世界模型" },
   dek: {
-    en: "AMD is paying about $8.2 billion in stock for World Labs, the two-year-old company Fei-Fei Li co-founded: its second-largest deal ever, and a bet that a chipmaker needs to understand the models first.",
-    zh: "AMD 以约 82 亿美元股票收购李飞飞参与创办、成立两年的 World Labs。这是它史上第二大收购，也是一次押注：造芯片的公司，要先读懂模型。",
+    en: "AMD has agreed to pay about $8.2 billion in stock for World Labs, the two-year-old company Fei-Fei Li co-founded. If it goes through, it will be AMD's second-largest deal, and a bet that a model team can shape the chips that come next.",
+    zh: "AMD 同意以约 82 亿美元股票收购李飞飞参与创办、成立两年的 World Labs。若交易完成，这将是它史上第二大收购；它押注的是：让做模型的人，反过来定义下一代芯片。",
   },
   social: { en: "Why a chipmaker paid $8.2 billion for a model company", zh: "一家芯片公司，为什么花 82 亿美元买模型公司" },
-  igHook: { en: "It makes the compute. Now it paid $8.2 billion for the people who build the models", zh: "它造算力，却花 82 亿美元买下了李飞飞的团队" },
-  seoTitle: { en: "AMD to Acquire Fei-Fei Li's World Labs for $8.2 Billion: What It Buys and Why", zh: "AMD 82 亿美元收购李飞飞 World Labs：买了什么，为什么买" },
+  igHook: { en: "It makes the compute. Now it wants to pay $8.2 billion for the people who build the models", zh: "它造算力，却要花 82 亿美元买下李飞飞的团队" },
+  seoTitle: { en: "AMD to Acquire Fei-Fei Li's World Labs for $8.2 Billion: What It Buys and Why", zh: "AMD 拟 82 亿美元收购李飞飞 World Labs：买什么，为什么买" },
   seoDesc: {
     en: "AMD agreed on 28 September 2026 to buy World Labs, Fei-Fei Li's spatial-intelligence start-up, in an all-stock deal worth about $8.2 billion. What World Labs makes (Marble, RTFM), Li's new role as AMD chief scientist, the price against its funding rounds, AMD's earlier acquisitions, the race for world models, and how media in six countries reported it. Every number sourced.",
     zh: "2026 年 9 月 28 日，AMD 同意以约 82 亿美元全股票收购李飞飞的空间智能公司 World Labs。World Labs 做什么（Marble、RTFM），李飞飞出任 AMD 首席科学家，收购价与融资估值对比，AMD 以往的收购，世界模型之争，以及六个国家的媒体怎么报道。每个数字附来源。",
@@ -667,8 +667,8 @@ const WORLD_LABS: Profile = {
     alt: { en: "3D-captured garden with a round fountain", zh: "3D 捕捉的花园和圆形喷泉" } },
   lede: [
     {
-      en: "AMD sells the chips that artificial intelligence runs on. On 28 September 2026 it agreed to buy a company that makes AI models instead: World Labs, founded two years ago by the computer scientist Fei-Fei Li and three colleagues, for about $8.2 billion in AMD shares [[1]][[8]]. It is AMD's second-largest acquisition, after Xilinx [[6]]. World Labs has not disclosed any revenue [[35]]. What AMD is buying is a team, a kind of model and a closer view of where AI is going.",
-      zh: "AMD 卖的是让人工智能运行的芯片。2026 年 9 月 28 日，它同意收购一家做 AI 模型的公司：由计算机科学家李飞飞和三位同事两年前创办的 World Labs，作价约 82 亿美元，全部以 AMD 股票支付 [[1]][[8]]。这是 AMD 史上第二大收购，仅次于 Xilinx [[6]]。World Labs 没有公布过收入 [[35]]。AMD 买下的是一支团队、一类模型，以及离 AI 下一步更近的视角。",
+      en: "AMD sells the chips that artificial intelligence runs on. On 28 September 2026 it agreed to buy a company that makes AI models instead: World Labs, founded two years ago by the computer scientist Fei-Fei Li and three colleagues, for about $8.2 billion in AMD shares [[1]][[8]]. If completed, it will be AMD's second-largest acquisition, after Xilinx [[6]]. World Labs has not disclosed any revenue [[35]]. AMD is not buying sales. It is betting that a model team inside the company will show, earlier than customers can, what the next chips need. The risk is that this view of the future does not turn into software that developers use or chips that customers buy.",
+      zh: "AMD 卖的是让人工智能运行的芯片。2026 年 9 月 28 日，它同意收购一家做 AI 模型的公司：由计算机科学家李飞飞和三位同事两年前创办的 World Labs，作价约 82 亿美元，全部以 AMD 股票支付 [[1]][[8]]。若交易完成，这将是 AMD 史上第二大收购，仅次于 Xilinx [[6]]。World Labs 没有公布过收入 [[35]]。AMD 买的不是销售额。它押注的是：公司内部有了做模型的团队，就能比客户更早看清下一代芯片需要什么。风险在于，这份对未来的判断，未必能变成开发者愿意用的软件和客户愿意买的芯片。",
     },
   ],
   sections: [
@@ -680,8 +680,8 @@ const WORLD_LABS: Profile = {
           zh: "World Labs。一家 2024 年成立的美国 AI 小公司。它做的 AI，能把一句话、一张照片或一段视频变成可以在里面走动的 3D 世界 [[8]][[12]]。打个比方：一幅房间的画和一个能走进去的房间是两回事。大多数图像 AI 画的是那幅画，World Labs 想造的是那个房间。",
         },
         {
-          en: "World model. AI that learns how real space looks and behaves: where things are, how far apart, what you would see if you turned around. Chatbots mostly learn from text; world models learn from images and video of real places [[8]]. They can be used for games and film sets, and to train robots and self-driving cars in simulated worlds before they go into real ones [[27]].",
-          zh: "世界模型。一种学习真实空间长什么样、怎么运作的 AI：东西在哪里、相隔多远、转过身会看到什么。聊天机器人主要从文字里学习，世界模型则从真实场景的图片和视频里学习 [[8]]。它可以用来做游戏和影视场景，也可以先在模拟世界里训练机器人和自动驾驶汽车，再让它们进入真实世界 [[27]]。",
+          en: "World model. AI that learns how real space looks and behaves: where things are, how far apart, what you would see if you turned around. Chatbots mostly learn from text; world models learn from images and video of real places [[8]]. Today they are used for games and film sets. In future they could supply simulated worlds for training robots and self-driving cars before they go into real ones [[27]], but current products are still some way from accurate, tested physical simulation [[37]].",
+          zh: "世界模型。一种学习真实空间长什么样、怎么运作的 AI：东西在哪里、相隔多远、转过身会看到什么。聊天机器人主要从文字里学习，世界模型则从真实场景的图片和视频里学习 [[8]]。现在它主要用于游戏和影视场景。将来，它可能为机器人和自动驾驶汽车提供模拟训练环境，让它们先在虚拟世界里学习，再进入真实世界 [[27]]；但现有产品离精确、可验证的物理模拟还有明显距离 [[37]]。",
         },
         {
           en: "Fei-Fei Li. A computer scientist at Stanford. In the late 2000s she led the building of ImageNet, a library of more than 14 million photos, each labelled by hand with what it shows [[34]]. It became a shared test for computers that recognise pictures. In 2012 a neural network called AlexNet won that test by a wide margin, and the technology industry took notice of deep learning, the approach behind today's AI [[34]].",
@@ -697,8 +697,8 @@ const WORLD_LABS: Profile = {
       id: "deal", h: { en: "The deal", zh: "交易本身" },
       paras: [
         {
-          en: "AMD announced the purchase after the US market closed on 28 September. The deal is all-stock and valued at about $8.2 billion, and AMD expects to complete it by the end of 2026, subject to regulatory approvals [[1]][[24]]. Fei-Fei Li becomes AMD's executive vice president and chief scientist, reporting to chief executive Lisa Su [[1]].",
-          zh: "AMD 在 9 月 28 日美股收盘后宣布这笔收购。交易全部以股票支付，作价约 82 亿美元，预计 2026 年底前完成，还需通过监管审批 [[1]][[24]]。李飞飞将出任 AMD 执行副总裁兼首席科学家，直接向 CEO 苏姿丰汇报 [[1]]。",
+          en: "AMD announced the purchase after the US market closed on 28 September. The deal is all-stock and valued at about $8.2 billion; the number of AMD shares will be set by AMD's average share price over the ten trading days before closing [[38]]. AMD expects to complete it by the end of 2026, subject to regulatory approvals [[1]][[24]]. Fei-Fei Li will become AMD's executive vice president and chief scientist, reporting to chief executive Lisa Su [[1]].",
+          zh: "AMD 在 9 月 28 日美股收盘后宣布这笔收购。交易全部以股票支付，作价约 82 亿美元；最终发行多少股，要按交割前 10 个交易日 AMD 的平均股价计算 [[38]]。交易预计 2026 年底前完成，还需通过监管审批 [[1]][[24]]。李飞飞将出任 AMD 执行副总裁兼首席科学家，直接向 CEO 苏姿丰汇报 [[1]]。",
         },
         {
           en: "Justin Johnson and Ben Mildenhall, two of World Labs' co-founders, will keep leading its team together with Li, as a research organisation inside AMD [[2]]. Neither company has said what will happen to Marble, World Labs' product [[35]].",
@@ -714,8 +714,12 @@ const WORLD_LABS: Profile = {
           zh: "World Labs 于 2024 年 9 月 13 日公开亮相，获得 2.3 亿美元融资，投资方包括 Andreessen Horowitz、NEA 和英伟达的风投部门 [[8]]。它研究的是公司所说的空间智能：让计算机像人一样，在三维空间里感知和理解物理世界 [[8]]。",
         },
         {
-          en: "Its first public product, Marble, opened to everyone on 12 November 2025. It builds 3D worlds from text, images, video or rough 3D layouts [[12]]. A research model, RTFM, generates video in real time as a user moves through a scene, running on a single Nvidia H100 GPU [[13]]. In February 2026 World Labs raised $1 billion from investors that included both AMD and Nvidia, as well as Autodesk [[9]].",
-          zh: "它的第一款公开产品 Marble 于 2025 年 11 月 12 日向所有人开放，可以根据文字、图片、视频或粗略的 3D 布局生成 3D 世界 [[12]]。研究模型 RTFM 能在用户穿行场景时实时生成画面，只需一块英伟达 H100 GPU [[13]]。2026 年 2 月，World Labs 融资 10 亿美元，投资方中既有 AMD，也有英伟达，还有 Autodesk [[9]]。",
+          en: "Its first public product, Marble, opened to everyone on 12 November 2025. It builds 3D worlds from text, images, video or rough 3D layouts, and exports them with collision meshes that a physics engine can work with [[12]][[37]]. A research model, RTFM, generates video in real time as a user moves through a scene, running on a single Nvidia H100 GPU [[13]]. In February 2026 World Labs raised $1 billion from investors that included both AMD and Nvidia, as well as Autodesk [[9]].",
+          zh: "它的第一款公开产品 Marble 于 2025 年 11 月 12 日向所有人开放，可以根据文字、图片、视频或粗略的 3D 布局生成 3D 世界，并附带物理引擎可以使用的碰撞网格 [[12]][[37]]。研究模型 RTFM 能在用户穿行场景时实时生成画面，只需一块英伟达 H100 GPU [[13]]。2026 年 2 月，World Labs 融资 10 亿美元，投资方中既有 AMD，也有英伟达，还有 Autodesk [[9]]。",
+        },
+        {
+          en: "World Labs itself sorts world models into three kinds: renderers, which produce pictures for people; simulators, which keep a geometrically and physically faithful state of a scene; and planners, which decide what a robot should do next. It notes that planning systems have so far been \"confined to heavily constrained laboratory setups\" [[37]]. A beautiful, consistent 3D scene is not yet an environment in which a real robot can learn weight, friction or cause and effect.",
+          zh: "World Labs 自己把世界模型分成三类：渲染器，生成给人看的画面；模拟器，保存场景在几何和物理上准确的状态；规划器，决定机器人下一步该做什么。它也承认，规划系统至今大多局限在\"高度受限的实验室环境\"里 [[37]]。一个漂亮、连贯的 3D 场景，还不等于一个能让真实机器人学会重量、摩擦和因果关系的环境。",
         },
       ],
     },
@@ -749,6 +753,14 @@ const WORLD_LABS: Profile = {
           en: "The two companies already worked together: they formed a partnership on inference optimisation and training in 2025 [[4]]. AMD also says it is not trying to compete with the AI companies that buy its chips; Vamsi Boppana, its senior vice president for AI, said that is \"not the intent at all\" [[7]].",
           zh: "两家公司此前已有合作：2025 年，它们在推理优化和训练上结成伙伴关系 [[4]]。AMD 也表示，它无意与购买其芯片的 AI 公司竞争。AMD 负责 AI 的高级副总裁 Vamsi Boppana 说，这\"完全不是本意\" [[7]]。",
         },
+        {
+          en: "In practice, the argument is a feedback loop. A team building new models runs into a chip's limits first: memory size and bandwidth, the links between GPUs, delay, power use, and missing software tools. Chips take years to design, so hearing about those limits from customers can come late. A model team inside AMD could act as an early, demanding in-house customer for its Instinct accelerators and ROCm software; AMD says World Labs will help it understand new AI workloads and shape its hardware, software and systems [[1]].",
+          zh: "说到底，这是一个反馈循环。做新模型的团队，会最先撞上芯片的极限：显存容量和带宽、GPU 之间的互联、延迟、功耗，以及缺少的软件工具。芯片要花好几年设计，等客户反馈这些问题，往往已经晚了。放在 AMD 内部的模型团队，可以成为它 Instinct 加速器和 ROCm 软件的一个早期、挑剔的\"内部客户\"。AMD 也说，World Labs 将帮助它理解新的 AI 工作负载，进而影响它的硬件、软件和系统 [[1]]。",
+        },
+        {
+          en: "The first test has a twist. When World Labs introduced RTFM, it stressed that the model runs in real time on a single Nvidia H100 [[13]], a rival's chip. Whether World Labs' models run as well, or better, on AMD's own accelerators will be one of the earliest signs of whether the deal works.",
+          zh: "第一道检验就有些微妙。World Labs 发布 RTFM 时强调，它只需一块英伟达 H100 就能实时运行 [[13]]，那是竞争对手的芯片。World Labs 的模型在 AMD 自家加速器上能否跑得一样好、甚至更好，会是这笔交易成败最早的信号之一。",
+        },
       ],
     },
     {
@@ -766,8 +778,8 @@ const WORLD_LABS: Profile = {
       id: "price", h: { en: "The price", zh: "价格" }, figure: "pricetags2",
       paras: [
         {
-          en: "World Labs was valued at about $1 billion when it emerged in 2024 [[5]][[11]]. When it raised $1 billion in February 2026, press reports put its valuation at about $5 billion, a figure the company did not confirm [[10]][[11]]. AMD's price of about $8.2 billion is roughly 6.7 times the $1.23 billion World Labs had raised [[8]][[10]], and the new shares amount to about 0.8% of AMD [[24]].",
-          zh: "2024 年亮相时，World Labs 估值约 10 亿美元 [[5]][[11]]。2026 年 2 月融资 10 亿美元时，媒体报道其估值约 50 亿美元，公司没有证实 [[10]][[11]]。AMD 约 82 亿美元的价格，约为 World Labs 累计融资额 12.3 亿美元的 6.7 倍 [[8]][[10]]；新发行的股份约占 AMD 股本的 0.8% [[24]]。",
+          en: "World Labs was valued at about $1 billion when it emerged in 2024 [[5]][[11]]. When it raised $1 billion in February 2026, press reports put its valuation at about $5 billion, a figure the company did not confirm [[10]][[11]]. AMD's price is about 64% above that reported figure. But World Labs has not disclosed revenue, losses or customer numbers, so the usual financial yardsticks cannot test the price [[35]]. How many new AMD shares are issued depends on AMD's share price before closing; one estimate put them at about 0.8% of the company [[38]][[24]].",
+          zh: "2024 年亮相时，World Labs 估值约 10 亿美元 [[5]][[11]]。2026 年 2 月融资 10 亿美元时，媒体报道其估值约 50 亿美元，公司没有证实 [[10]][[11]]。AMD 的出价比这个报道数字高约 64%。但 World Labs 没有公开收入、亏损和客户数量，常用的财务指标无法检验这个价格 [[35]]。新发多少 AMD 股份取决于交割前的股价，有估算认为约占 AMD 股本的 0.8% [[38]][[24]]。",
         },
         {
           en: "AMD's market value was about $992 billion at the close on 28 September [[20]]. Its shares were flat to slightly lower after hours and about 1.4% higher before the market opened the next day [[24]][[7]][[25]]. Analysts differed. Citi said the deal could give AMD \"deeper visibility\" into how AI models are evolving; RBC said Nvidia keeps a \"significant\" lead in spatial AI and physical simulation [[22]].",
@@ -801,9 +813,11 @@ const WORLD_LABS: Profile = {
     {
       id: "open", h: { en: "What is not settled", zh: "还没有答案的问题" },
       paras: [
-        { en: "Approval. The deal still needs regulatory approval; AMD expects to complete it by the end of 2026 [[1]].", zh: "审批。交易仍需监管部门批准，AMD 预计 2026 年底前完成 [[1]]。" },
-        { en: "A lab inside a supplier. World Labs becomes a research organisation inside a company that sells chips to many AI labs. AMD says it does not intend to compete with them [[2]][[7]].", zh: "供应商里的实验室。World Labs 将成为一家向众多 AI 实验室卖芯片的公司内部的研究机构。AMD 表示无意与这些客户竞争 [[2]][[7]]。" },
-        { en: "What the price rests on. World Labs' revenue is not public, so the price reflects the team and its technology rather than current sales [[35]].", zh: "价格的依据。World Labs 的收入不公开，所以这个价格反映的是团队和技术，而不是当前的销售 [[35]]。" },
+        { en: "Will it run on AMD? RTFM was shown on an Nvidia H100 [[13]]. The measurable test is whether World Labs' models run faster or cheaper on AMD Instinct, and whether that draws outside developers to ROCm.", zh: "能否在 AMD 上跑？RTFM 展示时用的是英伟达 H100 [[13]]。可以衡量的检验是：World Labs 的模型在 AMD Instinct 上能否更快或更便宜，以及这能否把外部开发者吸引到 ROCm。" },
+        { en: "Is a model lab the gap that matters most? For years Nvidia's CUDA has been the default for AI developers [[39]]. The same $8.2 billion could have gone into software, compilers and developer support.", zh: "模型实验室是最要紧的短板吗？多年来，英伟达的 CUDA 一直是 AI 开发者的默认选择 [[39]]。同样的 82 亿美元，也可以投到软件、编译器和开发者支持上。" },
+        { en: "Lab or product? Neither company has said what happens to Marble [[35]]. World Labs could turn from a start-up serving many kinds of hardware into a lab that mainly shows off AMD's.", zh: "实验室还是产品？两家公司都没说 Marble 之后怎么安排 [[35]]。World Labs 可能从一家面向各种硬件的创业公司，变成主要为 AMD 硬件做展示的内部实验室。" },
+        { en: "Will customers still share their plans? AMD says it will not compete with the AI companies that buy its chips [[7]], but it will now own a model team of its own.", zh: "客户还会分享路线图吗？AMD 表示不会与购买其芯片的 AI 公司竞争 [[7]]，但它自己也将拥有一支模型团队。" },
+        { en: "Will the people stay, and will the deal close? The price rests on the team rather than on sales [[35]], and the deal still needs regulatory approval before the end of 2026 [[1]].", zh: "人能留住吗，交易能完成吗？价格的依据是团队而不是销售 [[35]]，交易也仍需在 2026 年底前通过监管审批 [[1]]。" },
       ],
     },
   ],
@@ -902,12 +916,15 @@ const WORLD_LABS: Profile = {
     { n: 33, name: "AMD", title: "AMD acquires MK1 to advance AI inference performance", url: "https://www.amd.com/en/blogs/2025/amd-acquires-mk1-to-advance-ai-inference-performance.html" },
     { n: 34, name: "Wikipedia", title: "ImageNet", url: "https://en.wikipedia.org/wiki/ImageNet" },
     { n: 35, name: "Tech Times", title: "AMD buys World Labs: Fei-Fei Li will now shape the chips that run physical AI", url: "https://www.techtimes.com/articles/328200/20260929/amd-buys-world-labs-fei-fei-li-will-now-shape-chips-that-run-physical-ai.htm" },
+    { n: 37, name: "World Labs", title: "A functional taxonomy of world models (3 June 2026)", url: "https://www.worldlabs.ai/blog/taxonomy-of-world-models" },
+    { n: 38, name: "AMD (SEC form 8-K)", title: "Agreement to acquire World Labs (28 Sept 2026)", url: "https://ir.amd.com/financial-information/sec-filings/content/0000002488-26-000182/amd-20260926.htm" },
+    { n: 39, name: "虎嗅", title: "1万亿的AMD 苏姿丰的12年", url: "https://www.huxiu.com/article/4893413.html" },
     { n: 36, name: "AMD (SEC filing)", title: "AMD to acquire ZT Systems (19 August 2024)", url: "https://www.sec.gov/Archives/edgar/data/2488/000119312524202457/d808469dex991.htm" },
   ],
   stats: [
     { label: { en: "World Labs' value", zh: "World Labs 估值" }, from: 1, to: 8.2, fromLabel: { en: "2024", zh: "2024 年" }, toLabel: { en: "AMD deal", zh: "AMD 收购价" }, unit: "bn", src: [11, 1] },
     { label: { en: "Money World Labs raised", zh: "World Labs 累计融资" }, from: 0.23, to: 1.23, fromLabel: { en: "2024", zh: "2024 年" }, toLabel: { en: "Feb 2026", zh: "2026 年 2 月" }, unit: "bn", src: [8, 10] },
-    { label: { en: "New AMD shares, share of total", zh: "新股占 AMD 股本" }, from: 0, to: 0.8, fromLabel: { en: "", zh: "" }, toLabel: { en: "about, per FinanceFeeds", zh: "约数，据 FinanceFeeds" }, unit: "pct", src: [24] },
+    { label: { en: "New AMD shares, share of total", zh: "新股占 AMD 股本" }, from: 0, to: 0.8, fromLabel: { en: "", zh: "" }, toLabel: { en: "estimate; final count set at closing", zh: "估算，最终以交割时为准" }, unit: "pct", src: [24, 38] },
   ],
   name: "World Labs", legalName: "World Labs", newsMatch: { src: "World Labs|Fei-Fei Li|李飞飞", flags: "i" },
   alwaysCite: [16, 17, 18, 19, 36],
@@ -959,7 +976,7 @@ const WORLD_LABS: Profile = {
       rows: [
         { big: { en: "$8.2B", zh: "82 亿美元" }, label: { en: "all in AMD shares", zh: "全部以 AMD 股票支付" }, sub: { en: "Announced 28 September 2026", zh: "2026 年 9 月 28 日宣布" } },
         { big: { en: "$1B → $8.2B", zh: "10 亿 → 82 亿美元" }, label: { en: "World Labs' value", zh: "World Labs 估值" }, sub: { en: "2024 funding round → AMD's price", zh: "2024 年融资 → AMD 收购价" } },
-        { big: { en: "No. 2", zh: "第 2 大" }, label: { en: "AMD's biggest deal after Xilinx", zh: "仅次于 Xilinx 的 AMD 收购" }, sub: { en: "Fei-Fei Li becomes AMD's chief scientist", zh: "李飞飞出任 AMD 首席科学家" } },
+        { big: { en: "No. 2", zh: "第 2 大" }, label: { en: "AMD's biggest deal after Xilinx, if completed", zh: "若完成，仅次于 Xilinx 的 AMD 收购" }, sub: { en: "Fei-Fei Li to become AMD's chief scientist", zh: "李飞飞将出任 AMD 首席科学家" } },
       ],
       source: { en: "Sources: AMD, TechCrunch, Yahoo Finance", zh: "来源：AMD、TechCrunch、Yahoo Finance" },
     },
@@ -967,7 +984,7 @@ const WORLD_LABS: Profile = {
     decisions: [
       { h: { en: "Get closer to the models", zh: "离模型更近" }, tag: "Research", t: { en: "Lisa Su: building AI hardware needs a deep understanding of how models are evolving.", zh: "苏姿丰：为下一代 AI 造硬件，需要深入理解模型如何演进。" } },
       { h: { en: "Fill a gap", zh: "补上空白" }, tag: "World models", t: { en: "Stifel: AMD had released only text and video open models; Nvidia has Cosmos.", zh: "Stifel：AMD 此前只有文本和视频开放模型，英伟达已有 Cosmos。" } },
-      { h: { en: "Hire a leader, not only a lab", zh: "买下团队和领路人" }, tag: "Fei-Fei Li", t: { en: "Li becomes AMD's executive vice president and chief scientist, reporting to Su.", zh: "李飞飞出任 AMD 执行副总裁兼首席科学家，向苏姿丰汇报。" } },
+      { h: { en: "Hire a leader, not only a lab", zh: "买下团队和领路人" }, tag: "Fei-Fei Li", t: { en: "Li is to become AMD's executive vice president and chief scientist, reporting to Su.", zh: "李飞飞将出任 AMD 执行副总裁兼首席科学家，向苏姿丰汇报。" } },
     ],
     chart: {
       kind: "tags", kicker: { en: "AMD'S BIGGEST DEALS", zh: "AMD 的大额收购" },
