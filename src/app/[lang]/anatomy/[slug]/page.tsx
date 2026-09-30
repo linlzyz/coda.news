@@ -39,7 +39,7 @@ function Rich({ text }: { text: string }) {
 const Cites = ({ ns }: { ns: number[] }) => <>{ns.map((n) => <sup key={n} className="ml-[1px]"><a href={`#src-${n}`} className="ana-cite">{n}</a></sup>)}</>;
 
 function Credit({ p, zh, light }: { p: Photo; zh: boolean; light?: boolean }) {
-  if (p.own) return <span className={light ? "text-white/60" : "text-neutral-400"}>{zh ? "插图：" : "Illustration: "}{p.credit}</span>;
+  if (p.own) return <span className={light ? "text-white/60" : "text-neutral-400"}>{p.ownCredit ? `(${pick(p.ownCredit, zh)})` : `${zh ? "插图：" : "Illustration: "}${p.credit}`}</span>;
   return <a href={photoPage(p.file)} target="_blank" rel="noopener noreferrer" className={`hover:underline ${light ? "text-white/60" : "text-neutral-400"}`}>{zh ? "照片：" : "Photo: "}{p.credit} / Wikimedia Commons ({p.license})</a>;
 }
 

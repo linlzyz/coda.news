@@ -6,7 +6,7 @@ export type L = { en: string; zh: string };
 export type Figure = "cap" | "chiplet" | "revenue" | "vsintel" | "deals" | "timeline" | "countries" | "pricetags" | "pricetags2" | "split" | "royalty" | "model";
 /** A freely licensed photo from Wikimedia Commons, hotlinked at a set width, always credited. */
 /** `own`: an illustration made by coda.news (file is only a key for /public/anatomy-img), credited as such and never linked to Commons */
-export type Photo = { file: string; credit: string; license: string; caption: L; alt: L; fit?: "cover" | "contain"; pos?: string; own?: boolean };
+export type Photo = { file: string; credit: string; license: string; caption: L; alt: L; fit?: "cover" | "contain"; pos?: string; own?: boolean; ownCredit?: L };
 /** Commons photos are copied once into /public/anatomy-img as WebP (scripts/anatomy-images.mts), so they load from our own CDN, not from Wikimedia in the US. */
 export const photoKey = (file: string) => { let h = 5381; for (const c of file) h = ((h * 33) ^ c.codePointAt(0)!) >>> 0; return h.toString(36); };
 export const PHOTO_WIDTHS = [800, 1600] as const;
@@ -651,7 +651,7 @@ const ARM: Profile = {
 
 const WORLD_LABS: Profile = {
   slug: "amd-world-labs", no: 2, companyId: 18, companySlug: "amd",
-  title: { en: "AMD and World Labs: An $8.2 Billion Bet on Seeing the Future First", zh: "AMD 与 World Labs：买一双看见未来的眼睛" },
+  title: { en: "AMD and World Labs: An $8.2 Billion Bet on Seeing the Future First", zh: "AMD 拟花 82 亿美元，买一双看见未来的眼睛" },
   dek: {
     en: "AMD has agreed to pay about $8.2 billion in stock for World Labs, the world-model company Fei-Fei Li co-founded, so that the people who build models can tell it early what the next chips need. Whether that view turns into chip sales is still open.",
     zh: "AMD 同意以约 82 亿美元股票收购李飞飞参与创办的 World Labs，想让做模型的人提前告诉它下一代芯片需要什么；这双眼睛能否变成芯片订单，还没有答案。",
@@ -665,17 +665,17 @@ const WORLD_LABS: Profile = {
   },
   keywords: ["AMD", "World Labs", "Fei-Fei Li", "李飞飞", "苏姿丰", "Lisa Su", "AMD acquisition", "AMD 收购", "world model", "世界模型", "spatial intelligence", "空间智能", "Marble", "physical AI"],
   published: "2026-10-01", updated: "2026-10-01",
-  cover: { file: "coda-ai-illustration-amd-world-labs", credit: "coda.news, AI-generated (ChatGPT)", license: "", own: true, pos: "center 62%",
-    caption: { en: "AI-generated illustration: a 3D world rising out of a chip. Not a photograph, and not an AMD or World Labs product.", zh: "AI 生成的插图：一个 3D 世界从芯片中升起。不是照片，也不是 AMD 或 World Labs 的产品。" },
+  cover: { file: "coda-ai-illustration-amd-world-labs", credit: "", ownCredit: { en: "made by coda.news with ChatGPT", zh: "coda.news 使用 ChatGPT 生成" }, license: "", own: true, pos: "center 62%",
+    caption: { en: "Cover: an AI-generated illustration of a 3D world rising out of a chip; not a picture of an AMD or World Labs product.", zh: "封面：AI 生成插图，一个 3D 世界从芯片中升起；并非 AMD 或 World Labs 产品图。" },
     alt: { en: "Illustration of a glowing chip with a landscape of mountains, trees and a lake rising above it", zh: "发光的芯片上方升起山峦、树木和湖泊的插图" } },
   lede: [
     {
       en: "A single Nvidia H100 is showing AMD the future it wants. When World Labs introduced its RTFM model in October 2025, it said the model runs on one H100 and generates video of a world in real time as you move through it. It is built for persistence, so that, in World Labs' words, \"the world doesn't disappear or change completely when you look away\" [[13]].",
-      zh: "一块英伟达 H100，正在替 AMD 展示它想要的未来。World Labs 在 2025 年 10 月发布 RTFM 模型时说，它只用一块 H100，就能随着用户移动实时生成一个世界的画面。它为\"持久性\"而设计，用 World Labs 的话说：\"你转过身，世界不会消失，也不会面目全非\" [[13]]。",
+      zh: "一块英伟达 H100，正在替 AMD 展示它想要的未来。World Labs 在 2025 年 10 月发布 RTFM 模型时说，它只用一块 H100，就能随着用户移动实时生成一个世界的画面。它为\"持久性\"而设计：即使用户转过身，刚才看到的世界也不会消失或彻底改变 [[13]]。",
     },
     {
-      en: "On 28 September 2026 AMD agreed to buy the people who built it. It will pay about $8.2 billion in AMD shares for World Labs, the two-year-old company co-founded by the computer scientist Fei-Fei Li [[1]][[8]]. If completed, it will be AMD's second-largest acquisition, after Xilinx [[6]]. World Labs has not disclosed any revenue [[35]].",
-      zh: "2026 年 9 月 28 日，AMD 同意把做出它的人买进来：以约 82 亿美元的 AMD 股票，收购计算机科学家李飞飞参与创办、成立两年的 World Labs [[1]][[8]]。交易若完成，将是 AMD 史上第二大收购，仅次于 Xilinx [[6]]。World Labs 没有公布过收入 [[35]]。",
+      en: "On 28 September 2026 AMD agreed to buy the people who built it. It will pay about $8.2 billion in AMD shares for World Labs, the two-year-old company co-founded by the computer scientist Fei-Fei Li [[1]][[8]]. If completed, it will be AMD's second-largest acquisition, after Xilinx [[6]]. World Labs has not publicly disclosed any revenue [[35]].",
+      zh: "2026 年 9 月 28 日，AMD 同意把做出它的人买进来：以约 82 亿美元的 AMD 股票，收购计算机科学家李飞飞参与创办、成立两年的 World Labs [[1]][[8]]。交易若完成，将是 AMD 史上第二大收购，仅次于 Xilinx [[6]]。World Labs 尚未公开披露收入 [[35]]。",
     },
     {
       en: "So AMD is not buying sales. It is buying time. Chips take years to design, and the people building new models are the first to hit their limits. With a model team inside, AMD hopes to see what the next chips need before the rest of the industry asks for it. The awkward start: one of the models World Labs has shown off runs on its rival's chip.",
@@ -694,8 +694,8 @@ const WORLD_LABS: Profile = {
           zh: "世界模型。打个比方：让普通的图像 AI 画一间厨房，它会给你一张像模像样的图，桌上有水壶，墙边有冰箱，阳光从窗户照进来。可如果把镜头绕到冰箱后面，问题就来了：可能突然多出一扇门，桌子变长了，角落里的椅子不见了。模型会画厨房，却未必\"知道\"厨房是什么。（这是示意，不是对某个产品的测试。）",
         },
         {
-          en: "A world model tries to fix that. It keeps track of where things are, what you should see when you turn, and keeps the whole space consistent. The longer-term aim is to know what happens when a cup is pushed, or how a robot should get round a table [[8]][[37]]. The most direct and mature uses so far are in games, film and 3D content [[12]][[11]]; training robots and simulating factories or roads has reached experiments, but reliable use at scale is still some way off [[27]][[37]].",
-          zh: "世界模型想解决的就是这个问题。它要记住东西放在哪里、转过身应该看到什么，让整个空间前后一致。更远的目标，是理解杯子被推一下会怎样、机器人该怎么绕过桌子 [[8]][[37]]。目前最直接、较成熟的用途集中在游戏、影视和 3D 内容制作 [[12]][[11]]；机器人训练和工业仿真已经出现实验案例，但离大规模、可靠的应用还有距离 [[27]][[37]]。",
+          en: "A world model tries to fix that. It keeps track of where things are, what you should see when you turn, and keeps the whole space consistent. The longer-term aim is to know what happens when a cup is pushed, or how a robot should get round a table [[8]][[37]]. The cases World Labs has shown in public are mainly in games, film, 3D design and early robot simulation [[12]][[11]][[37]]; reliable use for training robots or simulating factories and roads at scale is still some way off [[27]][[37]].",
+          zh: "世界模型想解决的就是这个问题。它要记住东西放在哪里、转过身应该看到什么，让整个空间前后一致。更远的目标，是理解杯子被推一下会怎样、机器人该怎么绕过桌子 [[8]][[37]]。World Labs 目前公开展示的案例，主要集中在游戏、影视、3D 创作和早期机器人模拟 [[12]][[11]][[37]]；要可靠地大规模训练机器人、模拟工厂和道路，还有距离 [[27]][[37]]。",
         },
         {
           en: "World Labs. A small American AI company, founded in 2024, that builds world models. Its product, Marble, turns a sentence, a photo or a video into a 3D world you can move around in [[8]][[12]].",
@@ -801,16 +801,6 @@ const WORLD_LABS: Profile = {
         },
       ],
     },
-    { id: "timeline", h: { en: "Timeline", zh: "时间线" }, figure: "timeline", paras: [] },
-    {
-      id: "countries", h: { en: "One deal, told six ways", zh: "同一笔交易，六种讲法" }, figure: "countries",
-      paras: [
-        {
-          en: "We looked at the articles in our sources about the deal between 28 and 30 September 2026: 37 articles from six countries. Chinese outlets carried more than half of them. This shows only what our sources carried.",
-          zh: "我们查看了 2026 年 9 月 28 日至 30 日，收录来源中关于这笔交易的报道：6 个国家，共 37 篇，其中一半以上来自中国媒体。这里只反映我们收录的来源。",
-        },
-      ],
-    },
     {
       id: "open", h: { en: "What to watch in two years", zh: "两年后看什么" },
       paras: [
@@ -820,6 +810,17 @@ const WORLD_LABS: Profile = {
         { en: "Lab or product? Neither company has said what happens to Marble [[35]]. World Labs could turn from a start-up serving many kinds of hardware into a lab that mainly shows off AMD's.", zh: "实验室还是产品？两家公司都没说 Marble 之后怎么安排 [[35]]。World Labs 可能从一家面向各种硬件的创业公司，变成主要为 AMD 硬件做展示的内部实验室。" },
         { en: "Will customers still share their plans? AMD says it will not compete with the AI companies that buy its chips [[7]], but it will now own a model team of its own.", zh: "客户还会分享路线图吗？AMD 表示不会与购买其芯片的 AI 公司竞争 [[7]]，但它自己也将拥有一支模型团队。" },
         { en: "Will the people stay, and will the deal close? With little public financial data, the valuation appears to rest largely on the team, technology, intellectual property and strategic potential [[35]]. The deal still needs regulatory approval, expected before the end of 2026 [[1]].", zh: "人能留住吗，交易能完成吗？由于缺少公开财务数据，这个估值看起来主要建立在团队、技术、知识产权和战略潜力上 [[35]]。交易仍需通过监管审批，预计 2026 年底前完成 [[1]]。" },
+        { en: "Today World Labs shows the future it imagines on a single Nvidia H100. If, two years from now, those worlds run faster and cheaper on AMD Instinct and bring outside developers into ROCm, AMD will have turned its pair of eyes on the future into chip orders. If not, $8.2 billion may have bought only a front-row seat.", zh: "今天，World Labs 用一块英伟达 H100 展示它想象中的未来。两年后，如果这些世界能在 AMD Instinct 上跑得更快、更便宜，并把外部开发者带进 ROCm，AMD 才算把这双\"看见未来的眼睛\"变成了芯片订单。否则，82 亿美元买到的，可能只是观察未来的前排座位。" },
+      ],
+    },
+    { id: "timeline", h: { en: "Timeline", zh: "时间线" }, figure: "timeline", paras: [] },
+    {
+      id: "countries", h: { en: "One deal, told six ways", zh: "同一笔交易，六种讲法" }, figure: "countries",
+      paras: [
+        {
+          en: "We looked at the articles in our sources about the deal between 28 and 30 September 2026: 37 articles from six countries. Chinese outlets carried more than half of them. This shows only what our sources carried.",
+          zh: "我们查看了 2026 年 9 月 28 日至 30 日，收录来源中关于这笔交易的报道：6 个国家，共 37 篇，其中一半以上来自中国媒体。这里只反映我们收录的来源。",
+        },
       ],
     },
   ],
