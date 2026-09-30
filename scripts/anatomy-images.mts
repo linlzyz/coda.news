@@ -5,7 +5,7 @@ import sharp from "sharp";
 import { DRAFTS, PROFILES, PHOTO_WIDTHS, commonsUrl, photoUrl } from "../src/lib/anatomy";
 
 const files = new Set<string>();
-for (const p of [...PROFILES, ...DRAFTS]) { files.add(p.cover.file); for (const s of p.sections) if (s.photo) files.add(s.photo.file); }
+for (const p of [...PROFILES, ...DRAFTS]) { if (!p.cover.own) files.add(p.cover.file); for (const s of p.sections) if (s.photo && !s.photo.own) files.add(s.photo.file); }
 fs.mkdirSync("public/anatomy-img", { recursive: true });
 for (const f of files) {
   const outs = PHOTO_WIDTHS.map((w) => ({ w, path: `public${photoUrl(f, w)}` }));

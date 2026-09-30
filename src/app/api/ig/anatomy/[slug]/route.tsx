@@ -36,7 +36,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
   const hookSize = zh ? (hook.length > 18 ? 76 : 92) : (hook.length > 48 ? 70 : hook.length > 32 ? 82 : 96);
   const link = `https://coda.news${zh ? "/zh" : ""}/anatomy/${pr.slug}`;
   const kick = T("CODA ANATOMY", "CODA 剖面") + ` ${String(pr.no).padStart(2, "0")}`;
-  const credit = `${T("Photo", "照片")}: ${pr.cover.credit} / Wikimedia Commons (${pr.cover.license})`;
+  const credit = pr.cover.own ? `${T("Illustration", "插图")}: ${pr.cover.credit}` : `${T("Photo", "照片")}: ${pr.cover.credit} / Wikimedia Commons (${pr.cover.license})`;
 
   const head = (dark: boolean, _label: string) => (
     <div style={{ display: "flex", alignItems: "center" }}>
@@ -59,7 +59,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
 
   let body: React.ReactElement;
   let size = { width: W, height: H };
-  const cover = (s === "1" || s === "story") ? await dataUri(`https://coda.news${photoUrl(pr.cover.file, 1600).replace(/\.webp$/, ".jpg")}`)   // JPEG copy: Satori cannot draw WebP : null;
+  // the JPEG copy: Satori cannot draw WebP
+  const cover = (s === "1" || s === "story") ? await dataUri(`https://coda.news${photoUrl(pr.cover.file, 1600).replace(/\.webp$/, ".jpg")}`) : null;
   const st = pr.stats;
 
   if (s === "story") {
