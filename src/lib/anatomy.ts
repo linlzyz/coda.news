@@ -56,6 +56,8 @@ export type IgSlides = {
   explain?: { kicker: L; rows: { q: L; a: L }[] };
   numbers: { kicker: L; rows: { big: L; label: L; sub: L }[]; source: L };
   decisions: { h: L; tag: string; t: L }[];
+  /** slide 3 heading; default "THREE DECISIONS" */
+  decisionsKicker?: L;
   /** slide 4: "logcap" draws cap on a log scale with labelled marks [x, value, label, dx, dy, right-aligned]; "tags" draws priceTags as bars */
   chart: { kind: "logcap"; kicker: L; sub: L; foot: L; marks: [number, number, L, number, number, boolean][] } | { kind: "tags"; kicker: L; sub: L; foot: L };
   countries: { kicker: L; title: L; rows: { flags: string[]; name: L; t: L }[]; foot: L };
@@ -961,6 +963,7 @@ const WORLD_LABS: Profile = {
       ],
       source: { en: "Sources: AMD, TechCrunch, Yahoo Finance", zh: "来源：AMD、TechCrunch、Yahoo Finance" },
     },
+    decisionsKicker: { en: "WHY AMD PAID", zh: "AMD 为什么买" },
     decisions: [
       { h: { en: "Get closer to the models", zh: "离模型更近" }, tag: "Research", t: { en: "Lisa Su: building AI hardware needs a deep understanding of how models are evolving.", zh: "苏姿丰：为下一代 AI 造硬件，需要深入理解模型如何演进。" } },
       { h: { en: "Fill a gap", zh: "补上空白" }, tag: "World models", t: { en: "Stifel: AMD had released only text and video open models; Nvidia has Cosmos.", zh: "Stifel：AMD 此前只有文本和视频开放模型，英伟达已有 Cosmos。" } },

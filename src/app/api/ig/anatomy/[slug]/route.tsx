@@ -134,7 +134,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
     body = (
       <div style={{ width: W, height: H, display: "flex", flexDirection: "column", background: "#fff", fontFamily: "Sans", padding: "64px 72px 60px" }}>
         {head(false, "")}
-        {kicker(T("THREE DECISIONS", "三个决定"))}
+        {kicker(ig.decisionsKicker ? P(ig.decisionsKicker) : T("THREE DECISIONS", "三个决定"))}
         <div style={{ display: "flex", flexDirection: "column", marginTop: 36, flexGrow: 1 }}>
           {ds.map(([h, tag, t], i) => (
             <div key={i} style={{ display: "flex", padding: "30px 0", borderTop: "1px solid #E5E7EB" }}>
