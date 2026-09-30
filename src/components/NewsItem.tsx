@@ -38,7 +38,8 @@ export function NewsItem({ e, companies, lang }: { e: EventRow; companies?: Map<
  *  Same right-hand column as every other row, so all rows line up. */
 function SingleItem({ e, companies, lang, sum }: { e: EventRow; companies?: Map<number, Company>; lang: Lang; sum: string | null }) {
   const zh = lang === "zh";
-  const pts = (zh ? e.points?.zh : e.points?.en)?.filter(Boolean) ?? [];
+  // the model sometimes returns {who, what, where} objects instead of sentences (Lamborghini, 30 Sept): flatten them rather than crash the page
+  const pts = ((zh ? e.points?.zh : e.points?.en) ?? []).map((p: unknown) => typeof p === "string" ? p : p && typeof p === "object" ? Object.values(p as Record<string, unknown>).filter((v) => typeof v === "string").join(" · ") : "").filter(Boolean);
   const cos = e.company_ids.map((id) => companies?.get(id)).filter(Boolean) as Company[];
   const logo = e.image_focus === "logo";
   const photo = !!e.image_url && !logo;
