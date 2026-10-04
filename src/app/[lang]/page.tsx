@@ -1,7 +1,7 @@
 import { dayLabel } from "@/lib/loc";
 import { orgLd } from "@/lib/site";
 import Link from "@/components/LLink";
-import { differences, allTopics, hotness, newProducts, pinnedEvents, officialPicks, companyMap, indices, getPerspectives, listEvents, oneUsePerImage, trendingCompanies, type EventRow, type Perspective } from "@/lib/data";
+import { differences, allTopics, hotness, headlineWorthy, newProducts, pinnedEvents, officialPicks, companyMap, indices, getPerspectives, listEvents, oneUsePerImage, trendingCompanies, type EventRow, type Perspective } from "@/lib/data";
 import { crypto, fx } from "@/lib/markets";
 import { Cover } from "@/components/Cover";
 import { Flag, Flags } from "@/components/Flag";
@@ -42,7 +42,9 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   const companies = await companyMap(events);
   const topicMap = new Map(topics.map((t) => [t.id, t]));
   // ranked by importance that halves every day since the story broke, so the top changes day to day
-  const multi = events.filter((e) => (persp.get(e.id)?.length ?? 0) >= 2).sort((a, b) => hotness(b) - hotness(a));
+  const multi0 = events.filter((e) => (persp.get(e.id)?.length ?? 0) >= 2).sort((a, b) => hotness(b) - hotness(a));
+  // routine sport scores never lead (finals, titles and historic results still can)
+  const multi = multi0.filter((e) => !!e.pinned_at || headlineWorthy(e));
   // headline: multi-country stories that broke in the last 36 hours come first
   // today's stories (Melbourne) first; only if there are none yet (just after midnight) the last 36 hours
   const melDay = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: "Australia/Melbourne" });
@@ -66,7 +68,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
     if (!tops.includes(e) && tops.filter((x) => x.category === e.category).length < cap) tops.push(e);
   }
   // stories where the countries' coverage visibly differs (the summary's "differ" points), most countries first
-  const cand = multi.filter((e) => e.countries.length >= 3 && !tops.some((x) => x.id === e.id));
+  const cand = multi0.filter((e) => e.countries.length >= 3 && !tops.some((x) => x.id === e.id));
   const diff = new Map((await differences(cand.map((e) => e.id)).catch(() => [])).map((d) => [d.event_id, l === "zh" && d.differ_zh.length ? d.differ_zh : d.differ]));
   const divided = cand.filter((e) => (diff.get(e.id)?.length ?? 0) > 0)
     .sort((a, b) => (b.countries.length - a.countries.length) || ((diff.get(b.id)?.length ?? 0) - (diff.get(a.id)?.length ?? 0)) || (hotness(b) - hotness(a))).slice(0, 4);

@@ -40,8 +40,13 @@ const relevant = (q: string, text: string, all = false) => {
   const hit = (w: string) => t.includes(w.replace(/s$/, ""));
   // stock libraries: at least two of the query's words (or all, if it has fewer), so "trading cards" never finds a card magician
   if (GRIM.test(t)) return false;   // never a sad or morbid picture, whatever the query matched
+  // sport: the sport itself must be in the picture's tags ("denmark wales match" found a plane with a Danish flag, Lyn 5 Oct)
+  const must = MUST.get(q); if (must && !must.some(hit)) return false;
   return words.length > 0 && (all ? words.every(hit) : words.filter(hit).length >= Math.min(2, words.length));
 };
+// sport queries must name the sport, and a stock photo must show that sport (filled per search in the stock loop below)
+const MUST = new Map<string, string[]>();
+const SPORT_WORDS = /\b(football|soccer|rugby|tennis|cricket|basketball|baseball|hockey|golf|cycling|cyclist|bicycle|horse|jockey|motorsport|formula|boxing|swimming|swimmer|athletics|marathon|volleyball|handball|darts|snooker|archery|skiing|skier|ski|surfing|sailing|rowing|gymnastics|badminton|esports|nfl|afl|nba|stadium)\b/gi;
 const GRIM = /\b(grave|graves|gravestone|tombstone|tomb|cemetery|graveyard|burial|funeral|coffin|memorial|mourning|skull|skeleton|death|dead|war|soldier|ruin|ruins|abandoned|derelict|decay|rubble|disaster|flood|fire|smoke|protest|riot|police|prison|hospital|sick|blood|injury|crash|accident|trash|garbage|pollution)s?\b/i;
 // open archives (Commons, Openverse) hold documentary photos of protests, wars and people; they must match every word, and never show these
 const SENSITIVE = /\b(protest|rally in support|demonstrat|riot\b|war\b|soldier|military|funeral|victim|refugee|police|arrest|blood|weapon|gun\b|guns\b|flag of|ukrain|russia|israel|gaza|palestin|politic|election|campaign|march for|strike\b)/i;
@@ -254,7 +259,7 @@ async function fillQueries(max = 80) {
     and status <> 'archived' order by last_article_at desc limit ${max}`;
   if (!rows.length) return;
   const prompt = `For each news headline:
-q = 2 to 4 English words for a stock photo that shows what the story is about (the activity, place or object), e.g. "fitness race athletes", "steam locomotive", "tokyo stock exchange". No brand or person names, and never people as the subject (no models, runways or outfits). For travel stories use an inviting scenic view of the place, e.g. "dubrovnik old town coast", "kyoto temple garden", "luxury hotel pool".
+q = 2 to 4 English words for a stock photo that shows what the story is about (the activity, place or object), e.g. "fitness race athletes", "steam locomotive", "tokyo stock exchange". No brand or person names, and never people as the subject (no models, runways or outfits). For sport use the sport and its setting only, never team, club or country names (they find flags and planes), e.g. "football stadium night", "rugby match", "tennis court". For travel stories use an inviting scenic view of the place, e.g. "dubrovnik old town coast", "kyoto temple garden", "luxury hotel pool".
 Write q = "" when a generic stock photo would be wrong or tasteless: a person's illness, health, surgery, death, grief, relationships, pregnancy, crime, court case or scandal, and any story that is really about one person.
 p = the full name of the one well-known person the story is about, or "".
 b = the one brand, franchise or company the story is mainly about (e.g. "Pokémon", "Dior", "Toyota"), or "".
@@ -471,8 +476,8 @@ ${games.map((g, i) => `${i + 1}. ${g.title}`).join("\n")}`)).g ?? {};
   }
   await sql`update events set brand_checked_at = now() where brand_checked_at is null and summary is not null and image_url is not null and image_source not in ('pexels','unsplash','pixabay','openverse','commons')`;
 
-  const events = await sql<{ id: number; image_query: string | null; slugs: string[] | null }[]>`
-    select e.id, e.image_query, (select array_agg(t.slug) from topics t where t.id = any(e.topic_ids)) as slugs
+  const events = await sql<{ id: number; category: string; image_query: string | null; slugs: string[] | null }[]>`
+    select e.id, e.category, e.image_query, (select array_agg(t.slug) from topics t where t.id = any(e.topic_ids)) as slugs
     from events e where e.image_url is null and e.image_checked_at is null and e.summary is not null
       -- people stories get a real portrait or our cover, never a stock photo; nor do stories about illness, death or crime
       and e.image_person is null
@@ -489,6 +494,11 @@ ${games.map((g, i) => `${i + 1}. ${g.title}`).join("\n")}`)).g ?? {};
     // only the story's own scene; a generic topic photo is worse than our designed cover
     void pool;
     const queries = [e.image_query].filter((q) => q && q !== "-") as string[];
+    // sport: only a picture of the sport itself; a query without the sport's name gets no stock photo (the story stays in the lists)
+    if (e.category === "sport") for (const q of queries.splice(0)) {
+      const w = [...new Set((q.toLowerCase().match(SPORT_WORDS) ?? []).map((x) => x.replace(/s$/, "")))];
+      if (w.length) { MUST.set(q, w); queries.push(q); }
+    }
     if (!queries.length) { await sql`update events set image_checked_at = now() where id = ${e.id}`; continue; }
     const img = await find(queries, !!e.image_query);
     if (!img && exhausted.size === PROVIDERS.length) break;   // try again next run

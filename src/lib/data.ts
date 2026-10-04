@@ -368,6 +368,16 @@ export const companyDirectory = unstable_cache(_companyDirectory, ["companyDirec
 /** Leagues, regulators, central banks and the like are in the news but are not companies: never listed. */
 export const notable = (c: { wikidata_id: string | null; events: number; kind?: string }) => (c.kind ?? "company") === "company" && (!!c.wikidata_id || c.events >= 3);
 
+// Sport in the headline slot: only finals, titles won and historic results; a routine score (Denmark 1-0 Wales) stays in the lists
+// (Lyn, 5 Oct 2026: "体育这种几比几 不是决赛啥的 都不要发头条"). Same idea as the Instagram picker in supabase/functions/_shared/instagram.ts.
+const SPORT_RESULT = /(\d+\s*[-–:]\s*\d+|\b(beat|beats|beaten|defeat|defeats|defeated|draw|draws|drew|lose|loses|lost|edge|edges|edged|thrash\w*|rout\w*|victory|victories|qualif\w*|semi-?finals?|quarter-?finals?|finals?|sprint|pole|podium|innings|wickets?|try|tries|brace|hat-?trick|sent off|red card|win|wins|won|retains?|retained|advances?|reach|reaches|silver|bronze|medal|goalless|stalemate|finish(es|ed)? (second|third|\d+(st|nd|rd|th))|scores?|scored|game-winning|buzzer-beater|comeback)\b)/i;
+const HISTORIC = /\b(historic|history|history-making|first[- ]ever|for the first time|all-time|world record|unprecedented|record-breaking)\b/i;
+const CROWNED = /\b(win|wins|won|champions?|crowned|lift|lifts|lifted|clinch\w*|claims?|claimed|retains?|retained)\b/i;
+const TITLE = /\b(grand final|final|premiership|championship|title|trophy|cup|gold medal|world cup|super bowl|stanley cup|world series|wimbledon|grand slam|open)\b/i;
+const NOT_FINAL = /\b(qualif\w*|group|groups|round of|last 16|quarter-?finals?|semi-?finals?|matchday|league phase|playoff|play-off|reach|reaches|advances?|bronze|silver)\b/i;
+export const headlineWorthy = (e: { category: string; title: string }) =>
+  e.category !== "sport" || !SPORT_RESULT.test(e.title) || HISTORIC.test(e.title) || (CROWNED.test(e.title) && TITLE.test(e.title) && !NOT_FINAL.test(e.title));
+
 /** How much a story deserves the top of the page right now: its importance, halved for every day since it first broke.
  *  A big story keeps collecting follow-up reports for days; without the decay the same two stories would lead all week. */
 export const hotness = (e: { importance: number | null; started_at: string }) =>
