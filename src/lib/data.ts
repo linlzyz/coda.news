@@ -21,6 +21,19 @@ function must<T extends { error: { message: string } | null }>(r: T): T {
   return r;
 }
 
+// The generation model sometimes returns summary points as {country, points[]} objects instead of strings;
+// a raw object in JSX crashes the page (4 Oct: the home page failed to build). Always hand the UI plain text.
+function asText(x: unknown): string {
+  if (typeof x === "string") return x;
+  if (x && typeof x === "object") {
+    const o = x as { country?: string; points?: unknown; text?: string };
+    const body = Array.isArray(o.points) ? o.points.filter((p) => typeof p === "string").join(" ") : typeof o.points === "string" ? o.points : o.text ?? "";
+    return o.country && body ? `${o.country}: ${body}` : body;
+  }
+  return "";
+}
+const texts = (a: unknown) => (Array.isArray(a) ? a.map(asText).filter(Boolean) : []);
+
 export type Status = "rumor" | "breaking" | "developing" | "confirmed" | "resolved" | "archived";
 export interface EventRow {
   id: number; slug: string; title: string; title_zh: string | null; category: string; status: Status; regions?: string[]; image_focus?: string | null; lead_url?: string | null; lead_source?: string | null; pinned_at?: string | null;
@@ -71,7 +84,9 @@ export async function getPerspectives(eventIds: number[]) {
 async function _getLatestSummary(eventId: number) {
   const { data } = must(await supabase.from("event_updates").select("content,version,created_at").eq("event_id", eventId).eq("type", "summary_updated")
     .order("version", { ascending: false }).limit(1).maybeSingle());
-  return data ? { ...(data.content as { agreed?: string[]; agreed_zh?: string[]; differ?: string[]; differ_zh?: string[]; analysis?: string; analysis_zh?: string }), created_at: data.created_at as string } : undefined;
+  if (!data) return undefined;
+  const c = data.content as { agreed?: unknown; agreed_zh?: unknown; differ?: unknown; differ_zh?: unknown; analysis?: string; analysis_zh?: string };
+  return { agreed: texts(c.agreed), agreed_zh: texts(c.agreed_zh), differ: texts(c.differ), differ_zh: texts(c.differ_zh), analysis: c.analysis, analysis_zh: c.analysis_zh, created_at: data.created_at as string };
 }
 
 async function _getFacts(eventId: number) {
@@ -207,7 +222,7 @@ async function _differences(eventIds: number[]) {
   const seen = new Set<number>(), out: { event_id: number; differ: string[]; differ_zh: string[] }[] = [];
   for (const r of (data ?? []) as { event_id: number; differ: string[] | null; differ_zh: string[] | null }[]) {
     if (seen.has(r.event_id)) continue; seen.add(r.event_id);
-    out.push({ event_id: r.event_id, differ: r.differ ?? [], differ_zh: r.differ_zh ?? [] });
+    out.push({ event_id: r.event_id, differ: texts(r.differ), differ_zh: texts(r.differ_zh) });
   }
   return out;
 }

@@ -12,6 +12,9 @@ interface Generated {
   perspectives?: { country: string; headline?: string; framing?: string; emphasis?: string; downplayed?: string; tone?: string; headline_zh?: string; framing_zh?: string; emphasis_zh?: string; downplayed_zh?: string }[];
 }
 
+// the model sometimes answers a point list as [{country, points[]}]; store plain strings
+// deno-lint-ignore no-explicit-any
+const flat = (a: any): string[] => (Array.isArray(a) ? a.map((x: any) => typeof x === "string" ? x : x && typeof x === "object" ? `${x.country ? x.country + ": " : ""}${Array.isArray(x.points) ? x.points.join(" ") : x.points ?? x.text ?? ""}` : "").filter(Boolean) : []);
 export async function regenerate(limit = 3): Promise<number> {
   const sql = db();
   const events = await sql<{ id: number; title: string; source_count: number; summary_version: number; nc: number }[]>`
@@ -59,7 +62,7 @@ export async function regenerate(limit = 3): Promise<number> {
                    headline_zh = excluded.headline_zh, framing_zh = excluded.framing_zh, emphasis_zh = excluded.emphasis_zh, downplayed_zh = excluded.downplayed_zh`;
       }
       await tx`insert into event_updates (event_id, type, content, version)
-               values (${e.id}, 'summary_updated', ${tx.json({ title: g.title, summary: g.summary, agreed: g.agreed ?? [], agreed_zh: g.agreed_zh ?? [], differ: g.differ ?? [], differ_zh: g.differ_zh ?? [], analysis: g.analysis ?? "", analysis_zh: g.analysis_zh ?? "", perspectives: valid })}, ${version})`;
+               values (${e.id}, 'summary_updated', ${tx.json({ title: g.title, summary: g.summary, agreed: flat(g.agreed), agreed_zh: flat(g.agreed_zh), differ: flat(g.differ), differ_zh: flat(g.differ_zh), analysis: g.analysis ?? "", analysis_zh: g.analysis_zh ?? "", perspectives: valid })}, ${version})`;
     });
     done++;
   }
