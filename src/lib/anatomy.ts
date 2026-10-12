@@ -365,18 +365,22 @@ const ARM: Profile = {
   igHook: { en: "It owns no factory, yet gets paid for almost every phone", zh: "它不生产芯片，却能按颗收钱" },
   seoTitle: { en: "How Arm Makes Money: Licences, Royalties and 99% of Smartphones", zh: "Arm 怎么赚钱：授权费、版税与 99% 的智能手机" },
   seoDesc: {
-    en: "Arm Holdings' technology is in more than 99% of smartphones, yet it has never manufactured a chip. How its licence-and-royalty model works, the Nokia and iPhone years, Armv9 royalty rates, SoftBank, the failed Nvidia deal, the 2023 IPO and its first own chip, the AGI CPU, with every number sourced.",
-    zh: "超过 99% 的智能手机基于 Arm 的技术，它却从不自己生产芯片。授权费加版税的模式怎么运作，诺基亚与 iPhone 时代，Armv9 版税率，软银收购、英伟达收购失败、2023 年上市，以及第一颗自有芯片 AGI CPU，每个数字附来源。",
+    en: "Arm Holdings' technology is in more than 99% of smartphones, yet it has never manufactured a chip. How its licence-and-royalty model works, the Nokia and iPhone years, Armv9 royalty rates, SoftBank, the failed Nvidia deal, the 2023 IPO, its first own chip, the AGI CPU, and the 2026 Qualcomm trial over royalties, with every number sourced.",
+    zh: "超过 99% 的智能手机基于 Arm 的技术，它却从不自己生产芯片。授权费加版税的模式怎么运作，诺基亚与 iPhone 时代，Armv9 版税率，软银收购、英伟达收购失败、2023 年上市、第一颗自有芯片 AGI CPU，以及 2026 年与高通的版税官司，每个数字附来源。",
   },
-  keywords: ["Arm", "Arm Holdings", "安谋", "Arm 架构", "Arm business model", "Arm 版税", "royalty", "Armv9", "Rene Haas", "SoftBank Arm", "软银 Arm", "Nvidia Arm deal", "Arm IPO", "Arm AGI CPU", "Neoverse"],
-  published: "2026-10-08", updated: "2026-10-08",
+  keywords: ["Arm", "Arm Holdings", "安谋", "Arm 架构", "Arm business model", "Arm 版税", "royalty", "Armv9", "Rene Haas", "SoftBank Arm", "软银 Arm", "Nvidia Arm deal", "Arm IPO", "Arm AGI CPU", "Neoverse", "Qualcomm Arm trial", "高通 Arm 诉讼", "高通 Arm 官司"],
+  published: "2026-10-15", updated: "2026-10-15",
   cover: { file: "STM32F100C4T6B-HD.jpg", credit: "ZeptoBars", license: "CC BY 3.0",
     caption: { en: "The silicon die of an STM32F100 microcontroller. ST Microelectronics built it around an Arm Cortex-M3 processor core, licensed from Arm.", zh: "STM32F100 微控制器的硅芯片。意法半导体用从 Arm 授权的 Cortex-M3 处理器核心设计了这颗芯片。" },
     alt: { en: "Colourful microscope photo of a microcontroller die", zh: "微控制器芯片裸片的彩色显微照片" } },
   lede: [
     {
-      en: "More than 99% of the world's smartphones are based on technology from a company that does not manufacture chips [[1]][[5]]. Arm, based in Cambridge, England, sells blueprints. Chip companies pay a fee to license its designs, then a royalty on every chip they ship. In the year to March 2026 that brought in $4.92 billion, $2.61 billion of it royalties [[2]]. More than 350 billion Arm-based chips have been shipped so far [[1]]. On 25 September 2026 Arm was worth about $331 billion [[17]], more than ten times the $31 billion SoftBank paid for it in 2016 [[12]].",
-      zh: "全世界超过 99% 的智能手机，都基于一家不生产芯片的公司的技术 [[1]][[5]]。这家公司叫 Arm，总部在英国剑桥，卖的是图纸：芯片公司先付授权费拿到设计，之后每卖出一颗芯片，再付一笔版税。截至 2026 年 3 月的财年，Arm 由此收入 49.2 亿美元，其中版税 26.1 亿美元 [[2]]。基于 Arm 的芯片累计出货已超过 3500 亿颗 [[1]]。2026 年 9 月 25 日，Arm 市值约 3314 亿美元 [[17]]，是 2016 年软银收购价 310 亿美元的十倍多 [[12]]。",
+      en: "More than 99% of the world's smartphones are based on technology from a company that does not manufacture chips [[1]][[5]]. Arm, based in Cambridge, England, sells blueprints. Chip companies pay a fee to license its designs, then a royalty on every chip they ship. In the year to March 2026 that brought in $4.92 billion, $2.61 billion of it royalties [[2]]. More than 350 billion Arm-based chips have been shipped so far [[1]]. On 9 October 2026 Arm was worth about $284 billion [[17]], about nine times the $31 billion SoftBank paid for it in 2016 [[12]].",
+      zh: "全世界超过 99% 的智能手机，都基于一家不生产芯片的公司的技术 [[1]][[5]]。这家公司叫 Arm，总部在英国剑桥，卖的是图纸：芯片公司先付授权费拿到设计，之后每卖出一颗芯片，再付一笔版税。截至 2026 年 3 月的财年，Arm 由此收入 49.2 亿美元，其中版税 26.1 亿美元 [[2]]。基于 Arm 的芯片累计出货已超过 3500 亿颗 [[1]]。2026 年 10 月 9 日，Arm 市值约 2844 亿美元 [[17]]，约为 2016 年软银收购价 310 亿美元的九倍 [[12]]。",
+    },
+    {
+      en: "This month that model is being argued over in court. Since 5 October Qualcomm, one of Arm's largest customers, has been in a federal court in Delaware claiming that Arm broke their licence agreements; it wants to stop paying Arm royalties, potentially worth billions of dollars, for up to five years. Arm's lawyer told the jury Qualcomm was \"not harmed in the least\" [[30]]. The jury began deliberating on 9 October without reaching a verdict and was due to return on 13 October [[31]]. To see what is at stake, start with how a company that makes no chips gets paid for them.",
+      zh: "这个月，这套模式被摆上了法庭。10 月 5 日起，Arm 的大客户之一高通在美国特拉华州联邦法院指控 Arm 违反授权协议，要求最长五年不向 Arm 支付版税，这笔钱可能高达数十亿美元。Arm 的律师对陪审团说，高通\"一点损失都没有\" [[30]]。陪审团 10 月 9 日开始评议，当天没有作出裁决，定于 10 月 13 日继续 [[31]]。要看懂这场官司争的是什么，得先弄清楚：一家不生产芯片的公司，是怎么从芯片上收钱的。",
     },
   ],
   sections: [
@@ -436,6 +440,10 @@ const ARM: Profile = {
           zh: "在大部分历史里，限制 Arm 收入的是每笔钱的大小：版税只占芯片售价的一小部分。新一代设计提高了这个比例。2025 年 7 月的业绩电话会上，CEO Rene Haas 说，旧一代 Armv8 设计的版税约为芯片售价的 2.5% 到 3.5%，Armv9 约 5%，而由 Arm 提供更完整设计的计算子系统（CSS）大约再翻一倍 [[11]]。",
         },
         {
+          en: "How big a royalty should be is also what the Qualcomm trial is about. Questioning Qualcomm's chief executive, Cristiano Amon, Arm's lawyer pointed to a 2013 licensing deal that capped royalties at $1.88 per chip for any chip with at least five processor cores, at a time when some data-centre chips have 288 cores. Qualcomm's lawyer showed the jury a chart that, Qualcomm said, showed Arm seeking an 1,800% increase in royalties between version 9 and version 10 of its architecture [[30]]. Qualcomm's licence runs until 2033 [[31]].",
+          zh: "版税该收多少，也正是高通这场官司争的焦点。Arm 的律师在询问高通 CEO 安蒙（Cristiano Amon）时提到一份 2013 年的授权协议：只要芯片有至少五个处理器核心，每颗版税最高 1.88 美元；而如今一些数据中心芯片有 288 个核心。高通的律师则向陪审团展示了一张图表，高通称它显示 Arm 在架构第 9 版到第 10 版之间要求把版税提高 1800% [[30]]。高通的这份授权协议有效期到 2033 年 [[31]]。",
+        },
+        {
           en: "Revenue followed. In the year to March 2026 it rose 23% to $4.92 billion, with $2.61 billion from royalties and $2.31 billion from licensing. It was Arm's third year in a row of growth above 20% since it went public [[2]].",
           zh: "收入随之增长。截至 2026 年 3 月的财年，Arm 营收增长 23%，达到 49.2 亿美元，其中版税 26.1 亿美元，授权 23.1 亿美元。这是它上市以来连续第三个财年增长超过 20% [[2]]。",
         },
@@ -452,8 +460,8 @@ const ARM: Profile = {
           zh: "2016 年 7 月，软银同意以 240 亿英镑（约 310 亿美元）收购 Arm，并让它退市，交易于当年 9 月完成 [[12]][[1]]。2020 年 9 月，软银同意以最多 400 亿美元的现金加股票把 Arm 卖给英伟达 [[13]]。这笔交易遇到了双方所说的\"重大监管挑战\"，2022 年 2 月宣告取消 [[14]]。",
         },
         {
-          en: "Arm went back to the stock market instead. It priced its Nasdaq listing at $51 a share on 13 September 2023, a value of more than $54 billion, and SoftBank kept about 90% [[15]][[16]][[27]]. At the end of 2025 Arm's market value was $117 billion; on 25 September 2026 it was about $331 billion [[17]].",
-          zh: "Arm 转而重新上市。2023 年 9 月 13 日，它在纳斯达克以每股 51 美元定价，估值超过 540 亿美元，软银保留约 90% 的股份 [[15]][[16]][[27]]。2025 年底，Arm 市值为 1170 亿美元；2026 年 9 月 25 日约为 3314 亿美元 [[17]]。",
+          en: "Arm went back to the stock market instead. It priced its Nasdaq listing at $51 a share on 13 September 2023, a value of more than $54 billion, and SoftBank kept about 90% [[15]][[16]][[27]]. At the end of 2025 Arm's market value was $117 billion. It was about $331 billion on 25 September 2026 and about $284 billion on 9 October, after a fall in chip shares [[17]].",
+          zh: "Arm 转而重新上市。2023 年 9 月 13 日，它在纳斯达克以每股 51 美元定价，估值超过 540 亿美元，软银保留约 90% 的股份 [[15]][[16]][[27]]。2025 年底，Arm 市值为 1170 亿美元；2026 年 9 月 25 日约为 3314 亿美元，芯片股回落后，10 月 9 日约为 2844 亿美元 [[17]]。",
         },
       ],
     },
@@ -479,11 +487,11 @@ const ARM: Profile = {
     },
     { id: "timeline", h: { en: "Timeline", zh: "时间线" }, figure: "timeline", paras: [] },
     {
-      id: "countries", h: { en: "One company, told two ways", zh: "同一家公司，两种讲法" }, figure: "countries",
+      id: "countries", h: { en: "One trial, told four ways", zh: "同一场官司，四种讲法" }, figure: "countries",
       paras: [
         {
-          en: "We looked at articles in our sources between 16 and 25 September 2026 with Arm in the headline: 23 articles, all from two countries. Outlets in Japan, Singapore, India, Germany and France covered SoftBank's record bond sale in the same week, but their headlines were about SoftBank, not Arm. This shows only what our sources carried.",
-          zh: "我们查看了 2026 年 9 月 16 日至 25 日，收录来源中标题提到 Arm 的报道：共 23 篇，全部来自两个国家。同一周，日本、新加坡、印度、德国和法国的媒体报道了软银创纪录的债券发行，但标题说的是软银，不是 Arm。这里只反映我们收录的来源。",
+          en: "We looked at articles in our sources between 26 September and 11 October 2026 with Arm in the headline, leaving out the many that use \"arm\" in its everyday sense: 16 articles from four countries, most of them about the Qualcomm trial. The Singapore and India articles are Reuters wire reports; the Chinese outlets wrote their own. None of our US sources had Arm in a headline in this period. This shows only what our sources carried.",
+          zh: "我们查看了 2026 年 9 月 26 日至 10 月 11 日，收录来源中标题提到 Arm 公司的报道（不计英文里作\"手臂\"等普通词义的 arm）：共 16 篇，来自四个国家，大多与高通的官司有关。新加坡和印度的文章是路透社通稿，中国媒体则是自己写的。这段时间里，我们收录的美国来源没有一篇在标题里提到 Arm。这里只反映我们收录的来源。",
         },
       ],
     },
@@ -491,7 +499,7 @@ const ARM: Profile = {
       id: "open", h: { en: "What is not settled", zh: "还没有答案的问题" },
       paras: [
         { en: "Partner or rival. Arm now sells its own data-centre processor in a market where some of the companies that build on its designs, such as Nvidia with Grace, sell Arm-based processors too [[18]][[19]].", zh: "伙伴还是对手。Arm 现在自己卖数据中心处理器，而在同一个市场里，一些基于它的设计做芯片的公司，比如做 Grace 的英伟达，也在卖基于 Arm 的处理器 [[18]][[19]]。" },
-        { en: "Licences in court. In December 2024 a US jury found that Qualcomm had not breached the Arm licence of Nuvia, a start-up it bought, and that its chips were covered by its own Arm licence; a judge entered final judgment for Qualcomm in September 2025, and Arm said it would appeal [[24]][[25]].", zh: "授权官司。2024 年 12 月，美国陪审团认定高通没有违反其收购的初创公司 Nuvia 与 Arm 的授权协议，其芯片也在高通自己的 Arm 授权范围内；2025 年 9 月法官作出有利于高通的最终判决，Arm 表示将上诉 [[24]][[25]]。" },
+        { en: "Licences in court. In December 2024 a US jury found that Qualcomm had not breached the Arm licence of Nuvia, a start-up it bought, and that its chips were covered by its own Arm licence; a judge entered final judgment for Qualcomm in September 2025, and Arm filed an appeal on 1 October 2025 [[24]][[25]][[32]]. The second case, brought by Qualcomm, was with the jury as of 12 October 2026; a separate question, whether Arm is negotiating the next licence in good faith, is for the judge, and her ruling could come well after the verdict [[31]].", zh: "授权官司。2024 年 12 月，美国陪审团认定高通没有违反其收购的初创公司 Nuvia 与 Arm 的授权协议，其芯片也在高通自己的 Arm 授权范围内；2025 年 9 月法官作出有利于高通的最终判决，Arm 于 2025 年 10 月 1 日提起上诉 [[24]][[25]][[32]]。第二起案件由高通提起，截至 2026 年 10 月 12 日仍在陪审团评议中；另一个问题，即 Arm 在下一代授权谈判中是否有诚意，由法官单独裁决，结果可能在陪审团裁决之后很久才出来 [[31]]。" },
         { en: "Expectations. Arm's stated target is $25 billion of revenue a year by the year to March 2031, $15 billion of it from its own chips [[20]]. Revenue in the latest full year was $4.92 billion [[2]], so today's market value reflects revenue expected rather than revenue already earned.", zh: "预期。Arm 公开的目标是：到截至 2031 年 3 月的财年，年营收达到 250 亿美元，其中 150 亿来自自有芯片 [[20]]。最近一个完整财年的营收是 49.2 亿美元 [[2]]，所以今天的市值反映的是预期收入，而不是已经实现的收入。" },
       ],
     },
@@ -510,25 +518,39 @@ const ARM: Profile = {
     { date: { en: "Sep 2023", zh: "2023 年 9 月" }, text: { en: "Back on the market: Nasdaq listing at $51 a share", zh: "重新上市：纳斯达克每股 51 美元" }, src: [15] },
     { date: { en: "Mar 2026", zh: "2026 年 3 月" }, text: { en: "Arm AGI CPU, its first own chip; Meta lead partner", zh: "发布首款自有芯片 Arm AGI CPU，Meta 为首要合作伙伴" }, src: [19] },
     { date: { en: "May 2026", zh: "2026 年 5 月" }, text: { en: "Full-year revenue $4.92 billion, up 23%", zh: "全年营收 49.2 亿美元，增长 23%" }, src: [2] },
-    { date: { en: "Sep 2026", zh: "2026 年 9 月" }, text: { en: "Shares up as much as 16.8% in a day; value about $331 billion", zh: "股价单日盘中最多涨 16.8%；市值约 3314 亿美元" }, src: [22, 17] },
+    { date: { en: "Sep 2026", zh: "2026 年 9 月" }, text: { en: "Shares up as much as 16.8% in a day", zh: "股价单日盘中最多涨 16.8%" }, src: [22] },
+    { date: { en: "Oct 2026", zh: "2026 年 10 月" }, text: { en: "Second trial with Qualcomm, over royalties; value about $284 billion", zh: "与高通第二次对簿公堂，焦点是版税；市值约 2844 亿美元" }, src: [30, 17] },
   ],
   countries: [
     {
-      code: "US", count: 14, outlets: "Yahoo Finance, CNBC",
-      focus: { en: "Mostly the stock: whether it is worth buying, comparisons with AMD, Intel and Nvidia, and the chief executive's confidence in the new data-centre chip. Most pieces come from one finance site.", zh: "主要是股票本身：值不值得买，与 AMD、英特尔、英伟达的比较，以及 CEO 对新数据中心芯片的信心。大部分文章来自同一家财经网站。" },
+      code: "CN", count: 9, outlets: "IT之家, cnBeta, 虎嗅, 钛媒体",
+      focus: { en: "Two kinds of story. Detailed reports on the trial spell out what Qualcomm wants: up to five years without royalties and a licence for Arm's next architecture, V10. The rest treat Arm as a technology: Windows and Linux on Arm, Steam's missing Arm support, and Arm against x86 and RISC-V in industrial computers.", zh: "两类报道。关于官司的报道写得很细，点明高通的诉求：最长五年不付版税，并获得 Arm 下一代架构 V10 的授权。其余把 Arm 当作一种技术来写：Arm 上的 Windows 和 Linux、Steam 还不支持 Arm，以及工业计算机里 Arm 与 x86、RISC-V 的竞争。" },
       headlines: [
-        { t: "Arm CEO says he's more confident its new AI chip can meet a loftier $2B revenue goal", outlet: "CNBC", url: "https://www.cnbc.com/2026/09/16/jim-cramer-arm-ceo-ai-revenue-goal.html" },
-        { t: "Arm Stock: Too Good to Sell, Too Expensive to Buy", outlet: "Yahoo Finance", url: "https://finance.yahoo.com/markets/stocks/articles/arm-stock-too-good-sell-182431532.html" },
-        { t: "Meta’s Muse Highlights Arm’s Growing Role in AI Infrastructure", outlet: "Yahoo Finance", url: "https://finance.yahoo.com/technology/ai/articles/meta-muse-highlights-arm-growing-190000939.html" },
+        { t: "高通起诉Arm：要求5年不交授权费、强制授权V10指令集", outlet: "虎嗅", url: "https://www.huxiu.com/article/4895588.html?f=rss" },
+        { t: "高通诉 Arm 案 5 天审议暂未裁决，陪审团下周二续议", outlet: "IT之家", url: "https://www.ithome.com/1/011/383.htm" },
+        { t: "x86、Arm、RISC-V在工业边缘正面相遇", outlet: "钛媒体", url: "https://www.tmtpost.com/8163923.html" },
       ],
     },
     {
-      code: "CN", count: 9, outlets: "21世纪经济报道, 36氪, 钛媒体, IT之家",
-      focus: { en: "Arm appears in three ways: as one line in overnight US market roundups, through SoftBank's loan backed by Arm shares, and as a technology inside products and business models, from Arm-based storage devices to a Chinese car-chip maker, Horizon Robotics, betting on an \"Arm plus Android\" platform model.", zh: "Arm 以三种方式出现：美股隔夜行情综述里的一行；以 Arm 股票为抵押的软银贷款；以及产品和商业模式里的技术，从基于 Arm 的存储设备，到中国车载芯片公司地平线押注的\"Arm+Android\"平台模式。" },
+      code: "SG", count: 4, outlets: "CNA",
+      focus: { en: "Reuters reports on each stage of the trial: the opening, the size of the possible damages, and the jury going home without a verdict.", zh: "路透社对庭审各个阶段的报道：开庭、可能的赔偿规模，以及陪审团暂未作出裁决。" },
       headlines: [
-        { t: "从卖芯片到做平台，地平线押注“Arm+Android”模式", outlet: "钛媒体", url: "https://www.tmtpost.com/8148860.html" },
-        { t: "软银将Arm保证金贷款增至250亿美元，加大人工智能押注", outlet: "36氪", url: "https://36kr.com/newsflashes/3988504767626241" },
-        { t: "威联通推出 12\" 短机身 1U NAS 新品 TS-432XeU，基于 4 核 Arm Cortex-A57 处理器", outlet: "IT之家", url: "https://www.ithome.com/1/005/992.htm" },
+        { t: "Qualcomm and Arm head to trial again, potential for huge damages in focus", outlet: "CNA", url: "https://www.channelnewsasia.com/business/qualcomm-and-arm-head-trial-again-potential-huge-damages-in-focus-6432851" },
+        { t: "Qualcomm and Arm set for jury verdict in contract breach feud", outlet: "CNA", url: "https://www.channelnewsasia.com/business/qualcomm-and-arm-set-jury-verdict-in-contract-breach-feud-6446211" },
+      ],
+    },
+    {
+      code: "IN", count: 2, outlets: "The Economic Times",
+      focus: { en: "The same Reuters reports, read as the story of a business relationship that has worn down since SoftBank bought Arm in 2016.", zh: "同样是路透社的报道，读起来像一段合作关系的故事：自 2016 年软银收购 Arm 以来，两家公司的关系不断恶化。" },
+      headlines: [
+        { t: "Qualcomm and Arm jury to return next week after deliberations in contract dispute case", outlet: "The Economic Times", url: "https://economictimes.indiatimes.com/tech/technology/qualcomm-and-arm-jury-to-return-next-week-after-deliberations-in-contract-dispute-case/articleshow/134870919.cms" },
+      ],
+    },
+    {
+      code: "DE", count: 1, outlets: "heise online",
+      focus: { en: "One report, headlined through Snapdragon, Qualcomm's chip brand: Qualcomm suing Arm for breach of contract.", zh: "一篇报道，标题从高通的芯片品牌骁龙切入：高通起诉 Arm 违约。" },
+      headlines: [
+        { t: "Snapdragon: Qualcomm verklagt ARM wegen Vertragsbruchs", outlet: "heise online", url: "https://www.heise.de/news/Snapdragon-Qualcomm-verklagt-ARM-wegen-Vertragsbruchs-11476898.html" },
       ],
     },
   ],
@@ -562,9 +584,12 @@ const ARM: Profile = {
     { n: 27, name: "CNN", title: "Arm shares soar in Nasdaq debut", url: "https://www.cnn.com/2023/09/14/investing/arm-ipo-nasdaq/index.html" },
     { n: 28, name: "Centre for Computing History", title: "Acorn Archimedes", url: "https://chrisacorns.computinghistory.org.uk/Computers/Archimedes.html" },
     { n: 29, name: "AppleInsider", title: "How Arm has already saved Apple, twice", url: "https://appleinsider.com/articles/20/06/09/how-arm-has-already-saved-apple---twice" },
+    { n: 30, name: "Reuters (via The Star)", title: "Qualcomm and Arm head to trial again, potential for huge damages in focus (5 October 2026)", url: "https://www.thestar.com.my/tech/tech-news/2026/10/05/qualcomm-and-arm-head-to-trial-again-potential-for-huge-damages-in-focus" },
+    { n: 31, name: "Reuters (via The Star)", title: "Qualcomm and Arm set for jury verdict in contract breach feud (9 October 2026)", url: "https://www.thestar.com.my/tech/tech-news/2026/10/09/qualcomm-and-arm-set-for-jury-verdict-in-contract-breach-feud" },
+    { n: 32, name: "SEC", title: "Qualcomm, Form 10-Q for the quarter ended 28 June 2026 (legal proceedings)", url: "https://www.sec.gov/Archives/edgar/data/0000804328/000080432826000086/qcom-20260628.htm" },
   ],
   stats: [
-    { label: { en: "What Arm is worth", zh: "公司价值" }, from: 31, to: 331.42, fromLabel: { en: "SoftBank's price, 2016", zh: "2016 年软银收购价" }, toLabel: { en: "Sep 2026", zh: "2026 年 9 月" }, unit: "bn", src: [12, 17] },
+    { label: { en: "What Arm is worth", zh: "公司价值" }, from: 31, to: 284.38, fromLabel: { en: "SoftBank's price, 2016", zh: "2016 年软银收购价" }, toLabel: { en: "9 Oct 2026", zh: "2026 年 10 月 9 日" }, unit: "bn", src: [12, 17] },
     { label: { en: "Annual revenue", zh: "年营收" }, from: 1.49, to: 4.92, fromLabel: { en: "2015", zh: "2015 年" }, toLabel: { en: "year to Mar 2026", zh: "截至 2026 年 3 月" }, unit: "bn", src: [26, 2] },
     { label: { en: "Smartphones based on Arm", zh: "基于 Arm 的智能手机" }, from: 0, to: 99, fromLabel: { en: "", zh: "" }, toLabel: { en: "more than 99%, Arm's figure", zh: "超过 99%，Arm 公布" }, unit: "pct", src: [1, 5] },
   ],
@@ -578,8 +603,8 @@ const ARM: Profile = {
   priceTags: {
     title: { en: "What Arm was worth ($ billion)", zh: "Arm 值多少钱（十亿美元）" },
     note: {
-      en: "2016 and 2020 are agreed deal prices; the Nvidia deal was cancelled. September 2023 is the value at the IPO price (\"more than $54 billion\"). The rest are market values at year-end and on 25 September 2026. Sources: SoftBank, CNBC, CompaniesMarketCap.",
-      zh: "2016 年和 2020 年是谈定的交易价格，其中英伟达的交易已取消。2023 年 9 月是按发行价计算的估值（\"超过 540 亿美元\"）。其余是年末和 2026 年 9 月 25 日的市值。来源：软银、CNBC、CompaniesMarketCap。",
+      en: "2016 and 2020 are agreed deal prices; the Nvidia deal was cancelled. September 2023 is the value at the IPO price (\"more than $54 billion\"). The rest are market values at year-end and on 25 September and 9 October 2026. Sources: SoftBank, CNBC, CompaniesMarketCap.",
+      zh: "2016 年和 2020 年是谈定的交易价格，其中英伟达的交易已取消。2023 年 9 月是按发行价计算的估值（\"超过 540 亿美元\"）。其余是年末以及 2026 年 9 月 25 日和 10 月 9 日的市值。来源：软银、CNBC、CompaniesMarketCap。",
     },
     rows: [
       { label: { en: "SoftBank deal, Jul 2016", zh: "软银收购，2016.7" }, v: 31, kind: "deal" },
@@ -589,6 +614,7 @@ const ARM: Profile = {
       { label: { en: "End of 2024", zh: "2024 年底" }, v: 135.78, kind: "market" },
       { label: { en: "End of 2025", zh: "2025 年底" }, v: 116.99, kind: "market" },
       { label: { en: "25 Sep 2026", zh: "2026.9.25" }, v: 331.42, kind: "market" },
+      { label: { en: "9 Oct 2026", zh: "2026.10.9" }, v: 284.38, kind: "market" },
     ],
   },
   // $ billion by financial year to 31 March: totals FY2021 to FY2023 [5], split FY2023 and FY2024 [4], FY2025 and FY2026 [3][2]
@@ -621,7 +647,7 @@ const ARM: Profile = {
     numbers: {
       kicker: { en: "ONE COMPANY, THREE NUMBERS", zh: "一家公司，三个数字" },
       rows: [
-        { big: { en: "$31B → $331B", zh: "310 亿 → 3314 亿美元" }, label: { en: "What Arm is worth", zh: "公司价值" }, sub: { en: "SoftBank's price in 2016 → 25 September 2026", zh: "2016 年软银收购价 → 2026 年 9 月 25 日市值" } },
+        { big: { en: "$31B → $284B", zh: "310 亿 → 2844 亿美元" }, label: { en: "What Arm is worth", zh: "公司价值" }, sub: { en: "SoftBank's price in 2016 → 9 October 2026", zh: "2016 年软银收购价 → 2026 年 10 月 9 日市值" } },
         { big: { en: "350 billion+", zh: "3500 亿颗+" }, label: { en: "Arm-based chips shipped so far", zh: "累计出货的 Arm 芯片" }, sub: { en: "Arm's count", zh: "Arm 公布的数字" } },
         { big: { en: "99%+", zh: "99%+" }, label: { en: "of smartphones are based on Arm", zh: "的智能手机基于 Arm 技术" }, sub: { en: "Arm's figure", zh: "Arm 公布的数字" } },
       ],
@@ -638,13 +664,14 @@ const ARM: Profile = {
       foot: { en: "SoftBank, CNBC, CompaniesMarketCap", zh: "软银、CNBC、CompaniesMarketCap" },
     },
     countries: {
-      kicker: { en: "ONE COMPANY, TWO STORIES", zh: "同一家公司，两种讲法" },
-      title: { en: "How US and Chinese outlets wrote about Arm in September", zh: "9 月中旬，美国和中国媒体怎么写 Arm" },
+      kicker: { en: "ONE TRIAL, FOUR COUNTRIES", zh: "同一场官司，四个国家" },
+      title: { en: "How outlets wrote about Arm, 26 September to 11 October", zh: "9 月 26 日至 10 月 11 日，各国媒体怎么写 Arm" },
       rows: [
-        { flags: ["us"], name: { en: "United States", zh: "美国" }, t: { en: "Mostly the stock: is it worth buying, and can the new data-centre chip reach its $2 billion goal?", zh: "主要是股票：值不值得买，新数据中心芯片能否达到 20 亿美元目标。" } },
-        { flags: ["cn"], name: { en: "China", zh: "中国" }, t: { en: "A line in market roundups, SoftBank's loan against Arm shares, and Arm inside products and business models.", zh: "行情综述里的一行、以 Arm 股票抵押的软银贷款，以及产品和商业模式里的 Arm。" } },
+        { flags: ["cn"], name: { en: "China", zh: "中国" }, t: { en: "Qualcomm's demands in detail: five years without royalties and a licence for Arm's next design, V10.", zh: "细写高通的诉求：五年不付版税，并拿到 Arm 下一代架构 V10 的授权。" } },
+        { flags: ["sg", "in"], name: { en: "Singapore and India", zh: "新加坡、印度" }, t: { en: "Reuters on each stage of the trial, and a relationship worn down since 2016.", zh: "路透社跟进庭审每个阶段，以及 2016 年以来不断恶化的关系。" } },
+        { flags: ["de"], name: { en: "Germany", zh: "德国" }, t: { en: "One report, through Qualcomm's Snapdragon brand: a breach-of-contract suit.", zh: "一篇报道，从高通的骁龙品牌切入：违约诉讼。" } },
       ],
-      foot: { en: "23 articles in our sources, 16 to 25 September 2026", zh: "我们收录的 23 篇报道，2026 年 9 月 16 日至 25 日" },
+      foot: { en: "16 articles in our sources, 26 September to 11 October 2026", zh: "我们收录的 16 篇报道，2026 年 9 月 26 日至 10 月 11 日" },
     },
   },
 };
@@ -1015,9 +1042,9 @@ const WORLD_LABS: Profile = {
   },
 };
 
-export const PROFILES: Profile[] = [AMD, WORLD_LABS];
+export const PROFILES: Profile[] = [AMD, WORLD_LABS, ARM];
 /** written but not yet published (next issue); kept here so the text stays with the code that renders it */
-export const DRAFTS: Profile[] = [ARM];
+export const DRAFTS: Profile[] = [];
 export const getProfile = (slug: string) => PROFILES.find((p) => p.slug === slug) ?? null;
 export const pick = (l: L, zh: boolean) => (zh ? l.zh : l.en);
 
