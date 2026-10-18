@@ -29,7 +29,10 @@ export type Profile = {
   /** Instagram cover line: a stronger hook than the page title, never the same words; "\n" marks line ends on the slide */
   igHook: L;
   lede: L[]; sections: Section[]; timeline: TimelineItem[]; countries: CountryCard[]; sources: Source[];
-  stats: { label: L; from: number; to: number; fromLabel: L; toLabel: L; unit: "bn" | "pct"; src: number[] }[];
+  /** unit "n": a plain count, shown with `suffix`; `line` replaces the "from → to" money line on index cards, promos and the Story */
+  stats: { label: L; from: number; to: number; fromLabel: L; toLabel: L; unit: "bn" | "pct" | "n"; suffix?: L; line?: L; src: number[] }[];
+  /** a person issue: JSON-LD about a Person; `newsName` heads the live "Latest on" list (e.g. the company the person is tied to) */
+  about?: "person"; newsName?: string;
   /** who the piece is about: the "Latest on …" heading, JSON-LD, and which live events count as being about it */
   name: string; legalName: string; newsMatch: { src: string; flags: string };
   /** sources listed even when no [[n]] marker points at them (chart data) */
@@ -49,7 +52,7 @@ export type Profile = {
 };
 
 /** grey bars ("deal") and orange bars ("market"); `legend` renames the two, e.g. earlier deals vs this one */
-export type PriceTags = { title: L; note: L; legend?: [L, L]; rows: { label: L; v: number; kind: "deal" | "market" }[] };
+export type PriceTags = { title: L; note: L; legend?: [L, L]; unit?: "n"; rows: { label: L; v: number; kind: "deal" | "market" }[] };
 
 /** Text for Instagram slides 2 to 5 and the Story; slide 1 is built from title, igHook and cover. */
 export type IgSlides = {
@@ -1044,7 +1047,221 @@ const WORLD_LABS: Profile = {
   },
 };
 
-export const PROFILES: Profile[] = [AMD, WORLD_LABS, ARM];
+const WILSON: Profile = {
+  slug: "sophie-wilson", no: 4, companyId: 335, companySlug: "arm-holdings", about: "person", newsName: "Arm",
+  title: { en: "Sophie Wilson: How Chips Learned to Save Power", zh: "Sophie Wilson：让芯片学会省电" },
+  dek: {
+    en: "In the 1980s she designed an instruction set for a British home computer. It became the foundation of the chips in today's phones.",
+    zh: "1980 年代她为一台英国电脑设计的指令集，后来成了手机芯片的基础。",
+  },
+  social: { en: "She designed the first ARM chip's instruction set", zh: "她设计了第一颗 ARM 芯片的指令集" },
+  igHook: { en: "Almost every phone today runs on chips that grew from her 1980s design", zh: "几乎每部手机里的芯片，\n都源自她四十年前的设计" },
+  seoTitle: { en: "Sophie Wilson: Designer of the ARM Instruction Set and BBC BASIC", zh: "Sophie Wilson：ARM 指令集与 BBC BASIC 的设计者" },
+  seoDesc: {
+    en: "Who is Sophie Wilson? The Acorn engineer who wrote BBC BASIC, helped build the BBC Micro in a week and designed the ARM instruction set in 1983. Why the first ARM chip had just 25,000 transistors, how it ran on a tenth of a watt, and how it led to the chips in almost every smartphone, with every fact sourced.",
+    zh: "Sophie Wilson 是谁？她为 Acorn 写了 BBC BASIC，一周内参与造出 BBC Micro 原型，1983 年设计了 ARM 指令集。第一颗 ARM 芯片为什么只有 2.5 万个晶体管、只用约 0.1 瓦，又如何发展成几乎每部智能手机里的芯片，每个事实附来源。",
+  },
+  keywords: ["Sophie Wilson", "ARM instruction set", "ARM 指令集", "BBC BASIC", "BBC Micro", "Acorn Computers", "ARM1", "Steve Furber", "RISC", "精简指令集", "Arm 创始", "FirePath", "Broadcom"],
+  published: "2026-10-18", updated: "2026-10-18",
+  cover: { file: "Acorn-ARM-Evaluation-System.jpg", credit: "Peter Howkins", license: "CC BY-SA 3.0",
+    caption: { en: "The ARM1, the first ARM processor, on an Acorn ARM Evaluation System board.", zh: "第一颗 ARM 处理器 ARM1，装在 Acorn 的 ARM 评估系统电路板上。" },
+    alt: { en: "Close-up of the ARM1 chip in its socket on a green circuit board", zh: "绿色电路板上插座里的 ARM1 芯片特写" } },
+  lede: [
+    {
+      en: "On 26 April 1985 the first ARM processor came back from the factory to Acorn Computers in Cambridge, England, and worked first time [[1]][[4]]. Then the engineers noticed something odd: a fault on the test board meant no power was reaching the chip, yet it kept running on current leaking from the circuits around it [[3]][[4]]. It used about a tenth of a watt [[3]].",
+      zh: "1985 年 4 月 26 日，第一颗 ARM 处理器从工厂送回英国剑桥的 Acorn 公司，第一次通电就能运行 [[1]][[4]]。随后工程师发现了一件怪事：测试板有故障，电源根本没有接到芯片上，它却靠周围电路漏过来的电流继续运行 [[3]][[4]]。它的功耗只有大约十分之一瓦 [[3]]。",
+    },
+    {
+      en: "Sophie Wilson designed its instruction set. Today 99% of smartphones are based on Arm technology, by Arm's count, and more than 350 billion Arm-based chips have been shipped [[10]][[11]]. Was the low power planned? Wilson's own answer: \"making it power efficient was an accident. In hindsight, it was an obvious accident\" [[1]]. This is the story of the choice that made the accident possible.",
+      zh: "这颗芯片的指令集由 Sophie Wilson 设计。今天，按 Arm 的统计，99% 的智能手机基于 Arm 技术，基于 Arm 的芯片累计出货超过 3500 亿颗 [[10]][[11]]。低功耗是计划好的吗？Wilson 自己的回答是：\"省电是个意外。事后看，是个显而易见的意外\" [[1]]。这篇文章讲的，是让这个意外成为可能的那个选择。",
+    },
+  ],
+  sections: [
+    {
+      id: "start", h: { en: "Start here: what is an instruction set?", zh: "先读这里：什么是指令集？" },
+      paras: [
+        {
+          en: "A processor only understands a short list of basic commands: add two numbers, copy a number from memory, jump to another step. That list is its instruction set. Every app is finally turned into these commands. Whoever designs the list decides how much work the chip must do for each command, and so how big and complicated the chip has to be.",
+          zh: "处理器只听得懂一小串基本命令：把两个数相加、从内存里取一个数、跳到另一步。这串命令就是它的指令集。每一个应用最后都要变成这些命令。设计这串命令的人，决定了芯片执行每条命令要做多少事，也就决定了芯片要做得多大、多复杂。",
+        },
+        {
+          en: "In the early 1980s most new processors had long lists of powerful, complicated commands. A different idea, later called RISC (reduced instruction set computer), was coming out of universities in California: fewer, simpler commands that each run quickly [[1]]. Acorn's choice, made by Wilson, Furber and the company's co-founder Hermann Hauser, was which of these two roads to take [[1]].",
+          zh: "1980 年代初，大多数新处理器都有一长串功能强、但复杂的命令。加州的大学里正在出现另一种思路，后来叫 RISC（精简指令集计算机）：命令更少、更简单，每条都执行得很快 [[1]]。Acorn 面对的选择，就是走哪一条路，做决定的是 Wilson、Furber 和公司联合创始人 Hermann Hauser [[1]]。",
+        },
+      ],
+    },
+    {
+      id: "bbc", h: { en: "A computer built in a week", zh: "一周造出一台电脑" },
+      photo: { file: "Acorn BBC Micro.jpg", credit: "simon.inns", license: "CC BY 2.0",
+        caption: { en: "A BBC Micro Model B from 1982. More than a million were sold.", zh: "1982 年的 BBC Micro Model B。这款电脑卖出了一百多万台。" },
+        alt: { en: "Beige BBC Micro computer with red function keys", zh: "带红色功能键的米色 BBC Micro 电脑" } },
+      paras: [
+        {
+          en: "Wilson started at Selwyn College, Cambridge, in 1975, studying mathematics and then computer science [[6]][[1]]. While still a student she designed hardware that led to Acorn's first product, the Acorn System 1 [[7]].",
+          zh: "Wilson 1975 年进入剑桥大学塞尔文学院，先读数学，再读计算机科学 [[6]][[1]]。还在读书时，她设计的硬件就直接促成了 Acorn 的第一款产品 Acorn System 1 [[7]]。",
+        },
+        {
+          en: "In early 1981 the BBC was looking for a computer for a national computer-literacy series. By Wilson's account, she, Steve Furber and colleagues started drawing the design on a Monday and finished wiring it on Thursday night. At two on Friday morning it still did not work and she went home to sleep; when she came back at eight it was running, and she got BBC BASIC going before the BBC arrived at ten [[1]][[2]]. Acorn won the contract. The BBC Micro shipped with BBC BASIC, the programming language Wilson wrote, and more than a million were sold [[8]].",
+          zh: "1981 年初，BBC 在为一档全国性的电脑普及节目寻找一台电脑。据 Wilson 回忆，她、Steve Furber 和同事们周一开始画设计图，周四夜里完成接线。到周五凌晨两点，机器还是不能运行，她回家睡觉；早上八点回来时它已经跑起来了，她赶在十点 BBC 的人到来之前让 BBC BASIC 运行起来 [[1]][[2]]。Acorn 拿下了合同。BBC Micro 自带 Wilson 编写的编程语言 BBC BASIC，卖出了一百多万台 [[8]]。",
+        },
+        {
+          en: "The success left Acorn with a problem: what processor should its next, more powerful computer use?",
+          zh: "成功也给 Acorn 带来一个难题：下一台更强的电脑，该用什么处理器？",
+        },
+      ],
+    },
+    {
+      id: "choice", h: { en: "The choice: design our own, and keep it simple", zh: "抉择：自己设计，而且要简单" }, figure: "pricetags",
+      paras: [
+        {
+          en: "The team tried the new processors on the market and found they did not make good use of the memory, which was becoming fast enough to feed a quicker chip [[1]][[3]]. In 1983 Wilson and colleagues visited the Western Design Center in Phoenix, Arizona, which was designing new chips in the 6502 family, the processor inside the BBC Micro. They found, in Wilson's words, \"a couple of senior engineers, and a bunch of college kids\" designing processors, and came away \"utterly convinced that designing processors was simple\" [[3]].",
+          zh: "团队试用了市面上的新处理器，发现它们没能用好内存，而当时的内存已经快到可以喂饱一颗更快的芯片 [[1]][[3]]。1983 年，Wilson 和同事去了美国亚利桑那州凤凰城的西部设计中心，那里在设计 6502 系列的新芯片，BBC Micro 用的正是 6502。用 Wilson 的话说，他们看到的是\"几个资深工程师，加上一群大学生\"在设计处理器，回来时\"完全相信设计处理器是件简单的事\" [[3]]。",
+        },
+        {
+          en: "Back in Cambridge, by Wilson's account, the computer scientist Andy Hopper had put the early RISC research papers on Wilson's desk. \"I looked at them all, and thought, 'Hmm, we could do this'\", she recalled [[1]]. She designed the instruction set; Furber worked out how the chip would carry it out, and wrote the first model of it in BBC BASIC [[1]][[4]].",
+          zh: "回到剑桥，据 Wilson 回忆，计算机科学家 Andy Hopper 把早期的 RISC 研究论文放到了 Wilson 的桌上。她回忆说：\"我把它们都看了一遍，心想：嗯，这个我们能做\" [[1]]。她设计指令集；Furber 负责芯片如何执行这些指令，并用 BBC BASIC 写出了它的第一个模型 [[1]][[4]]。",
+        },
+        {
+          en: "The result was small. The first ARM had about 25,000 transistors [[1]][[3]]. Intel's 386, launched the same year, had 275,000 [[9]]. Wilson put it plainly: \"making the processor itself was a low number of people, and it was a simple processor\" [[1]].",
+          zh: "结果是一颗很小的芯片。第一颗 ARM 只有大约 2.5 万个晶体管 [[1]][[3]]，而同一年推出的英特尔 386 有 27.5 万个 [[9]]。Wilson 说得很直白：\"做这颗处理器的人很少，它也是一颗简单的处理器\" [[1]]。",
+        },
+      ],
+    },
+    {
+      id: "chip", h: { en: "Small enough to sip power", zh: "小到几乎不费电" },
+      paras: [
+        {
+          en: "In general, fewer transistors means less power. Low power was not the goal: the chip only had to stay under 1 watt so it could go in a cheap plastic package [[3]]. A chip designed to be simple and cheap came in far below that, at about a tenth of a watt, and even ran on leakage when its power line was cut [[1]][[3]][[4]].",
+          zh: "一般来说，晶体管越少，耗电就越少。低功耗并不是目标：芯片只需要把功耗控制在 1 瓦以下，好装进便宜的塑料封装 [[3]]。这颗为简单、便宜而设计的芯片，最后远远低于这个标准，只用大约十分之一瓦，电源线断开时甚至还能靠漏电运行 [[1]][[3]][[4]]。",
+        },
+        {
+          en: "It mattered later. In 1990 the design team became a separate company, Arm, and battery-powered devices, from Nokia phones to the first iPhone, made its low power a selling point, as our previous issue on Arm tells [[14]][[15]].",
+          zh: "这一点后来变得至关重要。1990 年，设计团队独立成一家公司，就是 Arm；从诺基亚手机到第一代 iPhone，这些靠电池工作的设备让低功耗成了它的卖点，我们上一期的 Arm 专题讲了这段故事 [[14]][[15]]。",
+        },
+      ],
+    },
+    {
+      id: "after", h: { en: "After Acorn: another processor, and the honours", zh: "离开 Acorn 之后：又一颗处理器，和迟来的荣誉" },
+      photo: { file: "Sophie Wilson.jpg", credit: "Chris Monk", license: "CC BY 2.0", fit: "contain",
+        caption: { en: "Sophie Wilson in March 2013, beside a large plot of the first ARM processor.", zh: "2013 年 3 月，Sophie Wilson 站在第一颗 ARM 处理器的大幅版图旁。" },
+        alt: { en: "Sophie Wilson pointing at a large printed chip layout", zh: "Sophie Wilson 指着一张大幅芯片版图" } },
+      paras: [
+        {
+          en: "Wilson stayed in chip design. She was one of seven people who launched Element 14 as a buy-out from Acorn; Broadcom bought it in 2000. She designed its FirePath processor [[6]][[3]][[5]]. By her account in 2012, Broadcom had become \"the volume leader by a long way\" in the central-office equipment that runs DSL broadband, using FirePath [[1]].",
+          zh: "Wilson 一直在做芯片设计。她是从 Acorn 管理层收购中创办 Element 14 的七人之一，公司 2000 年被博通收购；她设计了它的 FirePath 处理器 [[6]][[3]][[5]]。按她 2012 年的说法，博通凭借 FirePath，在运营商机房里支撑 DSL 宽带的设备上\"遥遥领先\" [[1]]。",
+        },
+        {
+          en: "The recognition came decades after the chip. The Computer History Museum named her and Furber Fellows in 2012; she was elected a Fellow of the Royal Society in 2013, received an honorary doctorate from Cambridge in 2017, and was appointed CBE in 2019 \"for services to computing\" [[2]][[5]][[13]][[12]].",
+          zh: "荣誉在芯片问世几十年后才到来。2012 年，美国计算机历史博物馆授予她和 Furber 院士称号；2013 年她当选英国皇家学会院士，2017 年获剑桥大学荣誉博士学位，2019 年因\"对计算机领域的贡献\"获授 CBE 勋衔 [[2]][[5]][[13]][[12]]。",
+        },
+      ],
+    },
+    { id: "timeline", h: { en: "Timeline", zh: "时间线" }, figure: "timeline", paras: [] },
+    {
+      id: "end", h: { en: "An obvious accident", zh: "一个显而易见的意外" },
+      paras: [
+        {
+          en: "So was the low power an accident? In one sense, yes: it was never the goal [[1]]. In our view, the choice behind it was deliberate: a small team decided a processor should be simple enough for a small team to build, and power savings followed. At a 2025 event marking 40 years since the first ARM chip ran, Wilson said they had thought it \"a really obvious way to build a processor and everybody would be doing it… That turned out not to be the case\" [[4]].",
+          zh: "那么，低功耗是意外吗？从某种意义上说是的：它从来不是目标 [[1]]。在我们看来，它背后的选择却是有意的：一个小团队决定，处理器要简单到一个小团队就能做出来，省电随之而来。2025 年，在纪念第一颗 ARM 芯片运行 40 周年的活动上，Wilson 说，他们当年以为\"这是做处理器再明显不过的办法，所有人都会这么做……结果并不是这样\" [[4]]。",
+        },
+      ],
+    },
+  ],
+  timeline: [
+    { date: { en: "1975", zh: "1975 年" }, text: { en: "Starts at Selwyn College, Cambridge", zh: "进入剑桥大学塞尔文学院" }, src: [6] },
+    { date: { en: "Feb 1981", zh: "1981 年 2 月" }, text: { en: "With Steve Furber, builds the BBC Micro prototype in under a week", zh: "与 Steve Furber 不到一周造出 BBC Micro 原型" }, src: [1, 2] },
+    { date: { en: "1983", zh: "1983 年" }, text: { en: "Visits the Western Design Center; starts designing the ARM instruction set", zh: "参观西部设计中心，开始设计 ARM 指令集" }, src: [3, 1] },
+    { date: { en: "26 Apr 1985", zh: "1985 年 4 月 26 日" }, text: { en: "First ARM chip arrives and works first time", zh: "第一颗 ARM 芯片送回，首次通电即运行" }, src: [1, 4] },
+    { date: { en: "2000", zh: "2000 年" }, text: { en: "Element 14, which she co-founded, bought by Broadcom", zh: "她参与创办的 Element 14 被博通收购" }, src: [6, 3] },
+    { date: { en: "2012", zh: "2012 年" }, text: { en: "Computer History Museum Fellow, with Furber", zh: "与 Furber 一同获计算机历史博物馆院士称号" }, src: [2] },
+    { date: { en: "2013", zh: "2013 年" }, text: { en: "Elected Fellow of the Royal Society", zh: "当选英国皇家学会院士" }, src: [5] },
+    { date: { en: "2017", zh: "2017 年" }, text: { en: "Honorary doctorate, University of Cambridge", zh: "获剑桥大学荣誉博士学位" }, src: [13] },
+    { date: { en: "2019", zh: "2019 年" }, text: { en: "Appointed CBE for services to computing", zh: "因对计算机领域的贡献获授 CBE" }, src: [12] },
+  ],
+  countries: [],
+  sources: [
+    { n: 1, name: "Computer History Museum", title: "Oral history of Sophie Wilson (2012, transcript)", url: "https://archive.computerhistory.org/resources/access/text/2012/06/102746190-05-01-acc.pdf" },
+    { n: 2, name: "Computer History Museum", title: "Sophie Wilson, 2012 Fellow", url: "https://computerhistory.org/profile/sophie-wilson/" },
+    { n: 3, name: "The Register", title: "ARM creators Sophie Wilson and Steve Furber, part two: the accidental chip (2012)", url: "https://www.theregister.com/2012/05/03/unsung_heroes_of_tech_arm_creators_sophie_wilson_and_steve_furber/" },
+    { n: 4, name: "The Register", title: "808 lines of BBC BASIC and a dream: Arm architecture turns 40 (2025)", url: "https://www.theregister.com/2025/04/29/arm_40/" },
+    { n: 5, name: "Royal Society", title: "Sophie Wilson FRS", url: "https://royalsociety.org/people/Sophie-Wilson-12544" },
+    { n: 6, name: "Selwyn College, Cambridge", title: "Recognition for computer pioneer (2016)", url: "https://www.sel.cam.ac.uk/news/recognition-computer-pioneer" },
+    { n: 7, name: "Centre for Computing History", title: "Sophie Wilson", url: "https://www.computinghistory.org.uk/det/6615/Sophie-Wilson/" },
+    { n: 8, name: "Computer History Museum", title: "The BBC Micro (2012)", url: "https://computerhistory.org/blog/the-bbc-micro/" },
+    { n: 9, name: "Intel", title: "History of Intel chips (timeline)", url: "https://intel.la/content/dam/www/public/us/en/documents/corporate-information/history-intel-chips-timeline-poster.pdf" },
+    { n: 10, name: "Arm", title: "About Arm", url: "https://www.arm.com/company" },
+    { n: 11, name: "Arm", title: "Smartphones", url: "https://arm.com/markets/consumer-technologies/smartphones" },
+    { n: 12, name: "The London Gazette", title: "Birthday Honours 2019 (CBE)", url: "https://www.thegazette.co.uk/notice/3294155" },
+    { n: 13, name: "Cambridge Network", title: "University of Cambridge honorary degrees 2017", url: "https://www.cambridgenetwork.co.uk/news/university-cambridge-honorary-degrees-2017" },
+    { n: 14, name: "Arm", title: "Arm's official history", url: "https://newsroom.arm.com/blog/arm-official-history" },
+    { n: 15, name: "Arm", title: "35 years of Arm technology innovation", url: "https://newsroom.arm.com/blog/arm-35-years-technology-innovation" },
+  ],
+  stats: [
+    { label: { en: "Transistors in the first ARM", zh: "第一颗 ARM 的晶体管" }, from: 0, to: 25000, unit: "n", fromLabel: { en: "", zh: "" }, toLabel: { en: "1985; Intel's 386 that year: 275,000", zh: "1985 年；同年英特尔 386 为 27.5 万" },
+      line: { en: "25,000 transistors, 1985", zh: "1985 年，2.5 万个晶体管" }, src: [1, 9] },
+    { label: { en: "BBC Micros sold", zh: "BBC Micro 销量" }, from: 0, to: 1000000, unit: "n", suffix: { en: "+", zh: "+ 台" }, fromLabel: { en: "", zh: "" }, toLabel: { en: "more than a million", zh: "超过一百万台" }, src: [8] },
+    { label: { en: "Smartphones based on Arm", zh: "基于 Arm 的智能手机" }, from: 0, to: 99, unit: "pct", fromLabel: { en: "", zh: "" }, toLabel: { en: "99%, Arm's figure", zh: "99%，Arm 公布" }, src: [11] },
+  ],
+  name: "Sophie Wilson", legalName: "Sophie Wilson", newsMatch: { src: "\\b(Arm|ARM)\\b|安谋", flags: "" },
+  alwaysCite: [9],
+  method: {
+    en: "Method: drafted with AI from the sources above and checked line by line by an editor. This profile covers public work, decisions and public statements only. Quotes are from the interviews and talks cited. Found a mistake? Email ",
+    zh: "写法：本文由 AI 根据上列来源整理，编辑逐条核对。本文只写公开的工作、决定和公开发言。引语出自所列访谈和演讲，由我们翻译。发现错误请写信到 ",
+  },
+  // transistor counts [1][3][9]
+  priceTags: {
+    title: { en: "Transistors in a processor, mid-1980s", zh: "1980 年代中期，一颗处理器有多少晶体管" },
+    note: { en: "ARM1 about 25,000 (Wilson; The Register). Intel figures from Intel's own chip timeline.", zh: "ARM1 约 2.5 万个（Wilson；The Register）。英特尔数字来自英特尔官方芯片时间线。" },
+    legend: [{ en: "Intel", zh: "英特尔" }, { en: "ARM1", zh: "ARM1" }], unit: "n",
+    rows: [
+      { label: { en: "Intel 286 (1982)", zh: "英特尔 286（1982）" }, v: 134000, kind: "deal" },
+      { label: { en: "Intel 386 (1985)", zh: "英特尔 386（1985）" }, v: 275000, kind: "deal" },
+      { label: { en: "ARM1 (1985)", zh: "ARM1（1985）" }, v: 25000, kind: "market" },
+    ],
+  },
+  ig: {
+    explain: {
+      kicker: { en: "START HERE", zh: "先读这里" },
+      rows: [
+        { q: { en: "What is an instruction set?", zh: "什么是指令集？" }, a: { en: "The short list of basic commands a processor understands. Every app is finally turned into them.", zh: "处理器听得懂的一小串基本命令。每个应用最后都要变成这些命令。" } },
+        { q: { en: "Why does simple matter?", zh: "为什么简单很重要？" }, a: { en: "Simpler commands need fewer transistors, and fewer transistors use less power.", zh: "命令越简单，需要的晶体管越少，耗电也越少。" } },
+        { q: { en: "Where is it now?", zh: "它现在在哪里？" }, a: { en: "99% of smartphones are based on Arm technology, which grew from her design.", zh: "99% 的智能手机基于 Arm 技术，而 Arm 正是从她的设计发展而来。" } },
+      ],
+    },
+    numbers: {
+      kicker: { en: "ONE DESIGN, THREE NUMBERS", zh: "一个设计，三个数字" },
+      rows: [
+        { big: { en: "25,000", zh: "2.5 万" }, label: { en: "transistors in the first ARM, 1985", zh: "个晶体管，第一颗 ARM，1985 年" }, sub: { en: "Intel's 386 that year: 275,000", zh: "同年英特尔 386：27.5 万个" } },
+        { big: { en: "0.1 W", zh: "0.1 瓦" }, label: { en: "about what it used", zh: "左右的功耗" }, sub: { en: "It even ran on leakage with its power cut", zh: "电源断开时，甚至靠漏电也能运行" } },
+        { big: { en: "350 billion+", zh: "3500 亿颗+" }, label: { en: "Arm-based chips shipped so far", zh: "基于 Arm 的芯片累计出货" }, sub: { en: "Arm's count", zh: "Arm 公布的数字" } },
+      ],
+      source: { en: "Sources: Computer History Museum, The Register, Intel, Arm", zh: "来源：计算机历史博物馆、The Register、英特尔、Arm" },
+    },
+    decisionsKicker: { en: "THREE CHOICES", zh: "三个选择" },
+    decisions: [
+      { h: { en: "Build it in a week", zh: "一周造出原型" }, tag: "BBC Micro · 1981", t: { en: "With Steve Furber and colleagues she built the prototype that won Acorn the BBC contract, and wrote BBC BASIC.", zh: "她和 Steve Furber 等同事赶出了帮 Acorn 拿下 BBC 合同的原型机，还写了 BBC BASIC。" } },
+      { h: { en: "Design our own processor", zh: "自己设计处理器" }, tag: "RISC · 1983", t: { en: "After seeing a tiny team design chips in Phoenix: \"Hmm, we could do this.\"", zh: "在凤凰城看到一个小团队在设计芯片后，她想：\"嗯，这个我们能做。\"" } },
+      { h: { en: "Keep it simple", zh: "保持简单" }, tag: "ARM1 · 1985", t: { en: "25,000 transistors. Low power came with it, \"an obvious accident\", she says.", zh: "2.5 万个晶体管，低功耗随之而来。她说，这是\"一个显而易见的意外\"。" } },
+    ],
+    chart: {
+      kind: "tags", kicker: { en: "SMALL BY DESIGN", zh: "小，是设计出来的" },
+      sub: { en: "Transistors in a processor, mid-1980s.", zh: "1980 年代中期，一颗处理器有多少晶体管。" },
+      foot: { en: "Intel; Computer History Museum; The Register", zh: "英特尔；计算机历史博物馆；The Register" },
+    },
+    countries: {
+      kicker: { en: "THEN AND NOW", zh: "从那时到现在" },
+      title: { en: "From one British computer to almost every phone", zh: "从一台英国电脑，到几乎每部手机" },
+      rows: [
+        { flags: [], name: { en: "1981 · BBC Micro", zh: "1981 · BBC Micro" }, t: { en: "Built in under a week; more than a million sold.", zh: "不到一周造出原型，卖出一百多万台。" } },
+        { flags: [], name: { en: "1985 · ARM1", zh: "1985 · ARM1" }, t: { en: "Her instruction set, 25,000 transistors, a tenth of a watt.", zh: "她设计的指令集，2.5 万个晶体管，十分之一瓦。" } },
+        { flags: [], name: { en: "Today · Arm", zh: "今天 · Arm" }, t: { en: "99% of smartphones are based on Arm, by Arm's count.", zh: "按 Arm 的统计，99% 的智能手机基于 Arm。" } },
+      ],
+      foot: { en: "Sources: Computer History Museum, The Register, Arm", zh: "来源：计算机历史博物馆、The Register、Arm" },
+    },
+  },
+};
+
+export const PROFILES: Profile[] = [AMD, WORLD_LABS, ARM, WILSON];
 /** written but not yet published (next issue); kept here so the text stays with the code that renders it */
 export const DRAFTS: Profile[] = [];
 export const getProfile = (slug: string) => PROFILES.find((p) => p.slug === slug) ?? null;
@@ -1060,3 +1277,10 @@ export const money = (v: number, zh: boolean) => {
   if (v >= 1000) return `$${(v / 1000).toFixed(2).replace(/\.00$/, "")}T`;
   return `$${v < 10 ? v.toFixed(1) : Math.round(v).toLocaleString("en")}B`;
 };
+
+/** a count: "25,000" / "2.5 万" */
+export const count = (v: number, zh: boolean) => (zh && v >= 10000 ? `${(v / 10000).toFixed(v % 10000 ? 1 : 0)} 万` : Math.round(v).toLocaleString("en"));
+/** value on a pricetags bar: money by default, a count when unit is "n" */
+export const tagVal = (v: number, zh: boolean, unit?: "n") => (unit === "n" ? count(v, zh) : money(v, zh));
+/** the headline line of a profile's first stat, for index cards, promos and the Story */
+export const statLine = (s: Profile["stats"][number], zh: boolean) => (s.line ? pick(s.line, zh) : `${money(s.from, zh)} → ${money(s.to, zh)}`);

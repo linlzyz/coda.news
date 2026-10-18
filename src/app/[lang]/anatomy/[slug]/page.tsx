@@ -123,7 +123,7 @@ export default async function Page({ params }: PageProps<"/[lang]/anatomy/[slug]
   const ld = {
     "@context": "https://schema.org", "@type": "Article", headline: pick(pr.seoTitle, zh), alternativeHeadline: pick(pr.title, zh),
     datePublished: pr.published, dateModified: pr.updated, inLanguage: zh ? "zh-CN" : "en", mainEntityOfPage: url, isAccessibleForFree: true,
-    about: { "@type": "Corporation", name: pr.name, legalName: pr.legalName },
+    about: pr.about === "person" ? { "@type": "Person", name: pr.name } : { "@type": "Corporation", name: pr.name, legalName: pr.legalName },
     author: { "@type": "Organization", name: SITE.name, url: SITE.url }, publisher: orgLd,
     isPartOf: { "@type": "CreativeWorkSeries", name: zh ? "Coda 剖面" : "Coda Anatomy", url: `${SITE.url}${zh ? "/zh" : ""}/anatomy` },
     citation: sources.map((s) => s.url),
@@ -159,7 +159,7 @@ export default async function Page({ params }: PageProps<"/[lang]/anatomy/[slug]
         {pr.stats.map((s, i) => (
           <div key={i} className="rounded-2xl border border-[#E5E7EB] bg-white p-4 shadow-[0_8px_24px_-12px_rgba(0,0,0,.25)]">
             <div className="text-[12px] font-medium text-neutral-600">{pick(s.label, zh)}<Cites ns={s.src} /></div>
-            <div className="mt-1 text-[30px] font-semibold leading-none tracking-[-0.03em] text-[#16181D]"><CountUp from={s.from} to={s.to} unit={s.unit} zh={zh} /></div>
+            <div className="mt-1 text-[30px] font-semibold leading-none tracking-[-0.03em] text-[#16181D]"><CountUp from={s.from} to={s.to} unit={s.unit} zh={zh} suffix={s.suffix ? pick(s.suffix, zh) : undefined} /></div>
             <div className="mt-2 text-[12px] text-neutral-500">
               {s.unit === "bn" ? `${pick(s.fromLabel, zh)} ${money(s.from, zh)} → ${pick(s.toLabel, zh)}` : pick(s.toLabel, zh)}
             </div>
@@ -184,7 +184,7 @@ export default async function Page({ params }: PageProps<"/[lang]/anatomy/[slug]
 
       <section className="mt-14 border-t border-[#E5E7EB] pt-6">
         <div className="flex items-baseline justify-between gap-4">
-          <h2 className="text-[20px] font-semibold tracking-[-0.02em] text-[#16181D]">{zh ? `${pr.name} 最新动态` : `Latest on ${pr.name}`}</h2>
+          <h2 className="text-[20px] font-semibold tracking-[-0.02em] text-[#16181D]">{zh ? `${pr.newsName ?? pr.name} 最新动态` : `Latest on ${pr.newsName ?? pr.name}`}</h2>
           <Link href={`/company/${pr.companySlug}`} className="shrink-0 text-[13px] font-medium text-[#C2410C] hover:underline">{zh ? "公司页 →" : "Company page →"}</Link>
         </div>
         <p className="mt-1 text-[13px] text-neutral-500">{zh ? "这一段自动更新，来自 coda.news 追踪的各国报道。" : "This part updates by itself from the coverage coda.news tracks."}</p>

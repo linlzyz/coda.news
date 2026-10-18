@@ -1,6 +1,6 @@
 import Link from "@/components/LLink";
 import { alternates, langFrom } from "@/lib/i18n";
-import { PROFILES, money, photoUrl, pick } from "@/lib/anatomy";
+import { PROFILES, photoUrl, pick, statLine } from "@/lib/anatomy";
 
 export const revalidate = 86400;
 
@@ -42,7 +42,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
           <span className="mt-6 flex flex-wrap items-end gap-x-8 gap-y-3">
             <span>
               <span className="block text-[11px] uppercase tracking-[0.1em] text-white/50">{pick(s.label, zh)}</span>
-              <span className="mt-1 block text-[26px] font-semibold tabular-nums tracking-[-0.02em]">{money(s.from, zh)} <span className="text-[#FF8A50]">→</span> {money(s.to, zh)}</span>
+              <span className="mt-1 block text-[26px] font-semibold tabular-nums tracking-[-0.02em]">{statLine(s, zh)}</span>
             </span>
             <span className="rounded-full bg-white px-4 py-2 text-[14px] font-semibold text-[#08090B] transition-colors group-hover:bg-[#FF8A50] group-hover:text-white">{zh ? "阅读剖面 →" : "Read the anatomy →"}</span>
           </span>

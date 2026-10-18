@@ -3,7 +3,7 @@
 //   &l=zh for Chinese. Figures come from src/lib/anatomy.ts, the same data as the page.
 import { ImageResponse } from "next/og";
 import QRCode from "qrcode";
-import { getProfile, money, photoUrl, type L } from "@/lib/anatomy";
+import { getProfile, money, photoUrl, statLine, tagVal, type L } from "@/lib/anatomy";
 import { LOGO_DATA_URI, LOGO_WHITE_DATA_URI } from "@/lib/logo-data";
 import { brandParts, gfont } from "@/lib/og-font";
 
@@ -74,7 +74,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
         <div style={{ display: "flex", flexDirection: "column", marginTop: "auto", padding: "0 90px 220px", position: "relative" }}>
           <div style={{ display: "flex", fontSize: 30, fontWeight: 900, color: ORANGE, letterSpacing: 4 }}>{T("NEW · ", "新 · ")}{kick}</div>
           <div style={{ display: "flex", marginTop: 20, fontSize: zh ? (title.length > 14 ? 92 : 110) : (title.length > 30 ? 112 : 128), fontWeight: 900, lineHeight: 1.02, color: "#fff", letterSpacing: zh ? 0 : -4 }}>{title}</div>
-          <div style={{ display: "flex", marginTop: 28, fontSize: 60, fontWeight: 700, color: "#fff" }}>{money(st[0].from, zh)} <span style={{ color: ORANGE, margin: "0 18px" }}>→</span> {money(st[0].to, zh)}</div>
+          <div style={{ display: "flex", marginTop: 28, fontSize: 60, fontWeight: 700, color: "#fff" }}>{st[0].line ? P(st[0].line) : <>{money(st[0].from, zh)} <span style={{ color: ORANGE, margin: "0 18px" }}>→</span> {money(st[0].to, zh)}</>}</div>
           <div style={{ display: "flex", marginTop: 60, fontSize: 38, fontWeight: 700, color: "#fff", background: ORANGE, padding: "18px 34px", borderRadius: 999, alignSelf: "flex-start" }}>{T("Read it: link in bio", "完整剖面：主页链接")}</div>
         </div>
       </div>
@@ -199,7 +199,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
               <div style={{ display: "flex", fontSize: 26, color: "#3F434A" }}>{P(r.label)}</div>
               <div style={{ display: "flex", alignItems: "center", marginTop: 8 }}>
                 <div style={{ display: "flex", height: 44, width: Math.max(12, (r.v / max) * 700), background: r.kind === "deal" ? "#A3A8B0" : ORANGE, borderRadius: "0 8px 8px 0" }} />
-                <div style={{ display: "flex", marginLeft: 16, fontSize: 36, fontWeight: 900, color: INK }}>{money(r.v, zh)}</div>
+                <div style={{ display: "flex", marginLeft: 16, fontSize: 36, fontWeight: 900, color: INK }}>{tagVal(r.v, zh, c2.unit)}</div>
               </div>
             </div>
           ))}

@@ -2,7 +2,7 @@
 // Coda Anatomy figures. Animation only helps read order and size: it plays once when the figure scrolls into view,
 // and readers with "reduce motion" get the finished picture straight away. Colours come from --ana-* in globals.css.
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { money, type Point } from "@/lib/anatomy";
+import { count, money, tagVal, type Point } from "@/lib/anatomy";
 
 function useInView<T extends Element>(threshold = 0.3) {
   const ref = useRef<T>(null);
@@ -40,7 +40,7 @@ function Table({ head, rows }: { head: string[]; rows: (string | number)[][] }) 
 }
 
 /* ---------- 1. headline numbers ---------- */
-export function CountUp({ from, to, unit, zh }: { from: number; to: number; unit: "bn" | "pct"; zh: boolean }) {
+export function CountUp({ from, to, unit, zh, suffix }: { from: number; to: number; unit: "bn" | "pct" | "n"; zh: boolean; suffix?: string }) {
   const [ref, on] = useInView<HTMLSpanElement>(0.6);
   const [v, setV] = useState(from);
   useEffect(() => {
@@ -56,7 +56,7 @@ export function CountUp({ from, to, unit, zh }: { from: number; to: number; unit
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
   }, [on, from, to, unit]);
-  return <span ref={ref} className="tabular-nums">{unit === "pct" ? `${to < 10 ? v.toFixed(1) : Math.round(v)}%` : money(v, zh)}</span>;
+  return <span ref={ref} className="tabular-nums">{unit === "pct" ? `${to < 10 ? v.toFixed(1) : Math.round(v)}%` : unit === "n" ? `${count(v, zh)}${suffix ?? ""}` : money(v, zh)}</span>;
 }
 
 /* ---------- shared line-chart geometry ---------- */
@@ -301,12 +301,12 @@ export function TimelineRow({ date, children, last }: { date: string; children: 
 type LL = { en: string; zh: string };
 const tr = (l: LL, zh: boolean) => (zh ? l.zh : l.en);
 
-export function PriceTags({ data, zh }: { data: { title: LL; note: LL; legend?: [LL, LL]; rows: { label: LL; v: number; kind: "deal" | "market" }[] }; zh: boolean }) {
+export function PriceTags({ data, zh }: { data: { title: LL; note: LL; legend?: [LL, LL]; unit?: "n"; rows: { label: LL; v: number; kind: "deal" | "market" }[] }; zh: boolean }) {
   const [ref, on] = useInView<HTMLDivElement>(0.3);
   const max = Math.max(...data.rows.map((r) => r.v));
   return (
     <Frame title={tr(data.title, zh)} note={tr(data.note, zh)}
-      table={<Table head={[zh ? "时间" : "When", zh ? "价值" : "Value"]} rows={data.rows.map((r) => [tr(r.label, zh), money(r.v, zh)])} />}>
+      table={<Table head={[zh ? "时间" : "When", zh ? "价值" : "Value"]} rows={data.rows.map((r) => [tr(r.label, zh), tagVal(r.v, zh, data.unit)])} />}>
       <div className="mb-3 flex flex-wrap gap-4 text-[12px] text-neutral-600">
         {data.rows.some((r) => r.kind === "deal") && <span className="inline-flex items-center gap-1.5"><span className="ana-key ana-neutral-bg" />{data.legend ? tr(data.legend[0], zh) : zh ? "交易价格" : "Deal price"}</span>}
         {data.rows.some((r) => r.kind === "market") && <span className="inline-flex items-center gap-1.5"><span className="ana-key ana-amd-bg" />{data.legend ? tr(data.legend[1], zh) : zh ? "市值" : "Market value"}</span>}
@@ -318,7 +318,7 @@ export function PriceTags({ data, zh }: { data: { title: LL; note: LL; legend?: 
             <span className="flex items-center gap-2">
               <span className={`block h-[18px] rounded-r-md ${r.kind === "deal" ? "ana-neutral-bg" : "ana-amd-bg"} transition-[width] duration-700 ease-out motion-reduce:transition-none`}
                 style={{ width: on ? `${Math.max(1.5, (r.v / max) * 78)}%` : "0%", transitionDelay: `${i * 0.12}s` }} />
-              <span className="shrink-0 text-[12.5px] font-semibold tabular-nums text-[#16181D] dark:text-neutral-100">{money(r.v, zh)}</span>
+              <span className="shrink-0 text-[12.5px] font-semibold tabular-nums text-[#16181D] dark:text-neutral-100">{tagVal(r.v, zh, data.unit)}</span>
             </span>
           </div>
         ))}

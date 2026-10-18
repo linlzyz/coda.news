@@ -1,5 +1,5 @@
 import Link from "@/components/LLink";
-import { PROFILES, money, photoUrl, pick } from "@/lib/anatomy";
+import { PROFILES, photoUrl, pick, statLine } from "@/lib/anatomy";
 
 /** "Coda Anatomy" card on company and event pages about the same company: a way in for readers and an internal link for search engines. */
 export function AnatomyPromo({ companyIds, zh }: { companyIds: (number | string)[] | null | undefined; zh: boolean }) {
@@ -17,7 +17,7 @@ export function AnatomyPromo({ companyIds, zh }: { companyIds: (number | string)
         <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#FF8A50]">{zh ? `Coda 剖面 ${String(p.no).padStart(2, "0")} · 深度阅读` : `Coda Anatomy ${String(p.no).padStart(2, "0")} · Long read`}</span>
         <span className="mt-1.5 text-[22px] font-semibold leading-tight tracking-[-0.02em] sm:text-[26px]">{pick(p.title, zh)}</span>
         <span className="mt-1 max-w-[440px] text-[13.5px] leading-snug text-white/75">{pick(p.dek, zh)}</span>
-        <span className="mt-3 text-[13px] font-semibold text-white">{money(s.from, zh)} <span className="text-[#FF8A50]">→</span> {money(s.to, zh)} · <span className="group-hover:underline">{zh ? "阅读剖面 →" : "Read →"}</span></span>
+        <span className="mt-3 text-[13px] font-semibold text-white">{statLine(s, zh)} · <span className="group-hover:underline">{zh ? "阅读剖面 →" : "Read →"}</span></span>
       </span>
     </Link>
   );
@@ -36,7 +36,7 @@ export function AnatomyBox({ zh }: { zh: boolean }) {
           <img src={photoUrl(p.cover.file, 700)} alt={pick(p.cover.alt, zh)} loading="lazy" className="absolute inset-0 -z-10 h-full w-full object-cover opacity-85 transition-transform duration-700 group-hover:scale-105" />
           <span className="absolute inset-0 -z-10 bg-gradient-to-t from-[#08090B]/90 via-[#08090B]/20 to-transparent" />
           <span className="absolute left-4 top-4 rounded bg-[#EA5514] px-2 py-1 text-[10.5px] font-bold uppercase tracking-[0.1em] text-white">{zh ? `Coda 剖面 ${String(p.no).padStart(2, "0")}` : `Coda Anatomy ${String(p.no).padStart(2, "0")}`}</span>
-          <span className="absolute bottom-3 left-4 right-4 text-[20px] font-semibold tabular-nums tracking-[-0.02em] text-white">{money(s.from, zh)} <span className="text-[#FF8A50]">→</span> {money(s.to, zh)}</span>
+          <span className="absolute bottom-3 left-4 right-4 text-[20px] font-semibold tabular-nums tracking-[-0.02em] text-white">{statLine(s, zh)}</span>
         </span>
         <span className="block p-5 pb-3">
           <span className="block text-[18px] font-semibold leading-snug tracking-[-0.015em] text-[#16181D] group-hover:text-[#C2410C]">{pick(p.title, zh)}</span>
