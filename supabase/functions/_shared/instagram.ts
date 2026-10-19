@@ -186,7 +186,7 @@ export async function proposeInstagram(force = false, eventId: number | null = n
   if (!(await setting("ig_token"))) return 0;
   // 20:00 Melbourne, with 21:00 as a second chance if the first attempt failed
   if (!force && !["20", "21"].includes(melb({ hour: "numeric", hour12: false }))) return 0;
-  if (!force && (await sql`select 1 from ig_posts where created_at > now() - interval '20 hours' and status not in ('failed', 'preview')`).length) return 0;
+  if (!force && (await sql`select 1 from ig_posts where created_at > now() - interval '20 hours' and (status not in ('failed', 'preview') or error like '%media_publish%')`).length) return 0;
   // Sundays: the week's launches instead of a single story (falls back to the usual post if the week had too few)
   if (!eventId && melb({ weekday: "short" }).startsWith("Sun") && !(await sql`select 1 from ig_posts where kind = 'launches' and created_at > now() - interval '6 days' and status not in ('failed', 'preview')`).length) {
     // a preview made earlier today (step=igpreview, for the owner to look at) goes out as it was shown
@@ -302,7 +302,20 @@ async function api() {
   };
   const status = async (id: string) => (await (await fetch(`${G}/${id}?fields=status_code&access_token=${token}`)).json()).status_code as string | undefined;
   const permalink = async (id: string) => (await (await fetch(`${G}/${id}?fields=permalink&access_token=${token}`)).json()).permalink ?? null;
-  return { token, user, post, status, permalink };
+  // media_publish can answer with an error (e.g. "Application request limit reached") even though the post went live:
+  // before calling it failed, look for a post with the same caption from the last 15 minutes
+  const publish = async (creation: string, caption: string) => {
+    try { return await post(`${user}/media_publish`, { creation_id: creation }); }
+    catch (e) {
+      await new Promise((r) => setTimeout(r, 5000));
+      const j = await (await fetch(`${G}/${user}/media?fields=id,caption,timestamp&limit=5&access_token=${token}`)).json().catch(() => ({}));
+      const head = caption.slice(0, 60);
+      const hit = (j.data ?? []).find((m: { caption?: string; timestamp: string }) => (m.caption ?? "").startsWith(head) && Date.now() - Date.parse(m.timestamp.replace(/\+0000$/, "Z")) < 15 * 60_000);
+      if (hit) { log("instagram: media_publish errored but the post is live", (e as Error).message.slice(0, 120)); return hit.id as string; }
+      throw e;
+    }
+  };
+  return { token, user, post, status, permalink, publish };
 }
 
 async function loadPost(postId: number) {
@@ -331,7 +344,7 @@ async function publishCarousel(p: Post & { caption: string }): Promise<string> {
   await Promise.all(kids.map((k) => waitReady(k, a.token)));
   const box = await a.post(`${a.user}/media`, { media_type: "CAROUSEL", children: kids.join(","), caption: p.caption });
   await waitReady(box, a.token);
-  const media = await a.post(`${a.user}/media_publish`, { creation_id: box });
+  const media = await a.publish(box, p.caption);
   const link = await a.permalink(media);
   await sql`update ig_posts set status = 'posted', format = 'carousel', media_id = ${media}, permalink = ${link}, posted_at = now(), error = null where id = ${p.id}`;
   await postStory(p);
@@ -380,7 +393,7 @@ export async function finishReels(): Promise<number> {
       const st = await a.status(p.container_id!);
       const stale = Date.now() - new Date(p.created_at).getTime() > 45 * 60_000;
       if (st === "FINISHED") {
-        const media = await a.post(`${a.user}/media_publish`, { creation_id: p.container_id! });
+        const media = await a.publish(p.container_id!, p.caption);
         await sql`update ig_posts set status = 'posted', media_id = ${media}, permalink = ${await a.permalink(media)}, posted_at = now(), error = null where id = ${id}`;
         await postStory(p);
         n++;
