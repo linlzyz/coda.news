@@ -1,7 +1,7 @@
 // Instagram (@thecodanews): one post every evening, guaranteed. Usually a news story as a 3-slide carousel; every third
 // day a travel read instead (scenic photo + "what to look for"). If nothing meets the usual bar, the bar drops step by
-// step so a day is never skipped. News days alternate between a carousel and a Reel (the same slides as a 9:16 video,
-// rendered by the site at /api/ig/reel/<id>; Instagram processes it in the background and a later tick publishes it).
+// step so a day is never skipped. News days are carousels only: Reels were dropped on 19 Oct 2026 (Lyn: no point, and
+// rendering them with ffmpeg on Vercel cost money). finishReels stays only to settle any Reel still in flight.
 // Every post is followed by a Story pointing to it. The long-lived token is kept in app_settings and refreshed weekly.
 import { db } from "./db.ts";
 import { env, log } from "./env.ts";
@@ -203,9 +203,8 @@ export async function proposeInstagram(force = false, eventId: number | null = n
   const e = t?.e ?? (eventId ? await pickNews([], 1, 72, eventId) : undefined) ?? (await pickNews(recent, 3, 36)) ?? (await pickNews(recent, 2, 48)) ?? (await pickNews([], 1, 72));
   if (!e) { log("instagram: nothing to post tonight"); return 0; }
   const lead = (e.summary.match(/^.*?[.!?](\s|$)/)?.[0] ?? e.summary).trim();
-  // news days alternate carousel / Reel
-  const [lastNews] = await sql<{ format: string }[]>`select format from ig_posts where kind = 'news' and status = 'posted' order by id desc limit 1`;
-  const format = !t && lastNews?.format === "carousel" ? "reel" : "carousel";
+  // carousels only (no more Reels, Lyn 19 Oct 2026)
+  const format: string = "carousel";
   let caption: string;
   if (t) {
     caption = `${t.copy.title}\n\n${t.copy.dek}\n\nSwipe for what to look for →\nMore travel reads: link in bio\n📷 ${t.credit}${e.lead_source ? `\nVia ${sourceEn(e.lead_source)}` : ""}\n\n#travel #travelinspiration #wanderlust #weekendescape #codanews`;
