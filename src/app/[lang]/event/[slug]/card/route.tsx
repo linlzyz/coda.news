@@ -8,7 +8,7 @@ import { COUNTRY } from "@/lib/ui";
 import { LOGO_DATA_URI } from "@/lib/logo-data";
 import { brandParts } from "@/lib/og-font";
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 const W = 1080, H = 1350;
 
 async function font(family: string, weight: number, text: string) {

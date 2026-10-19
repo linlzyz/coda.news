@@ -1,7 +1,7 @@
 // Google News sitemap: events updated in the last 48 hours.
 import { INDEX_MIN_COUNTRIES, sitemapRows } from "@/lib/data";
 
-export const revalidate = 1800;
+export const revalidate = 3600;
 const esc = (s: string) => s.replace(/[<>&'"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", "'": "&apos;", '"': "&quot;" }[c]!));
 
 export async function GET() {

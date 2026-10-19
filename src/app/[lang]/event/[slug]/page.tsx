@@ -12,7 +12,7 @@ import { Cover } from "@/components/Cover";
 import { ReportError, ShareBar } from "@/components/EventTools";
 import { AnatomyPromo } from "@/components/anatomy/Promo";
 import { shareImages } from "@/lib/share-image";
-export const revalidate = 21600;
+export const revalidate = 86400;
 export async function generateStaticParams() { return []; }
 export const dynamicParams = true;
 

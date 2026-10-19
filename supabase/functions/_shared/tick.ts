@@ -75,13 +75,17 @@ export async function tick(budgetMs = 120_000, opts: { skipIngest?: boolean } = 
   if (left() > 20_000) await step("links", () => checkLinks(25));
   await step("pilots", notifyPilots);
   await step("alerts", checkAlerts);
-  // tell the website which story pages changed in this run, so only those are rebuilt
+  // tell the website which story pages changed, so only those are rebuilt. Once an hour, not every run (Vercel cost,
+  // Lyn 19 Oct 2026: keep the bill within the Pro plan's included credit): the 30 most important stories changed in the
+  // last hour; lists refresh on their own one-hour cache.
   await step("revalidate", async () => {
     const secret = env("REVALIDATE_SECRET"); if (!secret) return 0;
-    const rows = await db()<{ slug: string }[]>`select slug from events where updated_at > ${new Date(t0).toISOString()} and summary is not null order by importance desc limit 100`;
+    if (new Date(t0).getUTCMinutes() >= 5) return "hourly";
+    const since = new Date(t0 - 65 * 60_000).toISOString();
+    const rows = await db()<{ slug: string }[]>`select slug from events where updated_at > ${since} and summary is not null order by importance desc limit 30`;
     if (!rows.length) return 0;
-    // an archived (removed) story must also disappear from the lists straight away
-    const [gone] = await db()<{ n: number }[]>`select count(*)::int as n from events where updated_at > ${new Date(t0).toISOString()} and (hidden or review_note like '自动改分类%')`;
+    // an archived (removed) story must also disappear from the lists
+    const [gone] = await db()<{ n: number }[]>`select count(*)::int as n from events where updated_at > ${since} and (hidden or review_note like '自动改分类%')`;
     const r = await fetch("https://coda.news/api/revalidate", { method: "POST", headers: { "content-type": "application/json", "x-revalidate-secret": secret }, body: JSON.stringify({ events: rows.map((x) => x.slug), sections: gone.n > 0 }), signal: AbortSignal.timeout(10000) });
     return r.ok ? rows.length : `http ${r.status}`;
   });

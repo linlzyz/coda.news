@@ -15,7 +15,7 @@ import { LOGO_DATA_URI, LOGO_WHITE_DATA_URI } from "@/lib/logo-data";
 import { brandParts, gfont } from "@/lib/og-font";
 import { sourceEn } from "../../../../../../supabase/functions/_shared/source-names";
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 const W = 1080, H = 1350, ORANGE = "#EA5514", INK = "#16181D", PAPER = "#F4F3F0";
 // section tag colors for covers
 const SEC: Record<string, [string, string, string]> = {

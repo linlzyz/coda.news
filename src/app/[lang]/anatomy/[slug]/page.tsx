@@ -9,7 +9,7 @@ import { NewsItem } from "@/components/NewsItem";
 import { PROFILES, getProfile, money, photoPage, photoSrcSet, photoUrl, pick, type Figure, type Photo, type Profile, type Source } from "@/lib/anatomy";
 import { CapChart, Chiplet, CountUp, Deals, LicenceModel, PriceTags, RangeBars, RevenueBars, SplitBars, TimelineRow, VsIntel } from "@/components/anatomy/Charts";
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 export function generateStaticParams() { return PROFILES.map((p) => ({ slug: p.slug })); }
 export const dynamicParams = false;
 

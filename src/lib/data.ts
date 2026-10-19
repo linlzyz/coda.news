@@ -7,9 +7,9 @@ const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env
   auth: { persistSession: false },
 });
 
-// Story data is cached per story for 6 hours. When the pipeline changes a story it refreshes only that story's
+// Story data is cached per story for a day. When the pipeline changes a story it refreshes only that story's
 // tags (ev-<id>, evs-<slug>) through /api/revalidate, so a change never forces every other story page to refetch.
-const EV_TTL = 21600;
+const EV_TTL = 86400;
 function perStory<A extends unknown[], R>(fn: (...a: A) => Promise<R>, name: string, tags: (...a: A) => string[], revalidate = EV_TTL) {
   return (...a: A) => unstable_cache(fn, [name], { revalidate, tags: ["ev", ...tags(...a)].slice(0, 120) })(...a);
 }
@@ -226,7 +226,7 @@ async function _differences(eventIds: number[]) {
   }
   return out;
 }
-export const differences = unstable_cache(_differences, ["differences"], { revalidate: 1800, tags: ["list"] });
+export const differences = unstable_cache(_differences, ["differences"], { revalidate: 3600, tags: ["list"] });
 
 // Cached reads: shared across requests for 60s, so switching language or pages does not wait for the database.
 /** Safety net: a picture appears once per list; later stories with the same picture fall back to no picture (usually a missed duplicate). */
@@ -248,7 +248,7 @@ async function _officialPicks() {
     .not("summary", "is", null).gte("last_article_at", new Date(Date.now() - 36 * 3600_000).toISOString()).order("importance", { ascending: false }).limit(60));
   return (data ?? []) as EventRow[];
 }
-export const officialPicks = unstable_cache(_officialPicks, ["officialPicks"], { revalidate: 1800, tags: ["list"] });
+export const officialPicks = unstable_cache(_officialPicks, ["officialPicks"], { revalidate: 3600, tags: ["list"] });
 /** New products for the home "New launches" row: launches and reveals of things you can buy, with a real picture (no logos, no stock). */
 const LAUNCH = /\b(launch(es|ed)?|unveil(s|ed)?|reveal(s|ed)?|debut(s|ed)?|introduc(es|ed)|releases?|released|arrives?|goes on sale|premier(es|ed)|presents?)\b|发布|上市|推出|亮相|首发|开售/i;
 const NOT_PRODUCT = /\b(leak(s|ed)?|rumou?rs?|report(s|ed)?|teases?|teaser|requirements|benchmark|campaign|licen[cs]e|share|record|details|states|says|pricing|price cut|recall|delay(s|ed)?|app|apps|service|platform|update|version|beta|feature|features|preview|developer|open-source|crowdfunding|translation|model|models|architecture|trial|pilot|partnership|plans?|investment)\b|泄露|爆料|传闻|曝光|预告|招募/i;
@@ -262,21 +262,21 @@ async function _newProducts() {
   rows.sort((a, b) => (b.countries.length - a.countries.length) || (b.source_count - a.source_count) || (Date.parse(b.last_article_at) - Date.parse(a.last_article_at)));
   return oneUsePerImage(rows).slice(0, 10);
 }
-export const newProducts = unstable_cache(_newProducts, ["newProducts"], { revalidate: 900, tags: ["list"] });
+export const newProducts = unstable_cache(_newProducts, ["newProducts"], { revalidate: 3600, tags: ["list"] });
 export const pinnedEvents = unstable_cache(_pinnedEvents, ["pinnedEvents"], { revalidate: 3600, tags: ["list"] });
-export const listEvents = unstable_cache(_listEvents, ["listEvents3"], { revalidate: 300, tags: ["list"] });
+export const listEvents = unstable_cache(_listEvents, ["listEvents3"], { revalidate: 3600, tags: ["list"] });
 export const getEvent = perStory(_getEvent, "getEvent", (slug) => [`evs-${slug}`]);
 export const getLatestSummary = perStory(_getLatestSummary, "getLatestSummary", (id) => [`ev-${id}`]);
 export const getFacts = perStory(_getFacts, "getFacts", (id) => [`ev-${id}`]);
 export const getArticles = perStory(_getArticles, "getArticles", (id) => [`ev-${id}`]);
-export const latestUpdates = unstable_cache(_latestUpdates, ["latestUpdates"], { revalidate: 600 });
+export const latestUpdates = unstable_cache(_latestUpdates, ["latestUpdates"], { revalidate: 3600 });
 export const allTopics = unstable_cache(_allTopics, ["allTopics"], { revalidate: 3600 });
 export const companiesByIds = unstable_cache(_companiesByIds, ["companiesByIds2"], { revalidate: 3600 });
 export const getCompany = unstable_cache(_getCompany, ["getCompany2"], { revalidate: 86400 });
 export const getTopic = unstable_cache(_getTopic, ["getTopic"], { revalidate: 86400 });
 export const stats = unstable_cache(_stats, ["stats"], { revalidate: 3600 });
 export const trendingCompanies = unstable_cache(_trendingCompanies, ["trendingCompanies"], { revalidate: 3600 });
-export const searchEvents = unstable_cache(_searchEvents, ["searchEvents"], { revalidate: 900 });
+export const searchEvents = unstable_cache(_searchEvents, ["searchEvents"], { revalidate: 3600 });
 
 export async function reportError(eventId: number, kind: string, note: string, lang: string) {
   await supabase.from("feedback").insert({ event_id: eventId, kind: kind.slice(0, 20), note: note.slice(0, 1500) || null, lang });
@@ -318,7 +318,7 @@ async function _eventCorrections(eventId: number) {
   const { data } = must(await supabase.from("corrections").select("id,event_slug,event_title,kind,detail_en,detail_zh,created_at").eq("event_id", eventId).neq("kind", "verified").order("created_at", { ascending: false }).limit(20));
   return (data ?? []) as Correction[];
 }
-export const listCorrections = unstable_cache(_listCorrections, ["listCorrections"], { revalidate: 1800 });
+export const listCorrections = unstable_cache(_listCorrections, ["listCorrections"], { revalidate: 3600 });
 export const eventCorrections = perStory(_eventCorrections, "eventCorrections", (id) => [`ev-${id}`]);
 
 // ---- archive by day (Melbourne time) ----
