@@ -63,7 +63,7 @@ export default async function Page({ params }: PageProps<"/[lang]/company/[slug]
   const c = await getCompany(p.slug);
   if (!c) { const to = await companyRedirect(p.slug); if (to) permanentRedirect(`${p.lang === "zh" ? "/zh" : ""}/company/${to}`); notFound(); }
   const l = await langFrom(params); const zh = l === "zh";
-  const [events, dir, topics] = await Promise.all([listEvents({ companyId: c.id, order: "recent", limit: 60 }), companyDirectory(), allTopics()]);
+  const [events, dir, topics] = await Promise.all([listEvents({ companyId: c.id, order: "recent", limit: 40 }), companyDirectory(), allTopics()]);
   const companies = await companyMap(events);
   const tm = new Map(topics.map((x) => [x.id, x]));
   const cname = (x: string) => regionName(x, zh);

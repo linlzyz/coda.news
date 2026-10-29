@@ -32,7 +32,7 @@ export const revalidate = 10800;
 export default async function Home({ params }: PageProps<"/[lang]">) {
   const CATS = ["economy", "technology", "sport", "entertainment", "fashion", "automotive", "gaming"] as const;
   const [events, pinnedList, official, topics, trending, cq, fq, ...byCat] = await Promise.all([
-    listEvents({ limit: 60, sinceHours: 72 }), pinnedEvents(), officialPicks(), allTopics(), trendingCompanies(10), crypto(), fx(),
+    listEvents({ limit: 40, sinceHours: 72 }), pinnedEvents(), officialPicks(), allTopics(), trendingCompanies(10), crypto(), fx(),
     // each tab gets its own list, same as its section page (the main list is dominated by the biggest economy/tech stories)
     ...CATS.map((c) => listEvents({ category: c, limit: 6 })),   // only for the picks (magazine reads)
   ]);

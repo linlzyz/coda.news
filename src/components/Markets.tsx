@@ -1,10 +1,9 @@
 "use client";
 import { useState } from "react";
 import type { Quote } from "@/lib/markets";
-import { AU, US, CN, EU, JP, GB, KR, HK, SG, IN, CA } from "country-flag-icons/react/3x2";
 const CRYPTO = new Set(["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE"]);
 
-const FLAGS: Record<string, typeof AU> = { AU, US, CN, EU, JP, GB, KR, HK, SG, IN, CA };
+const FLAGS = new Set(["AU", "US", "CN", "EU", "JP", "GB", "KR", "HK", "SG", "IN", "CA"]);
 const CUR: Record<string, string> = { AUD: "AU", USD: "US", CNY: "CN", EUR: "EU", JPY: "JP", GBP: "GB", KRW: "KR", HKD: "HK", SGD: "SG", INR: "IN", CAD: "CA" };
 // what each index or rate is, in one line
 const INFO: Record<string, { c?: string; en: string; zh: string }> = {
@@ -44,8 +43,9 @@ function flagsOf(name: string): string[] {
   return INFO[name]?.c ? [INFO[name].c!] : [];
 }
 function Flg({ c }: { c: string }) {
-  const F = FLAGS[c]; if (!F) return null;
-  return <F style={{ width: 12, height: 8, borderRadius: 1.5, boxShadow: "0 0 0 1px rgba(22,24,29,.12)" }} aria-hidden="true" className="inline-block shrink-0" />;
+  if (!FLAGS.has(c)) return null;
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={`/flags/${c}.svg`} width={12} height={8} alt="" aria-hidden="true" style={{ width: 12, height: 8, borderRadius: 1.5, boxShadow: "0 0 0 1px rgba(22,24,29,.12)" }} className="inline-block shrink-0" />;
 }
 
 function Spark({ s, up }: { s: number[]; up: boolean }) {

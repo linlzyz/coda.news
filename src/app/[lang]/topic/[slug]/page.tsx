@@ -20,5 +20,5 @@ export default async function Page({ params }: PageProps<"/[lang]/topic/[slug]">
     <h1 className="text-[36px] font-semibold tracking-[-0.03em]">{name}</h1>
     <div className="mt-4"><FollowBox name={name} lang={l} topicId={t.id} /></div>
   </header>);
-  return <EventList lang={l} title={name} header={header} events={await listEvents({ topicId: t.id, limit: 60 })} />;
+  return <EventList lang={l} title={name} header={header} events={await listEvents({ topicId: t.id, limit: 40 })} />;
 }

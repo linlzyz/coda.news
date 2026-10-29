@@ -9,5 +9,5 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 }
 export default async function Page({ params }: { params: Promise<{ lang: string }> }) {
   const l = await langFrom(params);
-  return <EventList lang={l} title={t(l, "automotive")} intro={t(l, "automotiveIntro")} events={await listEvents({ category: "automotive", limit: 60 })} />;
+  return <EventList lang={l} title={t(l, "automotive")} intro={t(l, "automotiveIntro")} events={await listEvents({ category: "automotive", limit: 40 })} />;
 }
