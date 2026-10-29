@@ -2,7 +2,8 @@ import Link from "@/components/LLink";
 import { allTopics } from "@/lib/data";
 import { Icon } from "@/components/Icons";
 import { langFrom, t, TOPIC_ZH } from "@/lib/i18n";
-export const revalidate = 3600;
+// Vercel cost (Lyn, 29 Oct 2026): section lists rebuild every 6 hours
+export const revalidate = 21600;
 export const metadata = { title: "Topics" };
 export default async function Page({ params }: { params: Promise<{ lang: string }> }) {
   const [topics, l] = await Promise.all([allTopics(), langFrom(params)]);

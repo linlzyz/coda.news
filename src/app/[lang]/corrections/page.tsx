@@ -1,7 +1,8 @@
 import { correctionStats, listCorrections } from "@/lib/data";
 import { alternates, langFrom } from "@/lib/i18n";
 import Link from "@/components/LLink";
-export const revalidate = 3600;
+// Vercel cost (29 Oct 2026): rarely changes
+export const revalidate = 86400;
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const l = await langFrom(params);

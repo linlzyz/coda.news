@@ -7,7 +7,8 @@ import { SearchBox } from "@/components/SearchBox";
 import { CompanyLogo } from "@/components/companies/Logo";
 import { Directory } from "@/components/companies/Directory";
 import { SECTORS, SectorIcon, sectorLabel } from "@/components/companies/sectors";
-export const revalidate = 3600;
+// Vercel cost (Lyn, 29 Oct 2026): section lists rebuild every 6 hours
+export const revalidate = 21600;
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const l = await langFrom(params);

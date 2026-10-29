@@ -26,7 +26,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   return { alternates: alternates("/", l), ...(l === "zh" ? { title: "coda.news · 一件事，每一种视角", description: "科技与经济大事，以及世界各国媒体如何报道。" } : {}) };
 }
 
-export const revalidate = 3600;
+// Vercel cost (Lyn, 29 Oct 2026): home rebuilds every 3 hours
+export const revalidate = 10800;
 
 export default async function Home({ params }: PageProps<"/[lang]">) {
   const CATS = ["economy", "technology", "sport", "entertainment", "fashion", "automotive", "gaming"] as const;

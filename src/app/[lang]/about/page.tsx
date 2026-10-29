@@ -1,7 +1,8 @@
 import { langFrom } from "@/lib/i18n";
 import { allSources } from "@/lib/data";
 import { SITE, orgLd } from "@/lib/site";
-export const revalidate = 3600;
+// Vercel cost (29 Oct 2026): rarely changes
+export const revalidate = 86400;
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const l = await langFrom(params);
