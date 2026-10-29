@@ -1269,7 +1269,7 @@ const TSMC: Profile = {
     zh: "只替别人造、不和客户抢生意，这个模式怎么赢过了自建工厂的芯片公司，对手又为什么难以复制",
   },
   social: { en: "The factory behind everyone's chips", zh: "替所有人造芯片的工厂" },
-  igHook: { en: "Apple, Nvidia and AMD\nall go through one company", zh: "苹果、英伟达和 AMD，\n都绕不开它" },
+  igHook: { en: "Apple, Nvidia and AMD\nall go through one company", zh: "苹果、英伟达、AMD\n都绕不开它" },
   seoTitle: { en: "How TSMC Works: The Foundry Model, 72% Market Share and Why Rivals Struggle to Copy It", zh: "台积电是做什么的：晶圆代工模式、七成市场份额与对手难以复制的原因" },
   seoDesc: {
     en: "TSMC makes chips for Apple, Nvidia, AMD and more than 500 other customers but sells none of its own. the pure-play foundry Morris Chang founded in 1987, the promise never to compete with customers, 7nm and 2nm, CoWoS packaging, Arizona, its 72.5% foundry share and record third quarter of 2026, with every number sourced.",
@@ -1596,7 +1596,7 @@ const TSMC: Profile = {
     },
     countries: {
       kicker: { en: "ONE QUARTER, MANY COUNTRIES", zh: "同一份财报，多个国家" },
-      title: { en: "How outlets wrote about TSMC, 8 to 29 October", zh: "10 月 8 日至 29 日，各国媒体怎么写台积电" },
+      title: { en: "How outlets told it, 8 to 29 Oct", zh: "10 月 8 日至 29 日，各国媒体怎么写台积电" },
       rows: [
         { flags: ["cn"], name: { en: "China", zh: "中国" }, t: { en: "The most detail: profit to the digit, 2nm capacity, rivals, and Jensen Huang's story of Morris Chang's call.", zh: "最细：精确的利润、2 纳米产能、对手比较，还有黄仁勋讲的张忠谋那通电话。" } },
         { flags: ["de"], name: { en: "Germany", zh: "德国" }, t: { en: "A surprising profit jump, and a cautious look ahead.", zh: "出人意料的利润跳升，以及谨慎的前景。" } },

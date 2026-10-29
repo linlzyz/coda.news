@@ -190,7 +190,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
         {kicker(P(c.kicker))}
         <div style={{ display: "flex", marginTop: 18, fontSize: 30, color: "#3F434A", lineHeight: 1.35 }}>{P(c.sub)}</div>
         <div style={{ display: "flex", marginTop: 22, fontSize: 24, color: MUTED }}>
-          <div style={{ display: "flex", alignItems: "center", marginRight: 34 }}><div style={{ width: 26, height: 14, background: "#A3A8B0", marginRight: 10, display: "flex" }} />{c2.legend ? P(c2.legend[0]) : T("Deal price", "交易价格")}</div>
+          {c2.rows.some((r) => r.kind === "deal") && <div style={{ display: "flex", alignItems: "center", marginRight: 34 }}><div style={{ width: 26, height: 14, background: "#A3A8B0", marginRight: 10, display: "flex" }} />{c2.legend ? P(c2.legend[0]) : T("Deal price", "交易价格")}</div>}
           <div style={{ display: "flex", alignItems: "center" }}><div style={{ width: 26, height: 14, background: ORANGE, marginRight: 10, display: "flex" }} />{c2.legend ? P(c2.legend[1]) : T("Market value", "市值")}</div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", marginTop: 34, flexGrow: 1, justifyContent: "space-around" }}>
@@ -198,7 +198,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
             <div key={i} style={{ display: "flex", flexDirection: "column" }}>
               <div style={{ display: "flex", fontSize: 26, color: "#3F434A" }}>{P(r.label)}</div>
               <div style={{ display: "flex", alignItems: "center", marginTop: 8 }}>
-                <div style={{ display: "flex", height: 44, width: Math.max(12, (r.v / max) * 700), background: r.kind === "deal" ? "#A3A8B0" : ORANGE, borderRadius: "0 8px 8px 0" }} />
+                <div style={{ display: "flex", height: 44, width: Math.max(12, (r.v / max) * (zh ? 600 : 700)), background: r.kind === "deal" ? "#A3A8B0" : ORANGE, borderRadius: "0 8px 8px 0" }} />
                 <div style={{ display: "flex", marginLeft: 16, fontSize: 36, fontWeight: 900, color: INK }}>{tagVal(r.v, zh, c2.unit)}</div>
               </div>
             </div>

@@ -56,7 +56,7 @@ export function CountUp({ from, to, unit, zh, suffix }: { from: number; to: numb
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
   }, [on, from, to, unit]);
-  return <span ref={ref} className="tabular-nums">{unit === "pct" ? `${to < 10 ? v.toFixed(1) : Math.round(v)}%` : unit === "n" ? `${count(v, zh)}${suffix ?? ""}` : money(v, zh)}</span>;
+  return <span ref={ref} className="tabular-nums">{unit === "pct" ? `${to < 10 || !Number.isInteger(to) ? v.toFixed(1) : Math.round(v)}%` : unit === "n" ? `${count(v, zh)}${suffix ?? ""}` : money(v, zh)}</span>;
 }
 
 /* ---------- shared line-chart geometry ---------- */
