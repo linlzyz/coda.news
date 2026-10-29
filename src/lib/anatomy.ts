@@ -47,7 +47,7 @@ export type Profile = {
   /** stacked yearly bars: part a + part b = total; rows without a split show the total only */
   split?: { title: L; note: L; a: L; b: L; rows: { label: string; total: number; a?: number; b?: number }[] };
   /** ranges in percent, e.g. royalty rates */
-  royalty?: { title: L; note: L; rows: { label: L; lo: number; hi: number; sub: L; approx?: boolean }[] };
+  royalty?: { title: L; note: L; col?: L; rows: { label: L; lo: number; hi: number; sub: L; approx?: boolean }[] };
   ig: IgSlides;
 };
 
@@ -1261,7 +1261,354 @@ const WILSON: Profile = {
   },
 };
 
-export const PROFILES: Profile[] = [AMD, WORLD_LABS, ARM, WILSON];
+const TSMC: Profile = {
+  slug: "tsmc", no: 5, companyId: 1880, companySlug: "tsmc",
+  title: { en: "TSMC: The Factory Behind Everyone's Chips", zh: "台积电：芯片世界的幕后工厂" },
+  dek: {
+    en: "It only makes chips for other companies and never sells its own, so it never competes with a customer. How that model beat the chipmakers that built their own factories, and why rivals find it so hard to copy.",
+    zh: "只替别人造、不和客户抢生意，这个模式怎么赢过了自建工厂的芯片公司，对手又为什么难以复制",
+  },
+  social: { en: "The factory behind everyone's chips", zh: "替所有人造芯片的工厂" },
+  igHook: { en: "Apple, Nvidia and AMD\nall go through one company", zh: "苹果、英伟达和 AMD，\n都绕不开它" },
+  seoTitle: { en: "How TSMC Works: The Foundry Model, 72% Market Share and Why Rivals Struggle to Copy It", zh: "台积电是做什么的：晶圆代工模式、七成市场份额与对手难以复制的原因" },
+  seoDesc: {
+    en: "TSMC makes chips for Apple, Nvidia, AMD and more than 500 other customers but sells none of its own. the pure-play foundry Morris Chang founded in 1987, the promise never to compete with customers, 7nm and 2nm, CoWoS packaging, Arizona, its 72.5% foundry share and record third quarter of 2026, with every number sourced.",
+    zh: "台积电为苹果、英伟达、AMD 等 500 多家客户造芯片，自己却不卖一颗芯片。张忠谋 1987 年的专业代工构想、不与客户竞争的承诺、7 纳米与 2 纳米、CoWoS 先进封装、美国亚利桑那工厂、72.5% 的代工市场份额，以及 2026 年第三季度创纪录的业绩，每个数字附来源。",
+  },
+  keywords: ["TSMC", "台积电", "台積電", "Taiwan Semiconductor", "foundry", "晶圆代工", "pure-play foundry", "专业代工", "Morris Chang", "张忠谋", "C.C. Wei", "魏哲家", "TSMC market share", "台积电市场份额", "CoWoS", "2nm", "N2", "TSMC Arizona", "台积电 Q3 2026", "TSMC Q3 2026 earnings"],
+  published: "2026-10-29", updated: "2026-10-29",
+  cover: { file: "Building of Taiwan Semiconductor Manufacturing Fab 12B at dusk2.jpg", credit: "曾成訓 (Tseng Cheng-hsun)", license: "CC BY 2.0",
+    caption: { en: "TSMC's Fab 12B in Hsinchu at dusk, July 2015.", zh: "黄昏时的台积电新竹 12B 厂，摄于 2015 年 7 月。" },
+    alt: { en: "Glass office and factory building beside a road with light trails at dusk", zh: "黄昏中的玻璃幕墙厂房大楼，路上是车灯光轨" } },
+  lede: [
+    {
+      en: "In the late 1990s Jensen Huang, the co-founder of Nvidia, kept phoning TSMC's US office. \"Nobody called me. Nobody called me back,\" he said in a podcast interview this month. After he wrote a long letter, a call came one evening: \"This is Morris Chang from TSMC\" [[19]][[20]]. Nvidia was then a small start-up. In 2025 TSMC's largest customer accounted for 19% of its revenue and the second largest for 17%; TSMC does not name them [[16]].",
+      zh: "1990 年代末，英伟达联合创始人黄仁勋一次次给台积电的美国办公室打电话。\"没人给我打电话，也没人给我回电，\"他在本月的一次播客访谈里回忆。后来他写了一封长信，某天晚上电话响了：\"我是台积电的张忠谋\" [[19]][[20]]。那时英伟达还是一家小公司。2025 年，台积电最大的客户贡献了它 19% 的营收，第二大客户贡献 17%；台积电没有公布它们的名字 [[16]]。",
+    },
+    {
+      en: "On 15 October 2026 TSMC reported its third quarter: revenue of $46.72 billion, up 41.2% on a year earlier, and net income up 68.7% [[3]]. In the second quarter it took 72.5% of all foundry revenue worldwide, by TrendForce's estimate; Samsung, in second place, took 5.9% [[6]]. On 27 October it was worth about $2.27 trillion [[5]]. Yet TSMC has never sold a chip under its own name [[1]][[10]]. Why is a company that only makes other people's designs so hard to catch?",
+      zh: "2026 年 10 月 15 日，台积电公布第三季度业绩：营收 467.2 亿美元，同比增长 41.2%，净利润增长 68.7% [[3]]。据 TrendForce 估算，第二季度全球晶圆代工收入的 72.5% 归台积电；排第二的三星只占 5.9% [[6]]。10 月 27 日，台积电市值约 2.27 万亿美元 [[5]]。可它从来没有用自己的品牌卖过一颗芯片 [[1]][[10]]。一家只替别人生产的公司，为什么别人追不上？",
+    },
+  ],
+  sections: [
+    {
+      id: "start", h: { en: "Start here: what a foundry does", zh: "先看懂：代工厂是做什么的" },
+      paras: [
+        {
+          en: "Making a chip has two halves. Designing it means drawing billions of tiny switches, transistors, and the wiring between them. Manufacturing it means printing that drawing onto discs of silicon called wafers, layer by layer, in a factory known as a fab. For decades the big chipmakers, such as Intel and Texas Instruments, did both.",
+          zh: "做一颗芯片分两半。设计，是画出几十亿个叫晶体管的微小开关和它们之间的连线；制造，是在叫\"晶圆\"的硅片上一层一层把这张图\"印\"出来，地点是叫晶圆厂的工厂。几十年里，英特尔、德州仪器这样的大芯片公司两样都做。",
+        },
+        {
+          en: "A foundry does only the second half. Think of a printing works that prints books for many publishers but never publishes a book of its own. The publishers, here chip companies such as Nvidia, Apple's chip team or AMD, are called \"fabless\" because they own no fab. In 2025 TSMC made 12,682 different products for 534 customers, using 305 manufacturing processes [[1]].",
+          zh: "代工厂只做后一半。可以把它想成一家印刷厂：替许多出版社印书，自己却从不出书。这些\"出版社\"，也就是英伟达、苹果的芯片团队、AMD 这样的芯片公司，没有自己的晶圆厂，所以叫\"无晶圆厂\"（fabless）公司。2025 年，台积电用 305 种制造工艺，为 534 家客户生产了 12682 种产品 [[1]]。",
+        },
+      ],
+    },
+    {
+      id: "origin", h: { en: "An idea nobody wanted to fund", zh: "一个没人愿意投钱的主意" },
+      photo: { file: "Morris Chang 2018-11-12.jpg", credit: "Mori / Office of the President", license: "CC BY 2.0",
+        caption: { en: "Morris Chang, TSMC's founder, speaking in Taipei on 12 November 2018, five months after he retired.", zh: "台积电创始人张忠谋，2018 年 11 月 12 日在台北发言，那时他已退休五个月。" },
+        alt: { en: "Morris Chang in a dark suit speaking into a microphone", zh: "身穿深色西装、手持话筒发言的张忠谋" } },
+      paras: [
+        {
+          en: "Morris Chang spent 25 years at Texas Instruments, from 1958 to 1983, rising to run its worldwide semiconductor business. In the mid-1980s he was recruited to lead the Industrial Technology Research Institute (ITRI) in Taiwan [[7]]. His proposal was a factory that would make chips for anyone and design none of its own. According to Caixin, Intel, Texas Instruments and Motorola all turned down his 1985 invitation to invest [[9]]. \"Nobody even wanted to invest in us,\" Chang said in 2007 [[8]].",
+          zh: "张忠谋在德州仪器工作了 25 年（1958 年至 1983 年），一路做到主管全球半导体业务。1980 年代中期，他受邀到台湾主持工业技术研究院（工研院）[[7]]。他提出的构想是：建一座只替别人生产、自己不设计芯片的工厂。据财新报道，英特尔、德州仪器和摩托罗拉都拒绝了他 1985 年的投资邀请 [[9]]。\"根本没人想投资我们，\"张忠谋 2007 年说 [[8]]。",
+        },
+        {
+          en: "The money came from elsewhere. A development fund of Taiwan's government put in 48.3% of the starting capital and the Dutch electronics company Philips 27.6% [[9]]. Philips, Chang said, \"weren't sure that it would work\" but were willing to let him try [[8]]. TSMC was founded in 1987 [[1]]. It called itself the world's first pure foundry [[10]].",
+          zh: "钱最后来自别处：台湾方面的一个发展基金出了 48.3% 的启动资金，荷兰电子公司飞利浦出了 27.6% [[9]]。张忠谋说，飞利浦\"不确定这能不能成\"，但愿意投点钱让他试试 [[8]]。1987 年，台积电成立 [[1]]，自称全球第一家专业集成电路代工厂 [[10]]。",
+        },
+      ],
+    },
+    {
+      id: "partner", h: { en: "Decision one: never compete with a customer", zh: "决定一：永远不和客户竞争" }, figure: "pricetags2",
+      paras: [
+        {
+          en: "Other chipmakers already took outside orders, but only to fill spare capacity in factories built for their own products. A customer handing them a design was handing it to a competitor. TSMC's charter ruled out brand-name chips of its own; as its 1998 annual report put it, TSMC \"is a partner, not a competitor\" of other chip companies [[10]]. \"We're in the foundry business. Those other companies are not in the foundry business,\" Chang said [[8]].",
+          zh: "当时别的芯片公司也接外单，但只是为了填满自家工厂的空闲产能，而这些工厂本是为它们自己的产品建的。客户把设计交给它们，等于交给了竞争对手。台积电的章程排除了自有品牌芯片，1998 年年报写道：台积电是其他芯片公司的\"伙伴，而不是竞争者\" [[10]]。\"我们做的是代工生意，那些公司做的不是，\"张忠谋说 [[8]]。",
+        },
+        {
+          en: "Trust brought orders. In 1988 Intel gave TSMC the manufacturing of a microcontroller, a turning point in Caixin's account [[9]]. From the early 1990s a wave of fabless start-ups needed exactly what TSMC sold: \"those fabless companies really accelerated our growth,\" Chang said [[8]]. Revenue went from about $70 million in 1990 to $1.1 billion in 1995 [[9]]. In 2025 it was $122.4 billion [[15]].",
+          zh: "信任带来了订单。1988 年，英特尔把一款微控制器交给台积电生产，财新称之为转折点 [[9]]。1990 年代初起，一批无晶圆厂的初创公司冒了出来，它们需要的正是台积电卖的东西。\"这些无晶圆厂公司大大加快了我们的增长，\"张忠谋说 [[8]]。台积电营收从 1990 年的约 7000 万美元，增长到 1995 年的 11 亿美元 [[9]]，2025 年达到 1224 亿美元 [[15]]。",
+        },
+      ],
+    },
+    {
+      id: "lead", h: { en: "Decision two: get to the newest process first", zh: "决定二：抢先做出最新一代工艺" },
+      photo: { file: "TSMC Global R＆D Center.jpg", credit: "曾成訓 (Tseng Cheng-hsun)", license: "CC BY 2.0",
+        caption: { en: "TSMC's Global R&D Center in Hsinchu, August 2023.", zh: "台积电位于新竹的全球研发中心，摄于 2023 年 8 月。" },
+        alt: { en: "Long low white building behind a park at dusk", zh: "暮色中公园后方的白色长条形建筑" } },
+      paras: [
+        {
+          en: "A foundry that is a generation behind can only compete on price. In June 2009, after the financial crisis had hit chipmakers, Chang came back as chief executive [[11]]. Five years later TSMC was making about 60% of the A8 processors in Apple's iPhone 6, according to an IHS teardown cited by 9to5Mac, with Samsung making the rest [[13]].",
+          zh: "落后一代的代工厂，只能拼价格。2009 年 6 月，金融危机冲击过后，张忠谋重新出任 CEO [[11]]。五年后，据 9to5Mac 引用的 IHS 拆解分析，苹果 iPhone 6 的 A8 处理器约 60% 由台积电生产，其余由三星生产 [[13]]。",
+        },
+        {
+          en: "TSMC began producing 7-nanometre chips in April 2018, and with that generation became the first company to bring EUV, a difficult new way of printing the finest patterns with extreme ultraviolet light, into commercial production [[14]]. Chang retired that June, handing over to Mark Liu as chairman and C.C. Wei as chief executive [[12]]. Its 2-nanometre process entered high-volume production in the fourth quarter of 2025 [[4]]. In the third quarter of 2026, 79% of TSMC's wafer revenue came from 7 nanometres and below [[2]].",
+          zh: "2018 年 4 月，台积电开始生产 7 纳米芯片，并在这一代工艺上率先把 EUV（用极紫外光印出最精细图案的一种难度很高的新技术）带入商业生产 [[14]]。同年 6 月，张忠谋退休，由刘德音任董事长、魏哲家任 CEO [[12]]。台积电的 2 纳米工艺于 2025 年第四季度进入大规模量产 [[4]]。2026 年第三季度，台积电晶圆收入的 79% 来自 7 纳米及更先进的工艺 [[2]]。",
+        },
+      ],
+    },
+    {
+      id: "package", h: { en: "Decision three: package the chips, and build near customers", zh: "决定三：连封装一起做，把工厂建到客户身边" },
+      photo: { file: "231105-1 TSMC Fab 21 construction.jpg", credit: "Hunter Trick", license: "CC BY-SA 4.0",
+        caption: { en: "TSMC's Fab 21 under construction in Phoenix, Arizona, November 2023.", zh: "建设中的台积电美国亚利桑那州凤凰城 21 厂，摄于 2023 年 11 月。" },
+        alt: { en: "Aerial view of large factory buildings and cranes in the desert", zh: "沙漠中大型厂房和塔吊的航拍" } },
+      paras: [
+        {
+          en: "AI processors are too big to be a single piece of silicon, so several chips are mounted side by side on one base and wired together. TSMC sells this step too, under the name CoWoS. On the October earnings call C.C. Wei said CoWoS \"is still the number one choice for our customer\" [[4]]. Reports this week say TSMC plans to raise advanced-packaging prices by up to 20% because demand exceeds capacity; TSMC has not confirmed this [[22]].",
+          zh: "AI 处理器太大，做不进一整块硅片，只能把几颗芯片并排装在同一块底板上再连起来。台积电把这一步也一起卖，名字叫 CoWoS。在 10 月的业绩电话会上，魏哲家说 CoWoS \"仍是客户的首选\" [[4]]。本周有报道称，由于需求超过产能，台积电计划把先进封装价格最多上调 20%；台积电没有证实 [[22]]。",
+        },
+        {
+          en: "It is also building where its customers are. TSMC's first fab in Arizona went into volume production in the fourth quarter of 2024; in March 2025 TSMC raised its planned US investment to $165 billion, for six fabs, two packaging plants and a research centre [[17]]. The second Arizona fab is due to start volume production in the third quarter of 2027, and a second fab in Japan is to make 3-nanometre chips from 2028 [[4]].",
+          zh: "它也把工厂建到客户身边。台积电在亚利桑那的第一座晶圆厂于 2024 年第四季度投入量产；2025 年 3 月，台积电把在美国的计划投资提高到 1650 亿美元，用于六座晶圆厂、两座封装厂和一个研发中心 [[17]]。亚利桑那第二座晶圆厂预计 2027 年第三季度量产，日本第二座晶圆厂计划从 2028 年起生产 3 纳米芯片 [[4]]。",
+        },
+      ],
+    },
+    {
+      id: "moat", h: { en: "Why rivals cannot simply copy it", zh: "为什么对手学不来" }, figure: "royalty",
+      paras: [
+        {
+          en: "The model itself is no secret. Samsung and Intel both make chips for other companies. In our view three things keep TSMC ahead, and they reinforce each other. The first is trust: both Samsung and Intel also sell chips of their own, while TSMC's customers know it will never compete with them [[10]].",
+          zh: "这套模式本身不是秘密，三星和英特尔都在替别人造芯片。我们认为，让台积电保持领先的有三样东西，而且彼此加强。第一是信任：三星和英特尔自己也卖芯片，而台积电的客户知道它永远不会和自己竞争 [[10]]。",
+        },
+        {
+          en: "The second is learning from volume. Every chip a fab makes teaches it how to waste fewer wafers. In April TrendForce, citing a Korean newspaper, reported Samsung's 2-nanometre yield, the share of usable chips, in the mid-50% range and TSMC's at 60% to 70%; the figures are unconfirmed [[18]]. In 2025 TSMC's factories could turn out more than 17 million wafers of the standard 12-inch size [[1]]. Intel's chief technology officer said this month that Intel's process technology is now only a few percentage points behind TSMC's, but that catching up on capacity will take time [[21]].",
+          zh: "第二是从产量里学习。晶圆厂每多生产一批芯片，就多学会一点怎么少浪费晶圆。今年 4 月，TrendForce 援引韩国报纸报道，三星 2 纳米的良率（可用芯片的比例）在 55% 上下，台积电约 60% 至 70%；这些数字未经证实 [[18]]。2025 年，台积电的工厂年产能超过 1700 万片 12 英寸标准晶圆 [[1]]。英特尔首席技术官本月表示，英特尔的制程技术与台积电只差几个百分点，但产能追赶仍需时间 [[21]]。",
+        },
+        {
+          en: "The third is money, which the first two produce. From 2001 to 2009 TSMC spent $2 billion to $2.5 billion a year on new plant and equipment [[9]]. For 2026 its budget is $60 billion to $64 billion [[4]]. Samsung's foundry business had revenue of $3.26 billion in the second quarter [[6]].",
+          zh: "第三是钱，而钱来自前两样。2001 年到 2009 年，台积电每年的资本开支在 20 亿到 25 亿美元之间 [[9]]；2026 年的预算是 600 亿到 640 亿美元 [[4]]。作为对比，三星代工业务第二季度的营收是 32.6 亿美元 [[6]]。",
+        },
+      ],
+    },
+    {
+      id: "value", h: { en: "What the market pays for it", zh: "市场给它开的价" }, figure: "pricetags",
+      paras: [
+        {
+          en: "TSMC listed in Taiwan in 1994 and in New York in 1997 [[9]]. At the end of 2000 it was worth about $40 billion. It passed $1 trillion by the end of 2024 and was about $2.27 trillion on 27 October 2026 [[5]].",
+          zh: "台积电 1994 年在台湾上市，1997 年在纽约上市 [[9]]。2000 年底，它的市值约 400 亿美元，2024 年底超过 1 万亿美元，2026 年 10 月 27 日约为 2.27 万亿美元 [[5]]。",
+        },
+        {
+          en: "The money comes mostly from AI and from North America. In the third quarter of 2026, high-performance computing, mainly data-centre and AI chips, made up 68% of revenue and smartphones 21%; customers based in North America accounted for 79% [[2]]. For the fourth quarter TSMC expects revenue of $52.3 billion to $54.3 billion [[3]], and for 2026 as a whole growth of around 44% in US dollars [[4]]. \"We did not see any sign of slowdown,\" Wei said [[4]].",
+          zh: "钱主要来自 AI，来自北美。2026 年第三季度，高性能计算（主要是数据中心和 AI 芯片）占营收的 68%，智能手机占 21%；总部在北美的客户贡献了 79% [[2]]。台积电预计第四季度营收 523 亿至 543 亿美元 [[3]]，2026 全年按美元计增长约 44% [[4]]。\"我们没有看到任何放缓的迹象，\"魏哲家说 [[4]]。",
+        },
+      ],
+    },
+    { id: "timeline", h: { en: "Timeline", zh: "时间线" }, figure: "timeline", paras: [] },
+    {
+      id: "countries", h: { en: "One record quarter, told many ways", zh: "同一份创纪录的财报，多种讲法" }, figure: "countries",
+      paras: [
+        {
+          en: "We looked at articles in our sources between 8 and 29 October 2026 with TSMC in the headline: 76 articles from outlets in seven countries. Most were about the third-quarter results. The Chinese outlets wrote by far the most and covered the widest range of angles. Reports from Singapore and India are largely Reuters wire copy. This shows only what our sources carried.",
+          zh: "我们查看了 2026 年 10 月 8 日至 29 日，收录来源中标题提到台积电的报道：共 76 篇，来自七个国家的媒体，大多关于第三季度财报。中国媒体写得最多，角度也最广；新加坡和印度的报道多为路透社通稿。这里只反映我们收录的来源。",
+        },
+      ],
+    },
+    {
+      id: "open", h: { en: "What is not settled", zh: "还没有答案的问题" },
+      paras: [
+        { en: "Concentration. TSMC's ten largest customers made up 78% of its revenue in 2025 [[16]], and North American customers 79% in the latest quarter [[2]]. What is strong demand today is also dependence on a few buyers.", zh: "集中度。2025 年，台积电前十大客户贡献了 78% 的营收 [[16]]，最近一个季度北美客户贡献了 79% [[2]]。今天的旺盛需求，也意味着依赖少数几家买家。" },
+        { en: "Margins abroad. Factories outside Taiwan cost more to run. Chief financial officer Wendell Huang said the dilution of gross margin from overseas fabs is expected to widen to 3% to 4% in the next few years [[4]].", zh: "海外工厂的利润率。台湾以外的工厂运营成本更高。财务长黄仁昭表示，海外工厂对毛利率的稀释，预计未来几年会扩大到 3% 至 4% [[4]]。" },
+        { en: "Rivals. Intel says its technology is close; Samsung's reported yields still trail TSMC's [[18]][[21]]. Whether either can win large outside customers will show how much of TSMC's lead is technology and how much is trust.", zh: "对手。英特尔说技术差距已经很小，据报道三星的良率仍落后于台积电 [[18]][[21]]。它们能不能赢得大客户，将说明台积电的领先有多少来自技术，多少来自信任。" },
+        { en: "In the 1990s a young chip company could not get TSMC to return a call [[19]]. Today chip companies compete for its capacity. In our view that reversal is the clearest measure of what the promise of 1987, to make everyone's chips and sell none of its own, has become.", zh: "1990 年代，一家年轻的芯片公司打不通台积电的电话 [[19]]；今天，芯片公司们在争抢它的产能。在我们看来，这个反转最能说明，1987 年那个\"替所有人造芯片、自己一颗不卖\"的承诺，后来变成了什么。" },
+      ],
+    },
+  ],
+  timeline: [
+    { date: { en: "1985", zh: "1985 年" }, text: { en: "Intel, TI and Motorola turn down Morris Chang's invitation to invest in a pure foundry", zh: "英特尔、德州仪器、摩托罗拉拒绝投资张忠谋的专业代工构想" }, src: [9] },
+    { date: { en: "1987", zh: "1987 年" }, text: { en: "TSMC founded; Taiwan government fund 48.3%, Philips 27.6%", zh: "台积电成立；台湾方面的发展基金占 48.3%，飞利浦占 27.6%" }, src: [1, 9] },
+    { date: { en: "1988", zh: "1988 年" }, text: { en: "Intel outsources a microcontroller to TSMC", zh: "英特尔把一款微控制器交给台积电生产" }, src: [9] },
+    { date: { en: "1994 and 1997", zh: "1994 年、1997 年" }, text: { en: "Listed in Taiwan, then in New York", zh: "先后在台湾和纽约上市" }, src: [9] },
+    { date: { en: "Jun 2009", zh: "2009 年 6 月" }, text: { en: "Chang returns as chief executive", zh: "张忠谋重新出任 CEO" }, src: [11] },
+    { date: { en: "Sep 2014", zh: "2014 年 9 月" }, text: { en: "Makes about 60% of the iPhone 6's A8 chips", zh: "生产约 60% 的 iPhone 6 A8 芯片" }, src: [13] },
+    { date: { en: "Apr 2018", zh: "2018 年 4 月" }, text: { en: "7-nanometre production begins", zh: "开始生产 7 纳米芯片" }, src: [14] },
+    { date: { en: "Jun 2018", zh: "2018 年 6 月" }, text: { en: "Chang retires; Mark Liu chairman, C.C. Wei chief executive", zh: "张忠谋退休；刘德音任董事长，魏哲家任 CEO" }, src: [12] },
+    { date: { en: "Q4 2024", zh: "2024 年第四季度" }, text: { en: "First Arizona fab in volume production", zh: "亚利桑那第一座晶圆厂量产" }, src: [17] },
+    { date: { en: "Mar 2025", zh: "2025 年 3 月" }, text: { en: "Planned US investment raised to $165 billion", zh: "美国计划投资提高到 1650 亿美元" }, src: [17] },
+    { date: { en: "Q4 2025", zh: "2025 年第四季度" }, text: { en: "2-nanometre high-volume production", zh: "2 纳米大规模量产" }, src: [4] },
+    { date: { en: "15 Oct 2026", zh: "2026 年 10 月 15 日" }, text: { en: "Third-quarter revenue $46.72 billion, up 41.2%", zh: "第三季度营收 467.2 亿美元，增长 41.2%" }, src: [3] },
+  ],
+  countries: [
+    {
+      code: "CN", count: 51, outlets: "IT之家, 36氪, cnBeta, 虎嗅, 钛媒体, SCMP",
+      focus: { en: "The most coverage and the most detail: monthly sales, profit to the last digit, 2-nanometre capacity, the Kumamoto fab's switch to 3 nanometres, reported packaging price rises and how Samsung and Intel compare. Several outlets retold Jensen Huang's story of Morris Chang's phone call.", zh: "报道最多，也最细：月度营收、精确到位的利润、2 纳米产能、熊本二厂改产 3 纳米、传闻中的封装涨价，以及三星、英特尔与台积电的比较。好几家媒体转述了黄仁勋讲的张忠谋那通电话。" },
+      headlines: [
+        { t: "黄仁勋谈早年结缘台积电：多次致电无人理会，张忠谋一通电话改变一切", outlet: "cnBeta", url: "https://www.cnbeta.com.tw/articles/tech/1582292.htm" },
+        { t: "日赚17亿，台积电还担心钱不够花", outlet: "虎嗅", url: "https://www.huxiu.com/article/4898068.html?f=rss" },
+        { t: "英特尔 CTO 称其与台积电制程技术差距小于 10%，但产能追赶仍需时间", outlet: "IT之家", url: "https://www.ithome.com/1/017/411.htm" },
+      ],
+    },
+    {
+      code: "DE", count: 8, outlets: "Handelsblatt, heise online, tagesschau",
+      focus: { en: "A profit jump described as surprising again, with heise noting a cautious look ahead; also a TSMC order for GlobalFoundries to make silicon interposers.", zh: "利润再次出人意料地大幅跳升，heise 则指出台积电对前景态度谨慎；另有台积电向格芯下单生产硅中介层的报道。" },
+      headlines: [
+        { t: "TSMC schreibt weiter Rekordzahlen, blickt aber vorsichtig in die Zukunft", outlet: "heise online", url: "https://www.heise.de/news/TSMC-schreibt-weiter-Rekordzahlen-blickt-aber-vorsichtig-in-die-Zukunft-11490124.html" },
+        { t: "Chipindustrie: TSMC erneut mit überraschend deutlichem Gewinnsprung", outlet: "Handelsblatt", url: "https://www.handelsblatt.com/unternehmen/chipindustrie-tsmc-erneut-mit-ueberraschend-deutlichem-gewinnsprung/100262091.html" },
+      ],
+    },
+    {
+      code: "US", count: 5, outlets: "CNBC, MarketWatch",
+      focus: { en: "A sixth record quarter in a row, the chief executive seeing no slowdown, and AI customers fighting over TSMC's capacity.", zh: "连续第六个创纪录的季度、CEO 说看不到放缓，以及 AI 客户争抢台积电产能。" },
+      headlines: [
+        { t: "TSMC chip capacity is 'fierce' battleground for AI customers, amid record quarter", outlet: "CNBC", url: "https://www.cnbc.com/2026/10/15/nvidia-apple-broadcom-in-fierce-battle-to-make-chips-at-tsmc.html" },
+        { t: "TSMC CEO sees no sign of a slowdown as chip foundry reports record profit", outlet: "MarketWatch", url: "https://www.marketwatch.com/story/tsmc-ceo-sees-no-sign-of-a-slowdown-as-chip-foundry-reports-record-profit-17a065d3" },
+      ],
+    },
+    {
+      code: "SG", count: 4, outlets: "CNA, The Straits Times",
+      focus: { en: "Reuters reports on the record profit, the GlobalFoundries deal, and a Korean report that Samsung will use TSMC technology for Nvidia's next memory chips.", zh: "路透社关于创纪录利润、格芯合作的报道，以及一则韩国媒体消息：三星将用台积电的技术为英伟达生产下一代内存芯片。" },
+      headlines: [
+        { t: "Taiwan chip giant TSMC says net profit hit record in third quarter", outlet: "The Straits Times", url: "https://www.straitstimes.com/business/taiwan-chip-giant-tsmc-says-net-profit-hit-record-in-third-quarter" },
+        { t: "GlobalFoundries to make key AI chip component for TSMC", outlet: "CNA", url: "https://www.channelnewsasia.com/business/globalfoundries-make-key-ai-chip-component-tsmc-6442886" },
+      ],
+    },
+    {
+      code: "JP", count: 3, outlets: "Nikkei Asia",
+      focus: { en: "The results, a supplier betting on local production near TSMC and Intel, and TSMC weighing Texas for further US expansion.", zh: "财报、一家供应商押注在台积电和英特尔附近本地生产，以及台积电考虑在得州进一步扩张。" },
+      headlines: [
+        { t: "TSMC profit soars 69% in another record quarter fueled by AI boom", outlet: "Nikkei Asia", url: "https://asia.nikkei.com/business/tech/semiconductors/tsmc-profit-soars-69-in-another-record-quarter-fueled-by-ai-boom" },
+      ],
+    },
+    {
+      code: "IN", count: 3, outlets: "The Economic Times",
+      focus: { en: "Reuters copy before and after the results: an expected sixth record quarter, then the 69% profit jump.", zh: "财报前后的路透社稿件：先是预计连续第六个季度创新高，然后是利润增长 69%。" },
+      headlines: [
+        { t: "TSMC Q3 profit jumps 69% to record, beating expectations", outlet: "The Economic Times", url: "https://economictimes.indiatimes.com/tech/technology/tsmc-q3-profit-jumps-69-to-record-beating-expectations/articleshow/134958500.cms" },
+      ],
+    },
+    {
+      code: "AE", count: 2, outlets: "The National",
+      focus: { en: "Only the GlobalFoundries agreement, framed through GlobalFoundries' backers in Abu Dhabi.", zh: "只报道了格芯协议，并从格芯的阿布扎比股东切入。" },
+      headlines: [
+        { t: "UAE-backed GlobalFoundries and TSMC announce $2bn manufacturing agreement", outlet: "The National", url: "https://www.thenationalnews.com/future/technology/2026/10/08/globalfoundries-stock-tsmc-silicon-interposers/" },
+      ],
+    },
+  ],
+  sources: [
+    { n: 1, name: "TSMC", title: "Company profile (2025 figures: customers, products, technologies, capacity)", url: "https://www.tsmc.com/japanese/aboutTSMC/index.htm" },
+    { n: 2, name: "TSMC", title: "3Q26 management report (15 October 2026)", url: "https://investor.tsmc.com/english/encrypt/files/encrypt_file/reports/2026-10/f83780000ddc0c3b48e57a87eab6814c4ab35058/3Q26%20ManagementReport.pdf" },
+    { n: 3, name: "SEC", title: "TSMC Form 6-K: 3Q26 earnings release and 4Q26 guidance", url: "https://www.sec.gov/Archives/edgar/data/0001046179/000104617926000726/a3q26e_withguidancexfinal.htm" },
+    { n: 4, name: "The Motley Fool", title: "TSMC Q3 2026 earnings call transcript", url: "https://www.fool.com/earnings/call-transcripts/2026/10/15/tsmc-tsm-q3-2026-earnings-call-transcript/" },
+    { n: 5, name: "CompaniesMarketCap", title: "TSMC market capitalization", url: "https://companiesmarketcap.com/tsmc/marketcap/" },
+    { n: 6, name: "TrendForce", title: "Global foundry revenue approaches US$53.49 billion in 2Q26 (9 September 2026)", url: "https://www.trendforce.com/presscenter/news/20260909-13225.html" },
+    { n: 7, name: "Computer History Museum", title: "Morris Chang, Fellow profile", url: "https://computerhistory.org/profile/morris-chang/" },
+    { n: 8, name: "Computer History Museum", title: "An Evening with Morris Chang, transcript (17 October 2007)", url: "https://archive.computerhistory.org/resources/access/text/2012/05/102658254-05-01-acc.pdf" },
+    { n: 9, name: "Caixin Global", title: "In profile: how Morris Chang built TSMC into a chipmaking colossus (27 February 2026)", url: "https://www.caixinglobal.com/2026-02-27/in-profile-how-morris-chang-built-tsmc-into-a-chipmaking-colossus-102417518.html" },
+    { n: 10, name: "TSMC", title: "1998 annual report: a brief introduction to TSMC", url: "https://investor.tsmc.com/static/annualReports/1998/html/intro.htm" },
+    { n: 11, name: "SEC", title: "TSMC Form 6-K, July 2009: Dr. Chang returns as chief executive", url: "https://www.sec.gov/Archives/edgar/data/0001046179/000095012309028010/h03545e6vk.htm" },
+    { n: 12, name: "TSMC", title: "TSMC Chairman Dr. Morris Chang announces retirement (2 October 2017)", url: "https://pr.tsmc.com/english/news/1938" },
+    { n: 13, name: "9to5Mac", title: "TSMC makes about 60% of iPhone 6 A8 chips, IHS teardown (23 September 2014)", url: "https://9to5mac.com/2014/09/23/iphone-6-a8-tsmc-samsung/" },
+    { n: 14, name: "Tom's Hardware", title: "TSMC celebrates making over a billion 7nm chips (August 2020)", url: "https://www.tomshardware.com/news/tsmc-passes-one-billion-7nm-chips" },
+    { n: 15, name: "Manufacturing Dive", title: "TSMC fourth-quarter and full-year 2025 results", url: "https://manufacturingdive.com/news/tsmc-q4-full-year-2025-earnings-ai-taiwan/809775" },
+    { n: 16, name: "TSMC Form 20-F (via Stock Titan)", title: "Annual report for 2025: customer concentration", url: "https://www.stocktitan.net/sec-filings/TSM/20-f-taiwan-semiconductor-manufacturing-co-ltd-files-annual-report-fo-e7792df70159.html" },
+    { n: 17, name: "TrendForce", title: "TSMC's $165B Arizona investment (12 May 2025)", url: "https://www.trendforce.com/news/2025/05/12/news-tsmcs-165b-arizona-investment-to-create-12000-jobs-once-all-facilities-are-operational/" },
+    { n: 18, name: "TrendForce", title: "Samsung 2nm yields reportedly at ~55% (14 April 2026)", url: "https://www.trendforce.com/news/2026/04/14/news-samsung-2nm-yields-reportedly-at-55-below-mass-production-threshold-qualcomm-may-opt-for-tsmc/" },
+    { n: 19, name: "Business Insider (via DNYUZ)", title: "Jensen Huang couldn't get TSMC to return his calls. Then its founder called (15 October 2026)", url: "https://dnyuz.com/2026/10/15/jensen-huang-couldnt-get-tsmc-to-return-his-calls-then-its-founder-called/" },
+    { n: 20, name: "IT之家", title: "英伟达 CEO 黄仁勋自述：当年为了联系台积电，我打了好几次电话都没人回", url: "https://www.ithome.com/1/013/707.htm" },
+    { n: 21, name: "IT之家", title: "英特尔 CTO 称其与台积电制程技术差距小于 10%，但产能追赶仍需时间 (24 October 2026)", url: "https://www.ithome.com/1/017/411.htm" },
+    { n: 22, name: "IT之家", title: "曝台积电先进封装拟涨价最高 20% (27 October 2026)", url: "https://www.ithome.com/1/018/409.htm" },
+  ],
+  stats: [
+    { label: { en: "What TSMC is worth", zh: "公司市值" }, from: 40.32, to: 2265, fromLabel: { en: "end of 2000", zh: "2000 年底" }, toLabel: { en: "27 Oct 2026", zh: "2026 年 10 月 27 日" }, unit: "bn", src: [5] },
+    { label: { en: "Annual revenue", zh: "年营收" }, from: 0.07, to: 122.4, fromLabel: { en: "1990", zh: "1990 年" }, toLabel: { en: "2025", zh: "2025 年" }, unit: "bn", src: [9, 15] },
+    { label: { en: "Share of foundry revenue", zh: "代工市场份额" }, from: 0, to: 72.5, fromLabel: { en: "", zh: "" }, toLabel: { en: "2Q26, TrendForce", zh: "2026 年第二季度，TrendForce" }, unit: "pct", src: [6] },
+  ],
+  name: "TSMC", legalName: "Taiwan Semiconductor Manufacturing Company Limited", newsMatch: { src: "\\bTSMC\\b|台积电|台積電", flags: "" },
+  alwaysCite: [5, 6, 15],
+  method: {
+    en: "Method: drafted with AI from the sources above and checked line by line by an editor. Market shares are TrendForce's estimates. Yield figures are press reports that the companies have not confirmed. Market values may differ slightly between data providers. This is not investment advice. Found a mistake? Email ",
+    zh: "写法：本文由 AI 根据上列来源整理，编辑逐条核对。市场份额是 TrendForce 的估算。良率数字来自媒体报道，公司未证实。市值在不同数据商之间可能略有出入。本文不构成投资建议。发现错误请写信到 ",
+  },
+  // $ billion: market value at year-end and on 27 October 2026 [5]
+  priceTags: {
+    title: { en: "What TSMC was worth ($ billion)", zh: "台积电值多少钱（十亿美元）" },
+    note: {
+      en: "Market value at the end of each year shown, and on 27 October 2026. Source: CompaniesMarketCap.",
+      zh: "所列各年年底以及 2026 年 10 月 27 日的市值。来源：CompaniesMarketCap。",
+    },
+    rows: [
+      { label: { en: "End of 2000", zh: "2000 年底" }, v: 40.32, kind: "market" },
+      { label: { en: "End of 2005", zh: "2005 年底" }, v: 49.01, kind: "market" },
+      { label: { en: "End of 2010", zh: "2010 年底" }, v: 63.55, kind: "market" },
+      { label: { en: "End of 2015", zh: "2015 年底" }, v: 109.64, kind: "market" },
+      { label: { en: "End of 2020", zh: "2020 年底" }, v: 488.12, kind: "market" },
+      { label: { en: "End of 2024", zh: "2024 年底" }, v: 1045, kind: "market" },
+      { label: { en: "End of 2025", zh: "2025 年底" }, v: 1570, kind: "market" },
+      { label: { en: "27 Oct 2026", zh: "2026.10.27" }, v: 2265, kind: "market" },
+    ],
+  },
+  // $ billion: revenue 1990 and 1995 [9], 2025 [15], 3Q26 [3]
+  priceTags2: {
+    title: { en: "TSMC revenue ($ billion)", zh: "台积电营收（十亿美元）" },
+    note: {
+      en: "Full-year revenue for 1990, 1995 and 2025; the orange bar is a single quarter, July to September 2026. Sources: Caixin, Manufacturing Dive, TSMC.",
+      zh: "1990 年、1995 年和 2025 年为全年营收；橙色为单个季度（2026 年 7 月至 9 月）。来源：财新、Manufacturing Dive、台积电。",
+    },
+    legend: [{ en: "Full year", zh: "全年" }, { en: "One quarter", zh: "单季" }],
+    rows: [
+      { label: { en: "1990", zh: "1990 年" }, v: 0.07, kind: "deal" },
+      { label: { en: "1995", zh: "1995 年" }, v: 1.1, kind: "deal" },
+      { label: { en: "2025", zh: "2025 年" }, v: 122.4, kind: "deal" },
+      { label: { en: "Q3 2026 alone", zh: "仅 2026 年第三季度" }, v: 46.72, kind: "market" },
+    ],
+  },
+  royalty: {
+    title: { en: "Share of foundry revenue, 2Q26", zh: "代工市场份额，2026 年第二季度" },
+    note: {
+      en: "Share of worldwide foundry revenue, as estimated by TrendForce. The ten largest foundries together took $53.49 billion in the quarter.",
+      zh: "占全球晶圆代工收入的比例，TrendForce 估算。前十大代工厂该季度合计营收 534.9 亿美元。",
+    },
+    col: { en: "Share", zh: "份额" },
+    rows: [
+      { label: { en: "TSMC", zh: "台积电" }, lo: 72.5, hi: 72.5, sub: { en: "about $40.2 billion", zh: "约 402 亿美元" } },
+      { label: { en: "Samsung", zh: "三星" }, lo: 5.9, hi: 5.9, sub: { en: "$3.26 billion", zh: "32.6 亿美元" } },
+      { label: { en: "SMIC", zh: "中芯国际" }, lo: 5.4, hi: 5.4, sub: { en: "above $3 billion", zh: "超过 30 亿美元" } },
+    ],
+  },
+  ig: {
+    explain: {
+      kicker: { en: "START HERE", zh: "先看懂" },
+      rows: [
+        { q: { en: "What is a foundry?", zh: "代工厂是什么？" }, a: { en: "A chip factory that makes other companies' designs, like a printing works that prints books for many publishers.", zh: "替别的公司生产芯片的工厂，就像一家替许多出版社印书的印刷厂。" } },
+        { q: { en: "Who are the customers?", zh: "客户是谁？" }, a: { en: "534 customers in 2025, mostly chip companies without factories of their own.", zh: "2025 年共 534 家客户，大多是没有自己工厂的芯片公司。" } },
+        { q: { en: "What makes TSMC different?", zh: "台积电有什么不同？" }, a: { en: "It sells no chips under its own name, so it never competes with a customer.", zh: "它不用自己的品牌卖芯片，所以永远不和客户竞争。" } },
+      ],
+    },
+    numbers: {
+      kicker: { en: "ONE COMPANY, THREE NUMBERS", zh: "一家公司，三个数字" },
+      rows: [
+        { big: { en: "$2.27T", zh: "2.27 万亿美元" }, label: { en: "What TSMC is worth", zh: "公司市值" }, sub: { en: "27 October 2026", zh: "2026 年 10 月 27 日" } },
+        { big: { en: "72.5%", zh: "72.5%" }, label: { en: "of foundry revenue worldwide", zh: "全球晶圆代工收入中的份额" }, sub: { en: "April to June 2026; Samsung 5.9%", zh: "2026 年第二季度；三星 5.9%" } },
+        { big: { en: "$46.7B", zh: "467 亿美元" }, label: { en: "Revenue in one quarter", zh: "单季营收" }, sub: { en: "July to September 2026, up 41%", zh: "2026 年 7 月至 9 月，增长 41%" } },
+      ],
+      source: { en: "Sources: CompaniesMarketCap, TrendForce, TSMC", zh: "来源：CompaniesMarketCap、TrendForce、台积电" },
+    },
+    decisions: [
+      { h: { en: "Never compete with a customer", zh: "永远不和客户竞争" }, tag: "1987", t: { en: "No chips of its own: \"a partner, not a competitor\", as TSMC put it in 1998.", zh: "不做自有品牌芯片：用台积电 1998 年的话说，是\"伙伴，而不是竞争者\"。" } },
+      { h: { en: "Get to the newest process first", zh: "抢先做出最新工艺" }, tag: "7nm · 2nm", t: { en: "7nm in 2018, 2nm in late 2025. 79% of wafer revenue now comes from 7nm and below.", zh: "2018 年 7 纳米，2025 年底 2 纳米。如今 79% 的晶圆收入来自 7 纳米及更先进工艺。" } },
+      { h: { en: "Package the chips, build near customers", zh: "连封装一起做，建厂到客户身边" }, tag: "CoWoS · Arizona", t: { en: "CoWoS packaging for AI chips, and $165 billion planned in Arizona.", zh: "为 AI 芯片做 CoWoS 封装，并计划在亚利桑那投资 1650 亿美元。" } },
+    ],
+    chart: {
+      kind: "tags", kicker: { en: "WHAT TSMC WAS WORTH", zh: "台积电值多少钱" },
+      sub: { en: "Market value, 2000 to 2026.", zh: "市值，2000 年至 2026 年。" },
+      foot: { en: "CompaniesMarketCap", zh: "CompaniesMarketCap" },
+    },
+    countries: {
+      kicker: { en: "ONE QUARTER, MANY COUNTRIES", zh: "同一份财报，多个国家" },
+      title: { en: "How outlets wrote about TSMC, 8 to 29 October", zh: "10 月 8 日至 29 日，各国媒体怎么写台积电" },
+      rows: [
+        { flags: ["cn"], name: { en: "China", zh: "中国" }, t: { en: "The most detail: profit to the digit, 2nm capacity, rivals, and Jensen Huang's story of Morris Chang's call.", zh: "最细：精确的利润、2 纳米产能、对手比较，还有黄仁勋讲的张忠谋那通电话。" } },
+        { flags: ["de"], name: { en: "Germany", zh: "德国" }, t: { en: "A surprising profit jump, and a cautious look ahead.", zh: "出人意料的利润跳升，以及谨慎的前景。" } },
+        { flags: ["us"], name: { en: "United States", zh: "美国" }, t: { en: "No sign of slowdown, and AI customers fighting for capacity.", zh: "看不到放缓，AI 客户争抢产能。" } },
+        { flags: ["sg", "in", "jp"], name: { en: "Singapore, India, Japan", zh: "新加坡、印度、日本" }, t: { en: "Record profit, Samsung using TSMC technology, and expansion in Texas.", zh: "创纪录的利润、三星采用台积电技术，以及在得州扩张。" } },
+      ],
+      foot: { en: "76 articles in our sources, 8 to 29 October 2026", zh: "我们收录的 76 篇报道，2026 年 10 月 8 日至 29 日" },
+    },
+  },
+};
+
+export const PROFILES: Profile[] = [AMD, WORLD_LABS, ARM, WILSON, TSMC];
 /** written but not yet published (next issue); kept here so the text stays with the code that renders it */
 export const DRAFTS: Profile[] = [];
 export const getProfile = (slug: string) => PROFILES.find((p) => p.slug === slug) ?? null;

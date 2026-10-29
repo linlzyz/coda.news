@@ -378,13 +378,13 @@ export function SplitBars({ data, zh }: { data: { title: LL; note: LL; a: LL; b:
 }
 
 /* ---------- 10. ranges in percent (royalty rates) ---------- */
-export function RangeBars({ data, zh }: { data: { title: LL; note: LL; rows: { label: LL; lo: number; hi: number; sub: LL; approx?: boolean }[] }; zh: boolean }) {
+export function RangeBars({ data, zh }: { data: { title: LL; note: LL; col?: LL; rows: { label: LL; lo: number; hi: number; sub: LL; approx?: boolean }[] }; zh: boolean }) {
   const [ref, on] = useInView<HTMLDivElement>(0.4);
   const max = Math.max(...data.rows.map((r) => r.hi)) * 1.15;
   const txt = (r: { lo: number; hi: number; approx?: boolean }) => (r.lo === r.hi ? `${r.approx ? "~" : ""}${r.hi}%` : `${r.lo}–${r.hi}%`);
   return (
     <Frame title={tr(data.title, zh)} note={tr(data.note, zh)}
-      table={<Table head={["", zh ? "占芯片售价" : "Share of chip price"]} rows={data.rows.map((r) => [tr(r.label, zh), txt(r)])} />}>
+      table={<Table head={["", data.col ? tr(data.col, zh) : zh ? "占芯片售价" : "Share of chip price"]} rows={data.rows.map((r) => [tr(r.label, zh), txt(r)])} />}>
       <div ref={ref} className="space-y-4">
         {data.rows.map((r, i) => (
           <div key={i} className="grid grid-cols-[92px_1fr] items-center gap-3 sm:grid-cols-[150px_1fr]">
