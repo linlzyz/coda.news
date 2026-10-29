@@ -3,7 +3,9 @@ import { eventsOnDay, getPerspectives } from "@/lib/data";
 import { EventList } from "@/components/EventList";
 import { alternates, CATEGORY_ZH, langFrom } from "@/lib/i18n";
 import Link from "@/components/LLink";
-export const revalidate = 86400;
+// Vercel cost (29 Oct 2026): crawlers open old pages one by one and every expired page is rebuilt (an ISR write).
+// A past day does not change.
+export const revalidate = 2592000;
 export async function generateStaticParams() { return []; }
 export const dynamicParams = true;
 

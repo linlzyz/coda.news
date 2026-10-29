@@ -3,7 +3,8 @@ import { getTopic, listEvents } from "@/lib/data";
 import { EventList } from "@/components/EventList";
 import { FollowBox } from "@/components/FollowBox";
 import { langFrom, TOPIC_ZH } from "@/lib/i18n";
-export const revalidate = 86400;
+// Vercel cost (29 Oct 2026): crawlers open old pages one by one and every expired page is rebuilt (an ISR write).
+export const revalidate = 172800;
 export async function generateStaticParams() { return []; }
 export const dynamicParams = true;
 export async function generateMetadata({ params }: PageProps<"/[lang]/topic/[slug]">) {

@@ -4,9 +4,11 @@ import { INDEX_MIN_COUNTRIES, archiveDays, companyDirectory, notable, sitemapRow
 
 const BASE = "https://coda.news";
 export const revalidate = 3600;
+// only stories from the last 30 days: fewer old pages for crawlers to walk (each visit to an expired page is a paid rebuild)
+const RECENT = 30 * 86400_000;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [{ events, topics }, days, dir] = await Promise.all([sitemapRows(), archiveDays(90), companyDirectory()]);
+  const [{ events, topics }, days, dir] = await Promise.all([sitemapRows(), archiveDays(30), companyDirectory()]);
   // only company pages with something to read: a profile (description from Wikidata) or our coverage
   const companies = dir.filter((c) => notable(c) && (c.events > 0 || !!c.description));
   const both = (path: string) => ({ languages: { en: `${BASE}${path}`, "zh-CN": `${BASE}/zh${path === "/" ? "" : path}` } });
@@ -24,7 +26,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/corrections`, changeFrequency: "daily" as const, priority: 0.3 },
     { url: `${BASE}/archive`, changeFrequency: "daily" as const, priority: 0.4 },
     ...days.map(([d]) => ({ url: `${BASE}/archive/${d}`, changeFrequency: "daily" as const, priority: 0.4 })),
-    ...events.filter((e) => (e.countries?.length ?? 0) >= INDEX_MIN_COUNTRIES).map((e) => ({ url: `${BASE}/event/${e.slug}`, lastModified: e.last_article_at, changeFrequency: "daily" as const, priority: 0.7, images: e.image_url ? [e.image_url.replace(/&/g, "&amp;")] : undefined })),
+    ...events.filter((e) => (e.countries?.length ?? 0) >= INDEX_MIN_COUNTRIES && Date.parse(e.last_article_at) > Date.now() - RECENT).map((e) => ({ url: `${BASE}/event/${e.slug}`, lastModified: e.last_article_at, changeFrequency: "daily" as const, priority: 0.7, images: e.image_url ? [e.image_url.replace(/&/g, "&amp;")] : undefined })),
     ...topics.map((t) => ({ url: `${BASE}/topic/${t.slug}`, changeFrequency: "daily" as const, priority: 0.6 })),
     ...companies.map((c) => ({ url: `${BASE}/company/${c.slug}`, changeFrequency: "daily" as const, priority: 0.4 })),
   ].map((x) => ({ ...x, alternates: both(x.url.replace(BASE, "") || "/") }));

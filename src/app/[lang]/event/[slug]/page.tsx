@@ -12,7 +12,9 @@ import { Cover } from "@/components/Cover";
 import { ReportError, ShareBar } from "@/components/EventTools";
 import { AnatomyPromo } from "@/components/anatomy/Promo";
 import { shareImages } from "@/lib/share-image";
-export const revalidate = 86400;
+// Vercel cost (29 Oct 2026): crawlers open old pages one by one and every expired page is rebuilt (an ISR write).
+// The 30 most important changed stories are also revalidated on demand every hour (/api/revalidate); others refresh weekly.
+export const revalidate = 604800;
 export async function generateStaticParams() { return []; }
 export const dynamicParams = true;
 
