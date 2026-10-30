@@ -1,11 +1,12 @@
 import Link from "@/components/LLink";
-import { PROFILES, photoUrl, pick, statLine } from "@/lib/anatomy";
+import { photoUrl, pick, statLine } from "@/lib/anatomy";
+import { listProfiles } from "@/lib/anatomy-db";
 
 /** "Coda Anatomy" card on company and event pages about the same company: a way in for readers and an internal link for search engines. */
-export function AnatomyPromo({ companyIds, zh }: { companyIds: (number | string)[] | null | undefined; zh: boolean }) {
+export async function AnatomyPromo({ companyIds, zh }: { companyIds: (number | string)[] | null | undefined; zh: boolean }) {
   const ids = new Set((companyIds ?? []).map(Number));
   // the newest issue about this company (AMD has two: its turnaround, then the World Labs deal)
-  const p = [...PROFILES].sort((a, b) => b.no - a.no).find((x) => ids.has(x.companyId));
+  const p = [...(await listProfiles())].sort((a, b) => b.no - a.no).find((x) => ids.has(x.companyId));
   if (!p) return null;
   const s = p.stats[0];
   return (
@@ -24,8 +25,8 @@ export function AnatomyPromo({ companyIds, zh }: { companyIds: (number | string)
 }
 
 /** Home page sidebar box: the latest Coda Anatomy, above Top topics. */
-export function AnatomyBox({ zh }: { zh: boolean }) {
-  const p = [...PROFILES].sort((a, b) => b.no - a.no)[0];
+export async function AnatomyBox({ zh }: { zh: boolean }) {
+  const p = [...(await listProfiles())].sort((a, b) => b.no - a.no)[0];
   if (!p) return null;
   const s = p.stats[0];
   return (

@@ -78,6 +78,17 @@ export async function tick(budgetMs = 120_000, opts: { skipIngest?: boolean } = 
   // tell the website which story pages changed, so only those are rebuilt. Once an hour, not every run (Vercel cost,
   // Lyn 19 Oct 2026: keep the bill within the Pro plan's included credit): the 30 most important stories changed in the
   // last hour; lists refresh on their own one-hour cache.
+  // Coda Anatomy issues stored in anatomy_profiles: refresh the pages when one goes live (publish_at passed) or is edited
+  await step("anatomy", async () => {
+    const secret = env("REVALIDATE_SECRET"); if (!secret) return 0;
+    const rows = await db()<{ slug: string }[]>`select slug from anatomy_profiles where publish_at <= now() and (revalidated_at is null or revalidated_at < updated_at) limit 20`;
+    if (!rows.length) return 0;
+    const r = await fetch("https://coda.news/api/revalidate", { method: "POST", headers: { "content-type": "application/json", "x-revalidate-secret": secret }, body: JSON.stringify({ anatomy: rows.map((x) => x.slug) }), signal: AbortSignal.timeout(10000) });
+    if (!r.ok) return `http ${r.status}`;
+    const slugs = rows.map((x) => x.slug);
+    await db()`update anatomy_profiles set revalidated_at = now() where slug = any(${slugs})`;
+    return slugs.join(",");
+  });
   await step("revalidate", async () => {
     const secret = env("REVALIDATE_SECRET"); if (!secret) return 0;
     if (new Date(t0).getUTCMinutes() >= 5) return "hourly";

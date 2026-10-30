@@ -3,7 +3,8 @@
 //   &l=zh for Chinese. Figures come from src/lib/anatomy.ts, the same data as the page.
 import { ImageResponse } from "next/og";
 import QRCode from "qrcode";
-import { getProfile, money, photoUrl, statLine, tagVal, type L } from "@/lib/anatomy";
+import { money, photoUrl, statLine, tagVal, type L } from "@/lib/anatomy";
+import { draftProfile, findProfile } from "@/lib/anatomy-db";
 import { LOGO_DATA_URI, LOGO_WHITE_DATA_URI } from "@/lib/logo-data";
 import { brandParts, gfont } from "@/lib/og-font";
 
@@ -23,7 +24,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
   const u = new URL(req.url);
   const s = u.searchParams.get("s") ?? "1";
   const zh = u.searchParams.get("l") === "zh";
-  const pr = getProfile(slug);
+  // &k=<draft key>: slides for an unpublished issue (preview)
+  const k = u.searchParams.get("k");
+  const pr = k ? await draftProfile(slug, k) : await findProfile(slug);
   if (!pr) return new Response("Not found", { status: 404 });
   const used: string[] = [];
   const T = (en: string, z: string) => { used.push(en, z); return zh ? z : en; };

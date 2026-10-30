@@ -1,0 +1,825 @@
+{
+ "slug": "gordon-moore",
+ "no": 6,
+ "companyId": 17,
+ "companySlug": "intel",
+ "about": "person",
+ "newsName": "Intel",
+ "title": {
+  "en": "Gordon Moore: The Forecast That Became a Law",
+  "zh": "戈登·摩尔：一条被当成定律的预测"
+ },
+ "dek": {
+  "en": "A four-page magazine article from 1965 set the rhythm of the whole chip industry for decades.",
+  "zh": "1965 年一篇四页的文章，给整个芯片业定下了几十年的节奏"
+ },
+ "social": {
+  "en": "The forecast the chip industry chased for 60 years",
+  "zh": "芯片业追了六十年的一条预测"
+ },
+ "igHook": {
+  "en": "Five dots, one line,\nand 60 years of chips",
+  "zh": "他用五个点画出的预测，\n被芯片业追了六十年"
+ },
+ "seoTitle": {
+  "en": "Gordon Moore and Moore's Law: What He Predicted in 1965 and Why It Came True",
+  "zh": "戈登·摩尔与摩尔定律：1965 年的预测是什么，为什么会成真"
+ },
+ "seoDesc": {
+  "en": "What is Moore's Law? In April 1965 Gordon Moore, then at Fairchild, predicted in Electronics magazine that chips would hold 65,000 components by 1975. He co-founded Intel in 1968, revised the forecast to a doubling every two years in 1975, and later said it was \"not a law in any real respect\". How a forecast about cost became the industry's schedule, from the Intel 4004's 2,300 transistors to 208 billion today, with every fact sourced.",
+  "zh": "摩尔定律是什么？1965 年 4 月，在仙童半导体工作的戈登·摩尔在《电子学》杂志上预测，到 1975 年一块芯片能放 6.5 万个元件。1975 年他改为每两年翻一番，他也是英特尔的联合创始人，后来却说这\"根本不算什么定律\"。一条关于成本的预测，怎样变成整个行业的时间表，从英特尔 4004 的 2300 个晶体管到今天的 2080 亿个，每个事实附来源。"
+ },
+ "keywords": [
+  "Gordon Moore",
+  "戈登·摩尔",
+  "Moore's Law",
+  "摩尔定律",
+  "Intel",
+  "英特尔",
+  "Fairchild",
+  "仙童半导体",
+  "Cramming more components onto integrated circuits",
+  "Intel 4004",
+  "Carver Mead",
+  "transistor count",
+  "晶体管数量",
+  "摩尔定律 已死",
+  "Moore's Law is dead"
+ ],
+ "published": "2026-11-01",
+ "updated": "2026-11-01",
+ "cover": {
+  "file": "12-inch silicon wafer.jpg",
+  "credit": "Peellden",
+  "license": "CC BY-SA 3.0",
+  "caption": {
+   "en": "A 12-inch silicon wafer. Each small rectangle is one chip; cramming more of them onto each wafer, and more components onto each chip, is what Moore's forecast was about.",
+   "zh": "一片 12 英寸硅晶圆，上面每个小方块就是一颗芯片。在晶圆上放更多芯片、在芯片上放更多元件，正是摩尔那条预测讲的事。"
+  },
+  "alt": {
+   "en": "A round silicon wafer covered in a grid of chips, shimmering in rainbow colours",
+   "zh": "布满芯片方格、泛着彩虹光泽的圆形硅晶圆"
+  }
+ },
+ "lede": [
+  {
+   "en": "In April 1965 the magazine Electronics ran an article by a chemist who headed research and development at Fairchild Semiconductor. Gordon Moore had plotted how many components chipmakers could fit on one chip at the lowest cost, drawn a line through just five data points, and extended it ten years: \"by 1975, the number of components per integrated circuit for minimum cost will be 65,000\" [[1]][[4]]. In 1975 a new memory chip held 65,536 [[8]].",
+   "zh": "1965 年 4 月，《电子学》（Electronics）杂志刊登了一篇文章，作者是化学家、仙童半导体的研发负责人戈登·摩尔。他把芯片厂商在成本最低时能在一块芯片上放多少个元件画成图，只用五个数据点连成一条线，再往后延长十年：\"到 1975 年，成本最低的集成电路上的元件数将达到 65000 个\" [[1]][[4]]。1975 年，一款新的存储芯片恰好装下了 65536 个 [[8]]。"
+  },
+  {
+   "en": "The line kept going. Intel's first microprocessor, in 1971, had 2,300 transistors [[11]]; Nvidia's Blackwell GPUs have 208 billion [[13]]. The forecast got a name, Moore's Law, and for decades the industry planned around it. Yet Moore himself said: \"It's not a law in any real respect. It was an observation and a projection\" [[5]]. So why did it come true?",
+   "zh": "这条线一直延伸了下去。1971 年，英特尔第一颗微处理器有 2300 个晶体管 [[11]]；今天英伟达的 Blackwell GPU 有 2080 亿个 [[13]]。这条预测有了名字，叫摩尔定律，几十年里整个行业都按它来做计划。可摩尔自己说：\"它根本不算什么定律，只是一个观察和一个推测\" [[5]]。那它为什么成真了？"
+  }
+ ],
+ "sections": [
+  {
+   "id": "start",
+   "h": {
+    "en": "Start here: what does doubling mean?",
+    "zh": "先看懂：翻一番意味着什么"
+   },
+   "paras": [
+    {
+     "en": "A chip is a small slab of silicon carrying tiny electronic parts: transistors, which act as switches, and in 1965 also resistors and other components, wired together on the chip itself [[6]]. Moore's question was how many of those parts a chip could hold before each extra one started to cost more instead of less [[1]].",
+     "zh": "芯片是一小块硅片，上面载着微小的电子元件：充当开关的晶体管，以及在 1965 年还很常见的电阻等其他元件，它们在芯片上直接连在一起 [[6]]。摩尔关心的是：一块芯片最多能放多少个元件，再多放一个，每个元件的成本就不降反升 [[1]]。"
+    },
+    {
+     "en": "Doubling sounds modest. It is not. In our own arithmetic, doubling every two years for 50 years multiplies a number by more than 33 million. That is roughly the distance between 2,300 transistors and tens of billions.",
+     "zh": "翻一番听起来不多，其实很惊人。按我们自己的计算，每两年翻一番，50 年后就是原来的 3300 多万倍。这差不多就是从 2300 个晶体管到几百亿个的距离。"
+    }
+   ]
+  },
+  {
+   "id": "cheap",
+   "h": {
+    "en": "A forecast about price, not size",
+    "zh": "一条关于价钱、而不是大小的预测"
+   },
+   "photo": {
+    "file": "Gordon Moore and Robert Noyce at Intel in 1970.png",
+    "credit": "Intel Free Press",
+    "license": "CC BY-SA 2.0",
+    "fit": "contain",
+    "caption": {
+     "en": "Gordon Moore (left) and Robert Noyce at Intel in 1970, two years after they founded the company.",
+     "zh": "1970 年，戈登·摩尔（左）和罗伯特·诺伊斯在英特尔，那时他们创办公司已经两年。"
+    },
+    "alt": {
+     "en": "Black-and-white photo of two men in shirts and ties looking at papers",
+     "zh": "两位穿衬衫打领带的男士看着文件的黑白照片"
+    }
+   },
+   "paras": [
+    {
+     "en": "The article, \"Cramming more components onto integrated circuits\", appeared on 19 April 1965 [[1]][[3]]. It opens: \"The future of integrated electronics is the future of electronics itself\" [[2]]. Its point was economic. \"Reduced cost is one of the big attractions of integrated electronics,\" Moore wrote, and he observed that the number of components at the lowest cost per component had \"increased at a rate of roughly a factor of two per year\" [[1]].",
+     "zh": "这篇文章题为《把更多元件塞进集成电路》（Cramming more components onto integrated circuits），刊于 1965 年 4 月 19 日 [[1]][[3]]。开头一句是：\"集成电子的未来，就是电子业本身的未来\" [[2]]。它讲的是经济账。摩尔写道：\"成本降低是集成电子的一大吸引力\"，他还观察到，在每个元件成本最低时，芯片上的元件数\"大约每年翻一番\" [[1]]。"
+    },
+    {
+     "en": "He also guessed what cheap chips would bring: \"such wonders as home computers\", \"automatic controls for automobiles, and personal portable communications equipment\" [[1]]. Looking back, he said: \"My original message was to get the idea across that integrated circuits were going to be cheap someday\" [[7]]. At the time, he said, \"I thought I was just showing a local trend\" [[5]].",
+     "zh": "他还猜测了便宜的芯片会带来什么：\"家用电脑这样的奇迹\"，\"汽车的自动控制，以及个人便携通信设备\" [[1]]。多年后他回顾说：\"我最初想说的，是集成电路总有一天会变得便宜\" [[7]]。他还说，写那篇文章时，\"我以为自己只是在描述一个局部的趋势\" [[5]]。"
+    }
+   ]
+  },
+  {
+   "id": "revised",
+   "h": {
+    "en": "1975: every two years, and a name he could not say",
+    "zh": "1975 年：改成两年，和一个他说不出口的名字"
+   },
+   "paras": [
+    {
+     "en": "Ten years later Moore, by then at Intel, revised the pace at the IEEE International Electron Devices Meeting: \"a doubling every two years, rather than every year\" [[3]][[4]]. The name came from someone else. The engineer Carver Mead is widely credited with calling it Moore's Law, though when the term was first used is unclear [[6]][[3]].",
+     "zh": "十年后，已在英特尔的摩尔在 IEEE 国际电子器件会议上修正了速度：\"每两年翻一番，而不是每年\" [[3]][[4]]。\"定律\"这个名字来自别人。人们普遍认为是工程师卡弗·米德（Carver Mead）把它叫作摩尔定律，不过这个说法最早出现在什么时候并不清楚 [[6]][[3]]。"
+    },
+    {
+     "en": "Moore was uneasy with it. For a long time, he said, he \"couldn't even utter the term\" [[5]]. Intel itself describes the principle as \"an operating principle and commitment rather than a force of nature\" [[8]].",
+     "zh": "摩尔对这个名字并不自在。他说，很长一段时间里他\"连这个词都说不出口\" [[5]]。英特尔自己也把它描述为\"一种运营原则和承诺，而不是自然规律\" [[8]]。"
+    }
+   ]
+  },
+  {
+   "id": "target",
+   "h": {
+    "en": "The turn: from a record to a target",
+    "zh": "反转：从记录变成目标"
+   },
+   "figure": "pricetags",
+   "paras": [
+    {
+     "en": "Here is the counter-intuitive part. A law of nature holds whether or not anyone believes it. Moore's Law held largely because the industry believed it. \"Then it became a self-fulfilling prophecy,\" Moore said. \"The industry recognized it had to stay on that rate of progress or fall behind\" [[7]]. The historian Cyrus Mody makes the same point: the idea \"has long been a coordinating concept and common goal\" for chipmakers [[6]].",
+     "zh": "反常识的地方就在这里。自然规律不管有没有人信都成立；摩尔定律之所以成立，很大程度上是因为整个行业信了它。摩尔说：\"后来它变成了一个自我实现的预言。行业意识到，必须跟上这个速度，否则就会落后\" [[7]]。历史学家赛勒斯·莫迪（Cyrus Mody）也这样看：这个想法\"长期以来是芯片业的协调概念和共同目标\" [[6]]。"
+    },
+    {
+     "en": "Chipmakers, equipment makers and chip designers could all plan around the same schedule, each expecting the others to deliver on time. Moore came to accept the name as it \"became something that almost drove the semiconductor industry rather than just recording its progress\" [[5]]. By 2010 commercial microprocessors had passed a billion transistors [[4]].",
+     "zh": "芯片制造商、设备商和芯片设计公司都按同一张时间表做计划，每一方都预期其他方会按时交付。摩尔后来也接受了这个名字，因为它\"几乎变成了推动半导体行业的力量，而不只是记录它的进步\" [[5]]。到 2010 年，商用微处理器的晶体管数已经超过 10 亿个 [[4]]。"
+    }
+   ]
+  },
+  {
+   "id": "intel",
+   "h": {
+    "en": "He also built the companies that kept the pace",
+    "zh": "他也创办了跟上这个节奏的公司"
+   },
+   "photo": {
+    "file": "Intel C4004.jpg",
+    "credit": "Thomas Nguyen",
+    "license": "CC BY-SA 4.0",
+    "fit": "contain",
+    "caption": {
+     "en": "An Intel C4004, Intel's first microprocessor (1971), with 2,300 transistors.",
+     "zh": "英特尔 C4004，英特尔第一颗微处理器（1971 年），有 2300 个晶体管。"
+    },
+    "alt": {
+     "en": "A small white and gold chip with gold pins",
+     "zh": "带金色引脚的白色和金色小芯片"
+    }
+   },
+   "paras": [
+    {
+     "en": "Moore was not only an observer. In 1957 he was one of eight colleagues who left Shockley Semiconductor to found Fairchild Semiconductor, and in July 1968 he and Robert Noyce founded Intel [[10]]. Intel's 4004, launched in November 1971 for a Japanese calculator maker, put a whole processor on one chip with 2,300 transistors [[11]].",
+     "zh": "摩尔不只是旁观者。1957 年，他是离开肖克利半导体、创办仙童半导体的八位同事之一；1968 年 7 月，他和罗伯特·诺伊斯创办了英特尔 [[10]]。英特尔 1971 年 11 月为一家日本计算器公司推出的 4004，把一整个处理器做在一块芯片上，用了 2300 个晶体管 [[11]]。"
+    },
+    {
+     "en": "He became Intel's president and chief executive in 1975 and chairman and CEO in 1979, stayed CEO until 1987, and became chairman emeritus in 1997 [[9]]. He received the US National Medal of Technology in 1990 and the Presidential Medal of Freedom in 2002 [[9]].",
+     "zh": "他 1975 年出任英特尔总裁兼 CEO，1979 年任董事长兼 CEO，CEO 一直做到 1987 年，1997 年成为荣誉董事长 [[9]]。他在 1990 年获美国国家技术奖章，2002 年获总统自由勋章 [[9]]。"
+    }
+   ]
+  },
+  {
+   "id": "now",
+   "h": {
+    "en": "Is it over?",
+    "zh": "它结束了吗？"
+   },
+   "photo": {
+    "file": "Former Intel CEO Gordon Moore in his cubicle.jpg",
+    "credit": "Intel Free Press",
+    "license": "CC BY-SA 2.0",
+    "fit": "contain",
+    "caption": {
+     "en": "Gordon Moore at his desk in Intel's Robert Noyce Building, Santa Clara, July 2003.",
+     "zh": "2003 年 7 月，戈登·摩尔在英特尔圣克拉拉罗伯特·诺伊斯大楼的办公位上。"
+    },
+    "alt": {
+     "en": "An older man in a blue shirt sitting in an office cubicle",
+     "zh": "穿蓝衬衫的老人坐在办公格子间里"
+    }
+   },
+   "paras": [
+    {
+     "en": "In September 2022 Nvidia's chief executive, Jensen Huang, said: \"Moore's law is dead,\" adding that \"the idea that the chip is going to go down in cost over time, unfortunately, is a story of the past\" [[14]]. In March 2024 Nvidia's Blackwell joined two dies, each as large as chipmaking tools can print, into one GPU of 208 billion transistors [[13]]. The count still rises; it is the falling cost, the part Moore cared about most, that is in question.",
+     "zh": "2022 年 9 月，英伟达 CEO 黄仁勋说：\"摩尔定律已经死了\"，并说\"芯片会随着时间越来越便宜，这种想法很遗憾已经成为过去\" [[14]]。2024 年 3 月，英伟达的 Blackwell 把两块芯片拼成一颗 GPU，每块都大到制造设备能印出的极限，共有 2080 亿个晶体管 [[13]]。晶体管数量还在增长；成问题的，是成本下降这一部分，也正是摩尔最看重的那部分。"
+    },
+    {
+     "en": "The schedule has not stopped either. TSMC, the subject of our previous issue, began high-volume production of its 2-nanometre chips in late 2025 and plans volume production of its A14 process in 2028 [[15]].",
+     "zh": "时间表也没有停下。我们上一期写的台积电，2025 年底开始大规模量产 2 纳米芯片，并计划在 2028 年量产 A14 工艺 [[15]]。"
+    }
+   ]
+  },
+  {
+   "id": "timeline",
+   "h": {
+    "en": "Timeline",
+    "zh": "时间线"
+   },
+   "figure": "timeline",
+   "paras": []
+  },
+  {
+   "id": "end",
+   "h": {
+    "en": "Observation, projection, promise",
+    "zh": "观察、推测、承诺"
+   },
+   "paras": [
+    {
+     "en": "So why did a line through five dots come true? In our view, because it stopped being only a prediction. Moore offered an observation and a projection; an industry turned it into a promise that each company made to the others, and kept for decades. \"I never expected it to be an accurate prediction,\" Moore said [[7]]. It was accurate because so many people worked to make it so.",
+     "zh": "那么，一条只连了五个点的线，为什么会成真？在我们看来，是因为它不再只是一个预测。摩尔给出的是一个观察和一个推测；整个行业把它变成了公司之间彼此的承诺，并守了几十年。摩尔说：\"我从没指望它是个准确的预测\" [[7]]。它之所以准，是因为有太多人在努力让它变准。"
+    }
+   ]
+  }
+ ],
+ "timeline": [
+  {
+   "date": {
+    "en": "1957",
+    "zh": "1957 年"
+   },
+   "text": {
+    "en": "Co-founds Fairchild Semiconductor with Robert Noyce and six others",
+    "zh": "与罗伯特·诺伊斯等七人共同创办仙童半导体"
+   },
+   "src": [
+    10
+   ]
+  },
+  {
+   "date": {
+    "en": "19 Apr 1965",
+    "zh": "1965 年 4 月 19 日"
+   },
+   "text": {
+    "en": "\"Cramming more components onto integrated circuits\" in Electronics",
+    "zh": "在《电子学》发表《把更多元件塞进集成电路》"
+   },
+   "src": [
+    1,
+    3
+   ]
+  },
+  {
+   "date": {
+    "en": "Jul 1968",
+    "zh": "1968 年 7 月"
+   },
+   "text": {
+    "en": "Founds Intel with Robert Noyce",
+    "zh": "与罗伯特·诺伊斯创办英特尔"
+   },
+   "src": [
+    10
+   ]
+  },
+  {
+   "date": {
+    "en": "Nov 1971",
+    "zh": "1971 年 11 月"
+   },
+   "text": {
+    "en": "Intel 4004, 2,300 transistors",
+    "zh": "英特尔 4004，2300 个晶体管"
+   },
+   "src": [
+    11
+   ]
+  },
+  {
+   "date": {
+    "en": "1975",
+    "zh": "1975 年"
+   },
+   "text": {
+    "en": "Revises the pace to a doubling every two years; becomes Intel's president and CEO",
+    "zh": "把速度修正为每两年翻一番；出任英特尔总裁兼 CEO"
+   },
+   "src": [
+    3,
+    9
+   ]
+  },
+  {
+   "date": {
+    "en": "1979 to 1987",
+    "zh": "1979 至 1987 年"
+   },
+   "text": {
+    "en": "Chairman and CEO of Intel",
+    "zh": "任英特尔董事长兼 CEO"
+   },
+   "src": [
+    9
+   ]
+  },
+  {
+   "date": {
+    "en": "1990",
+    "zh": "1990 年"
+   },
+   "text": {
+    "en": "US National Medal of Technology",
+    "zh": "获美国国家技术奖章"
+   },
+   "src": [
+    9
+   ]
+  },
+  {
+   "date": {
+    "en": "2002",
+    "zh": "2002 年"
+   },
+   "text": {
+    "en": "Presidential Medal of Freedom",
+    "zh": "获总统自由勋章"
+   },
+   "src": [
+    9
+   ]
+  },
+  {
+   "date": {
+    "en": "2010",
+    "zh": "2010 年"
+   },
+   "text": {
+    "en": "Commercial microprocessors pass a billion transistors",
+    "zh": "商用微处理器晶体管数超过 10 亿个"
+   },
+   "src": [
+    4
+   ]
+  },
+  {
+   "date": {
+    "en": "2024",
+    "zh": "2024 年"
+   },
+   "text": {
+    "en": "Nvidia Blackwell: 208 billion transistors in one GPU",
+    "zh": "英伟达 Blackwell：一颗 GPU 有 2080 亿个晶体管"
+   },
+   "src": [
+    13
+   ]
+  }
+ ],
+ "countries": [],
+ "sources": [
+  {
+   "n": 1,
+   "name": "Electronics (reprint)",
+   "title": "Gordon E. Moore, \"Cramming more components onto integrated circuits\", Electronics, 19 April 1965",
+   "url": "https://www.cs.umd.edu/~gasarch/BLOGPAPERS/gmoore.pdf"
+  },
+  {
+   "n": 2,
+   "name": "Electronics (World Radio History archive)",
+   "title": "Electronics, 19 April 1965, full issue (pages 114 to 117)",
+   "url": "https://www.worldradiohistory.com/Archive-Electronics/60s/65/Electronics-1965-04-19-Moore's-Law.pdf"
+  },
+  {
+   "n": 3,
+   "name": "Computer History Museum",
+   "title": "1965: \"Moore's Law\" predicts the future of integrated circuits",
+   "url": "https://www.computerhistory.org/siliconengine/moores-law-predicts-the-future-of-integrated-circuits/"
+  },
+  {
+   "n": 4,
+   "name": "IEEE (ETHW)",
+   "title": "Milestone: Moore's Law predicts integrated circuit complexity growth, 1965",
+   "url": "https://ieeemilestones.ethw.org/Milestones:Moore's_Law_-_Predicts_Integrated_Circuit_Complexity_Growth,_1965"
+  },
+  {
+   "n": 5,
+   "name": "IEEE Spectrum",
+   "title": "Gordon Moore: The man whose name means progress (interview, March 2015)",
+   "url": "https://spectrum.ieee.org/gordon-moore-the-man-whose-name-means-progress"
+  },
+  {
+   "n": 6,
+   "name": "IEEE Spectrum",
+   "title": "Five things you might not know about Moore's Law",
+   "url": "https://spectrum.ieee.org/five-things-you-might-not-know-about-moores-law"
+  },
+  {
+   "n": 7,
+   "name": "EE Times interview (2005), quoted by Om Malik",
+   "title": "Moore on Moore's Law (3 April 2023)",
+   "url": "https://om.co/2023/04/03/moore-on-moores-law/"
+  },
+  {
+   "n": 8,
+   "name": "Intel",
+   "title": "Moore's Law (Intel virtual vault)",
+   "url": "https://www.intel.com/content/www/us/en/history/virtual-vault/articles/moores-law.html"
+  },
+  {
+   "n": 9,
+   "name": "Gordon and Betty Moore Foundation",
+   "title": "Gordon Moore biography",
+   "url": "https://moore.org/docs/default-source/press-kit/gordon-moore-bio"
+  },
+  {
+   "n": 10,
+   "name": "Intel",
+   "title": "Press release on Gordon Moore's career (24 March 2023)",
+   "url": "https://www.intc.com/news-events/press-releases/detail/1611/gordon-moore-intel-co-founder-dies-at-94"
+  },
+  {
+   "n": 11,
+   "name": "Intel",
+   "title": "The story of the Intel 4004",
+   "url": "https://www.intel.com/content/www/us/en/history/museum-story-of-intel-4004.html"
+  },
+  {
+   "n": 12,
+   "name": "Science Museum Group",
+   "title": "Intel 386 microprocessor, 1985",
+   "url": "https://collection.sciencemuseumgroup.org.uk/objects/co523252/intel-386-microprocessor-1985-microprocessors"
+  },
+  {
+   "n": 13,
+   "name": "Nvidia",
+   "title": "NVIDIA Blackwell architecture",
+   "url": "https://nvidia.com/blackwell"
+  },
+  {
+   "n": 14,
+   "name": "The FPS Review",
+   "title": "NVIDIA CEO comments on GeForce RTX 40 pricing, says \"Moore's Law is dead\" (23 September 2022)",
+   "url": "https://www.thefpsreview.com/2022/09/23/nvidia-ceo-comments-on-high-pricing-of-geforce-rtx-40-series-graphics-cards-says-moores-law-is-dead"
+  },
+  {
+   "n": 15,
+   "name": "The Motley Fool",
+   "title": "TSMC Q3 2026 earnings call transcript (15 October 2026)",
+   "url": "https://www.fool.com/earnings/call-transcripts/2026/10/15/tsmc-tsm-q3-2026-earnings-call-transcript/"
+  }
+ ],
+ "stats": [
+  {
+   "label": {
+    "en": "Components he forecast for 1975",
+    "zh": "他预测 1975 年的元件数"
+   },
+   "from": 0,
+   "to": 65000,
+   "unit": "n",
+   "fromLabel": {
+    "en": "",
+    "zh": ""
+   },
+   "toLabel": {
+    "en": "per chip; a 1975 memory chip held 65,536",
+    "zh": "每块芯片；1975 年一款存储芯片装了 65536 个"
+   },
+   "line": {
+    "en": "65,000 components by 1975, forecast in 1965",
+    "zh": "1965 年预测：1975 年 6.5 万个元件"
+   },
+   "src": [
+    1,
+    8
+   ]
+  },
+  {
+   "label": {
+    "en": "Transistors on a chip",
+    "zh": "一块芯片上的晶体管"
+   },
+   "from": 2300,
+   "to": 208000000000,
+   "unit": "n",
+   "fromLabel": {
+    "en": "Intel 4004, 1971",
+    "zh": "英特尔 4004，1971 年"
+   },
+   "toLabel": {
+    "en": "Nvidia Blackwell, 2024",
+    "zh": "英伟达 Blackwell，2024 年"
+   },
+   "src": [
+    11,
+    13
+   ]
+  },
+  {
+   "label": {
+    "en": "Doubling period",
+    "zh": "翻一番的周期"
+   },
+   "from": 1,
+   "to": 2,
+   "unit": "n",
+   "suffix": {
+    "en": " years",
+    "zh": " 年"
+   },
+   "fromLabel": {
+    "en": "1965: every year",
+    "zh": "1965 年：每年"
+   },
+   "toLabel": {
+    "en": "1975: every two years",
+    "zh": "1975 年：每两年"
+   },
+   "src": [
+    1,
+    3
+   ]
+  }
+ ],
+ "name": "Gordon Moore",
+ "legalName": "Gordon E. Moore",
+ "newsMatch": {
+  "src": "\\bIntel\\b|英特尔",
+  "flags": ""
+ },
+ "alwaysCite": [
+  12
+ ],
+ "method": {
+  "en": "Method: drafted with AI from the sources above and checked line by line by an editor. This profile covers public work, decisions and public statements only. Quotes are from the article, interviews and statements cited (translated by us in the Chinese edition). Transistor counts are as published by the companies. Found a mistake? Email ",
+  "zh": "写法：本文由 AI 根据上列来源整理，编辑逐条核对。本文只写公开的工作、决定和公开发言。引语出自所列文章、访谈和声明，由我们翻译。晶体管数量以公司公布为准。发现错误请写信到 "
+ },
+ "priceTags": {
+  "title": {
+   "en": "Components on one chip (log scale)",
+   "zh": "一块芯片上的元件数（对数刻度）"
+  },
+  "note": {
+   "en": "Log scale: each step is ten times the one before, so a straight climb means steady doubling. Grey: Moore's 1965 forecast for 1975; orange: chips actually made. Sources: Moore (1965), Intel, Science Museum Group, IEEE, Nvidia.",
+   "zh": "对数刻度：每往右一格是前一格的十倍，所以稳步增长就意味着按时翻番。灰色是摩尔 1965 年对 1975 年的预测，橙色是实际造出来的芯片。来源：摩尔（1965）、英特尔、英国科学博物馆集团、IEEE、英伟达。"
+  },
+  "legend": [
+   {
+    "en": "1965 forecast",
+    "zh": "1965 年的预测"
+   },
+   {
+    "en": "Chips made",
+    "zh": "实际芯片"
+   }
+  ],
+  "unit": "n",
+  "log": true,
+  "rows": [
+   {
+    "label": {
+     "en": "Intel 4004 (1971)",
+     "zh": "英特尔 4004（1971）"
+    },
+    "v": 2300,
+    "kind": "market"
+   },
+   {
+    "label": {
+     "en": "Forecast for 1975",
+     "zh": "对 1975 年的预测"
+    },
+    "v": 65000,
+    "kind": "deal"
+   },
+   {
+    "label": {
+     "en": "Memory chip (1975)",
+     "zh": "存储芯片（1975）"
+    },
+    "v": 65536,
+    "kind": "market"
+   },
+   {
+    "label": {
+     "en": "Intel 386 (1985)",
+     "zh": "英特尔 386（1985）"
+    },
+    "v": 275000,
+    "kind": "market"
+   },
+   {
+    "label": {
+     "en": "Microprocessors (2010)",
+     "zh": "微处理器（2010）"
+    },
+    "v": 1000000000,
+    "kind": "market"
+   },
+   {
+    "label": {
+     "en": "Nvidia Blackwell (2024)",
+     "zh": "英伟达 Blackwell（2024）"
+    },
+    "v": 208000000000,
+    "kind": "market"
+   }
+  ]
+ },
+ "ig": {
+  "explain": {
+   "kicker": {
+    "en": "START HERE",
+    "zh": "先看懂"
+   },
+   "rows": [
+    {
+     "q": {
+      "en": "What did Moore predict?",
+      "zh": "摩尔预测了什么？"
+     },
+     "a": {
+      "en": "In 1965: the components on a chip, at the lowest cost per part, would keep doubling, to 65,000 by 1975.",
+      "zh": "1965 年：在每个元件成本最低时，芯片上的元件数会不断翻番，到 1975 年达到 6.5 万个。"
+     }
+    },
+    {
+     "q": {
+      "en": "Is it a law?",
+      "zh": "它是定律吗？"
+     },
+     "a": {
+      "en": "No. \"It was an observation and a projection,\" Moore said.",
+      "zh": "不是。摩尔说：\"只是一个观察和一个推测。\""
+     }
+    },
+    {
+     "q": {
+      "en": "Then why did it come true?",
+      "zh": "那它为什么成真了？"
+     },
+     "a": {
+      "en": "The industry made it a target: keep up, or fall behind.",
+      "zh": "整个行业把它当成了目标：跟上，否则就落后。"
+     }
+    }
+   ]
+  },
+  "numbers": {
+   "kicker": {
+    "en": "ONE FORECAST, THREE NUMBERS",
+    "zh": "一条预测，三个数字"
+   },
+   "rows": [
+    {
+     "big": {
+      "en": "5",
+      "zh": "5 个"
+     },
+     "label": {
+      "en": "data points behind the forecast",
+      "zh": "数据点，撑起了这条预测"
+     },
+     "sub": {
+      "en": "Electronics magazine, April 1965",
+      "zh": "《电子学》杂志，1965 年 4 月"
+     }
+    },
+    {
+     "big": {
+      "en": "65,000",
+      "zh": "6.5 万"
+     },
+     "label": {
+      "en": "components he forecast for 1975",
+      "zh": "个元件，他对 1975 年的预测"
+     },
+     "sub": {
+      "en": "A 1975 memory chip held 65,536",
+      "zh": "1975 年一款存储芯片装了 65536 个"
+     }
+    },
+    {
+     "big": {
+      "en": "208 billion",
+      "zh": "2080 亿"
+     },
+     "label": {
+      "en": "transistors in one Nvidia GPU",
+      "zh": "个晶体管，一颗英伟达 GPU"
+     },
+     "sub": {
+      "en": "Blackwell, 2024; the 1971 Intel 4004 had 2,300",
+      "zh": "Blackwell，2024 年；1971 年的英特尔 4004 只有 2300 个"
+     }
+    }
+   ],
+   "source": {
+    "en": "Sources: Moore (1965), IEEE, Intel, Nvidia",
+    "zh": "来源：摩尔（1965）、IEEE、英特尔、英伟达"
+   }
+  },
+  "decisionsKicker": {
+   "en": "THREE TURNS",
+   "zh": "三次转折"
+  },
+  "decisions": [
+   {
+    "h": {
+     "en": "Draw the line",
+     "zh": "画出那条线"
+    },
+    "tag": "1965",
+    "t": {
+     "en": "Five data points, extended ten years: 65,000 components by 1975. His point: chips will get cheap.",
+     "zh": "五个数据点，往后延长十年：1975 年 6.5 万个元件。他想说的是：芯片会变便宜。"
+    }
+   },
+   {
+    "h": {
+     "en": "Slow it down",
+     "zh": "放慢一点"
+    },
+    "tag": "1975",
+    "t": {
+     "en": "Revised to a doubling every two years. Later, someone else named it Moore's Law.",
+     "zh": "修正为每两年翻一番。后来，\"摩尔定律\"这个名字是别人起的。"
+    }
+   },
+   {
+    "h": {
+     "en": "Turn it into a target",
+     "zh": "变成目标"
+    },
+    "tag": "Industry",
+    "t": {
+     "en": "\"A self-fulfilling prophecy\": the industry had to keep the pace or fall behind.",
+     "zh": "\"自我实现的预言\"：行业必须跟上这个速度，否则就会落后。"
+    }
+   }
+  ],
+  "chart": {
+   "kind": "tags",
+   "kicker": {
+    "en": "THE LINE KEPT GOING",
+    "zh": "那条线一直在延伸"
+   },
+   "sub": {
+    "en": "Components on one chip, log scale.",
+    "zh": "一块芯片上的元件数，对数刻度。"
+   },
+   "foot": {
+    "en": "Moore (1965); Intel; IEEE; Nvidia",
+    "zh": "摩尔（1965）；英特尔；IEEE；英伟达"
+   }
+  },
+  "countries": {
+   "kicker": {
+    "en": "THEN AND NOW",
+    "zh": "从那时到现在"
+   },
+   "title": {
+    "en": "From a magazine chart to the AI chip",
+    "zh": "从一张杂志图表，到 AI 芯片"
+   },
+   "rows": [
+    {
+     "flags": [],
+     "name": {
+      "en": "1965 · Electronics",
+      "zh": "1965 · 《电子学》"
+     },
+     "t": {
+      "en": "A forecast: 65,000 components on a chip by 1975.",
+      "zh": "一条预测：1975 年一块芯片上有 6.5 万个元件。"
+     }
+    },
+    {
+     "flags": [],
+     "name": {
+      "en": "1971 · Intel 4004",
+      "zh": "1971 · 英特尔 4004"
+     },
+     "t": {
+      "en": "A whole processor on one chip: 2,300 transistors.",
+      "zh": "一整个处理器做在一块芯片上：2300 个晶体管。"
+     }
+    },
+    {
+     "flags": [],
+     "name": {
+      "en": "Today · Nvidia Blackwell",
+      "zh": "今天 · 英伟达 Blackwell"
+     },
+     "t": {
+      "en": "208 billion transistors; cheaper chips are \"a story of the past\", says its CEO.",
+      "zh": "2080 亿个晶体管；它的 CEO 说，芯片变便宜\"已经成为过去\"。"
+     }
+    }
+   ],
+   "foot": {
+    "en": "Sources: Moore (1965), Intel, Nvidia, The FPS Review",
+    "zh": "来源：摩尔（1965）、英特尔、英伟达、The FPS Review"
+   }
+  }
+ }
+}

@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { PROFILES } from "@/lib/anatomy";
+import { listProfiles } from "@/lib/anatomy-db";
 import { INDEX_MIN_COUNTRIES, archiveDays, companyDirectory, notable, sitemapRows } from "@/lib/data";
 
 const BASE = "https://coda.news";
@@ -8,7 +8,7 @@ export const revalidate = 3600;
 const RECENT = 30 * 86400_000;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [{ events, topics }, days, dir] = await Promise.all([sitemapRows(), archiveDays(30), companyDirectory()]);
+  const [{ events, topics }, days, dir, profiles] = await Promise.all([sitemapRows(), archiveDays(30), companyDirectory(), listProfiles()]);
   // only company pages with something to read: a profile (description from Wikidata) or our coverage
   const companies = dir.filter((c) => notable(c) && (c.events > 0 || !!c.description));
   const both = (path: string) => ({ languages: { en: `${BASE}${path}`, "zh-CN": `${BASE}/zh${path === "/" ? "" : path}` } });
@@ -21,7 +21,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/topics`, changeFrequency: "daily" as const, priority: 0.5 },
     { url: `${BASE}/companies`, changeFrequency: "daily" as const, priority: 0.5 },
     { url: `${BASE}/anatomy`, changeFrequency: "weekly" as const, priority: 0.6 },
-    ...PROFILES.map((p) => ({ url: `${BASE}/anatomy/${p.slug}`, lastModified: p.updated, changeFrequency: "weekly" as const, priority: 0.8 })),
+    ...profiles.map((p) => ({ url: `${BASE}/anatomy/${p.slug}`, lastModified: p.updated, changeFrequency: "weekly" as const, priority: 0.8 })),
     { url: `${BASE}/about`, changeFrequency: "monthly" as const, priority: 0.3 },
     { url: `${BASE}/corrections`, changeFrequency: "daily" as const, priority: 0.3 },
     { url: `${BASE}/archive`, changeFrequency: "daily" as const, priority: 0.4 },

@@ -7,7 +7,7 @@ const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env
 export async function POST(req: Request) {
   const secret = process.env.REVALIDATE_SECRET;
   if (!secret || req.headers.get("x-revalidate-secret") !== secret) return new Response("forbidden", { status: 403 });
-  const body = (await req.json().catch(() => ({}))) as { events?: string[]; home?: boolean; sections?: boolean };
+  const body = (await req.json().catch(() => ({}))) as { events?: string[]; home?: boolean; sections?: boolean; anatomy?: string[] };
   const slugs = (body.events ?? []).filter((s) => /^[a-z0-9-]{1,200}$/.test(s)).slice(0, 100);
   if (slugs.length) {
     // refresh only the changed stories' cached data (by slug and by id), not every story on the site
@@ -21,5 +21,15 @@ export async function POST(req: Request) {
     for (const l of ["en", "zh"]) for (const p of ["", "/economy", "/technology", "/sport", "/entertainment", "/fashion", "/travel", "/automotive", "/gaming", "/australia", "/china"]) revalidatePath(`/${l}${p}`);
   }
   if (body.home) { revalidateTag("list", "max"); for (const l of ["en", "zh"]) revalidatePath(`/${l}`); }
-  return Response.json({ ok: true, events: slugs.length, home: !!body.home, sections: !!body.sections });
+  // a Coda Anatomy issue went live or was edited (tick "anatomy" step): the issue, the index, and the home box
+  const ana = (body.anatomy ?? []).filter((s) => /^[a-z0-9-]{1,80}$/.test(s)).slice(0, 20);
+  if (ana.length) {
+    revalidateTag("anatomy", "max");
+    for (const l of ["en", "zh"]) {
+      revalidatePath(`/${l}/anatomy`);
+      revalidatePath(`/${l}`);
+      for (const s of ana) revalidatePath(`/${l}/anatomy/${s}`);
+    }
+  }
+  return Response.json({ ok: true, anatomy: ana.length, events: slugs.length, home: !!body.home, sections: !!body.sections });
 }
