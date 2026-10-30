@@ -13,8 +13,9 @@ import { ReportError, ShareBar } from "@/components/EventTools";
 import { AnatomyPromo } from "@/components/anatomy/Promo";
 import { shareImages } from "@/lib/share-image";
 // Vercel cost (29 Oct 2026): crawlers open old pages one by one and every expired page is rebuilt (an ISR write).
-// The 30 most important changed stories are also revalidated on demand every hour (/api/revalidate); others refresh weekly.
-export const revalidate = 604800;
+// Crawlers that pass the bot check walk story pages one by one (30 Oct 2026), so a page only expires after 30 days.
+// Stories that change are rebuilt on demand by the hourly tick (/api/revalidate, top 30 changed stories).
+export const revalidate = 2592000;
 export async function generateStaticParams() { return []; }
 export const dynamicParams = true;
 

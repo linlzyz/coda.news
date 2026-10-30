@@ -15,7 +15,8 @@ import { CompanyLogo } from "@/components/companies/Logo";
 import { Tabs } from "@/components/companies/Tabs";
 import { sectorLabel } from "@/components/companies/sectors";
 // Vercel cost (29 Oct 2026): crawlers open old pages one by one and every expired page is rebuilt (an ISR write).
-export const revalidate = 604800;
+// 30 Oct 2026: crawlers walk company pages; two weeks is enough for their news lists
+export const revalidate = 1209600;
 export async function generateStaticParams() { return []; }
 export const dynamicParams = true;
 
