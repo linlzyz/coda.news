@@ -26,11 +26,14 @@ async function refreshToken() {
   else log("instagram: token refresh failed", JSON.stringify(j).slice(0, 160));
 }
 
-type Post = { id: number; slug: string; kind: string; format?: string; n?: number };
+type Post = { id: number; slug: string; kind: string; format?: string; n?: number; explain?: boolean };
+const anatomyUrl = (slug: string, s: string) => `https://coda.news/api/ig/anatomy/${slug}?s=${s}&fmt=jpg`;
 const reelUrl = (id: number) => `https://coda.news/api/ig/reel/${id}.mp4`;
 const launchUrl = (id: number, s: string) => `https://coda.news/api/ig/launches/${id}?s=${s}&fmt=jpg`;
-const storyUrl = (p: Post) => p.kind === "launches" ? launchUrl(p.id, "story") : `https://coda.news/event/${p.slug}/social?s=story&p=${p.id}&fmt=jpg`;
-const slides = (p: Post) => p.kind === "launches"
+const storyUrl = (p: Post) => p.kind === "anatomy" ? anatomyUrl(p.slug, "story") : p.kind === "launches" ? launchUrl(p.id, "story") : `https://coda.news/event/${p.slug}/social?s=story&p=${p.id}&fmt=jpg`;
+const slides = (p: Post) => p.kind === "anatomy"
+  ? ["1", ...(p.explain ? ["explain"] : []), "2", "3", "4", "5"].map((s) => anatomyUrl(p.slug, s))
+  : p.kind === "launches"
   ? ["0", ...Array.from({ length: p.n ?? 0 }, (_, i) => String(i + 1))].map((s) => launchUrl(p.id, s))
   : p.kind === "travel"
   ? ["t1", "t2"].map((s) => `https://coda.news/event/${p.slug}/social?s=${s}&p=${p.id}&fmt=jpg`)
@@ -186,7 +189,7 @@ export async function proposeInstagram(force = false, eventId: number | null = n
   if (!(await setting("ig_token"))) return 0;
   // 20:00 Melbourne, with 21:00 as a second chance if the first attempt failed
   if (!force && !["20", "21"].includes(melb({ hour: "numeric", hour12: false }))) return 0;
-  if (!force && (await sql`select 1 from ig_posts where created_at > now() - interval '20 hours' and (status not in ('failed', 'preview') or error like '%media_publish%')`).length) return 0;
+  if (!force && (await sql`select 1 from ig_posts where (created_at > now() - interval '20 hours' and (status not in ('failed', 'preview', 'queued') or error like '%media_publish%')) or posted_at > now() - interval '20 hours'`).length) return 0;
   // Sundays: the week's launches instead of a single story (falls back to the usual post if the week had too few)
   if (!eventId && melb({ weekday: "short" }).startsWith("Sun") && !(await sql`select 1 from ig_posts where kind = 'launches' and created_at > now() - interval '6 days' and status not in ('failed', 'preview')`).length) {
     // a preview made earlier today (step=igpreview, for the owner to look at) goes out as it was shown
@@ -407,4 +410,19 @@ export async function finishReels(): Promise<number> {
     }
   }
   return n;
+}
+
+/** Coda Anatomy (30 Oct 2026): the weekly issue is prepared in a cloud session, which queues its post as an ig_posts row
+ *  (kind 'anatomy', status 'queued', copy {slug, explain, at}). Every instagram step publishes a queued post once its time
+ *  has come and the page is live, so no Instagram token ever leaves the database. */
+export async function publishQueuedAnatomy(): Promise<string | null> {
+  const sql = db();
+  const [q] = await sql<{ id: number; caption: string; slug: string; explain: boolean }[]>`select id, caption, copy->>'slug' as slug, coalesce((copy->>'explain')::boolean, false) as explain
+    from ig_posts where kind = 'anatomy' and status = 'queued' and (copy->>'at')::timestamptz <= now() order by id limit 1`;
+  if (!q) return null;
+  const live = await fetch(anatomyUrl(q.slug, "1"), { signal: AbortSignal.timeout(60_000) }).then((r) => r.ok && (r.headers.get("content-type") ?? "").startsWith("image/")).catch(() => false);
+  if (!live) { log(`instagram anatomy ${q.id}: ${q.slug} not live yet`); return "waiting"; }
+  await sql`update ig_posts set status = 'posting' where id = ${q.id} and status = 'queued'`;
+  try { return await publishCarousel({ id: q.id, slug: q.slug, kind: "anatomy", caption: q.caption, explain: q.explain }); }
+  catch (e) { await sql`update ig_posts set status = 'failed', error = ${(e as Error).message} where id = ${q.id}`; log("instagram anatomy", (e as Error).message); return "failed"; }
 }
