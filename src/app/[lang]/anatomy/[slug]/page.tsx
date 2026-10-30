@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "@/components/LLink";
-import { alternates, langFrom } from "@/lib/i18n";
+import { alternates, langFrom, t } from "@/lib/i18n";
+import { Newsletter } from "@/components/Newsletter";
 import { companyMap, listEvents } from "@/lib/data";
 import { SITE, orgLd } from "@/lib/site";
 import { regionName } from "@/lib/ui";
@@ -181,6 +182,11 @@ export default async function Page({ params }: PageProps<"/[lang]/anatomy/[slug]
           {s.figure && (Array.isArray(s.figure) ? s.figure : [s.figure]).map((f) => <FigureFor key={f} f={f} pr={pr} zh={zh} />)}
         </section>
       ))}
+
+      {/* readers who finish a long read are the likeliest to subscribe (29 Oct 2026: no real subscribers yet) */}
+      <div className="mt-12">
+        <Newsletter lang={l} t={Object.fromEntries((["nlTitle", "nlText", "nlOk", "nlPlaceholder", "subscribe", "nlErr", "privacy"] as const).map((k) => [k, t(l, k)])) as Record<"nlTitle" | "nlText" | "nlOk" | "nlPlaceholder" | "subscribe" | "nlErr" | "privacy", string>} />
+      </div>
 
       <section className="mt-14 border-t border-[#E5E7EB] pt-6">
         <div className="flex items-baseline justify-between gap-4">
