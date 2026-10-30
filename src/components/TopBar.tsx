@@ -1,6 +1,7 @@
 import Link from "@/components/LLink";
 import { t, type Lang } from "@/lib/i18n";
 import { Icon } from "./Icons";
+import { HantToggle } from "./HantToggle";
 import { LangSwitch } from "./LangSwitch";
 import { SearchBox } from "./SearchBox";
 import { ThemeToggle } from "./ThemeToggle";
@@ -14,6 +15,7 @@ export function TopBar({ l }: { l: Lang }) {
         <div className="ml-auto flex items-center gap-2">
           <Link href="/search" className="flex h-10 w-10 items-center justify-center rounded-xl text-neutral-600 sm:hidden" aria-label="Search"><Icon name="search" /></Link>
           <ThemeToggle label={l === "zh" ? "切换深色/浅色" : "Light or dark"} />
+          {l === "zh" && <HantToggle />}
           <LangSwitch lang={l} />
           <Link href="/brief" className="hidden rounded-xl bg-[#1F2328] px-4 py-2.5 text-[13px] font-semibold text-white hover:bg-[#2B3038] sm:inline-block">{t(l, "dailyBrief")}</Link>
         </div>
