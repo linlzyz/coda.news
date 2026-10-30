@@ -198,7 +198,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
             <div key={i} style={{ display: "flex", flexDirection: "column" }}>
               <div style={{ display: "flex", fontSize: 26, color: "#3F434A" }}>{P(r.label)}</div>
               <div style={{ display: "flex", alignItems: "center", marginTop: 8 }}>
-                <div style={{ display: "flex", height: 44, width: Math.max(12, (r.v / max) * (zh ? 600 : 700)), background: r.kind === "deal" ? "#A3A8B0" : ORANGE, borderRadius: "0 8px 8px 0" }} />
+                <div style={{ display: "flex", height: 44, width: Math.max(12, (c2.log ? Math.log10(Math.max(r.v, 1)) / Math.log10(max) : r.v / max) * (zh ? 600 : 700)), background: r.kind === "deal" ? "#A3A8B0" : ORANGE, borderRadius: "0 8px 8px 0" }} />
                 <div style={{ display: "flex", marginLeft: 16, fontSize: 36, fontWeight: 900, color: INK }}>{tagVal(r.v, zh, c2.unit)}</div>
               </div>
             </div>

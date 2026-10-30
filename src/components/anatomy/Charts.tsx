@@ -301,7 +301,7 @@ export function TimelineRow({ date, children, last }: { date: string; children: 
 type LL = { en: string; zh: string };
 const tr = (l: LL, zh: boolean) => (zh ? l.zh : l.en);
 
-export function PriceTags({ data, zh }: { data: { title: LL; note: LL; legend?: [LL, LL]; unit?: "n"; rows: { label: LL; v: number; kind: "deal" | "market" }[] }; zh: boolean }) {
+export function PriceTags({ data, zh }: { data: { title: LL; note: LL; legend?: [LL, LL]; unit?: "n"; log?: boolean; rows: { label: LL; v: number; kind: "deal" | "market" }[] }; zh: boolean }) {
   const [ref, on] = useInView<HTMLDivElement>(0.3);
   const max = Math.max(...data.rows.map((r) => r.v));
   return (
@@ -317,7 +317,7 @@ export function PriceTags({ data, zh }: { data: { title: LL; note: LL; legend?: 
             <span className="text-[12.5px] leading-tight text-neutral-600">{tr(r.label, zh)}</span>
             <span className="flex items-center gap-2">
               <span className={`block h-[18px] rounded-r-md ${r.kind === "deal" ? "ana-neutral-bg" : "ana-amd-bg"} transition-[width] duration-700 ease-out motion-reduce:transition-none`}
-                style={{ width: on ? `${Math.max(1.5, (r.v / max) * 78)}%` : "0%", transitionDelay: `${i * 0.12}s` }} />
+                style={{ width: on ? `${Math.max(1.5, (data.log ? Math.log10(Math.max(r.v, 1)) / Math.log10(max) : r.v / max) * 78)}%` : "0%", transitionDelay: `${i * 0.12}s` }} />
               <span className="shrink-0 text-[12.5px] font-semibold tabular-nums text-[#16181D] dark:text-neutral-100">{tagVal(r.v, zh, data.unit)}</span>
             </span>
           </div>
