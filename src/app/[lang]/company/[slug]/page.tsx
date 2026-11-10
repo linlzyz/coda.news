@@ -1,7 +1,7 @@
 import { regionName } from "@/lib/ui";
 import { notFound, permanentRedirect } from "next/navigation";
 import Link from "@/components/LLink";
-import { allTopics, companyDirectory, companyRedirect, companyMap, getCompany, listEvents, notable, type CompanyCard } from "@/lib/data";
+import { COMPANY_INDEX_MIN_EVENTS, allTopics, companyDirectory, companyRedirect, companyMap, getCompany, listEvents, notable, type CompanyCard } from "@/lib/data";
 import { alternates, langFrom } from "@/lib/i18n";
 import { summary, timeAgoL, title } from "@/lib/loc";
 import { Cover } from "@/components/Cover";
@@ -34,9 +34,10 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/company/[s
   // thin pages (no profile, no coverage, or not a company at all) stay reachable but out of search engines
   const [dir] = await Promise.all([companyDirectory()]);
   const me = dir.find((x) => x.id === Number(c.id));
-  const thin = !me || !notable(me) || (!st && !c.about_en && me.events === 0);
+  // indexed only with a written profile and real coverage (Google spam update, Oct 2026)
+  const thin = !me || !notable(me) || !st || me.events < COMPANY_INDEX_MIN_EVENTS;
   const robots = thin ? { index: false, follow: true } : undefined;
-  const title = zh ? (st ? `${name}：简介、历史与最新新闻` : `${name}新闻`) : (st ? `${c.name}: profile, history and latest news` : `${c.name} news`);
+  const title = zh ? (st ? `${name}：简介、历史与最新新闻` : `${name}新闻：各国媒体怎么报道`) : (st ? `${c.name}: profile, history and latest news` : `${c.name} news: how each country reports it`);
   return { title, description: description.replace(/\s+/g, " ").slice(0, 300), robots, alternates: alternates(`/company/${c.slug}`, zh ? "zh" : "en"),
     openGraph: st?.cover ? { images: [st.cover.url] } : c.logo_url ? { images: [c.logo_url] } : undefined };
 }

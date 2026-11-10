@@ -2,7 +2,7 @@ import { orgLd } from "@/lib/site";
 import type { Metadata } from "next";
 import Link from "@/components/LLink";
 import { notFound } from "next/navigation";
-import { INDEX_MIN_COUNTRIES, reportError, eventCorrections, companiesByIds, getArticles, getEvent, getFacts, getLatestSummary, getPerspectives, listEvents } from "@/lib/data";
+import { INDEX_MIN_COUNTRIES, hasDiffer, reportError, eventCorrections, companiesByIds, getArticles, getEvent, getFacts, getLatestSummary, getPerspectives, listEvents } from "@/lib/data";
 import { alternates, langFrom, t } from "@/lib/i18n";
 import { countryL, persp as perspL, summary, timeAgoL, title } from "@/lib/loc";
 import { fmtDate, TONE } from "@/lib/ui";
@@ -23,10 +23,16 @@ export const dynamicParams = true;
 export async function generateMetadata({ params }: PageProps<"/[lang]/event/[slug]">): Promise<Metadata> {
   const [e, l] = await Promise.all([getEvent((await params).slug), langFrom(params)]);
   if (!e) return {};
-  const ti = (l === "zh" && e.title_zh) || e.title, de = (l === "zh" && e.summary_zh) || e.summary || undefined;
-  return { title: ti, description: de, alternates: alternates(`/event/${e.slug}`, l),
-    // one-source briefs stay out of search until a second source confirms the story
-    ...((e.countries?.length ?? 0) < INDEX_MIN_COUNTRIES || e.status === "archived" ? { robots: { index: false, follow: true } } : {}),
+  const latest = await getLatestSummary(e.id);
+  const nc = e.countries?.length ?? 0, zh = l === "zh";
+  const ti = (zh && e.title_zh) || e.title;
+  // search snippet: the summary, plus what the page adds when the summary alone is short (SEO audit, 10 Nov 2026)
+  let de = ((zh && e.summary_zh) || e.summary || "").replace(/\s+/g, " ").trim();
+  if (nc >= 2 && de.length < (zh ? 70 : 130)) de += zh ? ` ${nc} 个国家的媒体报道对比：共同点与不同点。` : ` How media in ${nc} countries reported it: what they share and where they differ.`;
+  if (de.length > (zh ? 120 : 300)) de = de.slice(0, zh ? 119 : 297).replace(/[\s,，。.;；]+\S*$/, "") + "…";
+  return { title: ti, description: de || undefined, alternates: alternates(`/event/${e.slug}`, l),
+    // only real comparisons are indexed: 3+ countries and a "where the coverage differs" analysis (Google spam update, Oct 2026)
+    ...(nc < INDEX_MIN_COUNTRIES || !hasDiffer(latest) || e.status === "archived" ? { robots: { index: false, follow: true } } : {}),
     openGraph: { title: ti, description: de, locale: l === "zh" ? "zh_CN" : "en_AU", type: "article", publishedTime: e.started_at, modifiedTime: e.last_article_at, section: e.category, images: [{ url: shareImages(e)[0], alt: ti }] },
     twitter: { card: "summary_large_image", title: ti, description: de, images: [shareImages(e)[0]] } };
 }

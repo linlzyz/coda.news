@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { listProfiles } from "@/lib/anatomy-db";
-import { INDEX_MIN_COUNTRIES, archiveDays, companyDirectory, notable, sitemapRows } from "@/lib/data";
+import { COMPANY_INDEX_MIN_EVENTS, INDEX_MIN_COUNTRIES, archiveDays, companyDirectory, differences, notable, sitemapRows } from "@/lib/data";
 
 const BASE = "https://coda.news";
 export const revalidate = 3600;
@@ -8,9 +8,14 @@ export const revalidate = 3600;
 const RECENT = 30 * 86400_000;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [{ events, topics }, days, dir, profiles] = await Promise.all([sitemapRows(), archiveDays(30), companyDirectory(), listProfiles()]);
-  // only company pages with something to read: a profile (description from Wikidata) or our coverage
-  const companies = dir.filter((c) => notable(c) && (c.events > 0 || !!c.description));
+  const [{ events: all, topics, profiled }, days, dir, profiles] = await Promise.all([sitemapRows(), archiveDays(30), companyDirectory(), listProfiles()]);
+  // same rules as the pages' robots tags: recent multi-country stories with a "where coverage differs" analysis,
+  // and company pages with a written profile and real coverage (Google spam update, Oct 2026)
+  const recent = all.filter((e) => (e.countries?.length ?? 0) >= INDEX_MIN_COUNTRIES && Date.parse(e.last_article_at) > Date.now() - RECENT);
+  const withDiffer = new Set((await differences(recent.map((e) => e.id))).filter((d) => d.differ?.length).map((d) => d.event_id));
+  const events = recent.filter((e) => withDiffer.has(e.id));
+  const story = new Set(profiled);
+  const companies = dir.filter((c) => notable(c) && story.has(c.id) && c.events >= COMPANY_INDEX_MIN_EVENTS);
   const both = (path: string) => ({ languages: { en: `${BASE}${path}`, "zh-CN": `${BASE}/zh${path === "/" ? "" : path}` } });
   const zh = (entries: MetadataRoute.Sitemap) => entries.map((x) => ({ ...x, url: x.url.replace(BASE, `${BASE}/zh`).replace(/\/zh\/$/, "/zh") }));
   const en: MetadataRoute.Sitemap = [
@@ -26,7 +31,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/corrections`, changeFrequency: "daily" as const, priority: 0.3 },
     { url: `${BASE}/archive`, changeFrequency: "daily" as const, priority: 0.4 },
     ...days.map(([d]) => ({ url: `${BASE}/archive/${d}`, changeFrequency: "daily" as const, priority: 0.4 })),
-    ...events.filter((e) => (e.countries?.length ?? 0) >= INDEX_MIN_COUNTRIES && Date.parse(e.last_article_at) > Date.now() - RECENT).map((e) => ({ url: `${BASE}/event/${e.slug}`, lastModified: e.last_article_at, changeFrequency: "daily" as const, priority: 0.7, images: e.image_url ? [e.image_url.replace(/&/g, "&amp;")] : undefined })),
+    ...events.map((e) => ({ url: `${BASE}/event/${e.slug}`, lastModified: e.last_article_at, changeFrequency: "daily" as const, priority: 0.7, images: e.image_url ? [e.image_url.replace(/&/g, "&amp;")] : undefined })),
     ...topics.map((t) => ({ url: `${BASE}/topic/${t.slug}`, changeFrequency: "daily" as const, priority: 0.6 })),
     ...companies.map((c) => ({ url: `${BASE}/company/${c.slug}`, changeFrequency: "daily" as const, priority: 0.4 })),
   ].map((x) => ({ ...x, alternates: both(x.url.replace(BASE, "") || "/") }));

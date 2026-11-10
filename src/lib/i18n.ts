@@ -59,6 +59,14 @@ const D = {
 } as const;
 
 export type Key = keyof typeof D;
+/** Section pages: a descriptive title and a unique description for search results (SEO audit, 10 Nov 2026). */
+const SECTION_INTRO: Record<string, Key> = { technology: "techIntro", economy: "econIntro", sport: "sportIntro", entertainment: "entIntro", fashion: "fashionIntro", travel: "travelIntro", automotive: "automotiveIntro", gaming: "gamingIntro", china: "cnIntro", australia: "auIntro" };
+export function sectionMeta(l: Lang, key: Key) {
+  const name = t(l, key), intro = SECTION_INTRO[key] ? t(l, SECTION_INTRO[key]) : "";
+  const title = key === "travel" ? name : l === "zh" ? `${name}新闻：各国媒体怎么报道` : `${name} news: how each country reports it`;
+  const description = l === "zh" ? `${intro}coda.news 把同一件事的多国报道放在一起，看各国媒体的共同点和不同点。` : `${intro} coda.news puts each country's coverage of the same story side by side: what every report shares and where they differ.`;
+  return { title, description, alternates: alternates(`/${key}`, l) };
+}
 export function t(lang: Lang, key: Key, vars: Record<string, string | number> = {}) {
   let s: string = D[key][lang === "zh" ? 1 : 0];
   for (const [k, v] of Object.entries(vars)) s = s.replace(`{${k}}`, String(v));
