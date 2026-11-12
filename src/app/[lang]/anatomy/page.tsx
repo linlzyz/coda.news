@@ -37,7 +37,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#08090B] via-[#08090B]/75 to-transparent" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#08090B]/90 via-transparent to-transparent" />
         <div className="flex min-h-[420px] flex-col justify-end p-6 sm:min-h-[480px] sm:p-10">
-          <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#FF8A50]">{String(lead.no).padStart(2, "0")} · {zh ? "最新" : "Latest"}</span>
+          <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#FF8A50]">{String(lead.no).padStart(2, "0")} · {zh ? "最新" : "Latest"} · {pubDate(lead.published, zh)}</span>
           <span className="mt-2 block max-w-[560px] text-[36px] font-semibold leading-[1.05] tracking-[-0.03em] sm:text-[56px]">{pick(lead.title, zh)}</span>
           <span className="mt-3 block max-w-[520px] text-[16px] leading-snug text-white/80 sm:text-[18px]">{pick(lead.dek, zh)}</span>
           <span className="mt-6 flex flex-wrap items-end gap-x-8 gap-y-3">
@@ -58,7 +58,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={photoUrl(p.cover.file, 900)} alt={pick(p.cover.alt, zh)} loading="lazy" className="block aspect-[16/9] w-full object-cover" />
                 <span className="block p-4">
-                  <span className="text-[12px] font-semibold uppercase tracking-[0.1em] text-[#C2410C]">{String(p.no).padStart(2, "0")}</span>
+                  <span className="text-[12px] font-semibold uppercase tracking-[0.1em] text-[#C2410C]">{String(p.no).padStart(2, "0")} · {pubDate(p.published, zh)}</span>
                   <span className="mt-1 block text-[22px] font-semibold tracking-[-0.02em] text-[#16181D] group-hover:text-[#C2410C]">{pick(p.title, zh)}</span>
                   <span className="mt-1 block text-[14px] text-neutral-600">{pick(p.dek, zh)}</span>
                 </span>
@@ -78,4 +78,9 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
       </div>
     </div>
   );
+}
+
+/** Issue date on the index (Lyn, 13 Nov 2026: readers should see when each issue came out). */
+function pubDate(d: string, zh: boolean) {
+  return new Date(`${d}T12:00:00Z`).toLocaleDateString(zh ? "zh-CN" : "en-AU", { day: "numeric", month: zh ? "long" : "short", year: "numeric" });
 }

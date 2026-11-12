@@ -104,7 +104,9 @@ export async function AnatomyArticle({ pr, l }: { pr: Profile; l: Lang }) {
     isPartOf: { "@type": "CreativeWorkSeries", name: zh ? "Coda 剖面" : "Coda Anatomy", url: `${SITE.url}${zh ? "/zh" : ""}/anatomy` },
     citation: sources.map((s) => s.url),
   };
-  const date = new Date(pr.updated).toLocaleDateString(zh ? "zh-CN" : "en-AU", { day: "numeric", month: "long", year: "numeric" });
+  const fmt = (d: string) => new Date(`${d}T12:00:00Z`).toLocaleDateString(zh ? "zh-CN" : "en-AU", { day: "numeric", month: "long", year: "numeric" });
+  // publication date first; the update date only when the issue changed later
+  const date = (zh ? "发布于 " : "Published ") + fmt(pr.published) + (pr.updated && pr.updated !== pr.published ? (zh ? ` · 更新于 ${fmt(pr.updated)}` : ` · Updated ${fmt(pr.updated)}`) : "");
   return (
     <article>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ ...ld, image: `${SITE.url}${photoUrl(pr.cover.file, 1600)}`, keywords: pr.keywords.join(", "), description: pick(pr.seoDesc, zh) }) }} />
