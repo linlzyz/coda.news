@@ -127,7 +127,7 @@ export async function AnatomyArticle({ pr, l }: { pr: Profile; l: Lang }) {
           </Link>
           <h1 className="mt-3 max-w-[720px] text-[36px] font-semibold leading-[1.05] tracking-[-0.035em] text-white [word-break:keep-all] sm:text-[72px] sm:leading-[1.02]">{pick(pr.title, zh)}</h1>
           <p className="mt-4 max-w-[600px] text-[18px] leading-snug text-white/80 sm:text-[21px]">{pick(pr.dek, zh)}</p>
-          <p className="mt-5 text-[12.5px] text-white/60">{date} · {zh ? "AI 辅助整理，人工核对" : "AI-assisted, checked by an editor"}</p>
+          <p className="mt-5 text-[12.5px] text-white/60">{date}</p>
           <p className="mt-6 max-w-[560px] text-[11.5px] leading-snug text-white/50">{pick(pr.cover.caption, zh)} <Credit p={pr.cover} zh={zh} light /></p>
         </div>
       </header>
