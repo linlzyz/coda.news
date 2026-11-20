@@ -368,6 +368,18 @@ async function _companyDirectory() {
 }
 export const companyDirectory = unstable_cache(_companyDirectory, ["companyDirectory2"], { revalidate: 3600 });
 
+// One company page needs only its own story count, similar companies, its parent and what it owns. The full directory
+// (25k rows, about 9 MB) is over the 2 MB data-cache limit, so loading it on every company page re-read the whole table
+// and company_stats on each render (Vercel CPU and memory, Supabase timeouts). company_context returns about 2 KB.
+export type CompanyLink = { id: number; name: string; name_zh: string | null; slug: string };
+export type CompanyContext = { events: number; parent: CompanyLink | null; owned: CompanyLink[];
+  similar: (CompanyLink & { sector: string | null; country: string | null; logo_url: string | null; events: number })[] };
+async function _companyContext(id: number) {
+  const { data } = must(await supabase.rpc("company_context", { p_id: id }));
+  return data as CompanyContext;
+}
+export const companyContext = unstable_cache(_companyContext, ["companyContext"], { revalidate: 86400 });
+
 /** Directory shows notable companies only: known to Wikidata, or covered in at least 3 events. */
 /** Leagues, regulators, central banks and the like are in the news but are not companies: never listed. */
 export const notable = (c: { wikidata_id: string | null; events: number; kind?: string }) => (c.kind ?? "company") === "company" && (!!c.wikidata_id || c.events >= 3);

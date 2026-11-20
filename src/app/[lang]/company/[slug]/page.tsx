@@ -1,7 +1,7 @@
 import { regionName } from "@/lib/ui";
 import { notFound, permanentRedirect } from "next/navigation";
 import Link from "@/components/LLink";
-import { COMPANY_INDEX_MIN_EVENTS, allTopics, companyDirectory, companyRedirect, companyMap, getCompany, listEvents, notable, type CompanyCard } from "@/lib/data";
+import { COMPANY_INDEX_MIN_EVENTS, allTopics, companyContext, companyRedirect, companyMap, getCompany, listEvents, notable, type CompanyContext } from "@/lib/data";
 import { alternates, langFrom } from "@/lib/i18n";
 import { summary, timeAgoL, title } from "@/lib/loc";
 import { Cover } from "@/components/Cover";
@@ -32,10 +32,9 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/company/[s
     ? `${name}：${st?.tagline_zh ?? c.description_zh ?? ""}。${c.founded ? `${c.founded} 年成立，` : ""}${c.hq_zh ?? c.hq ? `总部位于${c.hq_zh ?? c.hq}。` : ""}公司简介、发展历程、关键人物，以及各国媒体的最新报道。`
     : `${c.name}: ${st?.tagline ?? c.description ?? "company profile"}.${c.founded ? ` Founded ${c.founded}` : ""}${c.hq ? `, headquartered in ${c.hq}` : ""}. History, key people and the latest news as reported in each country.`;
   // thin pages (no profile, no coverage, or not a company at all) stay reachable but out of search engines
-  const [dir] = await Promise.all([companyDirectory()]);
-  const me = dir.find((x) => x.id === Number(c.id));
+  const ctx = await companyContext(Number(c.id));
   // indexed only with a written profile and real coverage (Google spam update, Oct 2026)
-  const thin = !me || !notable(me) || !st || me.events < COMPANY_INDEX_MIN_EVENTS;
+  const thin = !notable({ kind: c.kind ?? undefined, wikidata_id: c.wikidata_id, events: ctx.events }) || !st || ctx.events < COMPANY_INDEX_MIN_EVENTS;
   const robots = thin ? { index: false, follow: true } : undefined;
   const title = zh ? (st ? `${name}：简介、历史与最新新闻` : `${name}新闻：各国媒体怎么报道`) : (st ? `${c.name}: profile, history and latest news` : `${c.name} news: how each country reports it`);
   return { title, description: description.replace(/\s+/g, " ").slice(0, 300), robots, alternates: alternates(`/company/${c.slug}`, zh ? "zh" : "en"),
@@ -51,6 +50,8 @@ const EXCH: Record<string, string> = {
 const ticker = (t: string | null) => { if (!t) return null; const [ex, sym] = t.split(": "); return sym ? `${EXCH[ex] ?? ex}: ${sym}` : t; };
 const host = (u: string) => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return u; } };
 
+type Sim = CompanyContext["similar"][number];
+
 const SOCIAL: [keyof Social, string, (h: string) => string, string][] = [
   ["instagram", "Instagram", (h) => `https://www.instagram.com/${h}/`, "M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4zM12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM17.5 6.5h.01"],
   ["x_handle", "X", (h) => `https://x.com/${h}`, "M4 4l16 16M20 4 4 20"],
@@ -65,7 +66,7 @@ export default async function Page({ params }: PageProps<"/[lang]/company/[slug]
   const c = await getCompany(p.slug);
   if (!c) { const to = await companyRedirect(p.slug); if (to) permanentRedirect(`${p.lang === "zh" ? "/zh" : ""}/company/${to}`); notFound(); }
   const l = await langFrom(params); const zh = l === "zh";
-  const [events, dir, topics] = await Promise.all([listEvents({ companyId: c.id, order: "recent", limit: 40 }), companyDirectory(), allTopics()]);
+  const [events, ctx, topics] = await Promise.all([listEvents({ companyId: c.id, order: "recent", limit: 40 }), companyContext(Number(c.id)), allTopics()]);
   const companies = await companyMap(events);
   const tm = new Map(topics.map((x) => [x.id, x]));
   const cname = (x: string) => regionName(x, zh);
@@ -77,15 +78,11 @@ export default async function Page({ params }: PageProps<"/[lang]/company/[slug]
   const industry = zh ? c.industry_zh ?? c.industry : c.industry && c.industry[0].toUpperCase() + c.industry.slice(1);
   const countries = new Set(events.flatMap((e) => e.countries));
 
-  // similar: same sector, same country first, then most covered
-  const similar = !c.sector || c.sector === "other" ? [] : dir.filter((x) => x.id !== c.id && x.sector === c.sector && notable(x))
-    .sort((a, b) => Number(b.country === c.country) - Number(a.country === c.country) || b.events - a.events).slice(0, 8);
-  const simName = (x: CompanyCard) => (zh && x.name_zh) || x.name;
-
-  // ownership: link the parent if we have it, and list what this company owns (brands whose parent is this company)
-  const low = (x?: string | null) => (x ?? "").toLowerCase().replace(/\b(se|sa|inc|group|holding|holdings)\b|[^a-z0-9]/g, "");
-  const parentCo = c.parent ? dir.find((x) => x.id !== c.id && low(x.name) === low(c.parent)) : undefined;
-  const owned = dir.filter((x) => x.id !== c.id && x.parent && low(x.parent) === low(c.name) && x.kind !== "org");
+  // similar (same sector, same country first, then most covered), parent and owned brands come from company_context
+  const similar = ctx.similar;
+  const simName = (x: Sim) => (zh && x.name_zh) || x.name;
+  const parentCo = ctx.parent ?? undefined;
+  const owned = ctx.owned;
   const rows: [string, React.ReactNode][] = ([
     [zh ? "国家/地区" : "Country/region", c.country ? <span className="inline-flex items-center gap-2"><Flag code={c.country} size={12} />{cname(c.country)}</span> : null],
     [zh ? "成立" : "Founded", c.founded ? String(c.founded) : null],
@@ -120,7 +117,7 @@ export default async function Page({ params }: PageProps<"/[lang]/company/[slug]
       </div>
     </Link>
   ));
-  const simRow = (x: CompanyCard) => (
+  const simRow = (x: Sim) => (
     <Link key={x.id} href={`/company/${x.slug}`} className="flex items-center gap-3 rounded-xl border border-[#E5E7EB] bg-white p-2.5 hover:border-[#F0A57F]">
       <CompanyLogo name={x.name} url={x.logo_url} size={44} className="shrink-0 rounded-lg" />
       <div className="min-w-0 flex-1"><div className="truncate text-[14px] font-semibold">{simName(x)}</div><div className="truncate text-[12px] text-neutral-500">{x.country ? cname(x.country) : sectorLabel(x.sector, zh)}</div></div>
